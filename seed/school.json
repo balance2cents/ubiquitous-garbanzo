@@ -1,0 +1,20 @@
+{
+  "courses": [
+    {"id":"fim01","code":"W.IBA_APFIM01.H26","name":"Financial Accounting","color":"#5B8DEF"},
+    {"id":"law01","code":"W.IBA_APLAW01.H26","name":"International Business Law","color":"#9B7BE0"},
+    {"id":"mat11","code":"W.IBA_APMAT11.H26","name":"Applied Business Mathematics","color":"#E8875A"},
+    {"id":"mat12","code":"W.IBA_APMAT12.H26","name":"Data Analysis I","color":"#E06C98"},
+    {"id":"mgt01","code":"W.IBA_APMGT01.H26","name":"Organizations + Strategy","color":"#34B3A5"},
+    {"id":"pcm01","code":"W.IBA_APPCM01.H26","name":"Communication Fundamentals","color":"#C9A93A"},
+    {"id":"daf","code":"W.SZ_DAF_B1_2.H2601","name":"German B1.2 (Advanced)","color":"#6FB35A"}
+  ],
+  "weeks": {},
+  "deadlines": [
+    {"id":"fa-spa1","course":"fim01","name":"SPA 1","date":"2026-10-11","type":"SPA","done":false},
+    {"id":"os-coll","course":"mgt01","name":"Colloquium: Organizational Analysis","date":"2026-10-21","type":"Presentation","done":false},
+    {"id":"fa-spa2","course":"fim01","name":"SPA 2","date":"2026-10-25","type":"SPA","done":false},
+    {"id":"fa-spa3","course":"fim01","name":"SPA 3","date":"2026-11-16","type":"SPA","done":false},
+    {"id":"fa-spa4","course":"fim01","name":"SPA 4","date":"2026-12-04","type":"SPA","done":false},
+    {"id":"law-test","course":"law01","name":"Assessment Test (multiple choice)","date":"2026-12-17","type":"Test","done":false}
+  ]
+}

@@ -1,0 +1,25 @@
+{
+ "milestones": [
+  {
+   "id": "a2",
+   "label": "A2",
+   "note": "Finish A2 material solidly",
+   "target": "2026-12-20",
+   "done": false
+  },
+  {
+   "id": "b11",
+   "label": "B1.1",
+   "note": "Handle everyday conversations",
+   "target": "2027-03-07",
+   "done": false
+  },
+  {
+   "id": "b12",
+   "label": "B1.2",
+   "note": "Your May goal",
+   "target": "2027-05-31",
+   "done": false
+  }
+ ]
+}

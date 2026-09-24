@@ -1,0 +1,798 @@
+<title>Four Lanes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Figtree:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{
+  --bg:#F2F4F7; --surface:#FFFFFF; --surface-2:#EBEEF2; --line:#D9DEE5;
+  --text:#141920; --muted:#586272; --faint:#8a94a3;
+  --school:#2E6BE6; --work:#C9720F; --german:#0B9483; --book:#7446CC;
+  --ok:#1E8E5A; --warn:#B7790A; --bad:#C62D2D;
+  --board-bg:#0E1A2E; --board-line:#23324B; --board-text:#F1F4F9; --board-dim:#8FA0BC; --board-hot:#FFCF3F;
+  --focus:#2E6BE6;
+  --display:"Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body:"Figtree", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0E1115; --surface:#161A20; --surface-2:#1E232B; --line:#2A313B;
+    --text:#E7EBF0; --muted:#9BA5B3; --faint:#6B7585;
+    --school:#6B9BFF; --work:#F0A445; --german:#2FC6B1; --book:#A884F5;
+    --ok:#3CC47F; --warn:#E3AA2E; --bad:#F06262;
+    --board-bg:#0A1322; --board-line:#1F2C42;
+    --focus:#6B9BFF;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0E1115; --surface:#161A20; --surface-2:#1E232B; --line:#2A313B;
+  --text:#E7EBF0; --muted:#9BA5B3; --faint:#6B7585;
+  --school:#6B9BFF; --work:#F0A445; --german:#2FC6B1; --book:#A884F5;
+  --ok:#3CC47F; --warn:#E3AA2E; --bad:#F06262;
+  --board-bg:#0A1322; --board-line:#1F2C42;
+  --focus:#6B9BFF;
+}
+*{box-sizing:border-box}
+body{background:var(--bg); color:var(--text); font:15px/1.5 var(--body); padding-inline:16px; padding-block:0 48px}
+.app{max-width:1180px; margin:0 auto}
+h1,h2,h3{font-family:var(--display); text-wrap:balance; margin:0; letter-spacing:-.01em}
+h2{font-size:1.15rem}
+h3{font-size:1rem}
+button,input,select,textarea{font:inherit; color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+.num,.mono{font-family:var(--mono); font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+.eyebrow{font-size:.72rem; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); font-weight:600}
+
+/* header */
+.top{display:flex; align-items:center; justify-content:space-between; gap:16px; padding-block:22px 14px; flex-wrap:wrap}
+.brand{display:flex; align-items:center; gap:12px}
+.mark{width:34px; height:34px; border-radius:8px; background:var(--board-bg); display:grid; grid-template-columns:1fr 1fr; gap:3px; padding:6px}
+.mark i{border-radius:2px}
+.brand h1{font-size:1.5rem; line-height:1.1}
+.sub{margin:2px 0 0; color:var(--muted); font-size:.85rem}
+.sync{display:inline-flex; align-items:center; gap:6px; font-size:.78rem; color:var(--muted); background:var(--surface); border:1px solid var(--line); padding:4px 10px; border-radius:99px}
+.sync::before{content:""; width:7px; height:7px; border-radius:50%; background:var(--faint)}
+.sync[data-s="synced"]::before{background:var(--ok)}
+.sync[data-s="saving"]::before{background:var(--warn)}
+.sync[data-s="error"]::before{background:var(--bad)}
+
+/* tabs */
+.tabs{display:flex; gap:4px; overflow-x:auto; border-bottom:1px solid var(--line); margin-bottom:22px; scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{background:none; border:0; padding:8px 14px 10px; border-bottom:2px solid transparent; display:flex; flex-direction:column; align-items:flex-start; flex:none; color:var(--muted)}
+.tab b{font-weight:600; font-size:.95rem}
+.tab small{font-size:.72rem; color:var(--faint); font-style:italic}
+.tab[aria-selected="true"]{color:var(--text); border-bottom-color:var(--text)}
+
+/* layout */
+.grid{display:grid; gap:18px}
+.g-today{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)}
+.g-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media (max-width:900px){.g-today,.g-3{grid-template-columns:minmax(0,1fr)} .g-4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.g-2{grid-template-columns:minmax(0,1fr)}}
+.stack{display:flex; flex-direction:column; gap:18px}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:18px; min-width:0}
+.card-h{display:flex; align-items:baseline; justify-content:space-between; gap:12px; margin-bottom:12px; flex-wrap:wrap}
+.lane-top{border-top:3px solid var(--c)}
+.dot{width:9px; height:9px; border-radius:50%; background:var(--c); flex:none; display:inline-block}
+.row{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.spacer{flex:1}
+.hint{font-size:.85rem; color:var(--muted); margin:0}
+
+/* controls */
+.btn{border:1px solid var(--line); background:var(--surface-2); border-radius:8px; padding:7px 12px; font-weight:500; font-size:.88rem}
+.btn:hover{border-color:var(--faint)}
+.btn.primary{background:var(--text); color:var(--bg); border-color:var(--text)}
+.mini{border:1px solid var(--line); background:transparent; border-radius:6px; padding:2px 8px; font-size:.76rem; color:var(--muted); flex:none}
+.mini:hover{color:var(--text); border-color:var(--faint)}
+.mini.on{background:var(--text); color:var(--bg); border-color:var(--text)}
+.mini.del{border-color:transparent; font-size:.95rem; padding:0 6px}
+.mini.del.armed{color:var(--bad); border-color:var(--bad); font-size:.76rem; padding:2px 8px}
+.field{background:var(--surface-2); border:1px solid var(--line); border-radius:8px; padding:8px 10px; min-width:0; width:100%}
+.field:focus{border-color:var(--focus); outline:none}
+select.field{width:auto}
+textarea.field{resize:vertical; min-height:64px; line-height:1.45}
+.add{display:flex; gap:8px; margin-top:10px}
+.add .field{flex:1}
+.add select.field{flex:0 0 auto}
+label.lbl{display:flex; flex-direction:column; gap:4px; font-size:.78rem; color:var(--muted); font-weight:500}
+.seg{display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden}
+.seg button{border:0; background:transparent; padding:5px 10px; font-size:.8rem; color:var(--muted)}
+.seg button+button{border-left:1px solid var(--line)}
+.seg button.on{background:var(--c,var(--text)); color:#fff}
+.step{display:inline-flex; align-items:center; border:1px solid var(--line); border-radius:8px}
+.step button{border:0; background:none; width:30px; height:30px; font-size:1rem; color:var(--muted)}
+.step span{min-width:44px; text-align:center}
+
+/* tasks */
+.tasks{list-style:none; margin:0; padding:0; display:flex; flex-direction:column}
+.task{display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--line)}
+.task:last-child{border-bottom:0}
+.t-text{flex:1; min-width:0; overflow-wrap:anywhere}
+.is-done .t-text{text-decoration:line-through; color:var(--faint)}
+.chk{width:20px; height:20px; border-radius:6px; border:1.5px solid var(--faint); background:transparent; flex:none; position:relative; padding:0}
+.chk.on{background:var(--c,var(--text)); border-color:var(--c,var(--text))}
+.chk.on::after{content:""; position:absolute; left:6px; top:2px; width:5px; height:10px; border:solid var(--surface); border-width:0 2px 2px 0; transform:rotate(45deg)}
+.empty{color:var(--faint); font-size:.88rem; padding:6px 0}
+
+/* departure board */
+.board{background:var(--board-bg); color:var(--board-text); border-radius:var(--r); padding:16px 18px; font-family:var(--mono)}
+.board-h{display:flex; justify-content:space-between; align-items:baseline; border-bottom:1px solid var(--board-line); padding-bottom:10px; margin-bottom:4px; gap:8px}
+.board-h b{font-family:var(--display); font-size:1.05rem; letter-spacing:0}
+.board-h span{color:var(--board-dim); font-size:.72rem; text-transform:uppercase; letter-spacing:.1em}
+.dep{display:grid; grid-template-columns:5.2em minmax(0,1fr) auto; gap:12px; align-items:baseline; padding:8px 0; border-bottom:1px dashed var(--board-line); font-size:.86rem}
+.dep:last-child{border-bottom:0}
+.dep .in{color:var(--board-hot); font-weight:700}
+.dep .in.late{color:#FF7A7A}
+.dep .what{overflow-wrap:anywhere}
+.dep .what small{display:block; color:var(--board-dim); font-size:.74rem}
+.dep .gleis{font-size:.7rem; padding:2px 6px; border-radius:4px; border:1px solid var(--c); color:var(--board-text); white-space:nowrap}
+
+/* meters */
+.bar{height:8px; background:var(--surface-2); border-radius:99px; overflow:hidden; position:relative}
+.bar i{display:block; height:100%; background:var(--c,var(--text)); border-radius:99px}
+.stackbar{display:flex; height:14px; border-radius:99px; overflow:hidden; background:var(--surface-2)}
+.stackbar i{height:100%; background:var(--c)}
+.pill{font-size:.72rem; font-weight:600; padding:2px 8px; border-radius:99px; background:var(--surface-2); color:var(--muted); white-space:nowrap}
+.pill.bad{background:color-mix(in srgb,var(--bad) 16%,transparent); color:var(--bad)}
+.pill.warn{background:color-mix(in srgb,var(--warn) 18%,transparent); color:var(--warn)}
+.pill.ok{background:color-mix(in srgb,var(--ok) 16%,transparent); color:var(--ok)}
+.over{color:var(--bad); font-weight:600}
+
+/* log rows */
+.logrow{display:grid; grid-template-columns:minmax(0,1fr) auto; gap:6px 12px; align-items:center; padding:10px 0; border-bottom:1px solid var(--line)}
+.logrow:last-child{border-bottom:0}
+.logrow .meta{grid-column:1 / -1; display:flex; align-items:center; gap:10px; font-size:.8rem; color:var(--muted)}
+.logrow .meta .bar{flex:1}
+.stat{display:flex; flex-direction:column; gap:2px}
+.stat b{font-family:var(--mono); font-size:1.5rem; font-weight:700; font-variant-numeric:tabular-nums; line-height:1.15}
+.stat span{font-size:.78rem; color:var(--muted)}
+
+/* why quote */
+.why-q{border-left:3px solid var(--c); padding:2px 0 2px 14px}
+.why-q p{margin:4px 0 0; font-family:var(--display); font-size:1.08rem; line-height:1.35}
+
+/* school */
+.chips{display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px}
+.chip{border:1px solid var(--line); background:var(--surface); border-radius:99px; padding:5px 12px; font-size:.8rem; font-family:var(--mono)}
+.chip b{font-weight:700; margin-right:4px}
+.chip.on{background:var(--text); color:var(--bg); border-color:var(--text)}
+.chip.now{box-shadow:inset 0 0 0 2px var(--school)}
+.course .code{font-family:var(--mono); font-size:.72rem; color:var(--muted)}
+.checks{display:flex; gap:6px; flex-wrap:wrap; margin:10px 0 4px}
+.checks button{display:flex; align-items:center; gap:7px; border:1px solid var(--line); background:transparent; border-radius:8px; padding:5px 10px; font-size:.84rem}
+.checks button .chk{width:16px; height:16px; pointer-events:none}
+.checks button .chk.on::after{left:4px; top:1px; width:4px; height:8px}
+.dl{display:grid; grid-template-columns:auto minmax(0,1fr) auto auto; gap:10px; align-items:center; padding:9px 0; border-bottom:1px solid var(--line)}
+.dl:last-child{border-bottom:0}
+.dl .date{font-family:var(--mono); font-size:.8rem; color:var(--muted); min-width:4.6em}
+.dl.is-done .t-text{text-decoration:line-through; color:var(--faint)}
+.form-row{display:grid; grid-template-columns:1.2fr 1.6fr 1fr 1fr auto; gap:8px; margin-top:12px}
+@media (max-width:760px){.form-row{grid-template-columns:1fr 1fr}}
+
+/* work */
+.proj{display:flex; flex-direction:column; gap:10px}
+.proj .row .field{width:auto; flex:1}
+
+/* german */
+.ladder{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px}
+.rung{border:1px solid var(--line); border-radius:8px; padding:12px; display:flex; flex-direction:column; gap:8px}
+.rung.done{border-color:var(--german); background:color-mix(in srgb,var(--german) 9%,transparent)}
+.rung h3{font-family:var(--mono); font-size:1.1rem}
+.heat{display:grid; grid-auto-flow:column; grid-template-rows:repeat(7,14px); gap:3px; overflow-x:auto; padding-bottom:2px}
+.heat i{width:14px; height:14px; border-radius:3px; background:var(--surface-2)}
+.heat i[data-l="1"]{background:color-mix(in srgb,var(--german) 30%,var(--surface-2))}
+.heat i[data-l="2"]{background:color-mix(in srgb,var(--german) 55%,var(--surface-2))}
+.heat i[data-l="3"]{background:color-mix(in srgb,var(--german) 80%,var(--surface-2))}
+.heat i[data-l="4"]{background:var(--german)}
+.heat i.today{outline:1.5px solid var(--text); outline-offset:1px}
+
+/* book */
+.chart{width:100%; height:auto; display:block}
+.chart text{fill:var(--muted); font-family:var(--mono); font-size:10px}
+.chaps{display:grid; grid-template-columns:repeat(auto-fill,minmax(64px,1fr)); gap:6px}
+.chap{border:1px solid var(--line); border-radius:6px; padding:6px 4px; font-family:var(--mono); font-size:.76rem; text-align:center; background:transparent; display:flex; flex-direction:column; gap:1px}
+.chap small{font-size:.62rem; color:var(--muted); font-family:var(--body)}
+.chap[data-s="drafting"]{border-color:var(--book); border-style:dashed}
+.chap[data-s="drafted"]{background:color-mix(in srgb,var(--book) 22%,transparent); border-color:var(--book)}
+.chap[data-s="revised"]{background:var(--book); color:#fff; border-color:var(--book)}
+.chap[data-s="revised"] small{color:#fff}
+
+/* review */
+.reasons{display:flex; flex-wrap:wrap; gap:6px}
+.reasons button{border:1px solid var(--line); background:transparent; border-radius:99px; padding:5px 12px; font-size:.82rem}
+.reasons button.on{background:var(--text); color:var(--bg); border-color:var(--text)}
+table.sum{width:100%; border-collapse:collapse; font-size:.88rem}
+table.sum th{text-align:left; font-weight:500; color:var(--muted); font-size:.75rem; text-transform:uppercase; letter-spacing:.06em; padding:0 0 6px}
+table.sum td{padding:7px 0; border-top:1px solid var(--line)}
+table.sum td.n{font-family:var(--mono); text-align:right}
+table.sum th.n{text-align:right}
+
+.toast{position:fixed; left:50%; bottom:calc(20px + env(safe-area-inset-bottom,0px)); transform:translateX(-50%); background:var(--text); color:var(--bg); padding:9px 16px; border-radius:8px; font-size:.88rem; opacity:0; pointer-events:none; transition:opacity .2s; max-width:calc(100% - 32px)}
+.toast.show{opacity:1}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"><i style="background:var(--school)"></i><i style="background:var(--work)"></i><i style="background:var(--german)"></i><i style="background:var(--book)"></i></div>
+      <div><h1>Four Lanes</h1><p class="sub" id="sub"></p></div>
+    </div>
+    <span class="sync" id="sync" data-s="local">Loading</span>
+  </header>
+  <nav class="tabs" id="tabs" role="tablist"></nav>
+  <main id="view"></main>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+"use strict";
+/* ---------- constants ---------- */
+const LANES=[{id:"school",name:"School",de:"Schule"},{id:"work",name:"Work",de:"Arbeit"},{id:"german",name:"German",de:"Deutsch"},{id:"book",name:"Book",de:"Buch"}];
+const LANE=Object.fromEntries(LANES.map(l=>[l.id,l]));
+const MODES=[["push","Push"],["maintain","Maintain"],["pause","Pause"]];
+const SUGGEST={school:{push:14,maintain:8,pause:0},work:{push:14,maintain:8,pause:0},german:{push:7,maintain:4,pause:1},book:{push:10,maintain:5,pause:0}};
+const SEM_START="2026-09-14", SEM_WEEKS=14, EXAM_START="2027-01-04", EXAM_END="2027-01-15";
+const REASONS=["Overplanned","Low energy","Avoided it","Urgent stuff came up","Sick / life happened","Unclear next step"];
+const CH_STATUS=["planned","drafting","drafted","revised"];
+const DL_TYPES=["SPA","Presentation","Test","Exam","Assignment"];
+const WORK_STATUS=["Not started","In progress","Waiting","Done"];
+const TABS=[["today","Today","Heute"],["plan","Week","Woche"],["school","School","Schule"],["work","Work","Arbeit"],["german","German","Deutsch"],["book","Book","Buch"],["why","Why","Warum"],["review","Review","Rückblick"]];
+const WHY_FIELDS=[["why","Why am I doing this?","In your own words. Not a quote."],["cost","What it costs me if I skip it","The concrete thing you lose."],["done","Done looks like","Something you could check off."]];
+
+const DEFAULTS={
+  config:{capacity:40,lanes:{school:{why:"",cost:"",done:""},work:{why:"",cost:"",done:""},german:{why:"",cost:"",done:""},book:{why:"",cost:"",done:""}},german:{weeklyMin:420},book:{title:"My book",target:100000,targetDate:"2027-09-30"}},
+  plan:{weeks:{}},
+  log:{days:{}},
+  tasks:{items:[]},
+  school:{courses:[],weeks:{},deadlines:[]},
+  work:{projects:[]},
+  book:{entries:[],chapters:[]},
+  german:{milestones:[]},
+  reviews:{weeks:{}}
+};
+const KEYS=Object.keys(DEFAULTS);
+
+/* ---------- utils ---------- */
+const clone=o=>JSON.parse(JSON.stringify(o));
+const isObj=o=>o&&typeof o==="object"&&!Array.isArray(o);
+function deepMerge(base,over){const out=clone(base);if(!isObj(over))return out;for(const k of Object.keys(over)){out[k]=isObj(out[k])&&isObj(over[k])?deepMerge(out[k],over[k]):over[k];}return out;}
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const uid=()=>Math.random().toString(36).slice(2,10);
+const pad=n=>String(n).padStart(2,"0");
+const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d);};
+const addDays=(s,n)=>{const d=parse(s);d.setDate(d.getDate()+n);return iso(d);};
+const mondayOf=s=>{const d=parse(s);d.setDate(d.getDate()-((d.getDay()+6)%7));return iso(d);};
+const daysBetween=(a,b)=>Math.round((parse(b)-parse(a))/864e5);
+const today=()=>iso(new Date());
+const fmt=s=>parse(s).toLocaleDateString("en-GB",{day:"numeric",month:"short"});
+const fmtLong=s=>parse(s).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"});
+const fmtNum=n=>Math.round(n).toLocaleString("en-US");
+const h=n=>{const v=Math.round(n*10)/10;return (Number.isInteger(v)?v:v.toFixed(1))+"h";};
+const semWeek=wk=>Math.floor(daysBetween(SEM_START,wk)/7)+1;
+function weekLabel(wk){
+  const n=semWeek(wk), end=addDays(wk,6), range=`${fmt(wk)} – ${fmt(end)}`;
+  if(n>=1&&n<=SEM_WEEKS) return `S${n} · ${range}`;
+  if(end>=EXAM_START&&wk<=EXAM_END) return `Exams · ${range}`;
+  if(n>SEM_WEEKS&&wk<EXAM_START) return `Break · ${range}`;
+  return range;
+}
+function inLabel(d){if(d<0)return `${-d}d late`;if(d===0)return "today";if(d===1)return "1 day";return `${d} days`;}
+
+/* ---------- state + persistence ---------- */
+const LS="fourlanes.v1";
+let S=clone(DEFAULTS);
+try{const c=JSON.parse(localStorage.getItem(LS)||"null");if(c)for(const k of KEYS)if(c[k])S[k]=deepMerge(DEFAULTS[k],c[k]);}catch(e){}
+function localSave(){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}}
+
+let db=null;
+const dirty=new Set(), timers={}, chains={}, ver={}, lastJson={};
+const ui={tab:"today",planWeek:null,reviewWeek:null,schoolWeek:null,armed:null,showDoneWork:false};
+try{const t=localStorage.getItem("fourlanes.tab");if(t&&TABS.some(x=>x[0]===t))ui.tab=t;}catch(e){}
+if(location.hash&&TABS.some(x=>x[0]===location.hash.slice(1)))ui.tab=location.hash.slice(1);
+
+function setSync(s,txt){const el=document.getElementById("sync");el.dataset.s=s;el.textContent=txt;}
+function update(key,fn,opts){
+  fn(S[key]);
+  dirty.add(key); ver[key]=(ver[key]||0)+1;
+  clearTimeout(timers[key]); timers[key]=setTimeout(()=>flush(key),450);
+  if(db)setSync("saving","Saving");
+  if(!opts||opts.render!==false)render();
+}
+function flush(key){
+  localSave();
+  const v=ver[key], body=clone(S[key]);
+  if(!db){dirty.delete(key);return;}
+  chains[key]=(chains[key]||Promise.resolve()).then(()=>db.doc("planner/"+key).set(body)).then(()=>{
+    lastJson[key]=JSON.stringify(body);
+    if(ver[key]===v)dirty.delete(key);
+    if(!dirty.size)setSync("synced","Synced");
+  }).catch(err=>{
+    setSync("error","Not saved");
+    toast(err&&err.code==="quota_exceeded"?"Storage is full. Clear old done tasks.":"Couldn't save. Your change is kept on this device for now.");
+  });
+}
+let pendingRender=false;
+function scheduleRender(){
+  const a=document.activeElement;
+  if(a&&a.closest&&a.closest("#view")&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)){pendingRender=true;return;}
+  render();
+}
+document.addEventListener("focusout",()=>{if(pendingRender)setTimeout(()=>{const a=document.activeElement;if(!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName))){pendingRender=false;render();}},0);});
+
+async function connect(){
+  let d=null;
+  try{d=window.claude&&window.claude.use?await window.claude.use("db"):null;}catch(e){d=null;}
+  if(!d){setSync("local","Saved on this device only");return;}
+  db=d; setSync("synced","Synced");
+  for(const k of KEYS){
+    db.doc("planner/"+k).onSnapshot(snap=>{
+      if(dirty.has(k)||!snap.exists)return;
+      const js=JSON.stringify(snap.data());
+      if(js===lastJson[k])return;
+      lastJson[k]=js;
+      S[k]=deepMerge(DEFAULTS[k],JSON.parse(js));
+      localSave(); scheduleRender();
+    },()=>setSync("error","Sync stopped. Reload the page."));
+  }
+}
+
+let toastT;
+function toast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove("show"),2600);}
+
+/* ---------- derived ---------- */
+function getPlan(wk){
+  const w=S.plan.weeks;
+  if(w[wk])return w[wk];
+  const prev=Object.keys(w).filter(k=>k<wk).sort().pop();
+  if(prev)return w[prev];
+  const modes={school:"push",work:"push",german:"push",book:"maintain"};
+  return {capacity:S.config.capacity,modes,hours:Object.fromEntries(LANES.map(l=>[l.id,SUGGEST[l.id][modes[l.id]]]))};
+}
+function editPlan(wk,fn){update("plan",p=>{if(!p.weeks[wk])p.weeks[wk]=clone(getPlan(wk));fn(p.weeks[wk]);});}
+function actual(wk,lane){let s=0;for(let i=0;i<7;i++){const d=S.log.days[addDays(wk,i)];if(d&&d[lane])s+=d[lane];}return s;}
+function germanStreak(){
+  let d=today(),n=0;
+  const has=x=>(S.log.days[x]&&S.log.days[x].german)>0;
+  if(!has(d))d=addDays(d,-1);
+  while(has(d)){n++;d=addDays(d,-1);}
+  return n;
+}
+const courseById=id=>S.school.courses.find(c=>c.id===id);
+function upcoming(){
+  const t=today(),out=[];
+  S.school.deadlines.filter(d=>!d.done).forEach(d=>{const c=courseById(d.course);out.push({date:d.date,title:d.name,sub:(c?c.name:"")+(d.type?" · "+d.type:""),lane:"school"});});
+  if(t<=EXAM_END)out.push({date:EXAM_START,title:"Exam period",sub:"4 – 15 Jan · all modules",lane:"school"});
+  S.work.projects.filter(p=>p.status!=="Done"&&p.due).forEach(p=>out.push({date:p.due,title:p.name,sub:p.next||p.service||"",lane:"work"}));
+  const m=S.german.milestones.find(x=>!x.done&&x.target);
+  if(m)out.push({date:m.target,title:"Reach "+m.label,sub:"German level checkpoint",lane:"german"});
+  S.tasks.items.filter(x=>!x.done&&x.due).forEach(x=>out.push({date:x.due,title:x.text,sub:"Task",lane:x.lane}));
+  if(S.config.book.targetDate)out.push({date:S.config.book.targetDate,title:"First draft done",sub:fmtNum(S.config.book.target)+" words",lane:"book"});
+  return out.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
+}
+function bookStats(){
+  const e=[...S.book.entries].sort((a,b)=>a.date<b.date?-1:1);
+  const total=e.length?e[e.length-1].total:0;
+  const wk=mondayOf(today());
+  const before=e.filter(x=>x.date<wk);
+  const base=before.length?before[before.length-1].total:(e.length?e[0].total:0);
+  const target=S.config.book.target||1;
+  const weeksLeft=Math.max(1,daysBetween(today(),S.config.book.targetDate||addDays(today(),365))/7);
+  return {e,total,thisWeek:total-base,target,pct:Math.min(100,total/target*100),left:Math.max(0,target-total),perWeek:Math.max(0,(target-total)/weeksLeft),weeksLeft};
+}
+
+/* ---------- small renderers ---------- */
+const laneStyle=l=>`--c:var(--${l})`;
+function delBtn(act,id){const armed=ui.armed===act+":"+id;return `<button class="mini del ${armed?"armed":""}" data-act="${act}" data-id="${esc(id)}" aria-label="Delete">${armed?"Delete?":"×"}</button>`;}
+function taskRow(t,showLane){
+  const pinned=t.pin===today();
+  return `<li class="task ${t.done?"is-done":""}" style="${laneStyle(t.lane)}">
+    <button class="chk ${t.done?"on":""}" data-act="task-toggle" data-id="${t.id}" aria-label="${t.done?"Mark not done":"Mark done"}"></button>
+    ${showLane?`<span class="dot" title="${LANE[t.lane].name}"></span>`:""}
+    <span class="t-text">${esc(t.text)}</span>
+    ${t.done?"":`<button class="mini ${pinned?"on":""}" data-act="${pinned?"task-unpin":"task-pin"}" data-id="${t.id}">${pinned?"On today":"Do today"}</button>`}
+    ${delBtn("task-del",t.id)}
+  </li>`;
+}
+function tasksCard(lane,title){
+  const items=S.tasks.items.filter(t=>t.lane===lane);
+  const open=items.filter(t=>!t.done), done=items.filter(t=>t.done);
+  return `<section class="card">
+    <div class="card-h"><h2>${title||"Tasks"}</h2><span class="muted" style="font-size:.8rem">${open.length} open</span></div>
+    <ul class="tasks">${open.map(t=>taskRow(t)).join("")||`<li class="empty">Nothing here. Add the next concrete step.</li>`}</ul>
+    <div class="add"><input class="field" id="nt-${lane}" data-enter="task-add" data-lane="${lane}" placeholder="Next concrete step…" aria-label="New ${LANE[lane].name} task"><button class="btn" data-act="task-add" data-lane="${lane}">Add</button></div>
+    ${done.length?`<div class="row" style="margin-top:12px"><span class="muted" style="font-size:.8rem">${done.length} done</span><button class="mini" data-act="clear-done" data-lane="${lane}">Clear done</button></div>`:""}
+  </section>`;
+}
+
+/* ---------- views ---------- */
+function vToday(){
+  const t=today(), wk=mondayOf(t), plan=getPlan(wk);
+  const pinned=S.tasks.items.filter(x=>x.pin===t);
+  const openPinned=pinned.filter(x=>!x.done).length;
+  const cands=S.tasks.items.filter(x=>!x.done&&x.pin!==t).sort((a,b)=>{
+    const sa=a.pin&&a.pin<t?0:1, sb=b.pin&&b.pin<t?0:1; if(sa!==sb)return sa-sb;
+    return (a.due||"9999")<(b.due||"9999")?-1:1;}).slice(0,5);
+  const deps=upcoming().filter(d=>d.date>=addDays(t,-14)).slice(0,6);
+  const whys=LANES.filter(l=>S.config.lanes[l.id]&&S.config.lanes[l.id].why);
+  const whyLane=whys.length?whys[daysBetween("2026-01-01",t)%whys.length]:null;
+  const bs=bookStats();
+  const gMin=Math.round(actual(wk,"german")*60);
+
+  return `<div class="grid g-today">
+  <div class="stack">
+    <section class="card">
+      <div class="card-h"><h2>Three things today</h2><span class="muted" style="font-size:.8rem">${fmtLong(t)}</span></div>
+      <ul class="tasks">${pinned.map(x=>taskRow(x,true)).join("")||`<li class="empty">Pick up to three. Everything else is optional today.</li>`}</ul>
+      ${openPinned<3?`<div class="add">
+        <select class="field" id="nt-today-lane" aria-label="Lane">${LANES.map(l=>`<option value="${l.id}">${l.name}</option>`).join("")}</select>
+        <input class="field" id="nt-today" data-enter="task-add-today" placeholder="Must-do…" aria-label="New must-do">
+        <button class="btn primary" data-act="task-add-today">Add</button></div>`:`<p class="hint" style="margin-top:10px">That's three. Finish one before adding more.</p>`}
+      ${openPinned<3&&cands.length?`<div style="margin-top:16px"><div class="eyebrow" style="margin-bottom:4px">From your lanes</div><ul class="tasks">${cands.map(x=>taskRow(x,true)).join("")}</ul></div>`:""}
+    </section>
+
+    <section class="card">
+      <div class="card-h"><h2>Log time</h2><span class="muted" style="font-size:.8rem">Week ${weekLabel(wk).split(" · ")[0]}: logged vs. planned</span></div>
+      ${LANES.map(l=>{const tv=(S.log.days[t]&&S.log.days[t][l.id])||0, a=actual(wk,l.id), p=plan.hours[l.id]||0;
+        return `<div class="logrow" style="${laneStyle(l.id)}">
+          <div class="row"><span class="dot"></span><b>${l.name}</b><span class="num muted" style="font-size:.85rem">${h(tv)} today</span></div>
+          <div class="row" style="gap:6px"><button class="mini" data-act="log" data-lane="${l.id}" data-d="-0.5" aria-label="Remove 30 minutes">−½</button><button class="mini" data-act="log" data-lane="${l.id}" data-d="0.5">+½h</button><button class="mini" data-act="log" data-lane="${l.id}" data-d="1">+1h</button></div>
+          <div class="meta"><div class="bar"><i style="width:${p?Math.min(100,a/p*100):0}%"></i></div><span class="num">${h(a)} / ${h(p)}</span></div>
+        </div>`;}).join("")}
+    </section>
+  </div>
+
+  <div class="stack">
+    <section class="board" aria-label="Upcoming deadlines">
+      <div class="board-h"><b>Nächste Abfahrten</b><span>Coming up</span></div>
+      ${deps.map(d=>{const n=daysBetween(t,d.date);return `<div class="dep"><span class="in ${n<0?"late":""}">${inLabel(n)}</span><span class="what">${esc(d.title)}<small>${fmt(d.date)}${d.sub?" · "+esc(d.sub):""}</small></span><span class="gleis" style="${laneStyle(d.lane)}">${LANE[d.lane].name}</span></div>`;}).join("")||`<div class="dep"><span class="in">—</span><span class="what">Nothing scheduled</span><span></span></div>`}
+    </section>
+
+    ${whyLane?`<section class="card"><div class="why-q" style="${laneStyle(whyLane.id)}"><div class="eyebrow">Why ${whyLane.name.toLowerCase()}</div><p>${esc(S.config.lanes[whyLane.id].why)}</p>${S.config.lanes[whyLane.id].cost?`<p class="hint" style="margin-top:8px">If you skip it: ${esc(S.config.lanes[whyLane.id].cost)}</p>`:""}</div></section>`
+      :`<section class="card"><div class="card-h"><h2>No whys yet</h2></div><p class="hint">Write one line per lane on why you're doing it. It shows up here, a different lane each day.</p><button class="btn" style="margin-top:10px" data-tab="why">Write them</button></section>`}
+
+    <section class="card">
+      <div class="grid g-2">
+        <div class="stat" style="${laneStyle("german")}"><span>German this week</span><b>${gMin}<small style="font-size:.9rem"> min</small></b><span>${germanStreak()}-day streak · goal ${S.config.german.weeklyMin} min</span></div>
+        <div class="stat"><span>Book</span><b>${fmtNum(bs.total)}</b><span>${bs.thisWeek>=0?"+":""}${fmtNum(bs.thisWeek)} this week · need ${fmtNum(bs.perWeek)}/wk</span></div>
+      </div>
+      <div class="add"><input class="field num" type="number" min="0" inputmode="numeric" id="bw-today" data-enter="book-log" placeholder="Book word count now" aria-label="Total book word count now"><button class="btn" data-act="book-log" data-src="bw-today">Update</button></div>
+    </section>
+  </div>
+  </div>`;
+}
+
+function vPlan(){
+  const wk=ui.planWeek||mondayOf(today()), p=getPlan(wk);
+  const total=LANES.reduce((s,l)=>s+(p.hours[l.id]||0),0), cap=p.capacity||0, max=Math.max(cap,total)||1;
+  const n=semWeek(wk), inSem=n>=1&&n<=SEM_WEEKS;
+  return `<div class="stack">
+  <section class="card">
+    <div class="card-h">
+      <div class="row"><button class="mini" data-act="plan-nav" data-d="-7" aria-label="Previous week">‹</button><h2>${weekLabel(wk)}</h2><button class="mini" data-act="plan-nav" data-d="7" aria-label="Next week">›</button>${wk!==mondayOf(today())?`<button class="mini" data-act="plan-now">This week</button>`:""}</div>
+      <label class="lbl" style="flex-direction:row;align-items:center;gap:8px">Hours you actually have <input class="field num" style="width:80px" type="number" min="0" max="100" id="plan-cap" data-ch="plan-cap" value="${cap}"></label>
+    </div>
+    <div class="stackbar" role="img" aria-label="${h(total)} planned of ${h(cap)}">${LANES.map(l=>`<i style="${laneStyle(l.id)};width:${(p.hours[l.id]||0)/max*100}%"></i>`).join("")}</div>
+    <div class="row" style="margin-top:8px;font-size:.88rem">
+      <span class="num">${h(total)} planned of ${h(cap)}</span><span class="spacer"></span>
+      ${total>cap?`<span class="over">Over by ${h(total-cap)}. Drop a lane to Maintain.</span>`:`<span class="muted">${h(cap-total)} slack</span>`}
+    </div>
+    ${inSem?`<p class="hint" style="margin-top:10px">Fixed on top of this: lectures Tue 8–17, Wed 8–17, Thu 13–17 (22h) plus ~12h of train. Use the train for German and reading, and log it.</p>`:""}
+  </section>
+
+  <div class="grid g-2">
+  ${LANES.map(l=>{const m=p.modes[l.id]||"maintain", hv=p.hours[l.id]||0, a=actual(wk,l.id);
+    return `<section class="card lane-top" style="${laneStyle(l.id)}">
+      <div class="card-h"><h2>${l.name}</h2><div class="seg">${MODES.map(([k,lab])=>`<button class="${m===k?"on":""}" data-act="plan-mode" data-lane="${l.id}" data-mode="${k}">${lab}</button>`).join("")}</div></div>
+      <div class="row"><span class="muted" style="font-size:.85rem">Budget</span><div class="step"><button data-act="plan-step" data-lane="${l.id}" data-d="-1" aria-label="Less">−</button><span class="num">${h(hv)}</span><button data-act="plan-step" data-lane="${l.id}" data-d="1" aria-label="More">+</button></div>
+      <span class="spacer"></span><span class="num muted" style="font-size:.85rem">${h(a)} logged</span></div>
+      <div class="bar" style="margin-top:10px"><i style="width:${hv?Math.min(100,a/hv*100):0}%"></i></div>
+    </section>`;}).join("")}
+  </div>
+  <p class="hint">Push, Maintain and Pause set a suggested budget for the lane. Adjust hours after. Weeks you don't edit copy the last week you did.</p>
+  </div>`;
+}
+
+function vSchool(){
+  const t=today(), cur=Math.min(SEM_WEEKS,Math.max(1,semWeek(mondayOf(t))));
+  const sel=ui.schoolWeek||cur, key="S"+sel, wkData=S.school.weeks[key]||{};
+  const ws=addDays(SEM_START,(sel-1)*7);
+  let done=0,tot=0; S.school.courses.forEach(c=>{const d=wkData[c.id]||{};tot+=3+(d.items||[]).length;done+=(d.c?1:0)+(d.r?1:0)+(d.h?1:0)+(d.items||[]).filter(i=>i.done).length;});
+  const dls=[...S.school.deadlines].sort((a,b)=>a.date<b.date?-1:1);
+  return `<div class="stack">
+  <section>
+    <div class="chips">${Array.from({length:SEM_WEEKS},(_,i)=>{const n=i+1,s=addDays(SEM_START,i*7);return `<button class="chip ${n===sel?"on":""} ${n===cur?"now":""}" data-act="school-week" data-n="${n}"><b>S${n}</b>${fmt(s)}</button>`;}).join("")}</div>
+    <div class="row" style="margin-bottom:12px"><h2>S${sel} · ${fmt(ws)} – ${fmt(addDays(ws,6))}</h2><span class="pill">${done}/${tot} done</span></div>
+    <div class="grid g-3">
+    ${S.school.courses.map(c=>{const d=wkData[c.id]||{}, items=d.items||[], n=(d.c?1:0)+(d.r?1:0)+(d.h?1:0)+items.filter(i=>i.done).length;
+      return `<article class="card course lane-top" style="--c:${esc(c.color||"var(--school)")}">
+        <div class="card-h" style="margin-bottom:0"><span class="code">${esc(c.code)}</span><span class="num muted" style="font-size:.8rem">${n}/${3+items.length}</span></div>
+        <h3>${esc(c.name)}</h3>
+        <div class="checks">${[["c","Class"],["r","Review"],["h","Homework"]].map(([f,lab])=>`<button data-act="school-check" data-id="${c.id}" data-f="${f}" aria-pressed="${!!d[f]}"><span class="chk ${d[f]?"on":""}"></span>${lab}</button>`).join("")}</div>
+        <ul class="tasks">${items.map(i=>`<li class="task ${i.done?"is-done":""}"><button class="chk ${i.done?"on":""}" data-act="school-item" data-id="${c.id}" data-item="${i.id}" aria-label="Toggle"></button><span class="t-text">${esc(i.text)}</span>${delBtn("school-item-del",c.id+"|"+i.id)}</li>`).join("")}</ul>
+        <div class="add"><input class="field" id="si-${c.id}" data-enter="school-item-add" data-id="${c.id}" placeholder="Add homework or topic…" aria-label="Add item to ${esc(c.name)}"><button class="btn" data-act="school-item-add" data-id="${c.id}">+</button></div>
+      </article>`;}).join("")||`<p class="empty">No courses loaded yet.</p>`}
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-h"><h2>Deadlines &amp; exams</h2><span class="muted" style="font-size:.8rem">Exam period 4 – 15 Jan</span></div>
+    ${dls.map(d=>{const n=daysBetween(t,d.date), c=courseById(d.course), cls=d.done?"":n<0?"bad":n<=3?"bad":n<=10?"warn":"";
+      return `<div class="dl ${d.done?"is-done":""}"><button class="chk ${d.done?"on":""}" style="--c:var(--school)" data-act="dl-toggle" data-id="${d.id}" aria-label="Toggle done"></button>
+        <span class="t-text"><b style="font-weight:600">${esc(d.name)}</b><br><span class="muted" style="font-size:.8rem">${esc(c?c.name:"")}${d.type?" · "+esc(d.type):""} · ${fmtLong(d.date)}</span></span>
+        <span class="pill ${cls}">${d.done?"done":inLabel(n)}</span>${delBtn("dl-del",d.id)}</div>`;}).join("")||`<p class="empty">No deadlines yet.</p>`}
+    <div class="form-row">
+      <select class="field" id="dl-course" aria-label="Course" style="width:100%">${S.school.courses.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select>
+      <input class="field" id="dl-name" placeholder="What's due" aria-label="Deadline name">
+      <input class="field" id="dl-date" type="date" aria-label="Date">
+      <select class="field" id="dl-type" aria-label="Type" style="width:100%">${DL_TYPES.map(x=>`<option>${x}</option>`).join("")}</select>
+      <button class="btn" data-act="dl-add">Add</button>
+    </div>
+  </section>
+  </div>`;
+}
+
+function vWork(){
+  const all=S.work.projects, open=all.filter(p=>p.status!=="Done"), done=all.filter(p=>p.status==="Done");
+  const card=p=>`<article class="card proj lane-top" style="${laneStyle("work")}">
+    <div class="card-h" style="margin-bottom:0"><div><h2>${esc(p.name)}</h2><span class="muted" style="font-size:.82rem">${esc(p.service||"")}</span></div>
+      <div class="row" style="gap:6px"><select class="field" data-ch="proj" data-id="${p.id}" data-f="status" aria-label="Status">${WORK_STATUS.map(s=>`<option ${s===p.status?"selected":""}>${s}</option>`).join("")}</select>${delBtn("proj-del",p.id)}</div></div>
+    <label class="lbl">Next action<input class="field" data-ch="proj" data-id="${p.id}" data-f="next" value="${esc(p.next||"")}" placeholder="The very next physical step"></label>
+    <label class="lbl">Due<input class="field" type="date" data-ch="proj" data-id="${p.id}" data-f="due" value="${esc(p.due||"")}" style="max-width:200px"></label>
+    ${p.next?"":`<p class="hint" style="color:var(--warn)">No next action. This project will stall.</p>`}
+  </article>`;
+  return `<div class="stack">
+    <div class="grid g-2">${open.map(card).join("")||`<p class="empty">No active projects.</p>`}</div>
+    <section class="card"><div class="card-h"><h2>New project</h2></div>
+      <div class="add" style="margin-top:0"><input class="field" id="pj-name" data-enter="proj-add" placeholder="Client or project" aria-label="Project name"><input class="field" id="pj-svc" data-enter="proj-add" placeholder="Service (e.g. Complete Audit)" aria-label="Service"><button class="btn" data-act="proj-add">Add</button></div>
+      ${done.length?`<div style="margin-top:14px"><button class="mini" data-act="work-done-toggle">${ui.showDoneWork?"Hide":"Show"} done (${done.length})</button>${ui.showDoneWork?`<ul class="tasks" style="margin-top:8px">${done.map(p=>`<li class="task is-done"><span class="t-text">${esc(p.name)} · ${esc(p.service||"")}</span><select class="field" data-ch="proj" data-id="${p.id}" data-f="status" aria-label="Status">${WORK_STATUS.map(s=>`<option ${s===p.status?"selected":""}>${s}</option>`).join("")}</select></li>`).join("")}</ul>`:""}</div>`:""}
+    </section>
+    ${tasksCard("work","Work tasks")}
+  </div>`;
+}
+
+function vGerman(){
+  const t=today(), wk=mondayOf(t), min=Math.round(actual(wk,"german")*60), goal=S.config.german.weeklyMin||1;
+  const start=addDays(wk,-7*11); let cells="";
+  for(let i=0;i<84;i++){const d=addDays(start,i), m=((S.log.days[d]&&S.log.days[d].german)||0)*60;
+    const l=d>t?0:m===0?0:m<15?1:m<30?2:m<60?3:4;
+    cells+=`<i data-l="${l}" class="${d===t?"today":""}" title="${fmt(d)}: ${Math.round(m)} min"></i>`;}
+  let total=0; for(const d in S.log.days)total+=S.log.days[d].german||0;
+  const ms=S.german.milestones;
+  return `<div class="stack">
+  <section class="card lane-top" style="${laneStyle("german")}">
+    <div class="card-h"><h2>A2 → B1.2 by end of May</h2><span class="muted" style="font-size:.8rem">${Math.max(0,Math.round(daysBetween(t,"2027-05-31")/7))} weeks left</span></div>
+    <div class="ladder">${ms.map(m=>{const n=m.target?daysBetween(t,m.target):null;
+      return `<div class="rung ${m.done?"done":""}"><div class="row"><button class="chk ${m.done?"on":""}" data-act="ms-toggle" data-id="${m.id}" aria-label="Mark ${esc(m.label)} reached"></button><h3>${esc(m.label)}</h3></div>
+        <span class="hint">${esc(m.note||"")}</span>
+        <input class="field num" type="date" data-ch="ms-date" data-id="${m.id}" value="${esc(m.target||"")}" aria-label="Target date for ${esc(m.label)}">
+        ${m.done?`<span class="pill ok">reached</span>`:n!=null?`<span class="pill ${n<0?"bad":""}">${inLabel(n)}</span>`:""}</div>`;}).join("")}</div>
+  </section>
+  <div class="grid g-2">
+    <section class="card">
+      <div class="card-h"><h2>Minutes</h2><label class="lbl" style="flex-direction:row;align-items:center;gap:6px">Weekly goal<input class="field num" style="width:80px" type="number" min="0" step="30" data-ch="german-goal" value="${goal}"></label></div>
+      <div class="grid g-3" style="margin-bottom:14px">
+        <div class="stat"><b>${min}</b><span>min this week</span></div>
+        <div class="stat"><b>${germanStreak()}</b><span>day streak</span></div>
+        <div class="stat"><b>${h(total)}</b><span>logged total</span></div>
+      </div>
+      <div class="bar" style="${laneStyle("german")}"><i style="width:${Math.min(100,min/goal*100)}%"></i></div>
+      <div class="eyebrow" style="margin:16px 0 6px">Last 12 weeks</div>
+      <div class="heat" role="img" aria-label="German minutes per day, last 12 weeks">${cells}</div>
+      <p class="hint" style="margin-top:8px">Log German on the Today tab. Every minute counts, including the train.</p>
+    </section>
+    <section class="card">
+      <div class="card-h"><h2>The train plan</h2></div>
+      <p class="hint" style="margin-bottom:10px">Tue, Wed and Thu give you about 12 hours of commuting. A B1 jump needs roughly 250 study hours, which is about 7 hours a week until May. Most of that can happen on the train.</p>
+      <ul class="tasks">
+        <li class="task"><span class="t-text"><b>Out, 45 min:</b> listening. Easy German, or DW's <i>Nicos Weg</i> A2–B1 episodes.</span></li>
+        <li class="task"><span class="t-text"><b>Back, 30 min:</b> vocabulary reps, then write 5 sentences about your day.</span></li>
+        <li class="task"><span class="t-text"><b>Free days, 20 min:</b> speaking. Say a paragraph out loud and record it.</span></li>
+      </ul>
+    </section>
+  </div>
+  ${tasksCard("german","German tasks")}
+  </div>`;
+}
+
+function chart(bs){
+  const W=640,H=210,L=52,R=16,T=14,B=26;
+  const cfg=S.config.book, e=bs.e;
+  if(!e.length)return `<p class="empty">Log your word count to start the graph.</p>`;
+  const x0=e[0].date, x1=cfg.targetDate&&cfg.targetDate>e[e.length-1].date?cfg.targetDate:addDays(e[e.length-1].date,30);
+  const span=Math.max(1,daysBetween(x0,x1)), ymax=Math.max(cfg.target,bs.total)*1.02;
+  const X=d=>L+(daysBetween(x0,d)/span)*(W-L-R), Y=v=>T+(1-v/ymax)*(H-T-B);
+  const pts=e.map(p=>`${X(p.date).toFixed(1)},${Y(p.total).toFixed(1)}`).join(" ");
+  const ticks=[0,cfg.target/2,cfg.target];
+  const last=e[e.length-1];
+  const area=`${X(e[0].date).toFixed(1)},${Y(0)} ${pts} ${X(last.date).toFixed(1)},${Y(0)}`;
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Word count over time against target">
+    ${ticks.map(v=>`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${L-8}" y="${Y(v)+3}" text-anchor="end">${v>=1000?Math.round(v/1000)+"k":v}</text>`).join("")}
+    <line x1="${X(x0)}" y1="${Y(e[0].total)}" x2="${X(x1)}" y2="${Y(cfg.target)}" stroke="var(--faint)" stroke-dasharray="4 4" stroke-width="1.5"/>
+    <polygon points="${area}" fill="var(--book)" fill-opacity=".14"/>
+    <polyline points="${pts}" fill="none" stroke="var(--book)" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="${X(last.date)}" cy="${Y(last.total)}" r="4.5" fill="var(--book)"/>
+    <text x="${L}" y="${H-6}">${fmt(x0)}</text><text x="${W-R}" y="${H-6}" text-anchor="end">${fmt(x1)} target</text>
+  </svg>`;
+}
+
+function vBook(){
+  const bs=bookStats(), cfg=S.config.book, ch=S.book.chapters;
+  const cnt=s=>ch.filter(c=>c.status===s).length;
+  return `<div class="stack">
+  <section class="card lane-top" style="${laneStyle("book")}">
+    <div class="card-h"><h2>${esc(cfg.title)}</h2><span class="pill">${bs.pct.toFixed(0)}% of target</span></div>
+    <div class="grid g-4" style="margin-bottom:14px">
+      <div class="stat"><b>${fmtNum(bs.total)}</b><span>words</span></div>
+      <div class="stat"><b>${fmtNum(bs.thisWeek)}</b><span>this week</span></div>
+      <div class="stat"><b>${fmtNum(bs.perWeek)}</b><span>needed per week</span></div>
+      <div class="stat"><b>${Math.round(bs.weeksLeft)}</b><span>weeks to target</span></div>
+    </div>
+    ${chart(bs)}
+    <div class="add"><input class="field num" type="number" min="0" inputmode="numeric" id="bw-book" data-enter="book-log" data-src="bw-book" placeholder="Total word count now" aria-label="Total word count now"><button class="btn primary" data-act="book-log" data-src="bw-book">Log count</button></div>
+  </section>
+  <div class="grid g-2">
+    <section class="card">
+      <div class="card-h"><h2>Chapters</h2><span class="muted" style="font-size:.8rem">${cnt("drafted")+cnt("revised")} drafted · ${cnt("drafting")} in progress</span></div>
+      <div class="chaps">${ch.map((c,i)=>`<button class="chap" data-s="${c.status}" data-act="ch-cycle" data-i="${i}" title="Click to change status">Ch ${i+1}<small>${c.status}</small></button>`).join("")}</div>
+      <div class="row" style="margin-top:12px"><button class="btn" data-act="ch-add">Add chapter</button>${ch.length?`<button class="mini" data-act="ch-pop">Remove last</button>`:""}<span class="spacer"></span><span class="hint">Click to cycle: planned → drafting → drafted → revised</span></div>
+    </section>
+    <section class="card">
+      <div class="card-h"><h2>Target</h2></div>
+      <div class="grid g-2">
+        <label class="lbl">Title<input class="field" data-ch="book-cfg" data-f="title" value="${esc(cfg.title)}"></label>
+        <label class="lbl">Target words<input class="field num" type="number" min="1000" step="1000" data-ch="book-cfg" data-f="target" value="${cfg.target}"></label>
+        <label class="lbl">First draft by<input class="field" type="date" data-ch="book-cfg" data-f="targetDate" value="${esc(cfg.targetDate||"")}"></label>
+      </div>
+      <p class="hint" style="margin-top:10px">Debut novels usually land at 80–110k words. 60 chapters at your current ~3,000 words each would be about 180k, which is hard to sell and hard to finish. Plan for 100k and let the story argue for more.</p>
+    </section>
+  </div>
+  ${tasksCard("book","Book tasks")}
+  </div>`;
+}
+
+function vWhy(){
+  return `<div class="stack">
+  <p class="hint" style="max-width:62ch">Write these yourself. One honest line beats a paragraph. They show up on Today, one lane per day, so you remember why a lane matters on the days it's losing.</p>
+  <div class="grid g-2">${LANES.map(l=>{const w=S.config.lanes[l.id]||{};
+    return `<section class="card lane-top" style="${laneStyle(l.id)}"><div class="card-h"><h2>${l.name}</h2><span class="muted" style="font-style:italic;font-size:.85rem">${l.de}</span></div>
+      <div class="stack" style="gap:12px">${WHY_FIELDS.map(([f,lab,ph])=>`<label class="lbl">${lab}<textarea class="field" id="why-${l.id}-${f}" data-in="why" data-lane="${l.id}" data-f="${f}" placeholder="${esc(ph)}">${esc(w[f]||"")}</textarea></label>`).join("")}</div></section>`;}).join("")}</div>
+  </div>`;
+}
+
+function vReview(){
+  const cur=mondayOf(today()), wk=ui.reviewWeek||cur, r=S.reviews.weeks[wk]||{}, p=getPlan(wk);
+  const tally={}; for(const k in S.reviews.weeks)(S.reviews.weeks[k].reasons||[]).forEach(x=>tally[x]=(tally[x]||0)+1);
+  const tmax=Math.max(1,...Object.values(tally));
+  const past=Object.keys(S.reviews.weeks).filter(k=>k!==wk).sort().reverse().slice(0,6);
+  return `<div class="stack">
+  <div class="row"><button class="mini" data-act="rev-nav" data-d="-7" aria-label="Previous week">‹</button><h2>${weekLabel(wk)}</h2><button class="mini" data-act="rev-nav" data-d="7" aria-label="Next week">›</button>${wk!==cur?`<button class="mini" data-act="rev-now">This week</button>`:""}</div>
+  <div class="grid g-2">
+    <section class="card">
+      <div class="card-h"><h2>Planned vs. logged</h2></div>
+      <table class="sum"><thead><tr><th>Lane</th><th class="n">Plan</th><th class="n">Logged</th><th class="n">Gap</th></tr></thead><tbody>
+      ${LANES.map(l=>{const a=actual(wk,l.id), pl=p.hours[l.id]||0, g=a-pl;return `<tr><td><span class="dot" style="${laneStyle(l.id)}"></span> ${l.name}</td><td class="n">${h(pl)}</td><td class="n">${h(a)}</td><td class="n" style="color:${g<-1?"var(--bad)":g>=0?"var(--ok)":"var(--muted)"}">${g>0?"+":""}${h(g)}</td></tr>`;}).join("")}
+      </tbody></table>
+      <div class="eyebrow" style="margin:18px 0 8px">Why things slip, all weeks</div>
+      ${Object.keys(tally).length?REASONS.filter(x=>tally[x]).sort((a,b)=>tally[b]-tally[a]).map(x=>`<div class="row" style="margin-bottom:6px;font-size:.85rem"><span style="width:10.5em">${x}</span><div class="bar" style="flex:1"><i style="width:${tally[x]/tmax*100}%"></i></div><span class="num">${tally[x]}</span></div>`).join(""):`<p class="empty">After a few reviews, your real pattern shows up here.</p>`}
+    </section>
+    <section class="card">
+      <div class="card-h"><h2>15-minute review</h2><span class="muted" style="font-size:.8rem">Sunday evening</span></div>
+      <div class="stack" style="gap:12px">
+        <label class="lbl">What moved forward?<textarea class="field" id="rv-moved" data-in="rev" data-f="moved" data-wk="${wk}">${esc(r.moved||"")}</textarea></label>
+        <label class="lbl">What slipped?<textarea class="field" id="rv-slipped" data-in="rev" data-f="slipped" data-wk="${wk}">${esc(r.slipped||"")}</textarea></label>
+        <div class="lbl">Why it slipped<div class="reasons">${REASONS.map(x=>`<button class="${(r.reasons||[]).includes(x)?"on":""}" data-act="rev-reason" data-r="${esc(x)}" aria-pressed="${(r.reasons||[]).includes(x)}">${x}</button>`).join("")}</div></div>
+        <label class="lbl">Next week's one priority<input class="field" id="rv-next" data-in="rev" data-f="next" data-wk="${wk}" value="${esc(r.next||"")}"></label>
+        <button class="btn" data-tab="plan">Plan next week</button>
+      </div>
+    </section>
+  </div>
+  ${past.length?`<section class="card"><div class="card-h"><h2>Earlier reviews</h2></div>${past.map(k=>{const x=S.reviews.weeks[k];return `<div class="dl" style="grid-template-columns:auto minmax(0,1fr)"><span class="date">${weekLabel(k).split(" · ")[0]}</span><span class="t-text">${esc(x.next?"Priority: "+x.next:"")}${x.reasons&&x.reasons.length?`<br><span class="muted" style="font-size:.8rem">${esc(x.reasons.join(", "))}</span>`:""}</span></div>`;}).join("")}</section>`:""}
+  </div>`;
+}
+
+/* ---------- render ---------- */
+const VIEWS={today:vToday,plan:vPlan,school:vSchool,work:vWork,german:vGerman,book:vBook,why:vWhy,review:vReview};
+function render(){
+  pendingRender=false;
+  const t=today();
+  document.getElementById("sub").textContent=`${fmtLong(t)} · ${weekLabel(mondayOf(t)).split(" · ")[0]}`;
+  document.getElementById("tabs").innerHTML=TABS.map(([k,en,de])=>`<button class="tab" role="tab" aria-selected="${ui.tab===k}" data-tab="${k}"><b>${en}</b><small>${de}</small></button>`).join("");
+  document.getElementById("view").innerHTML=VIEWS[ui.tab]();
+}
+
+/* ---------- actions ---------- */
+const val=id=>{const el=document.getElementById(id);return el?el.value.trim():"";};
+function addTask(lane,text,pin){
+  if(!text)return false;
+  update("tasks",s=>s.items.push({id:uid(),lane,text,done:false,pin:pin||null,created:today()}));
+  return true;
+}
+function doAct(act,el){
+  const d=el.dataset, t=today();
+  if(act.endsWith("-del")){const k=act+":"+d.id;if(ui.armed!==k){ui.armed=k;render();return;}ui.armed=null;}
+  else ui.armed=null;
+  switch(act){
+  case "task-toggle":update("tasks",s=>{const x=s.items.find(i=>i.id===d.id);if(x)x.done=!x.done;});break;
+  case "task-pin":{const n=S.tasks.items.filter(i=>i.pin===t&&!i.done).length;if(n>=3){toast("Three is the limit. Finish or unpin one first.");return;}update("tasks",s=>{const x=s.items.find(i=>i.id===d.id);if(x)x.pin=t;});break;}
+  case "task-unpin":update("tasks",s=>{const x=s.items.find(i=>i.id===d.id);if(x)x.pin=null;});break;
+  case "task-del":update("tasks",s=>{s.items=s.items.filter(i=>i.id!==d.id);});break;
+  case "task-add":{const lane=d.lane;if(!addTask(lane,val("nt-"+lane)))return;focusLater("nt-"+lane);break;}
+  case "task-add-today":{if(!addTask(val("nt-today-lane")||"school",val("nt-today"),t))return;focusLater("nt-today");break;}
+  case "clear-done":update("tasks",s=>{s.items=s.items.filter(i=>!(i.lane===d.lane&&i.done));});break;
+  case "log":update("log",s=>{const day=s.days[t]||(s.days[t]={});day[d.lane]=Math.max(0,Math.round(((day[d.lane]||0)+Number(d.d))*10)/10);});break;
+  case "plan-nav":ui.planWeek=addDays(ui.planWeek||mondayOf(t),Number(d.d));render();break;
+  case "plan-now":ui.planWeek=null;render();break;
+  case "plan-mode":editPlan(ui.planWeek||mondayOf(t),p=>{p.modes[d.lane]=d.mode;p.hours[d.lane]=SUGGEST[d.lane][d.mode];});break;
+  case "plan-step":editPlan(ui.planWeek||mondayOf(t),p=>{p.hours[d.lane]=Math.max(0,(p.hours[d.lane]||0)+Number(d.d));});break;
+  case "school-week":ui.schoolWeek=Number(d.n);render();break;
+  case "school-check":{const key="S"+(ui.schoolWeek||Math.min(SEM_WEEKS,Math.max(1,semWeek(mondayOf(t)))));update("school",s=>{const w=s.weeks[key]||(s.weeks[key]={});const c=w[d.id]||(w[d.id]={});c[d.f]=!c[d.f];});break;}
+  case "school-item":case "school-item-add":case "school-item-del":{
+    const key="S"+(ui.schoolWeek||Math.min(SEM_WEEKS,Math.max(1,semWeek(mondayOf(t)))));
+    const [cid,iid]=act==="school-item-del"?d.id.split("|"):[d.id,d.item];
+    if(act==="school-item-add"){const txt=val("si-"+cid);if(!txt)return;update("school",s=>{const w=s.weeks[key]||(s.weeks[key]={});const c=w[cid]||(w[cid]={});(c.items||(c.items=[])).push({id:uid(),text:txt,done:false});});focusLater("si-"+cid);}
+    else update("school",s=>{const c=(s.weeks[key]||{})[cid];if(!c||!c.items)return;if(act==="school-item"){const i=c.items.find(x=>x.id===iid);if(i)i.done=!i.done;}else c.items=c.items.filter(x=>x.id!==iid);});
+    break;}
+  case "dl-toggle":update("school",s=>{const x=s.deadlines.find(i=>i.id===d.id);if(x)x.done=!x.done;});break;
+  case "dl-del":update("school",s=>{s.deadlines=s.deadlines.filter(i=>i.id!==d.id);});break;
+  case "dl-add":{const name=val("dl-name"),date=val("dl-date");if(!name||!date){toast("Add a name and a date.");return;}update("school",s=>s.deadlines.push({id:uid(),course:val("dl-course"),name,date,type:val("dl-type"),done:false}));break;}
+  case "proj-add":{const name=val("pj-name");if(!name)return;update("work",s=>s.projects.push({id:uid(),name,service:val("pj-svc"),status:"Not started",next:"",due:""}));break;}
+  case "proj-del":update("work",s=>{s.projects=s.projects.filter(p=>p.id!==d.id);});break;
+  case "work-done-toggle":ui.showDoneWork=!ui.showDoneWork;render();break;
+  case "ms-toggle":update("german",s=>{const m=s.milestones.find(x=>x.id===d.id);if(m)m.done=!m.done;});break;
+  case "book-log":{const src=d.src||"bw-today",n=parseInt(val(src),10);if(!(n>=0)){toast("Enter your total word count.");return;}
+    update("book",s=>{s.entries=s.entries.filter(x=>x.date!==t);s.entries.push({date:t,total:n});s.entries.sort((a,b)=>a.date<b.date?-1:1);});toast(`Logged ${fmtNum(n)} words.`);break;}
+  case "ch-cycle":update("book",s=>{const c=s.chapters[Number(d.i)];if(c)c.status=CH_STATUS[(CH_STATUS.indexOf(c.status)+1)%CH_STATUS.length];});break;
+  case "ch-add":update("book",s=>s.chapters.push({status:"planned"}));break;
+  case "ch-pop":update("book",s=>{s.chapters.pop();});break;
+  case "rev-nav":ui.reviewWeek=addDays(ui.reviewWeek||mondayOf(t),Number(d.d));render();break;
+  case "rev-now":ui.reviewWeek=null;render();break;
+  case "rev-reason":{const wk=ui.reviewWeek||mondayOf(t);update("reviews",s=>{const r=s.weeks[wk]||(s.weeks[wk]={});const a=r.reasons||(r.reasons=[]);const i=a.indexOf(d.r);if(i>=0)a.splice(i,1);else a.push(d.r);});break;}
+  }
+}
+function focusLater(id){setTimeout(()=>{const el=document.getElementById(id);if(el)el.focus();},0);}
+
+document.addEventListener("click",e=>{
+  const tabEl=e.target.closest("[data-tab]");
+  if(tabEl){ui.tab=tabEl.dataset.tab;ui.armed=null;try{localStorage.setItem("fourlanes.tab",ui.tab);}catch(_){}render();window.scrollTo({top:0});return;}
+  const el=e.target.closest("[data-act]");
+  if(el)doAct(el.dataset.act,el);
+  else if(ui.armed){ui.armed=null;render();}
+});
+document.addEventListener("keydown",e=>{
+  if(e.key!=="Enter")return;
+  const el=e.target;
+  if(el.dataset&&el.dataset.enter){e.preventDefault();doAct(el.dataset.enter,el);}
+});
+document.addEventListener("change",e=>{
+  const el=e.target, d=el.dataset; if(!d.ch)return;
+  const t=today();
+  switch(d.ch){
+  case "plan-cap":editPlan(ui.planWeek||mondayOf(t),p=>{p.capacity=Math.max(0,Number(el.value)||0);});break;
+  case "proj":update("work",s=>{const p=s.projects.find(x=>x.id===d.id);if(p)p[d.f]=el.value;});break;
+  case "ms-date":update("german",s=>{const m=s.milestones.find(x=>x.id===d.id);if(m)m.target=el.value;});break;
+  case "german-goal":update("config",c=>{c.german.weeklyMin=Math.max(0,Number(el.value)||0);});break;
+  case "book-cfg":update("config",c=>{c.book[d.f]=d.f==="target"?Math.max(1,Number(el.value)||1):el.value;});break;
+  }
+});
+document.addEventListener("input",e=>{
+  const el=e.target, d=el.dataset; if(!d.in)return;
+  if(d.in==="why")update("config",c=>{(c.lanes[d.lane]||(c.lanes[d.lane]={}))[d.f]=el.value;},{render:false});
+  if(d.in==="rev")update("reviews",s=>{(s.weeks[d.wk]||(s.weeks[d.wk]={}))[d.f]=el.value;},{render:false});
+});
+
+render();
+connect();
+setInterval(()=>{const s=document.getElementById("sub");if(s&&!s.textContent.startsWith(fmtLong(today())))scheduleRender();},60000);
+})();
+</script>

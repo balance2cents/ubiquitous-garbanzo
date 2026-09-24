@@ -1,0 +1,6 @@
+{"projects":[
+  {"id":"benefitradar","name":"BenefitRadar","service":"Complete Audit","status":"In progress","next":"","due":""},
+  {"id":"odaas","name":"OdaaS","service":"Marketing Strategy","status":"Not started","next":"","due":""},
+  {"id":"ni","name":"Negotiation Intelligence","service":"Marketing Strategy","status":"Done","next":"","due":""},
+  {"id":"dishboard","name":"Dishboard","service":"Preview Audit","status":"Done","next":"","due":""}
+]}

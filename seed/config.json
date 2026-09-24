@@ -1,0 +1,33 @@
+{
+ "capacity": 40,
+ "lanes": {
+  "school": {
+   "why": "",
+   "cost": "",
+   "done": "Pass all 7 modules in the 4–15 Jan exam block"
+  },
+  "work": {
+   "why": "",
+   "cost": "",
+   "done": ""
+  },
+  "german": {
+   "why": "",
+   "cost": "",
+   "done": "B1.2 by the end of May 2027"
+  },
+  "book": {
+   "why": "",
+   "cost": "",
+   "done": "First draft of When the smoke dissolves, ~100k words, by Sep 2027"
+  }
+ },
+ "german": {
+  "weeklyMin": 420
+ },
+ "book": {
+  "title": "When the smoke dissolves",
+  "target": 100000,
+  "targetDate": "2027-09-30"
+ }
+}

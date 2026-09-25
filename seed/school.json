@@ -43,12 +43,6 @@
       "code": "W.IBA_APPCM01.H26",
       "name": "Communication Fundamentals",
       "color": "#C9A93A"
-    },
-    {
-      "id": "daf",
-      "code": "W.SZ_DAF_B1_2.H2601",
-      "name": "German B1.2 (Advanced)",
-      "color": "#6FB35A"
     }
   ],
   "weeks": {},

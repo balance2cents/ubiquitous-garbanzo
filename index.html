@@ -166,6 +166,8 @@ label.lbl{display:flex; flex-direction:column; gap:4px; font-size:.78rem; color:
 .chip.on{background:var(--text); color:var(--bg); border-color:var(--text)}
 .chip.now{box-shadow:inset 0 0 0 2px var(--school)}
 .course .code{font-family:var(--mono); font-size:.72rem; color:var(--muted)}
+.study-link{display:inline-flex; align-items:center; gap:4px; margin-top:6px; font-size:.82rem; font-weight:600; color:var(--text); text-decoration:none; border:1px solid var(--line); border-left:3px solid var(--c); border-radius:6px; padding:4px 10px; background:var(--surface-2)}
+.study-link:hover{border-color:var(--faint)}
 .checks{display:flex; gap:6px; flex-wrap:wrap; margin:10px 0 4px}
 .checks button{display:flex; align-items:center; gap:7px; border:1px solid var(--line); background:transparent; border-radius:8px; padding:5px 10px; font-size:.84rem}
 .checks button .chk{width:16px; height:16px; pointer-events:none}
@@ -518,6 +520,7 @@ function vSchool(){
       return `<article class="card course lane-top" style="--c:${esc(c.color||"var(--school)")}">
         <div class="card-h" style="margin-bottom:0"><span class="code">${esc(c.code)}</span><span class="num muted" style="font-size:.8rem">${n}/${3+items.length}</span></div>
         <h3>${esc(c.name)}</h3>
+        ${c.link?`<a class="study-link" href="${esc(c.link)}" target="_blank" rel="noopener">Open ${esc(c.linkName||"study platform")} <span aria-hidden="true">↗</span></a>`:""}
         <div class="checks">${[["c","Class"],["r","Review"],["h","Homework"]].map(([f,lab])=>`<button data-act="school-check" data-id="${c.id}" data-f="${f}" aria-pressed="${!!d[f]}"><span class="chk ${d[f]?"on":""}"></span>${lab}</button>`).join("")}</div>
         <ul class="tasks">${items.map(i=>`<li class="task ${i.done?"is-done":""}"><button class="chk ${i.done?"on":""}" data-act="school-item" data-id="${c.id}" data-item="${i.id}" aria-label="Toggle"></button><span class="t-text">${esc(i.text)}</span>${delBtn("school-item-del",c.id+"|"+i.id)}</li>`).join("")}</ul>
         <div class="add"><input class="field" id="si-${c.id}" data-enter="school-item-add" data-id="${c.id}" placeholder="Add homework or topic…" aria-label="Add item to ${esc(c.name)}"><button class="btn" data-act="school-item-add" data-id="${c.id}">+</button></div>

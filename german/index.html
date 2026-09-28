@@ -1,0 +1,2018 @@
+<title>Der rote Faden</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+:root{
+  --bg:#EEF3F1; --surface:#FFFFFF; --surface-2:#E3EBE8; --line:#CFDBD7;
+  --text:#11201C; --muted:#4F635D; --faint:#86968F;
+  --accent:#0B9483; --accent-ink:#FFFFFF; --accent-soft:#D3EEEA;
+  --thread:#D1343F;
+  --der:#2F6FE4; --die:#C8407A; --das:#2E9A4E;
+  --ok:#0B8A5C; --ok-soft:#DBF2E6; --warn:#B7790A; --warn-soft:#FBEFD5; --bad:#C62D2D; --bad-soft:#FBE3E3;
+  --focus:#0B9483;
+  --display:"Bricolage Grotesque","Avenir Next",system-ui,sans-serif;
+  --body:"Figtree","Segoe UI",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --r:12px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0B1211; --surface:#121B19; --surface-2:#19241F; --line:#263430;
+    --text:#E3EEEA; --muted:#98ABA5; --faint:#65766F;
+    --accent:#2FC6B1; --accent-ink:#06201B; --accent-soft:#12302B;
+    --thread:#F0616B;
+    --der:#6E9DFF; --die:#EE78A8; --das:#5BCB7B;
+    --ok:#3CC98A; --ok-soft:#10301F; --warn:#E3AA2E; --warn-soft:#33270C; --bad:#F06262; --bad-soft:#3A1616;
+    --focus:#2FC6B1;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0B1211; --surface:#121B19; --surface-2:#19241F; --line:#263430;
+  --text:#E3EEEA; --muted:#98ABA5; --faint:#65766F;
+  --accent:#2FC6B1; --accent-ink:#06201B; --accent-soft:#12302B;
+  --thread:#F0616B;
+  --der:#6E9DFF; --die:#EE78A8; --das:#5BCB7B;
+  --ok:#3CC98A; --ok-soft:#10301F; --warn:#E3AA2E; --warn-soft:#33270C; --bad:#F06262; --bad-soft:#3A1616;
+  --focus:#2FC6B1;
+}
+*{box-sizing:border-box}
+body{background:var(--bg); color:var(--text); font:15px/1.55 var(--body); padding-inline:16px; padding-block:0 64px; margin:0}
+.app{max-width:980px; margin:0 auto}
+h1,h2,h3{font-family:var(--display); margin:0; letter-spacing:-.01em; text-wrap:balance}
+h2{font-size:1.2rem} h3{font-size:1rem}
+p{margin:0}
+button,input,textarea,select{font:inherit; color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--focus); outline-offset:2px}
+.mono,.num{font-family:var(--mono); font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)} .faint{color:var(--faint)}
+.eyebrow{font-size:.7rem; text-transform:uppercase; letter-spacing:.09em; color:var(--muted); font-weight:700}
+.stack{display:flex; flex-direction:column; gap:16px}
+.row{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.grid{display:grid; gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+
+/* header */
+.top{display:flex; align-items:flex-end; justify-content:space-between; gap:12px; padding-block:22px 12px; flex-wrap:wrap}
+.brand{display:flex; align-items:center; gap:12px}
+.knot{width:38px; height:38px; flex:none}
+.brand h1{font-size:1.55rem; line-height:1.05}
+.brand .sub{color:var(--muted); font-size:.82rem; margin-top:2px}
+.save{font-size:.75rem; color:var(--muted); display:inline-flex; align-items:center; gap:6px; background:var(--surface); border:1px solid var(--line); border-radius:99px; padding:3px 10px}
+.save::before{content:""; width:7px; height:7px; border-radius:50%; background:var(--faint)}
+.save[data-s="db"]::before{background:var(--ok)}
+.save[data-s="saving"]::before{background:var(--warn)}
+.save[data-s="err"]::before{background:var(--bad)}
+nav.tabs{position:sticky; top:env(safe-area-inset-top,0px); z-index:5; background:var(--bg); display:flex; gap:4px; overflow-x:auto; padding-block:8px; margin-bottom:14px; border-bottom:1px solid var(--line); scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+.tab{flex:none; border:0; background:none; padding:7px 12px; border-radius:99px; color:var(--muted); font-weight:600; font-size:.9rem; display:flex; flex-direction:column; align-items:flex-start; line-height:1.15}
+.tab small{font-size:.66rem; font-weight:500; color:var(--faint)}
+.tab[aria-selected="true"]{background:var(--text); color:var(--bg)}
+.tab[aria-selected="true"] small{color:var(--bg); opacity:.7}
+.tab .dot{display:inline-block; min-width:18px; padding:0 5px; border-radius:99px; background:var(--thread); color:#fff; font-size:.66rem; font-family:var(--mono); margin-left:4px; text-align:center}
+
+/* cards */
+.card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:18px}
+.card-h{display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:12px; flex-wrap:wrap}
+.hint{font-size:.84rem; color:var(--muted)}
+.btn{border:1px solid var(--line); background:var(--surface); border-radius:10px; padding:8px 14px; font-weight:600; display:inline-flex; align-items:center; gap:8px}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent); color:var(--accent-ink); border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn.big{padding:12px 20px; font-size:1.02rem; border-radius:12px}
+.btn.ghost{background:none; border-color:transparent; color:var(--muted)}
+.btn:disabled{opacity:.5; cursor:not-allowed}
+.mini{border:1px solid var(--line); background:none; border-radius:8px; padding:3px 9px; font-size:.8rem; color:var(--muted); font-weight:600}
+.mini:hover{color:var(--text); border-color:var(--muted)}
+.pill{display:inline-flex; align-items:center; gap:4px; font-size:.72rem; font-weight:700; padding:2px 8px; border-radius:99px; background:var(--surface-2); color:var(--muted); white-space:nowrap}
+.pill.ok{background:var(--ok-soft); color:var(--ok)} .pill.warn{background:var(--warn-soft); color:var(--warn)} .pill.bad{background:var(--bad-soft); color:var(--bad)} .pill.acc{background:var(--accent-soft); color:var(--accent)}
+.bar{height:6px; border-radius:99px; background:var(--surface-2); overflow:hidden}
+.bar i{display:block; height:100%; background:var(--accent); border-radius:99px}
+.field{border:1px solid var(--line); background:var(--surface); border-radius:10px; padding:9px 12px; width:100%}
+textarea.field{min-height:170px; resize:vertical; line-height:1.6}
+.seg{display:inline-flex; background:var(--surface-2); border-radius:10px; padding:3px; gap:2px; flex-wrap:wrap}
+.seg button{border:0; background:none; padding:5px 12px; border-radius:8px; font-weight:600; font-size:.85rem; color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface); color:var(--text); box-shadow:0 1px 2px rgba(0,0,0,.08)}
+
+/* the red thread timeline */
+.thread{position:relative; padding:8px 0 4px}
+.thread-line{position:absolute; left:0; right:0; top:22px; height:3px; background:var(--line); border-radius:3px}
+.thread-line i{display:block; height:100%; background:var(--thread); border-radius:3px}
+.knots{position:relative; display:grid; grid-template-columns:repeat(9,1fr); gap:2px}
+.kn{display:flex; flex-direction:column; align-items:center; gap:6px; background:none; border:0; padding:0; color:var(--muted); font-size:.7rem; font-weight:600}
+.kn b{width:28px; height:28px; border-radius:50%; border:2px solid var(--line); background:var(--surface); display:grid; place-items:center; font-family:var(--mono); font-size:.78rem; color:var(--muted)}
+.kn[data-s="done"] b{background:var(--thread); border-color:var(--thread); color:#fff}
+.kn[data-s="now"] b{border-color:var(--thread); color:var(--thread); box-shadow:0 0 0 4px color-mix(in srgb,var(--thread) 18%,transparent)}
+.kn[data-s="now"]{color:var(--text)}
+
+/* hero */
+.hero{display:grid; grid-template-columns:1.4fr 1fr; gap:14px}
+@media (max-width:760px){.hero{grid-template-columns:1fr}}
+.today-card{background:var(--text); color:var(--bg); border-radius:16px; padding:22px; display:flex; flex-direction:column; gap:14px; position:relative; overflow:hidden}
+.today-card .eyebrow{color:color-mix(in srgb,var(--bg) 70%,transparent)}
+.today-card h2{font-size:1.7rem; line-height:1.1}
+.today-card .mix{display:flex; gap:18px; flex-wrap:wrap}
+.today-card .mix div{display:flex; flex-direction:column}
+.today-card .mix b{font-family:var(--mono); font-size:1.5rem; line-height:1.1}
+.today-card .mix span{font-size:.75rem; opacity:.75}
+.today-card .btn.primary{align-self:flex-start}
+.stat{display:flex; flex-direction:column; gap:2px}
+.stat b{font-family:var(--mono); font-size:1.35rem; line-height:1.15}
+.stat span{font-size:.76rem; color:var(--muted)}
+
+/* chapter */
+.chap{display:grid; grid-template-columns:56px 1fr; gap:14px}
+.chap-n{font-family:var(--display); font-size:2.4rem; font-weight:800; line-height:1; color:var(--faint)}
+.chap[data-s="now"] .chap-n{color:var(--thread)}
+.chap[data-s="done"] .chap-n{color:var(--accent)}
+.parts{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px}
+.part{font-size:.78rem; background:var(--surface-2); border-radius:8px; padding:3px 8px}
+.part .mono{color:var(--muted); font-size:.72rem; margin-left:4px}
+.cando{list-style:none; margin:10px 0 0; padding:0; display:flex; flex-direction:column; gap:6px}
+.cando li{display:flex; gap:10px; align-items:flex-start; font-size:.88rem}
+.cando .seg button{padding:2px 9px; font-size:.74rem}
+.topiclist{display:flex; flex-direction:column; gap:6px; margin-top:10px}
+.topic-row{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:8px 10px; border:1px solid var(--line); border-radius:10px; background:var(--surface)}
+.topic-row .t{font-weight:600; font-size:.9rem}
+.topic-row .ref{font-size:.74rem; color:var(--muted)}
+.acc{font-family:var(--mono); font-size:.8rem}
+
+/* drill */
+.drill{max-width:680px; margin:0 auto; display:flex; flex-direction:column; gap:14px}
+.drill-top{display:flex; align-items:center; gap:12px}
+.drill-top .bar{flex:1}
+.q{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:24px 22px; display:flex; flex-direction:column; gap:16px}
+.q .kind{display:flex; justify-content:space-between; gap:8px; align-items:center; flex-wrap:wrap}
+.prompt{font-family:var(--display); font-size:1.6rem; line-height:1.2; font-weight:700}
+.prompt.sm{font-size:1.25rem}
+.sentence{font-size:1.25rem; line-height:1.9}
+.blank{display:inline-block; min-width:90px; border:0; border-bottom:2px solid var(--accent); background:var(--accent-soft); border-radius:6px 6px 0 0; padding:0 8px; font-size:1.1rem; font-weight:600; text-align:center}
+.blank.ok{border-color:var(--ok); background:var(--ok-soft); color:var(--ok)}
+.blank.no{border-color:var(--bad); background:var(--bad-soft); color:var(--bad)}
+.blank.typo{border-color:var(--warn); background:var(--warn-soft); color:var(--warn)}
+.ans{font-size:1.15rem; padding:12px 14px}
+.ans.ok{border-color:var(--ok); background:var(--ok-soft)} .ans.no{border-color:var(--bad); background:var(--bad-soft)} .ans.typo{border-color:var(--warn); background:var(--warn-soft)}
+.uml{display:flex; gap:6px; flex-wrap:wrap}
+.uml button{border:1px solid var(--line); background:var(--surface-2); border-radius:8px; width:40px; height:34px; font-weight:700}
+.fb{border-radius:12px; padding:12px 14px; font-size:.92rem; display:flex; flex-direction:column; gap:6px}
+.fb.ok{background:var(--ok-soft)} .fb.no{background:var(--bad-soft)} .fb.typo{background:var(--warn-soft)}
+.fb b.h{font-family:var(--display); font-size:1.05rem}
+.fb .right{font-weight:700}
+.opts{display:flex; flex-wrap:wrap; gap:8px}
+.opt{border:1px solid var(--line); background:var(--surface); border-radius:10px; padding:10px 16px; font-weight:600; font-size:1rem}
+.opt.ok{border-color:var(--ok); background:var(--ok-soft); color:var(--ok)} .opt.no{border-color:var(--bad); background:var(--bad-soft); color:var(--bad)}
+.tiles{display:flex; flex-wrap:wrap; gap:8px; min-height:48px; padding:8px; border-radius:12px}
+.tiles.built{border:2px dashed var(--line)}
+.tilebtn{border:1px solid var(--line); background:var(--surface-2); border-radius:9px; padding:7px 12px; font-weight:600}
+.tiles.built .tilebtn{background:var(--accent-soft); border-color:var(--accent)}
+.g-der{color:var(--der)} .g-die{color:var(--die)} .g-das{color:var(--das)}
+.gbar{width:6px; align-self:stretch; border-radius:6px; background:var(--line)}
+.gbar.der{background:var(--der)} .gbar.die{background:var(--die)} .gbar.das{background:var(--das)}
+.plural{font-size:.95rem; color:var(--muted)}
+.keys{font-size:.74rem; color:var(--faint)}
+.kbd{font-family:var(--mono); border:1px solid var(--line); border-bottom-width:2px; border-radius:5px; padding:0 5px; font-size:.7rem}
+.self{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+
+/* rule box */
+.rule{font-size:.9rem; line-height:1.6; display:flex; flex-direction:column; gap:8px}
+.rule table{border-collapse:collapse; font-size:.84rem}
+.rule th,.rule td{border:1px solid var(--line); padding:4px 8px; text-align:left}
+.rule th{background:var(--surface-2); font-weight:700}
+.rule code,.rule em{font-style:normal; font-weight:700; color:var(--accent)}
+.tablewrap{overflow-x:auto}
+
+/* lists */
+.words{display:flex; flex-direction:column}
+.word{display:grid; grid-template-columns:6px 1fr auto; gap:12px; align-items:center; padding:8px 0; border-bottom:1px solid var(--line)}
+.word:last-child{border-bottom:0}
+.word .de{font-weight:600}
+.word .en{font-size:.84rem; color:var(--muted)}
+.boxes{display:inline-flex; gap:3px}
+.boxes i{width:7px; height:7px; border-radius:2px; background:var(--surface-2)}
+.boxes i.on{background:var(--accent)}
+.vtable{width:100%; border-collapse:collapse; font-size:.86rem}
+.vtable th{text-align:left; font-size:.7rem; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); padding:6px 8px; border-bottom:1px solid var(--line)}
+.vtable td{padding:6px 8px; border-bottom:1px solid var(--line)}
+.vtable td:first-child{font-weight:600}
+
+/* writing + chat */
+.corr{display:flex; flex-direction:column; gap:10px}
+.corrected{background:var(--surface-2); border-radius:10px; padding:12px 14px; line-height:1.7}
+.err{display:grid; grid-template-columns:auto 1fr; gap:4px 12px; padding:10px 0; border-bottom:1px solid var(--line); font-size:.9rem}
+.err:last-child{border-bottom:0}
+.err s{color:var(--bad)} .err ins{text-decoration:none; color:var(--ok); font-weight:700}
+.grade{font-family:var(--display); font-size:2.6rem; font-weight:800; line-height:1}
+.chat{display:flex; flex-direction:column; gap:10px; max-height:460px; overflow-y:auto; padding:4px}
+.msg{max-width:85%; padding:10px 14px; border-radius:14px; font-size:.95rem; white-space:pre-wrap}
+.msg.them{background:var(--surface-2); align-self:flex-start; border-bottom-left-radius:4px}
+.msg.me{background:var(--accent); color:var(--accent-ink); align-self:flex-end; border-bottom-right-radius:4px}
+.msg .fix{display:block; margin-top:6px; font-size:.82rem; color:var(--warn); font-weight:600}
+.scen{display:flex; flex-direction:column; align-items:flex-start; gap:4px; text-align:left; border:1px solid var(--line); background:var(--surface); border-radius:12px; padding:12px 14px}
+.scen[aria-pressed="true"]{border-color:var(--accent); box-shadow:0 0 0 2px var(--accent-soft)}
+.scen b{font-size:.92rem} .scen span{font-size:.8rem; color:var(--muted)}
+.mist{display:grid; grid-template-columns:1fr auto; gap:6px 12px; padding:10px 0; border-bottom:1px solid var(--line); font-size:.9rem}
+.mist:last-child{border-bottom:0}
+.empty{color:var(--muted); font-size:.9rem; padding:12px 0}
+.note{border-left:3px solid var(--thread); padding:4px 0 4px 12px; font-size:.88rem; color:var(--muted)}
+.spark{display:flex; align-items:flex-end; gap:3px; height:44px}
+.spark i{flex:1; background:var(--accent); border-radius:2px 2px 0 0; min-height:2px; opacity:.85}
+.spark i.z{background:var(--surface-2); opacity:1}
+.spark i.t{background:var(--thread)}
+details.rulebox summary{cursor:pointer; font-weight:600; font-size:.88rem; color:var(--accent)}
+details.rulebox[open] summary{margin-bottom:8px}
+.toast{position:fixed; left:50%; transform:translateX(-50%); bottom:calc(20px + env(safe-area-inset-bottom,0px)); background:var(--text); color:var(--bg); padding:9px 16px; border-radius:99px; font-size:.86rem; font-weight:600; z-index:20}
+@media (prefers-reduced-motion:no-preference){
+  .q{animation:rise .18s ease-out}
+  @keyframes rise{from{transform:translateY(4px); opacity:.6}to{transform:none; opacity:1}}
+}
+@media (max-width:520px){
+  .prompt{font-size:1.35rem} .sentence{font-size:1.1rem} .q{padding:18px 16px}
+  .chap{grid-template-columns:1fr} .chap-n{font-size:1.8rem}
+  .kn{font-size:0} .kn b{width:24px; height:24px; font-size:.7rem}
+}
+</style>
+<div class="app" id="app"></div>
+<script>
+/* ================= COURSE DATA =================
+   Structure follows Begegnungen A2+ (Schubert) chapters and maps grammar to
+   Grammatik aktiv A1–B1 (Cornelsen). Exercises and sentences are original. */
+
+const TARGET_DATE="2026-12-20";
+const PDF_OFFSET=2; // Begegnungen PDF page = printed page + 2
+
+const CHAPTERS=[
+ {n:1,de:"Ausbildung und Tätigkeiten",en:"Education, jobs, daily routine",from:"2026-09-28",to:"2026-10-05",pages:[8,35],
+  parts:[["Sich vorstellen",8],["Berufe und Tätigkeiten",10],["Über Vergangenes berichten",11],["Schule und Ausbildung",13],["Lebensläufe",16],["Tagesablauf",20],["Teil C · Verben, Nomengruppe",24],["Rückblick",32]],
+  sound:"Word stress in verbs (ab·schließen vs. be·kommen)",
+  topics:["perfekt","partizip","trennbar","reflexiv","genus","genitiv"],
+  cando:["Give basic information about myself and ask others about theirs","Name jobs and describe office tasks","Talk about my school years","Read and write a CV in table form","Describe my daily routine"]},
+ {n:2,de:"Hobbys und Freizeit",en:"Free time, music, cinema",from:"2026-10-06",to:"2026-10-15",pages:[36,67],
+  parts:[["Freizeitaktivitäten",36],["Musik",39],["Kino",47],["Teil B · Krimis",50],["Teil C · Verben",53],["Negation",61],["Rückblick",64]],
+  sound:"Compound words and the long e [eː]",
+  topics:["modal","praet","negation"],
+  cando:["Talk about my free-time activities","Talk about music, photography and film","Ask by phone about museum opening and closing times","Ask about a cinema or exhibition program","Understand a longer, simple biography"]},
+ {n:3,de:"Geld und Konsum",en:"Money, shopping, banking",from:"2026-10-16",to:"2026-10-25",pages:[68,97],
+  parts:[["Wo bleibt das Geld?",68],["Einkaufen – Geld ausgeben",70],["Wörter rund ums Geld",77],["Lotto",80],["Teil C · Haupt- und Nebensätze",87],["Verben mit Dativ und Akkusativ",89],["Konjunktiv II",92],["Rückblick",95]],
+  sound:"d–t, b–p, g–k",
+  topics:["weilwenn","datakk","k2wish","einer"],
+  cando:["Talk about what I spend money on","Name shops and consumer goods","Shop and ask about price, size and color","Give reasons and conditions (weil, wenn)","Handle a simple conversation at the bank","Fill out a simple bank form","Express wishes and unreal conditions"]},
+ {n:4,de:"Arbeit und Beruf",en:"Office, phone calls, appointments",from:"2026-10-26",to:"2026-11-04",pages:[98,131],
+  parts:[["Im Büro",98],["Telefonieren – Termine vereinbaren",101],["Kommunikation im Büro",111],["Teil C · Zeitangaben",119],["Konjunktiv II",121],["Kasus",122],["Nebensätze",126],["Rückblick",128]],
+  sound:"f, v, ph, w",
+  topics:["zeitprep","k2polite","verbprep","indirekt"],
+  cando:["Describe office tasks","Make a business call, set and cancel appointments","Phrase a polite request","Understand work instructions","Use formal greetings and closings in letters","Write a simple order"]},
+ {n:5,de:"Urlaub und Reisen",en:"Travel, weather, city trips",from:"2026-11-05",to:"2026-11-14",pages:[132,161],
+  parts:[["Endlich Urlaub!",132],["Länder und Nationalitäten",134],["Eine Reise planen",137],["Städtereisen",145],["Teil C · Lokalangaben",152],["Nomengruppe",153],["Rückblick",158]],
+  sound:"Unstressed e and the r",
+  topics:["lokal","adjgen","obwohl"],
+  cando:["Understand travel brochures","Ask about offers at a travel agency and book a trip","Talk about my last vacation and the hotel","Talk about the weather","Understand traffic announcements","Apologize for being late","Suggest a day program and react to suggestions"]},
+ {n:6,de:"Tiere und Menschen",en:"Animals, looks, character, relationships",from:"2026-11-15",to:"2026-11-24",pages:[162,191],
+  parts:[["Gefährliche Tiere",162],["Von Tieren und Menschen",167],["Menschen",169],["Teil C · Adjektive",180],["Nomengruppe",182],["Verben",184],["Sätze",185],["Präpositionen",187],["Rückblick",188]],
+  sound:"-ich [ç] and -ig",
+  topics:["kompgen","komparativ","sollten","relativ","akkprep"],
+  cando:["Talk about animals and pets","Give recommendations (sollte)","Describe people: looks and character","Talk about relationships","Make small talk at a party","Say what annoys me and what makes me happy","Praise or criticize someone"]},
+ {n:7,de:"Wohnen und Essen",en:"Housing, chores, food, restaurants",from:"2026-11-25",to:"2026-12-03",pages:[192,217],
+  parts:[["Wohnen",192],["Ein Garten in der Stadt",199],["Gesunde Ernährung",200],["Teil C · Verben",207],["Nomen",208],["Sätze",210],["Präpositionen",213],["Rückblick",214]],
+  sound:"ng [ŋ] and nk [ŋk]",
+  topics:["wechselgen","stellen","alswenn","zu","deshalb"],
+  cando:["Describe my dream apartment","Say where I used to live","Discuss ways of living","Name chores and book a tradesperson","Talk about my eating habits","Order food in a restaurant and make requests"]},
+ {n:8,de:"Politik und Technik",en:"News, environment, devices, opinions",from:"2026-12-04",to:"2026-12-12",pages:[218,249],
+  parts:[["Neues aus dem In- und Ausland",218],["Umwelt",224],["Technik",227],["Teil C · Verben",234],["Nomen",236],["Sätze",237],["Präpositionen",238],["Gesamtwiederholung",240],["Rückblick",246]],
+  sound:"sch [ʃ]",
+  topics:["passiv","umzu","datprep"],
+  cando:["Give simple information about newspapers in my country","Understand some news items","Understand key environment vocabulary","Give my opinion in simple form","Agree or disagree with someone","Understand simple instructions for devices","Talk about a tech problem"]}
+];
+const FINALE={from:"2026-12-13",to:TARGET_DATE,de:"Wiederholung + Übungstest",en:"Full review and the Start Deutsch 2 practice test (p. 250), grammar overview from p. 257"};
+
+/* Vocabulary: "German | plural | English". Nouns carry their article. */
+const VOCAB={
+1:`der Beruf|Berufe|job, profession
+die Ausbildung|Ausbildungen|vocational training, apprenticeship
+das Studium|Studien|university studies
+das Gymnasium|Gymnasien|academic high school
+das Lieblingsfach|Lieblingsfächer|favorite subject
+die Note|Noten|grade (mark)
+das Zeugnis|Zeugnisse|report card, certificate
+das Praktikum|Praktika|internship
+der Lebenslauf|Lebensläufe|résumé, CV
+der Geburtsort|Geburtsorte|place of birth
+die Stelle|Stellen|position, job opening
+der Arbeitgeber|Arbeitgeber|employer
+die Firma|Firmen|company
+der Kunde|Kunden|customer, client (male)
+die Besprechung|Besprechungen|meeting
+die Rechnung|Rechnungen|invoice, bill
+der Termin|Termine|appointment
+die Vorlesung|Vorlesungen|lecture
+der Tagesablauf|Tagesabläufe|daily routine
+der Feierabend|Feierabende|end of the workday
+die Kantine|Kantinen|staff cafeteria
+die Erfahrung|Erfahrungen|experience
+der Abschluss|Abschlüsse|degree, qualification
+die Bewerbung|Bewerbungen|job application
+das Gehalt|Gehälter|salary
+der Kollege|Kollegen|colleague (male)
+die Kollegin|Kolleginnen|colleague (female)
+verheiratet||married
+ledig||single (not married)
+geschieden||divorced
+selbstständig||self-employed
+arbeitslos||unemployed
+abschließen||to complete (studies, training)
+besuchen||to attend (a school); to visit
+sich interessieren für||to be interested in
+umziehen||to move (to a new home)
+bekommen||to get, receive
+vereinbaren||to arrange (an appointment)
+sich bewerben um||to apply for
+sich beeilen||to hurry
+aufstehen||to get up
+Ich bin in … geboren.||I was born in …`,
+2:`die Freizeit||free time
+das Hobby|Hobbys|hobby
+der Verein|Vereine|club, association
+das Mitglied|Mitglieder|member
+das Instrument|Instrumente|instrument
+das Klavier|Klaviere|piano
+die Geige|Geigen|violin
+das Konzert|Konzerte|concert
+die Oper|Opern|opera
+das Musikstück|Musikstücke|piece of music
+der Erfolg|Erfolge|success
+die Ausstellung|Ausstellungen|exhibition
+die Eintrittskarte|Eintrittskarten|admission ticket
+die Öffnungszeit|Öffnungszeiten|opening hours
+das Gebäude|Gebäude|building
+die Landschaft|Landschaften|landscape
+der Fotoapparat|Fotoapparate|camera
+der Schauspieler|Schauspieler|actor
+die Schauspielerin|Schauspielerinnen|actress
+der Zuschauer|Zuschauer|viewer, audience member
+die Biografie|Biografien|biography
+der Krimi|Krimis|crime novel or movie
+die Münze|Münzen|coin
+sammeln||to collect
+wandern||to hike
+malen||to paint
+zeichnen||to draw
+üben||to practice
+komponieren||to compose
+etwas unternehmen||to do something (go out)
+auswählen||to choose, select
+erzählen||to tell (a story)
+handeln von||to be about (a book, film)
+verdienen||to earn
+verpassen||to miss (a bus, a trend)
+geöffnet||open
+geschlossen||closed
+spannend||exciting, gripping
+langweilig||boring
+Wann hat das Museum geöffnet?||When is the museum open?
+Der Film handelt von …||The film is about …`,
+3:`das Einkommen|Einkommen|income
+die Steuer|Steuern|tax
+die Miete|Mieten|rent
+die Ausgabe|Ausgaben|expense
+die Ware|Waren|goods, merchandise
+die Auswahl||selection, choice
+die Beratung|Beratungen|advice, consultation
+der Preis|Preise|price
+die Größe|Größen|size
+die Kreditkarte|Kreditkarten|credit card
+das Konto|Konten|bank account
+der Geldautomat|Geldautomaten|ATM
+die Geheimzahl|Geheimzahlen|PIN
+der Betrag|Beträge|amount
+der Kredit|Kredite|loan
+das Formular|Formulare|form
+die Überweisung|Überweisungen|bank transfer
+das Trinkgeld|Trinkgelder|tip
+der Gewinn|Gewinne|winnings, profit
+das Geschäft|Geschäfte|shop; business
+ausgeben||to spend
+sparen||to save
+abheben||to withdraw (money)
+einzahlen||to deposit
+überweisen||to transfer (money)
+wechseln||to exchange (money)
+vergleichen||to compare
+anprobieren||to try on
+umtauschen||to exchange (goods)
+reklamieren||to complain about (a product)
+spenden||to donate
+eröffnen||to open (an account)
+ausfüllen||to fill out
+günstig||good value, cheap
+geizig||stingy
+passen||to fit
+gefallen||to please (Das gefällt mir.)
+Kann ich mit Karte bezahlen?||Can I pay by card?
+Die Hose passt mir nicht.||The pants don't fit me.`,
+4:`das Büro|Büros|office
+der Schreibtisch|Schreibtische|desk
+der Drucker|Drucker|printer
+der Bildschirm|Bildschirme|screen, monitor
+die Tastatur|Tastaturen|keyboard
+der Ordner|Ordner|folder, binder
+die Sitzung|Sitzungen|meeting, session
+das Protokoll|Protokolle|minutes (of a meeting)
+die Dienstreise|Dienstreisen|business trip
+der Auftrag|Aufträge|order, assignment
+die Bestellung|Bestellungen|order (purchase)
+das Angebot|Angebote|offer, quote
+die Lieferung|Lieferungen|delivery
+die Bestätigung|Bestätigungen|confirmation
+der Chef|Chefs|boss (male)
+die Abteilung|Abteilungen|department
+die Gehaltserhöhung|Gehaltserhöhungen|raise
+die Anweisung|Anweisungen|instruction
+der Anruf|Anrufe|phone call
+die Nachricht|Nachrichten|message
+verbinden||to connect (put a call through)
+buchstabieren||to spell
+absagen||to cancel
+verschieben||to postpone
+weiterleiten||to forward
+löschen||to delete
+beantworten||to answer (something)
+kündigen||to quit; to fire
+sich beschweren über||to complain about
+sich freuen auf||to look forward to
+sich freuen über||to be happy about
+teilnehmen an||to take part in
+dringend||urgent
+pünktlich||on time
+höflich||polite
+Das passt mir gut.||That works well for me.
+Ich verbinde Sie.||I'll put you through.
+Worum geht es?||What is it about?
+Mit freundlichen Grüßen||Kind regards (formal letter closing)`,
+5:`der Urlaub|Urlaube|vacation
+die Reise|Reisen|trip, journey
+das Reisebüro|Reisebüros|travel agency
+der Prospekt|Prospekte|brochure
+die Unterkunft|Unterkünfte|accommodation
+die Halbpension||half board
+der Strand|Strände|beach
+das Meer|Meere|sea
+die Insel|Inseln|island
+der See|Seen|lake
+das Gebirge|Gebirge|mountain range
+das Ausland||abroad, foreign countries
+die Sehenswürdigkeit|Sehenswürdigkeiten|sight, attraction
+die Stadtrundfahrt|Stadtrundfahrten|city bus tour
+das Andenken|Andenken|souvenir
+der Stau|Staus|traffic jam
+die Verspätung|Verspätungen|delay
+die Durchsage|Durchsagen|announcement
+das Gewitter|Gewitter|thunderstorm
+die Temperatur|Temperaturen|temperature
+das Verkehrsmittel|Verkehrsmittel|means of transportation
+buchen||to book
+übernachten||to stay overnight
+besichtigen||to visit, tour (sights)
+sich entschuldigen||to apologize
+vorschlagen||to suggest
+empfehlen||to recommend
+sich erholen||to relax, recover
+bewölkt||cloudy
+sonnig||sunny
+stürmisch||stormy
+entfernt||away (distance)
+Es regnet.||It's raining.
+Wie wäre es mit …?||How about …?
+Wir könnten doch …||We could …
+Entschuldigung, ich habe den Zug verpasst.||Sorry, I missed the train.`,
+6:`das Haustier|Haustiere|pet
+der Hund|Hunde|dog
+die Katze|Katzen|cat
+das Pferd|Pferde|horse
+die Schlange|Schlangen|snake
+die Spinne|Spinnen|spider
+die Biene|Bienen|bee
+der Frosch|Frösche|frog
+das Gesicht|Gesichter|face
+die Nase|Nasen|nose
+das Ohr|Ohren|ear
+das Auge|Augen|eye
+der Bart|Bärte|beard
+der Hals|Hälse|neck
+das Haar|Haare|hair
+die Beziehung|Beziehungen|relationship
+die Ehe|Ehen|marriage
+die Eigenschaft|Eigenschaften|trait, quality
+das Lob||praise
+die Kritik|Kritiken|criticism
+die Einsamkeit||loneliness
+schlank||slim
+geduldig||patient
+fleißig||hard-working
+faul||lazy
+neugierig||curious
+hilfsbereit||helpful
+ordentlich||tidy
+zuverlässig||reliable
+treu||loyal, faithful
+klug||smart, clever
+ernst||serious
+sich verlieben in||to fall in love with
+sich trennen von||to split up with
+sich ärgern über||to be annoyed about
+heiraten||to marry
+loben||to praise
+stechen||to sting
+Angst haben vor||to be afraid of
+Das hast du prima gemacht!||You did that really well!
+Mach weiter so!||Keep it up!`,
+7:`die Wohnung|Wohnungen|apartment
+das Reihenhaus|Reihenhäuser|townhouse
+die Wohngemeinschaft|Wohngemeinschaften|shared apartment (WG)
+der Balkon|Balkone|balcony
+der Stadtrand|Stadtränder|outskirts
+die Umgebung|Umgebungen|surroundings, area
+der Vermieter|Vermieter|landlord
+die Nebenkosten||utilities (plural only)
+der Handwerker|Handwerker|tradesperson
+die Steckdose|Steckdosen|power outlet
+die Glühbirne|Glühbirnen|light bulb
+das Regal|Regale|shelf
+der Schrank|Schränke|cupboard, wardrobe
+das Gemüse||vegetables
+das Obst||fruit
+das Kraut|Kräuter|herb
+die Sahne||cream
+das Rezept|Rezepte|recipe
+die Zutat|Zutaten|ingredient
+die Speisekarte|Speisekarten|menu
+die Vorspeise|Vorspeisen|starter
+das Hauptgericht|Hauptgerichte|main course
+die Nachspeise|Nachspeisen|dessert
+aufräumen||to tidy up
+putzen||to clean
+bügeln||to iron
+Staub saugen||to vacuum
+streichen||to paint (walls)
+schneiden||to cut
+würzen||to season
+braten||to fry
+sich ernähren||to eat, feed oneself
+hell||bright
+gemütlich||cozy
+im Grünen||in the countryside
+Ich hätte gern …||I would like …
+Die Rechnung, bitte.||The check, please.
+Das Essen ist kalt.||The food is cold.`,
+8:`die Zeitung|Zeitungen|newspaper
+die Zeitschrift|Zeitschriften|magazine
+der Bericht|Berichte|report
+die Wirtschaft||economy
+die Regierung|Regierungen|government
+die Wahl|Wahlen|election; choice
+der Streik|Streiks|strike
+die Gewerkschaft|Gewerkschaften|trade union
+die Umwelt||environment
+das Klima||climate
+der Müll||trash, garbage
+die Verpackung|Verpackungen|packaging
+die Luftverschmutzung||air pollution
+die Meinung|Meinungen|opinion
+das Gerät|Geräte|device, appliance
+die Taste|Tasten|key (on a keyboard)
+der Knopf|Knöpfe|button
+der Schalter|Schalter|switch
+die Gebrauchsanweisung|Gebrauchsanweisungen|instructions for use
+die Erfindung|Erfindungen|invention
+der Akku|Akkus|rechargeable battery
+erfinden||to invent
+einschalten||to switch on
+ausschalten||to switch off
+anschließen||to connect, plug in
+aufladen||to charge
+benutzen||to use
+zustimmen||to agree
+widersprechen||to contradict, disagree
+steigen||to rise
+zunehmen||to increase
+abstürzen||to crash (plane, computer)
+bedroht||endangered, threatened
+Meiner Meinung nach …||In my opinion …
+Ich bin dafür.||I'm for it.
+Ich bin dagegen.||I'm against it.
+Ich bin damit einverstanden.||I agree with that.
+Ich bin ganz anderer Meinung.||I completely disagree.`
+};
+
+/* Irregular + mixed verbs: infinitive | er Präsens | er Präteritum | er Perfekt | chapter | English
+   CH/South German also allow "ist" with liegen, sitzen, stehen. */
+const VERBS=`anfangen|fängt an|fing an|hat angefangen|1|to begin
+aufstehen|steht auf|stand auf|ist aufgestanden|1|to get up
+backen|backt|backte|hat gebacken|1|to bake
+beginnen|beginnt|begann|hat begonnen|1|to begin
+bekommen|bekommt|bekam|hat bekommen|1|to receive
+bieten|bietet|bot|hat geboten|1|to offer
+bleiben|bleibt|blieb|ist geblieben|1|to stay
+essen|isst|aß|hat gegessen|1|to eat
+fahren|fährt|fuhr|ist gefahren|1|to drive, go
+fliegen|fliegt|flog|ist geflogen|1|to fly
+geben|gibt|gab|hat gegeben|1|to give
+gehen|geht|ging|ist gegangen|1|to go
+haben|hat|hatte|hat gehabt|1|to have
+helfen|hilft|half|hat geholfen|1|to help
+kommen|kommt|kam|ist gekommen|1|to come
+lesen|liest|las|hat gelesen|1|to read
+nehmen|nimmt|nahm|hat genommen|1|to take
+schlafen|schläft|schlief|hat geschlafen|1|to sleep
+schreiben|schreibt|schrieb|hat geschrieben|1|to write
+sein|ist|war|ist gewesen|1|to be
+sprechen|spricht|sprach|hat gesprochen|1|to speak
+treffen|trifft|traf|hat getroffen|1|to meet
+umziehen|zieht um|zog um|ist umgezogen|1|to move (home)
+vergessen|vergisst|vergaß|hat vergessen|1|to forget
+abschließen|schließt ab|schloss ab|hat abgeschlossen|1|to complete
+bringen|bringt|brachte|hat gebracht|2|to bring
+denken|denkt|dachte|hat gedacht|2|to think
+dürfen|darf|durfte|hat gedurft|2|may, to be allowed
+finden|findet|fand|hat gefunden|2|to find
+können|kann|konnte|hat gekonnt|2|can
+mögen|mag|mochte|hat gemocht|2|to like
+müssen|muss|musste|hat gemusst|2|must, to have to
+wollen|will|wollte|hat gewollt|2|to want
+wissen|weiß|wusste|hat gewusst|2|to know (a fact)
+kennen|kennt|kannte|hat gekannt|2|to know (be familiar with)
+singen|singt|sang|hat gesungen|2|to sing
+sterben|stirbt|starb|ist gestorben|2|to die
+werden|wird|wurde|ist geworden|2|to become
+unternehmen|unternimmt|unternahm|hat unternommen|2|to do, undertake
+abheben|hebt ab|hob ab|hat abgehoben|3|to withdraw (money)
+ausgeben|gibt aus|gab aus|hat ausgegeben|3|to spend
+entscheiden|entscheidet|entschied|hat entschieden|3|to decide
+gefallen|gefällt|gefiel|hat gefallen|3|to please
+gewinnen|gewinnt|gewann|hat gewonnen|3|to win
+nennen|nennt|nannte|hat genannt|3|to name
+tun|tut|tat|hat getan|3|to do
+vergleichen|vergleicht|verglich|hat verglichen|3|to compare
+verbieten|verbietet|verbot|hat verboten|3|to forbid
+überweisen|überweist|überwies|hat überwiesen|3|to transfer (money)
+anrufen|ruft an|rief an|hat angerufen|4|to call (phone)
+verbinden|verbindet|verband|hat verbunden|4|to connect
+verschieben|verschiebt|verschob|hat verschoben|4|to postpone
+teilnehmen|nimmt teil|nahm teil|hat teilgenommen|4|to take part
+verstehen|versteht|verstand|hat verstanden|4|to understand
+empfehlen|empfiehlt|empfahl|hat empfohlen|5|to recommend
+vorschlagen|schlägt vor|schlug vor|hat vorgeschlagen|5|to suggest
+laufen|läuft|lief|ist gelaufen|5|to run, walk
+scheinen|scheint|schien|hat geschienen|5|to shine
+steigen|steigt|stieg|ist gestiegen|5|to climb, rise
+fallen|fällt|fiel|ist gefallen|5|to fall
+schwimmen|schwimmt|schwamm|ist geschwommen|6|to swim
+springen|springt|sprang|ist gesprungen|6|to jump
+stechen|sticht|stach|hat gestochen|6|to sting
+streiten|streitet|stritt|hat gestritten|6|to argue
+tragen|trägt|trug|hat getragen|6|to carry, wear
+halten|hält|hielt|hat gehalten|6|to hold
+liegen|liegt|lag|hat gelegen|7|to lie (be lying)
+sitzen|sitzt|saß|hat gesessen|7|to sit
+stehen|steht|stand|hat gestanden|7|to stand
+braten|brät|briet|hat gebraten|7|to fry
+schneiden|schneidet|schnitt|hat geschnitten|7|to cut
+streichen|streicht|strich|hat gestrichen|7|to paint (walls)
+waschen|wäscht|wusch|hat gewaschen|7|to wash
+einladen|lädt ein|lud ein|hat eingeladen|7|to invite
+trinken|trinkt|trank|hat getrunken|7|to drink
+erfinden|erfindet|erfand|hat erfunden|8|to invent
+anschließen|schließt an|schloss an|hat angeschlossen|8|to connect
+aufladen|lädt auf|lud auf|hat aufgeladen|8|to charge
+widersprechen|widerspricht|widersprach|hat widersprochen|8|to contradict
+zunehmen|nimmt zu|nahm zu|hat zugenommen|8|to increase
+verlieren|verliert|verlor|hat verloren|8|to lose`;
+
+/* Grammar topics. Items:
+   gap:    {q:"… ___ …", a:["answer|alt"], hint?, why}
+   choice: {t:"c", q, o:[options], a:index, why}
+   order:  {t:"o", w:[tiles in order], alt?:[alternative sentences], en, why} */
+const TOPICS={
+perfekt:{ch:1,title:"Perfekt: haben or sein?",ga:[[24,127],[25,131]],
+ rule:`<p>Perfekt = <em>haben/sein</em> (position 2) + <em>Partizip II</em> (end).</p>
+ <p>Use <em>sein</em> with movement from A to B (<i>gehen, fahren, fliegen, umziehen</i>), change of state (<i>aufstehen, werden, sterben</i>), and <i>sein, bleiben, passieren</i>. Everything else, including all reflexive verbs, takes <em>haben</em>.</p>
+ <p class="hint">Swiss and southern German also say <i>ich bin gesessen/gestanden/gelegen</i>. Both are accepted here.</p>`,
+ items:[
+ {q:"Ich ___ in Winterthur zur Schule gegangen.",a:["bin"],why:"gehen = movement → sein"},
+ {q:"Nach der Schule ___ sie eine Ausbildung gemacht.",a:["hat"],why:"machen → haben"},
+ {q:"2022 ___ wir nach Zürich umgezogen.",a:["sind"],why:"umziehen = change of place → sein"},
+ {q:"Wann ___ du dein Studium abgeschlossen?",a:["hast"],why:"abschließen has an object → haben"},
+ {q:"Er ___ drei Jahre in Berlin geblieben.",a:["ist"],why:"bleiben always takes sein"},
+ {q:"___ ihr schon einmal in Wien gewesen?",a:["Seid"],why:"sein → ist gewesen"},
+ {q:"Heute Morgen ___ ich um sechs aufgestanden.",a:["bin"],why:"aufstehen = change of state → sein"},
+ {q:"Wir ___ uns im Kurs kennengelernt.",a:["haben"],why:"Reflexive verbs always take haben"},
+ {q:"Was ___ gestern passiert?",a:["ist"],why:"passieren → sein"},
+ {q:"Sie ___ bei einer Bank ein Praktikum gemacht.",a:["hat"],why:"machen → haben"},
+ {t:"o",w:["Ich","habe","gestern","viele","E-Mails","geschrieben"],alt:["Gestern habe ich viele E-Mails geschrieben"],en:"I wrote a lot of emails yesterday.",why:"Auxiliary in position 2, participle at the end"},
+ {t:"o",w:["Wann","bist","du","nach Bern","gefahren","?"],en:"When did you go to Bern?",why:"W-question: question word, auxiliary, subject … participle"}
+ ]},
+partizip:{ch:1,title:"Partizip II forms",ga:[[26,135]],
+ rule:`<p>Regular: <em>ge-…-t</em> (gemacht). Irregular: <em>ge-…-en</em>, often with a vowel change (geschrieben).</p>
+ <p>Separable verbs put <em>ge</em> after the prefix: <i>ein<b>ge</b>kauft</i>. Verbs with <em>be-, ver-, er-, ent-, emp-, ge-, zer-</em> and verbs ending in <em>-ieren</em> get no ge-: <i>bezahlt, vergessen, studiert</i>.</p>`,
+ items:[
+ {q:"Ich habe den Film schon ___. (sehen)",a:["gesehen"]},
+ {q:"Hast du die E-Mail ___? (lesen)",a:["gelesen"]},
+ {q:"Er hat im Lotto viel Geld ___. (gewinnen)",a:["gewonnen"]},
+ {q:"Wir haben die Rechnung schon ___. (bezahlen)",a:["bezahlt"],why:"be- prefix: no ge-"},
+ {q:"Ich habe gestern ___. (einkaufen)",a:["eingekauft"],why:"separable: ein + ge + kauft"},
+ {q:"Hast du den Termin ___? (vereinbaren)",a:["vereinbart"],why:"ver- prefix: no ge-"},
+ {q:"Er hat Biologie ___. (studieren)",a:["studiert"],why:"-ieren verbs: no ge-"},
+ {q:"Ich habe meinen Schlüssel ___. (vergessen)",a:["vergessen"]},
+ {q:"Wann hat der Kurs ___? (anfangen)",a:["angefangen"]},
+ {q:"Sie hat mich am Bahnhof ___. (abholen)",a:["abgeholt"]},
+ {q:"Wir haben lange ___. (diskutieren)",a:["diskutiert"]},
+ {q:"Der Chef hat mir eine Stelle ___. (anbieten)",a:["angeboten"]},
+ {q:"Hast du gut ___? (schlafen)",a:["geschlafen"]},
+ {q:"Ich habe dich nicht ___. (verstehen)",a:["verstanden"]}
+ ]},
+trennbar:{ch:1,title:"Separable and inseparable verbs",ga:[[7,45],[52,261]],
+ rule:`<p>Separable prefix (<i>an, auf, aus, ein, mit, um, zurück…</i>) goes to the <em>end</em> of the main clause: <i>Ich <b>rufe</b> dich morgen <b>an</b>.</i></p>
+ <p>In a subordinate clause or with a modal verb it stays attached: <i>…, weil ich dich morgen <b>anrufe</b></i>. Inseparable prefixes (<i>be-, ver-, er-, ent-</i>) never split.</p>`,
+ items:[
+ {q:"Der Zug ___ um 8 Uhr ___. (abfahren)",a:["fährt","ab"]},
+ {q:"Wann ___ du heute Abend ___? (zurückkommen)",a:["kommst","zurück"]},
+ {q:"Ich ___ dich morgen ___. (anrufen)",a:["rufe","an"]},
+ {q:"Sie ___ ihre Freunde zum Essen ___. (einladen)",a:["lädt","ein"]},
+ {q:"Er ___ die Rechnung sofort. (bezahlen)",a:["bezahlt"],why:"be- never separates"},
+ {q:"Wir ___ am Samstag ___. (umziehen)",a:["ziehen","um"]},
+ {q:"___ Sie bitte das Formular ___! (ausfüllen)",a:["Füllen","aus"],why:"Imperative: verb first, prefix at the end"},
+ {q:"Ich kann dich morgen ___. (anrufen)",a:["anrufen"],why:"With a modal verb the infinitive stays whole"},
+ {t:"o",w:["Ich","stehe","jeden Tag","um sechs","auf"],alt:["Jeden Tag stehe ich um sechs auf","Um sechs stehe ich jeden Tag auf"],en:"I get up at six every day.",why:"Prefix auf goes to the end"},
+ {t:"o",w:["Ich","weiß",",","dass","der Kurs","um acht","anfängt"],en:"I know that the course starts at eight.",why:"In a dass-clause the verb goes last, prefix attached"}
+ ]},
+reflexiv:{ch:1,title:"Reflexive verbs",ga:[[29,148]],
+ rule:`<div class="tablewrap"><table><tr><th>ich</th><th>du</th><th>er/sie/es</th><th>wir</th><th>ihr</th><th>sie/Sie</th></tr><tr><td>mich</td><td>dich</td><td>sich</td><td>uns</td><td>euch</td><td>sich</td></tr></table></div>
+ <p>Common ones: <i>sich beeilen, sich duschen, sich freuen auf/über, sich interessieren für, sich erinnern an, sich treffen, sich verlieben in</i>. Perfekt always with <em>haben</em>.</p>`,
+ items:[
+ {q:"Ich dusche ___ jeden Morgen.",a:["mich"]},
+ {q:"Beeil ___! Der Bus kommt.",a:["dich"]},
+ {q:"Er interessiert ___ für Geschichte.",a:["sich"]},
+ {q:"Wir treffen ___ um acht vor dem Kino.",a:["uns"]},
+ {q:"Freut ihr ___ auf den Urlaub?",a:["euch"]},
+ {q:"Sie hat ___ in ihren Kollegen verliebt.",a:["sich"]},
+ {q:"Ich kann ___ nicht an seinen Namen erinnern.",a:["mich"]},
+ {q:"Haben Sie ___ schon vorgestellt?",a:["sich"]},
+ {q:"Du musst ___ beeilen.",a:["dich"]}
+ ]},
+genus:{ch:1,title:"der, die or das? Gender rules",ga:[[48,243]],
+ rule:`<p>Endings that decide gender for you:</p>
+ <div class="tablewrap"><table><tr><th class="g-die">die</th><td>-ung, -heit, -keit, -schaft, -ion, -tät, -ur, -ik, most -e</td></tr>
+ <tr><th class="g-das">das</th><td>-chen, -lein, -ment, -um, verbs used as nouns (das Essen)</td></tr>
+ <tr><th class="g-der">der</th><td>-ling, -ismus, -or, -ist, days, months, seasons</td></tr></table></div>
+ <p>Compounds take the gender of the <em>last</em> word: <i>die Tür + der Schlüssel = der Türschlüssel</i>.</p>`,
+ items:[
+ {t:"c",q:"___ Zeitung",o:["der","die","das"],a:1,why:"-ung → die"},
+ {t:"c",q:"___ Mädchen",o:["der","die","das"],a:2,why:"-chen → das"},
+ {t:"c",q:"___ Freiheit",o:["der","die","das"],a:1,why:"-heit → die"},
+ {t:"c",q:"___ Frühling",o:["der","die","das"],a:0,why:"-ling and seasons → der"},
+ {t:"c",q:"___ Information",o:["der","die","das"],a:1,why:"-ion → die"},
+ {t:"c",q:"___ Zentrum",o:["der","die","das"],a:2,why:"-um → das"},
+ {t:"c",q:"___ Mannschaft",o:["der","die","das"],a:1,why:"-schaft → die"},
+ {t:"c",q:"___ Dokument",o:["der","die","das"],a:2,why:"-ment → das"},
+ {t:"c",q:"___ Optimismus",o:["der","die","das"],a:0,why:"-ismus → der"},
+ {t:"c",q:"___ Kultur",o:["der","die","das"],a:1,why:"-ur → die"},
+ {t:"c",q:"___ Universität",o:["der","die","das"],a:1,why:"-tät → die"},
+ {t:"c",q:"___ Kinderarzt",o:["der","die","das"],a:0,why:"Compound: der Arzt decides"},
+ {t:"c",q:"___ Schwimmen",o:["der","die","das"],a:2,why:"Verb as noun → das"},
+ {t:"c",q:"___ Montag",o:["der","die","das"],a:0,why:"Days → der"},
+ {t:"c",q:"___ Möglichkeit",o:["der","die","das"],a:1,why:"-keit → die"}
+ ]},
+genitiv:{ch:1,title:"Genitive (possession)",ga:[[63,314]],
+ rule:`<div class="tablewrap"><table><tr><th></th><th>m</th><th>f</th><th>n</th><th>pl</th></tr><tr><th>Genitiv</th><td>des Vaters</td><td>der Mutter</td><td>des Kindes</td><td>der Eltern</td></tr><tr><th></th><td>eines/meines</td><td>einer/meiner</td><td>eines/meines</td><td>meiner</td></tr></table></div>
+ <p>Masculine and neuter nouns add <em>-s</em> or <em>-es</em>. Names just take -s: <i>Annas Buch</i>. In speech people often use <i>von + Dativ</i> instead.</p>`,
+ items:[
+ {q:"Das ist das Auto ___ Vaters.",a:["des"]},
+ {q:"Die Wohnung ___ Freundin ist sehr klein. (meine)",a:["meiner"]},
+ {q:"Der Name ___ Firma ist KAKO.",a:["der"]},
+ {q:"Das Ende ___ Films war traurig.",a:["des"]},
+ {q:"Die Farbe ___ Hauses gefällt mir.",a:["des"]},
+ {q:"Das ist die Meinung ___ Kollegen. (Pl.)",a:["der"]},
+ {q:"Die Adresse ___ Hotels steht im Prospekt. (ein)",a:["eines"]}
+ ]},
+modal:{ch:2,title:"Modal verbs: present and past",ga:[[5,36],[6,41],[27,140]],
+ rule:`<div class="tablewrap"><table><tr><th></th><th>können</th><th>müssen</th><th>wollen</th><th>dürfen</th><th>sollen</th><th>mögen</th></tr>
+ <tr><th>ich/er</th><td>kann</td><td>muss</td><td>will</td><td>darf</td><td>soll</td><td>mag</td></tr>
+ <tr><th>Prät. ich/er</th><td>konnte</td><td>musste</td><td>wollte</td><td>durfte</td><td>sollte</td><td>mochte</td></tr></table></div>
+ <p>In the past, speak and write modal verbs in the <em>Präteritum</em>, not Perfekt: <i>Ich musste arbeiten.</i> No umlaut in the past. The second verb goes to the end as an infinitive.</p>`,
+ items:[
+ {q:"Als Kind ___ ich jeden Tag Klavier üben. (müssen, Prät.)",a:["musste"]},
+ {q:"Früher ___ er sehr gut singen. (können, Prät.)",a:["konnte"]},
+ {q:"___ du mit ins Kino kommen? (wollen)",a:["Willst"]},
+ {q:"Hier ___ man nicht fotografieren. (dürfen)",a:["darf"]},
+ {q:"Wir ___ gestern nicht kommen. (können, Prät.)",a:["konnten"]},
+ {q:"Sie ___ eigentlich Ärztin werden. (wollen, Prät.)",a:["wollte"]},
+ {q:"Was ___ ich mitbringen? (sollen)",a:["soll"]},
+ {q:"Ihr ___ nicht so spät nach Hause kommen. (dürfen, Prät.)",a:["durftet"]},
+ {q:"Er ___ keinen Fisch. (mögen)",a:["mag"]},
+ {q:"Du ___ das nicht machen. (müssen)",a:["musst"]},
+ {t:"o",w:["Ich","musste","gestern","lange","arbeiten"],alt:["Gestern musste ich lange arbeiten"],en:"I had to work late yesterday.",why:"Modal in position 2, infinitive at the end"}
+ ]},
+praet:{ch:2,title:"Präteritum (simple past)",ga:[[23,123],[49,246]],
+ rule:`<p>Regular: stem + <em>-te</em>: <i>ich/er lebte, wir lebten</i>. Irregular verbs change the vowel and have no ending in ich/er: <i>ich/er gab, schrieb, kam</i>.</p>
+ <p>Use it for <em>sein, haben</em>, modal verbs, and in written stories and biographies. In conversation, use Perfekt for everything else.</p>`,
+ items:[
+ {q:"Mozart ___ schon als Kind Konzerte. (geben)",a:["gab"]},
+ {q:"Er ___ über 600 Musikstücke. (schreiben)",a:["schrieb"]},
+ {q:"Die Familie ___ oft nach Italien. (reisen)",a:["reiste"]},
+ {q:"1791 ___ Mozart in Wien. (sterben)",a:["starb"]},
+ {q:"Sie ___ zehn Jahre in Paris. (leben)",a:["lebte"]},
+ {q:"Wir ___ keine Zeit. (haben)",a:["hatten"]},
+ {q:"Das Konzert ___ ein großer Erfolg. (sein)",a:["war"]},
+ {q:"Er ___ mit Musik viel Geld. (verdienen)",a:["verdiente"]},
+ {q:"Der Film ___ um acht Uhr. (beginnen)",a:["begann"]},
+ {q:"Ich ___ den Bus. (verpassen)",a:["verpasste"]},
+ {q:"Plötzlich ___ das Telefon. (klingeln)",a:["klingelte"]},
+ {q:"Sie ___ in den Zug und ___ nach Basel. (steigen, fahren)",a:["stieg","fuhr"]}
+ ]},
+negation:{ch:2,title:"nicht or kein?",ga:[[15,85]],
+ rule:`<p><em>kein</em> negates a noun that would otherwise have <i>ein</i> or no article: <i>Ich habe <b>keine</b> Zeit.</i> It takes the same endings as <i>ein</i>.</p>
+ <p><em>nicht</em> negates everything else: verbs, adjectives, nouns with <i>der/die/das</i> or a possessive. It usually goes before what it negates, or at the end of the clause.</p>`,
+ items:[
+ {q:"Ich habe heute ___ Zeit.",a:["keine"]},
+ {q:"Das Museum ist montags ___ geöffnet.",a:["nicht"]},
+ {q:"Er spielt ___ Instrument.",a:["kein"]},
+ {q:"Wir gehen heute ___ ins Kino.",a:["nicht"]},
+ {q:"Das ist ___ mein Handy.",a:["nicht"],why:"Possessive → nicht"},
+ {q:"Sie hat ___ Geschwister.",a:["keine"]},
+ {q:"Ich trinke ___ Kaffee.",a:["keinen"],why:"der Kaffee, Akkusativ → keinen"},
+ {q:"Er kommt heute ___.",a:["nicht"]},
+ {q:"Nein, ich habe ___ Hund, sondern eine Katze.",a:["keinen"]},
+ {q:"Der Film war ___ spannend.",a:["nicht"]}
+ ]},
+weilwenn:{ch:3,title:"Subordinate clauses: weil and wenn",ga:[[42,218]],
+ rule:`<p>After <em>weil</em> (because), <em>wenn</em> (if/when), <em>dass</em>, <em>obwohl</em> the conjugated verb goes to the <em>end</em>.</p>
+ <p>If the subordinate clause comes first, the main clause starts with the verb: <i>Wenn ich Zeit habe, <b>gehe</b> ich einkaufen.</i> (verb, comma, verb)</p>`,
+ items:[
+ {t:"o",w:["Ich","kaufe","online",",","weil","es","billiger","ist"],en:"I buy online because it's cheaper.",why:"weil sends the verb to the end"},
+ {t:"o",w:["Wenn","ich","Zeit","habe",",","gehe","ich","einkaufen"],alt:["Ich gehe einkaufen , wenn ich Zeit habe"],en:"When I have time, I go shopping.",why:"Clause first → main clause starts with the verb"},
+ {t:"o",w:["Er","spart","Geld",",","weil","er","ein","Auto","kaufen","will"],en:"He's saving money because he wants to buy a car.",why:"Modal verb goes to the very end"},
+ {t:"o",w:["Ich","bleibe","zu Hause",",","wenn","es","regnet"],alt:["Wenn es regnet , bleibe ich zu Hause"],en:"I stay home if it rains."},
+ {q:"Ich gehe nicht mit, ___ ich kein Geld habe.",a:["weil"]},
+ {q:"___ du Lust hast, können wir essen gehen.",a:["Wenn"]},
+ {q:"Sie bezahlt bar, ___ sie keine Kreditkarte hat.",a:["weil"]},
+ {q:"Ich bin müde. → Ich gehe schlafen, weil ich müde ___.",a:["bin"]},
+ {q:"Wenn das Wetter schön ist, ___ wir wandern. (gehen)",a:["gehen"]}
+ ]},
+datakk:{ch:3,title:"Verbs with dative and accusative",ga:[[20,105],[21,110],[22,114]],
+ rule:`<p>Give <em>someone (Dativ)</em> <em>something (Akkusativ)</em>: <i>Ich schenke <b>meiner Mutter</b> <b>Blumen</b>.</i> Typical: <i>geben, schenken, zeigen, erklären, empfehlen, schicken, bringen</i>.</p>
+ <p>Dative-only verbs: <i>helfen, danken, gefallen, gehören, passen, antworten</i>.</p>
+ <div class="tablewrap"><table><tr><th>Nom</th><td>ich</td><td>du</td><td>er</td><td>sie</td><td>wir</td><td>ihr</td><td>sie/Sie</td></tr><tr><th>Akk</th><td>mich</td><td>dich</td><td>ihn</td><td>sie</td><td>uns</td><td>euch</td><td>sie/Sie</td></tr><tr><th>Dat</th><td>mir</td><td>dir</td><td>ihm</td><td>ihr</td><td>uns</td><td>euch</td><td>ihnen/Ihnen</td></tr></table></div>
+ <p>Two pronouns: accusative first. <i>Gib <b>es mir</b>!</i></p>`,
+ items:[
+ {q:"Ich schenke ___ Mutter Blumen. (meine)",a:["meiner"]},
+ {q:"Kannst du ___ das Buch geben? (ich)",a:["mir"]},
+ {q:"Er hilft ___ Kollegen. (sein, Sg.)",a:["seinem"]},
+ {q:"Die Jacke gefällt ___ sehr. (ich)",a:["mir"]},
+ {q:"Ich gebe ___ das Geld morgen. (er)",a:["ihm"]},
+ {q:"Gehört das Handy ___? (du)",a:["dir"]},
+ {q:"Wir danken ___ für Ihre Hilfe. (Sie)",a:["Ihnen"]},
+ {q:"Ich zeige ___ die Fotos. (sie, Pl.)",a:["ihnen"]},
+ {q:"Der Verkäufer empfiehlt ___ einen Laptop. (wir)",a:["uns"]},
+ {q:"Das Kleid passt ___ nicht. (sie, Sg.)",a:["ihr"]},
+ {q:"Gib ___ ___! (es, ich)",a:["es","mir"],why:"Two pronouns: accusative before dative"}
+ ]},
+k2wish:{ch:3,title:"Konjunktiv II: wishes and what-ifs",ga:[[55,275],[56,280]],
+ rule:`<p>Most verbs: <em>würde + infinitive</em>. But <i>sein, haben</i> and modals have their own forms:</p>
+ <div class="tablewrap"><table><tr><th>sein</th><td>wäre</td><th>haben</th><td>hätte</td><th>können</th><td>könnte</td></tr><tr><th>werden</th><td>würde</td><th>müssen</th><td>müsste</td><th>dürfen</th><td>dürfte</td></tr></table></div>
+ <p><i>Wenn ich reich <b>wäre</b>, <b>würde</b> ich weniger <b>arbeiten</b>.</i></p>`,
+ items:[
+ {q:"Wenn ich viel Geld ___, würde ich ein Haus kaufen. (haben)",a:["hätte"]},
+ {q:"Wenn ich reich ___, würde ich weniger arbeiten. (sein)",a:["wäre"]},
+ {q:"Ich ___ gern mehr Zeit. (haben)",a:["hätte"]},
+ {q:"Wenn er Zeit hätte, ___ er mitkommen. (können)",a:["könnte"]},
+ {q:"An deiner Stelle ___ ich das Angebot annehmen. (werden)",a:["würde"]},
+ {q:"Es ___ schön, wenn du kommst. (sein)",a:["wäre"]},
+ {q:"Wenn wir ein Auto ___, ___ wir ans Meer fahren. (haben, werden)",a:["hätten","würden"]},
+ {q:"Ich ___ jetzt lieber am Strand. (sein)",a:["wäre"]},
+ {t:"o",w:["Wenn","ich","im Lotto","gewinnen","würde",",","würde","ich","eine Weltreise","machen"],en:"If I won the lottery, I'd travel around the world."}
+ ]},
+einer:{ch:3,title:"Pronouns without a noun: einer, eins, keins",ga:[[14,82]],
+ rule:`<p>When the noun is dropped, <i>ein/kein</i> show the gender themselves:</p>
+ <div class="tablewrap"><table><tr><th></th><th>m</th><th>f</th><th>n</th><th>pl</th></tr><tr><th>Nom</th><td>einer / keiner</td><td>eine / keine</td><td>eins / keins</td><td>welche / keine</td></tr><tr><th>Akk</th><td>einen / keinen</td><td>eine / keine</td><td>eins / keins</td><td>welche / keine</td></tr></table></div>`,
+ items:[
+ {q:"Brauchst du einen Stift? – Ja, ich brauche ___.",a:["einen"]},
+ {q:"Hast du ein Auto? – Nein, ich habe ___.",a:["keins|keines"]},
+ {q:"Ist hier eine Bank? – Ja, da vorne ist ___.",a:["eine"]},
+ {q:"Gibt es hier einen Geldautomaten? – Ja, dort ist ___.",a:["einer"]},
+ {q:"Haben Sie Taschen? – Nein, wir haben ___.",a:["keine"]},
+ {q:"Ich habe ein Formular. Brauchst du auch ___?",a:["eins|eines"]},
+ {q:"Hast du Äpfel gekauft? – Ja, ich habe ___ gekauft.",a:["welche"]}
+ ]},
+zeitprep:{ch:4,title:"Time: am, um, im, seit, vor, ab, bis",ga:[[30,157],[78,390]],
+ rule:`<div class="tablewrap"><table><tr><th>um</th><td>clock time</td><td>um 10 Uhr</td></tr><tr><th>am</th><td>days, dates, parts of the day</td><td>am Montag, am 5. März, am Abend</td></tr><tr><th>im</th><td>months, seasons</td><td>im Juli, im Winter</td></tr><tr><th>seit</th><td>started in the past, still going (+ Dat)</td><td>seit drei Jahren</td></tr><tr><th>vor</th><td>… ago (+ Dat)</td><td>vor zwei Wochen</td></tr><tr><th>ab</th><td>from … on</td><td>ab nächster Woche</td></tr><tr><th>von … bis</th><td>from … to</td><td>von 8 bis 17 Uhr</td></tr></table></div>
+ <p>Exception: <i>in der Nacht</i>.</p>`,
+ items:[
+ {q:"Der Termin ist ___ Montag.",a:["am"]},
+ {q:"Die Besprechung beginnt ___ 10 Uhr.",a:["um"]},
+ {q:"Ich habe ___ Juli Urlaub.",a:["im"]},
+ {q:"Ich arbeite ___ drei Jahren bei der Firma.",a:["seit"]},
+ {q:"Er hat ___ zwei Wochen gekündigt.",a:["vor"]},
+ {q:"Das Büro ist ___ 8 ___ 17 Uhr geöffnet.",a:["von","bis"]},
+ {q:"___ Wochenende arbeite ich nicht.",a:["Am"]},
+ {q:"___ nächster Woche habe ich mehr Zeit.",a:["Ab"]},
+ {q:"Das Projekt muss ___ Freitag fertig sein.",a:["bis"]},
+ {q:"___ Winter fahre ich Ski.",a:["Im"]},
+ {q:"Er wohnt ___ 2019 in der Schweiz.",a:["seit"]},
+ {q:"Ich rufe Sie ___ Nachmittag an.",a:["am"]}
+ ]},
+k2polite:{ch:4,title:"Konjunktiv II: polite requests",ga:[[55,275]],
+ rule:`<p>Softer than the imperative, and expected on the phone and at work:</p>
+ <p><i><b>Könnten</b> Sie mir bitte helfen? · <b>Würden</b> Sie mir die Unterlagen schicken? · Ich <b>hätte</b> gern einen Termin. · <b>Hätten</b> Sie am Dienstag Zeit? · <b>Dürfte</b> ich kurz stören?</i></p>`,
+ items:[
+ {q:"___ Sie mir bitte helfen? (können)",a:["Könnten"]},
+ {q:"___ Sie das bitte buchstabieren? (können)",a:["Könnten"]},
+ {q:"Ich ___ gern einen Termin bei Frau Keller. (haben)",a:["hätte"]},
+ {q:"___ Sie mir die Unterlagen schicken? (werden)",a:["Würden"]},
+ {q:"___ es Ihnen am Dienstag passen? (werden)",a:["Würde"]},
+ {q:"___ Sie nächste Woche Zeit? (haben)",a:["Hätten"]},
+ {q:"___ ich kurz Ihr Telefon benutzen? (dürfen)",a:["Dürfte|Könnte"]},
+ {q:"Es ___ super, wenn Sie heute noch antworten. (sein)",a:["wäre"]}
+ ]},
+verbprep:{ch:4,title:"Verbs with prepositions",ga:[[53,265],[54,270]],
+ rule:`<p>Learn the verb together with its preposition and case:</p>
+ <div class="tablewrap"><table><tr><td>warten auf + A</td><td>sich freuen auf + A (future)</td><td>sich freuen über + A (now/past)</td></tr><tr><td>sprechen über + A</td><td>sich interessieren für + A</td><td>sich beschweren über + A</td></tr><tr><td>teilnehmen an + D</td><td>denken an + A</td><td>Angst haben vor + D</td></tr><tr><td>sich bewerben um + A</td><td>sich kümmern um + A</td><td>träumen von + D</td></tr></table></div>
+ <p>Questions about things: <em>wo(r) + preposition</em>: <i>Worauf wartest du?</i> Answers: <em>da(r) + preposition</em>: <i>Ich warte darauf.</i></p>`,
+ items:[
+ {q:"Ich warte ___ den Bus.",a:["auf"]},
+ {q:"Sie freut sich ___ den Urlaub nächste Woche.",a:["auf"]},
+ {q:"Er freut sich ___ das Geschenk, das er bekommen hat.",a:["über"]},
+ {q:"Wir sprechen morgen ___ das Problem.",a:["über"]},
+ {q:"Ich interessiere mich ___ Politik.",a:["für"]},
+ {q:"Sie hat sich ___ den Service beschwert.",a:["über"]},
+ {q:"Ich nehme ___ der Sitzung teil.",a:["an"]},
+ {q:"Er denkt oft ___ seine Familie.",a:["an"]},
+ {q:"Ich habe Angst ___ Spinnen.",a:["vor"]},
+ {q:"Wir bewerben uns ___ die Stelle.",a:["um"]},
+ {q:"___ freust du dich? – Auf das Wochenende.",a:["Worauf"]},
+ {q:"Interessierst du dich für Kunst? – Ja, ich interessiere mich sehr ___.",a:["dafür"]}
+ ]},
+indirekt:{ch:4,title:"Indirect questions and dass",ga:[[67,335],[42,218]],
+ rule:`<p>Polite questions wrap the real question in a lead-in: <i>Können Sie mir sagen, … / Wissen Sie, … / Ich möchte wissen, …</i> The verb goes to the <em>end</em>.</p>
+ <p>W-question → keep the W-word: <i>…, wann der Zug <b>abfährt</b>?</i> Yes/no question → <em>ob</em>: <i>…, ob Frau Meier im Büro <b>ist</b>?</i></p>`,
+ items:[
+ {t:"o",w:["Können","Sie","mir","sagen",",","wann","der Zug","abfährt","?"],en:"Can you tell me when the train leaves?"},
+ {t:"o",w:["Wissen","Sie",",","ob","Frau Meier","im Büro","ist","?"],en:"Do you know whether Ms. Meier is in the office?"},
+ {t:"o",w:["Ich","glaube",",","dass","die Sitzung","um zehn","beginnt"],en:"I think the meeting starts at ten."},
+ {q:"Weißt du, ___ er heute kommt? (yes/no question)",a:["ob"]},
+ {q:"Ich weiß nicht, ___ viel das kostet.",a:["wie"]},
+ {q:"Er sagt, ___ er krank ist.",a:["dass"]},
+ {q:"Können Sie mir sagen, ___ das Büro ist?",a:["wo"]},
+ {q:"Ich frage mich, ___ sie nicht anruft.",a:["warum|wieso"]},
+ {q:"Wissen Sie, wann der Chef zurück___? (kommen)",a:["kommt"]}
+ ]},
+lokal:{ch:5,title:"Where to? nach, in, zu, an",ga:[[35,178]],
+ rule:`<div class="tablewrap"><table><tr><th>nach</th><td>cities, countries without article, <i>nach Hause</i></td><td>nach Italien, nach Bern</td></tr><tr><th>in + Akk</th><td>countries with article, closed spaces, mountains</td><td>in die Schweiz, ins Kino, in die Berge</td></tr><tr><th>zu + Dat</th><td>people, shops, institutions</td><td>zum Arzt, zur Bank, zu Anna</td></tr><tr><th>an + Akk</th><td>water, edges</td><td>ans Meer, an den See</td></tr></table></div>
+ <p>Where? <i>zu Hause, in der Schweiz, beim Arzt, am Meer</i>. Where from? <i>aus Spanien, vom Arzt</i>.</p>`,
+ items:[
+ {q:"Wir fahren ___ Italien.",a:["nach"]},
+ {q:"Sie fliegt ___ die Schweiz.",a:["in"]},
+ {q:"Ich gehe heute ___ Arzt.",a:["zum"]},
+ {q:"Wir fahren im Sommer ___ Meer.",a:["ans"]},
+ {q:"Er fährt jetzt ___ Hause.",a:["nach"]},
+ {q:"Ich bin heute ___ Hause.",a:["zu"]},
+ {q:"Wir fahren ___ die Berge.",a:["in"]},
+ {q:"Sie fliegt ___ die USA.",a:["in"]},
+ {q:"Wir gehen ___ Strand.",a:["an den|zum"]},
+ {q:"Ich komme ___ Spanien.",a:["aus"]},
+ {q:"Er kommt gerade ___ Bäcker.",a:["vom"]},
+ {q:"Ich war letzte Woche ___ Meer.",a:["am"]}
+ ]},
+obwohl:{ch:5,title:"obwohl vs. weil",ga:[[42,218]],
+ rule:`<p><em>weil</em> gives a reason. <em>obwohl</em> (although) gives a surprising contrast. Both send the verb to the end.</p>
+ <p><i>Wir fahren ans Meer, <b>obwohl</b> das Wetter schlecht <b>ist</b>.</i> Main-clause version with the same meaning: <i>Das Wetter ist schlecht. <b>Trotzdem</b> fahren wir ans Meer.</i></p>`,
+ items:[
+ {q:"Er geht schwimmen, ___ es kalt ist.",a:["obwohl"]},
+ {q:"Sie bleibt zu Hause, ___ sie krank ist.",a:["weil"]},
+ {q:"___ das Hotel teuer war, war der Service schlecht.",a:["Obwohl"]},
+ {q:"Ich bin müde, ___ ich lange geschlafen habe.",a:["obwohl"]},
+ {q:"Er hat den Zug verpasst, ___ er zu spät aufgestanden ist.",a:["weil"]},
+ {t:"o",w:["Wir","fahren","ans Meer",",","obwohl","das Wetter","schlecht","ist"],en:"We're going to the sea although the weather is bad."}
+ ]},
+komparativ:{ch:6,title:"Comparing: Komparativ and Superlativ",ga:[[38,196],[39,200]],
+ rule:`<p><em>-er als</em> for comparing, <em>am -sten</em> or <em>der/die/das -ste</em> for the top. Many short adjectives add an umlaut: <i>alt → älter → am ältesten</i>.</p>
+ <div class="tablewrap"><table><tr><th>gut</th><td>besser</td><td>am besten</td></tr><tr><th>viel</th><td>mehr</td><td>am meisten</td></tr><tr><th>gern</th><td>lieber</td><td>am liebsten</td></tr><tr><th>hoch</th><td>höher</td><td>am höchsten</td></tr><tr><th>nah</th><td>näher</td><td>am nächsten</td></tr></table></div>
+ <p>Equal: <i>so groß <b>wie</b></i>. Different: <i>größer <b>als</b></i>.</p>`,
+ items:[
+ {q:"Ein Gepard läuft ___ als ein Pferd. (schnell)",a:["schneller"]},
+ {q:"Mein Bruder ist ___ als ich. (alt)",a:["älter"]},
+ {q:"Ich trinke ___ Tee als Kaffee. (gern)",a:["lieber"]},
+ {q:"Der Hund ist so groß ___ die Katze.",a:["wie"]},
+ {q:"Zürich ist teurer ___ Bern.",a:["als"]},
+ {q:"Welches Tier ist am ___? (gefährlich)",a:["gefährlichsten"]},
+ {q:"Das ist der ___ Berg der Schweiz. (hoch)",a:["höchste"]},
+ {q:"Im Sommer ist es ___ als im Winter. (warm)",a:["wärmer"]},
+ {q:"Wer singt am ___? (gut)",a:["besten"]},
+ {q:"Heute habe ich ___ Zeit als gestern. (viel)",a:["mehr"]}
+ ]},
+sollten:{ch:6,title:"Recommendations with sollte",ga:[[6,41],[56,280]],
+ rule:`<p>Advice = Konjunktiv II of sollen + infinitive at the end: <i>Du <b>solltest</b> mehr Wasser <b>trinken</b>.</i></p>
+ <div class="tablewrap"><table><tr><td>ich sollte</td><td>du solltest</td><td>er sollte</td><td>wir sollten</td><td>ihr solltet</td><td>sie/Sie sollten</td></tr></table></div>`,
+ items:[
+ {q:"Du ___ mehr Wasser trinken.",a:["solltest"]},
+ {q:"Sie ___ zum Arzt gehen. (formal)",a:["sollten"]},
+ {q:"Ihr ___ früher ins Bett gehen.",a:["solltet"]},
+ {q:"Er ___ weniger arbeiten.",a:["sollte"]},
+ {q:"Wir ___ einen Hund adoptieren.",a:["sollten"]},
+ {t:"o",w:["Bei","Kopfschmerzen","solltest","du","mehr","schlafen"],alt:["Du solltest bei Kopfschmerzen mehr schlafen"],en:"With headaches you should sleep more."}
+ ]},
+relativ:{ch:6,title:"Relative clauses",ga:[[70,350],[71,354]],
+ rule:`<p>The relative pronoun takes <em>gender and number</em> from the noun it refers to, and <em>case</em> from its role in the relative clause. Verb at the end.</p>
+ <div class="tablewrap"><table><tr><th></th><th>m</th><th>f</th><th>n</th><th>pl</th></tr><tr><th>Nom</th><td>der</td><td>die</td><td>das</td><td>die</td></tr><tr><th>Akk</th><td>den</td><td>die</td><td>das</td><td>die</td></tr><tr><th>Dat</th><td>dem</td><td>der</td><td>dem</td><td>denen</td></tr></table></div>`,
+ items:[
+ {q:"Das ist der Mann, ___ neben mir wohnt.",a:["der"]},
+ {q:"Das ist die Frau, ___ ich im Kurs kennengelernt habe.",a:["die"]},
+ {q:"Das ist das Buch, ___ ich dir empfohlen habe.",a:["das"]},
+ {q:"Das sind die Kollegen, ___ mir immer helfen.",a:["die"]},
+ {q:"Der Hund, ___ wir gestern gesehen haben, war riesig.",a:["den"],why:"wir haben den Hund gesehen → Akk"},
+ {q:"Die Freundin, ___ ich das Geschenk gegeben habe, hat sich gefreut.",a:["der"],why:"ich habe der Freundin … gegeben → Dat"},
+ {q:"Das ist der Kollege, mit ___ ich arbeite.",a:["dem"]},
+ {q:"Die Stadt, in ___ ich wohne, ist klein.",a:["der"]},
+ {q:"Wie heißt das Ding, mit ___ man Fotos macht?",a:["dem"]},
+ {q:"Die Leute, ___ ich geholfen habe, waren nett.",a:["denen"]}
+ ]},
+akkprep:{ch:6,title:"Accusative prepositions: für, durch, gegen, ohne, um",ga:[[32,165]],
+ rule:`<p>Always accusative: <em>durch, für, gegen, ohne, um</em> (mnemonic: <i>DOGFU</i>). Only masculine changes visibly: <i>der → den, ein → einen</i>.</p>`,
+ items:[
+ {q:"Das Geschenk ist für ___ Bruder. (mein)",a:["meinen"]},
+ {q:"Wir gehen durch ___ Park.",a:["den"]},
+ {q:"Er fährt ohne ___ Frau in den Urlaub. (sein)",a:["seine"]},
+ {q:"Das Auto fuhr gegen ___ Baum. (ein)",a:["einen"]},
+ {q:"Wir sitzen um ___ Tisch.",a:["den"]},
+ {q:"Haustiere sind gut gegen ___ Stress.",a:["den"]},
+ {q:"Ich habe ein Geschenk für ___. (du)",a:["dich"]}
+ ]},
+stellen:{ch:7,title:"stellen/stehen, legen/liegen, hängen",ga:[[62,306]],
+ rule:`<div class="tablewrap"><table><tr><th>Wohin? action + Akk</th><th>Wo? result + Dat</th></tr><tr><td>stellen (upright), regular</td><td>stehen, stand, gestanden</td></tr><tr><td>legen (flat), regular</td><td>liegen, lag, gelegen</td></tr><tr><td>hängen, hängte, gehängt</td><td>hängen, hing, gehangen</td></tr><tr><td>setzen</td><td>sitzen, saß, gesessen</td></tr></table></div>`,
+ items:[
+ {q:"Ich ___ die Flasche in den Kühlschrank. (stellen)",a:["stelle"]},
+ {q:"Die Flasche ___ im Kühlschrank.",a:["steht"]},
+ {q:"Er ___ das Buch auf den Tisch.",a:["legt"]},
+ {q:"Das Buch ___ auf dem Tisch.",a:["liegt"]},
+ {q:"Wir ___ das Bild an die Wand.",a:["hängen"]},
+ {q:"Das Bild ___ an der Wand.",a:["hängt"]},
+ {q:"Wohin hast du den Schlüssel ___?",a:["gelegt"]},
+ {q:"Der Schlüssel hat auf dem Regal ___.",a:["gelegen"]},
+ {t:"c",q:"Die Katze ___ auf dem Sofa.",o:["legt","liegt"],a:1}
+ ]},
+alswenn:{ch:7,title:"als or wenn?",ga:[[72,358]],
+ rule:`<p><em>als</em>: a <b>single</b> event or period in the past. <em>wenn</em>: repeated events (<i>immer wenn, jedes Mal wenn</i>), or present/future.</p>
+ <p><i><b>Als</b> ich ein Kind war, … · <b>Wenn</b> ich Zeit habe, …</i></p>`,
+ items:[
+ {q:"___ ich ein Kind war, wohnten wir auf dem Land.",a:["Als"]},
+ {q:"Immer ___ ich Zeit habe, koche ich selbst.",a:["wenn"]},
+ {q:"___ wir nach Zürich umgezogen sind, war ich zwölf.",a:["Als"]},
+ {q:"___ es regnet, bleiben wir zu Hause.",a:["Wenn"]},
+ {q:"Jedes Mal, ___ er kam, brachte er Blumen mit.",a:["wenn"]},
+ {q:"___ ich gestern nach Hause kam, war niemand da.",a:["Als"]}
+ ]},
+zu:{ch:7,title:"Infinitive with zu",ga:[[68,340],[69,345]],
+ rule:`<p>After <i>Lust haben, Zeit haben, vergessen, versuchen, anfangen, vorhaben, Es ist schwer/wichtig…</i>: <em>zu + infinitive</em> at the end.</p>
+ <p>Separable verbs put <em>zu</em> in the middle: <i>auf<b>zu</b>räumen</i>. No zu after modal verbs, <i>werden, lassen</i>.</p>`,
+ items:[
+ {q:"Ich habe keine Lust, heute ___ kochen.",a:["zu"]},
+ {q:"Es ist schwer, in Zürich eine Wohnung ___ finden.",a:["zu"]},
+ {q:"Ich habe vor, am Wochenende ___. (aufräumen)",a:["aufzuräumen"]},
+ {q:"Vergiss nicht, den Müll ___. (rausbringen)",a:["rauszubringen"]},
+ {q:"Er hat angefangen, Deutsch ___ lernen.",a:["zu"]},
+ {t:"c",q:"Ich muss heute ___ arbeiten.",o:["zu","— (no zu)"],a:1,why:"No zu after modal verbs"},
+ {t:"c",q:"Ich versuche, gesünder ___ essen.",o:["zu","— (no zu)"],a:0}
+ ]},
+deshalb:{ch:7,title:"deshalb and trotzdem",ga:[[41,214]],
+ rule:`<p>These are adverbs, not subordinating words: they take position 1 and the <em>verb comes right after</em>.</p>
+ <p><i>Ich habe Hunger, <b>deshalb koche</b> ich jetzt.</i> (consequence) · <i>Es regnet, <b>trotzdem gehen</b> wir spazieren.</i> (contrast)</p>`,
+ items:[
+ {t:"o",w:["Ich","habe","Hunger",",","deshalb","koche","ich","jetzt"],en:"I'm hungry, so I'm cooking now."},
+ {t:"o",w:["Es","regnet",",","trotzdem","gehen","wir","spazieren"],en:"It's raining, but we're going for a walk anyway."},
+ {q:"Die Wohnung ist teuer. ___ gefällt sie mir.",a:["Trotzdem"]},
+ {q:"Ich esse gern Gemüse. ___ kaufe ich jede Woche auf dem Markt ein.",a:["Deshalb"]},
+ {t:"c",q:"Er hat wenig Geld, ___ fährt er in den Urlaub.",o:["deshalb","trotzdem"],a:1},
+ {t:"c",q:"Der Zug hatte Verspätung, ___ bin ich zu spät gekommen.",o:["deshalb","trotzdem"],a:0}
+ ]},
+passiv:{ch:8,title:"Passive: present and past",ga:[[57,284],[58,288]],
+ rule:`<p>Focus on the action, not who does it: <em>werden</em> (position 2) + <em>Partizip II</em> (end).</p>
+ <div class="tablewrap"><table><tr><th>Präsens</th><td>Das Haus <b>wird</b> gebaut.</td></tr><tr><th>Präteritum</th><td>Das Haus <b>wurde</b> 1950 gebaut.</td></tr></table></div>
+ <p>Who did it: <i>von + Dativ</i>. <i>Das Telefon wurde von Bell erfunden.</i></p>`,
+ items:[
+ {q:"Das Rathaus ___ gerade renoviert.",a:["wird"]},
+ {q:"Die Häuser ___ 1950 gebaut. (Prät.)",a:["wurden"]},
+ {q:"Das Telefon ___ 1876 erfunden. (Prät.)",a:["wurde"]},
+ {q:"In der Schweiz ___ vier Sprachen gesprochen.",a:["werden"]},
+ {q:"Der Müll ___ jeden Montag abgeholt.",a:["wird"]},
+ {q:"Die Ausstellung ___ gestern eröffnet. (Prät.)",a:["wurde"]},
+ {q:"Viele Menschen ___ bei dem Unfall verletzt. (Prät.)",a:["wurden"]},
+ {q:"Das Paket ___ morgen ___. (liefern)",a:["wird","geliefert"]},
+ {q:"Die Fenster ___ jede Woche ___. (putzen)",a:["werden","geputzt"]},
+ {t:"o",w:["Der Brief","wurde","gestern","geschrieben"],alt:["Gestern wurde der Brief geschrieben"],en:"The letter was written yesterday."}
+ ]},
+umzu:{ch:8,title:"Purpose: um … zu and damit",ga:[[74,366]],
+ rule:`<p><em>um … zu + infinitive</em> when both parts have the <b>same subject</b>: <i>Ich lerne Deutsch, <b>um</b> in Zürich <b>zu arbeiten</b>.</i></p>
+ <p><em>damit</em> + verb at the end when the subjects differ: <i>Ich spreche langsam, <b>damit</b> du mich <b>verstehst</b>.</i></p>`,
+ items:[
+ {q:"Ich lerne Deutsch, ___ in der Schweiz zu arbeiten.",a:["um"]},
+ {t:"o",w:["Ich","spare","Energie",",","um","die Umwelt","zu","schützen"],en:"I save energy to protect the environment."},
+ {q:"Er schaltet das Licht aus, ___ Strom zu sparen.",a:["um"]},
+ {q:"Ich lade das Handy auf, ___ ich dich später anrufen kann.",a:["damit"],why:"Same subject would allow um…zu, but kann is a conjugated verb → damit"},
+ {q:"Sie spricht langsam, ___ alle sie verstehen.",a:["damit"]},
+ {q:"Wir fahren mit dem Zug, um die Umwelt ___ schonen.",a:["zu"]}
+ ]},
+datprep:{ch:8,title:"Dative prepositions: aus, bei, mit, nach, seit, von, zu",ga:[[31,161]],
+ rule:`<p>Always dative: <em>aus, bei, mit, nach, seit, von, zu</em> (plus <i>gegenüber</i>). Contractions: <i>zu dem = zum, zu der = zur, von dem = vom, bei dem = beim</i>.</p>
+ <div class="tablewrap"><table><tr><th>m</th><th>f</th><th>n</th><th>pl</th></tr><tr><td>dem / einem</td><td>der / einer</td><td>dem / einem</td><td>den …n</td></tr></table></div>`,
+ items:[
+ {q:"Ich fahre ___ dem Zug zur Arbeit.",a:["mit"]},
+ {q:"Er wohnt noch ___ seinen Eltern.",a:["bei"]},
+ {q:"Nach ___ Arbeit gehe ich einkaufen.",a:["der"]},
+ {q:"Das Geschenk ist ___ meiner Oma.",a:["von"]},
+ {q:"Ich komme gerade ___ der Bibliothek.",a:["aus"]},
+ {q:"Ich gehe ___ Bäcker.",a:["zum"]},
+ {q:"Seit ___ Jahr lerne ich Deutsch. (ein)",a:["einem"]},
+ {q:"Er arbeitet ___ einer Bank.",a:["bei"]},
+ {q:"Die Kinder gehen ___ Schule.",a:["zur"]},
+ {q:"Ich spreche mit ___ Kollegen. (Pl.)",a:["den"]}
+ ]}
+};
+
+/* Generated drills */
+const GEN={
+adjgen:{ch:5,title:"Adjective endings (infinite)",ga:[[36,186],[37,191],[79,395]],gen:true,
+ rule:`<p>The ending depends on what the article already shows.</p>
+ <div class="tablewrap"><table><tr><th>after der/die/das</th><th>m</th><th>f</th><th>n</th><th>pl</th></tr><tr><th>Nom</th><td>-e</td><td>-e</td><td>-e</td><td>-en</td></tr><tr><th>Akk</th><td>-en</td><td>-e</td><td>-e</td><td>-en</td></tr><tr><th>Dat</th><td>-en</td><td>-en</td><td>-en</td><td>-en</td></tr></table></div>
+ <div class="tablewrap"><table><tr><th>after ein/kein/mein</th><th>m</th><th>f</th><th>n</th><th>pl (kein)</th></tr><tr><th>Nom</th><td>-er</td><td>-e</td><td>-es</td><td>-en</td></tr><tr><th>Akk</th><td>-en</td><td>-e</td><td>-es</td><td>-en</td></tr><tr><th>Dat</th><td>-en</td><td>-en</td><td>-en</td><td>-en</td></tr></table></div>
+ <div class="tablewrap"><table><tr><th>no article</th><th>m</th><th>f</th><th>n</th><th>pl</th></tr><tr><th>Nom</th><td>-er</td><td>-e</td><td>-es</td><td>-e</td></tr><tr><th>Akk</th><td>-en</td><td>-e</td><td>-es</td><td>-e</td></tr><tr><th>Dat</th><td>-em</td><td>-er</td><td>-em</td><td>-en</td></tr></table></div>
+ <p>Shortcut: after an article the adjective ends in <em>-e</em> or <em>-en</em>, unless <i>ein</i> hides the gender (m Nom, n Nom/Akk), then the adjective shows it: <i>ein alt<b>er</b> Mann, ein neu<b>es</b> Auto</i>.</p>`},
+kompgen:{ch:6,title:"Komparativ and Superlativ forms (infinite)",ga:[[38,196],[39,200]],gen:true,
+ rule:`<p>Type the comparative and the <i>am …sten</i> form. Watch the umlauts on short adjectives (<i>alt, jung, warm, kalt, lang, kurz, groß, stark, klug, arm</i>) and <em>-esten</em> after -t, -d, -s, -ß, -z: <i>am ältesten, am kürzesten</i>.</p>`},
+wechselgen:{ch:7,title:"Wo or wohin? Two-way prepositions (infinite)",ga:[[33,169],[34,174]],gen:true,
+ rule:`<p><em>in, an, auf, über, unter, vor, hinter, neben, zwischen</em>:</p>
+ <p><b>Wohin?</b> movement to a place → <em>Akkusativ</em>: <i>Ich lege das Buch auf <b>den</b> Tisch.</i><br><b>Wo?</b> location → <em>Dativ</em>: <i>Das Buch liegt auf <b>dem</b> Tisch.</i></p>
+ <p>Contractions: <i>in dem = im, in das = ins, an dem = am, an das = ans</i>.</p>`}
+};
+
+/* Writing prompts (Claude corrects) */
+const WRITING=[
+ {ch:1,title:"Introduce yourself to your new teacher",task:"Schreib eine E-Mail an deine neue Deutschlehrerin. Wer bist du? Woher kommst du? Was hast du nach der Schule gemacht (Perfekt!) und was machst du jetzt? Warum lernst du Deutsch?",words:"60–80",focus:"Perfekt, word order"},
+ {ch:1,title:"My Tuesday",task:"Beschreib deinen typischen Dienstag: Wann stehst du auf? Wie fährst du zur Uni? Was machst du nach der Vorlesung? Benutze mindestens drei trennbare oder reflexive Verben.",words:"60–80",focus:"separable and reflexive verbs"},
+ {ch:2,title:"Last weekend + childhood",task:"Was hast du letztes Wochenende gemacht? Und was musstest, konntest oder durftest du als Kind in deiner Freizeit machen?",words:"70–90",focus:"Perfekt, modal verbs in Präteritum"},
+ {ch:2,title:"A short biography",task:"Schreib eine kurze Biografie über eine Person, die du bewunderst: Wo wurde sie geboren? Was machte sie? Was war ihr größter Erfolg? (Präteritum)",words:"70–90",focus:"Präteritum"},
+ {ch:3,title:"The jacket doesn't fit",task:"Du hast online eine Jacke gekauft, aber sie passt nicht. Schreib dem Shop: Was hast du bestellt? Was ist das Problem? Was möchtest du jetzt (umtauschen oder Geld zurück)?",words:"60–80",focus:"weil, dative verbs (passen, gefallen)"},
+ {ch:3,title:"If I won a million",task:"Was würdest du machen, wenn du eine Million Franken gewinnen würdest? Was würdest du kaufen, wohin würdest du reisen, wem würdest du etwas schenken?",words:"70–90",focus:"Konjunktiv II"},
+ {ch:4,title:"Moving an appointment",task:"Schreib deiner Chefin, Frau Keller: Du kannst den Termin am Donnerstag um 10 Uhr nicht wahrnehmen. Nenn den Grund, schlag einen neuen Termin vor und bitte um Bestätigung. Formell und höflich!",words:"50–70",focus:"formal register, Konjunktiv II, time prepositions"},
+ {ch:4,title:"An order",task:"Deine Firma bestellt 20 Laptops bei der Firma TechStar. Schreib die Bestellung: Bezug auf das Angebot vom 3. November, Menge, Lieferdatum, Bitte um Bestätigung.",words:"50–70",focus:"formal letter phrases"},
+ {ch:5,title:"Postcard from vacation",task:"Schreib einer Freundin eine Karte aus dem Urlaub: Wo bist du? Wie ist das Hotel, wie ist das Wetter? Was hast du schon gemacht und was machst du morgen?",words:"60–80",focus:"adjective endings, local prepositions"},
+ {ch:5,title:"A day in Zürich for a visitor",task:"Eine Freundin besucht dich für einen Tag. Mach Vorschläge für das Tagesprogramm (Wie wäre es mit …? Wir könnten …) und erkläre, warum.",words:"60–80",focus:"suggestions, obwohl/weil"},
+ {ch:6,title:"Describe someone close to you",task:"Beschreib eine Person aus deiner Familie oder deine beste Freundin: Aussehen und Charakter. Vergleiche sie mit dir (größer als, genauso … wie) und benutze mindestens einen Relativsatz.",words:"70–90",focus:"comparatives, relative clauses"},
+ {ch:6,title:"Advice for a stressed friend",task:"Deine Freundin hat viel Stress und schläft schlecht. Gib ihr mindestens vier Ratschläge.",words:"50–70",focus:"sollte"},
+ {ch:7,title:"My dream apartment",task:"Beschreib deine Traumwohnung: Wo liegt sie? Wie viele Zimmer hat sie? Was steht, liegt oder hängt wo?",words:"70–90",focus:"two-way prepositions, stellen/stehen"},
+ {ch:7,title:"When I was a child",task:"Wo hast du als Kind gewohnt? Was hast du gern gegessen? Was hast du immer gemacht, wenn du Ferien hattest?",words:"70–90",focus:"als vs. wenn, Präteritum"},
+ {ch:8,title:"Opinion: cars in the city",task:"Sollte man Autos in der Innenstadt verbieten? Schreib deine Meinung mit Gründen (weil, deshalb, um … zu). Nenn auch ein Gegenargument und reagiere darauf.",words:"80–100",focus:"opinion phrases, connectors"},
+ {ch:8,title:"Tech support",task:"Dein Laptop funktioniert nicht mehr. Schreib dem Kundenservice: Was ist passiert? Was hast du schon versucht? Was erwartest du?",words:"60–80",focus:"Perfekt, Passiv"},
+ {ch:9,title:"Exam format: short message",task:"Start Deutsch 2, Schreiben: Du kannst nicht zum Geburtstag von deinem Freund Marco kommen. Schreib ihm eine SMS: Entschuldige dich, nenn den Grund, schlag ein anderes Treffen vor.",words:"20–30",focus:"exam task: cover all three points"},
+ {ch:9,title:"Exam format: formal email",task:"Start Deutsch 2, Schreiben: Du möchtest einen Deutschkurs an der Volkshochschule besuchen. Schreib eine E-Mail: Frag nach dem Preis, nach den Kurszeiten und ob es einen Einstufungstest gibt.",words:"30–40",focus:"exam task: formal register, indirect questions"}
+];
+
+/* Role-play scenarios (Claude plays the other person) */
+const SCENES=[
+ {ch:1,title:"Meeting a classmate",role:"Du bist Lena, 26, eine neue Kursteilnehmerin im Deutschkurs. Du bist neugierig und fragst den Lernenden nach Herkunft, Studium/Arbeit, Wohnort und Hobbys. Erzähl auch ein bisschen von dir (du bist Physiotherapeutin aus Graz).",open:"Hallo! Ich bin Lena. Bist du auch neu hier im Kurs?"},
+ {ch:2,title:"Calling the museum",role:"Du arbeitest an der Kasse im Kunstmuseum Winterthur. Öffnungszeiten: Di–So 10–17 Uhr, Do bis 20 Uhr, Mo geschlossen. Eintritt 18 Franken, Studierende 12. Aktuelle Ausstellung: 'Licht und Landschaft' bis 15. Januar.",open:"Kunstmuseum Winterthur, guten Tag. Was kann ich für Sie tun?"},
+ {ch:3,title:"Returning a jacket",role:"Du bist Verkäufer in einem Kleidergeschäft. Die Kundin möchte eine Jacke zurückgeben oder umtauschen. Frag nach dem Kassenzettel, dem Problem und ob sie eine andere Größe oder Farbe möchte.",open:"Guten Tag! Kann ich Ihnen helfen?"},
+ {ch:3,title:"Opening a bank account",role:"Du bist Bankberaterin bei einer Kantonalbank. Die Person möchte ein Konto eröffnen. Frag nach Ausweis, Adresse, ob sie studiert (Studentenkonto ist gratis) und ob sie eine Debitkarte braucht.",open:"Grüezi und willkommen! Wie kann ich Ihnen helfen?"},
+ {ch:4,title:"Making an appointment by phone",role:"Du bist Herr Brunner, Assistent von Frau Keller (Marketingleiterin). Frau Keller hat nächste Woche nur Dienstag 14 Uhr und Freitag 9 Uhr frei. Frag nach Name (lass ihn buchstabieren), Grund und Telefonnummer.",open:"Firma Alpina, Brunner am Apparat. Guten Tag."},
+ {ch:5,title:"At the travel agency",role:"Du arbeitest im Reisebüro. Du hast Angebote: eine Woche Mallorca (Hotel am Strand, Halbpension, 890 Franken), ein Städtetrip Wien (3 Nächte, 520 Franken), Wandern im Tessin (5 Tage, 640 Franken). Frag nach Wünschen, Budget und Reisezeit.",open:"Guten Tag! Wohin soll die Reise denn gehen?"},
+ {ch:6,title:"Small talk at a party",role:"Du bist Jonas, ein Freund der Gastgeberin, auf einer Geburtstagsparty. Du hast einen Hund namens Bruno. Mach Smalltalk: woher man die Gastgeberin kennt, Haustiere, Arbeit, was einen gerade ärgert oder freut.",open:"Hi! Ich glaube, wir kennen uns noch nicht. Ich bin Jonas. Woher kennst du Sarah?"},
+ {ch:7,title:"Calling a plumber",role:"Du bist Herr Frei vom Sanitär-Service. Die Person hat ein Problem in der Wohnung (z. B. das Waschbecken ist verstopft). Frag nach dem Problem, der Adresse und einem Termin. Du hast morgen ab 14 Uhr oder übermorgen am Vormittag Zeit.",open:"Sanitär Frei, guten Tag. Was ist das Problem?"},
+ {ch:7,title:"Ordering in a restaurant",role:"Du bist Kellnerin in einem Restaurant in Bern. Tagesmenü: Kürbissuppe, Zürcher Geschnetzeltes mit Rösti oder Gemüsecurry, Apfelstrudel. Nimm die Bestellung auf und reagiere, wenn sich der Gast beschwert (das Essen ist kalt).",open:"Grüezi! Möchten Sie schon etwas trinken?"},
+ {ch:8,title:"Debate: the environment",role:"Du bist Tim, ein Mitstudent. Du findest, Fliegen sollte nicht teurer werden, und Autos in der Stadt sind okay. Diskutiere freundlich, aber mit Gegenargumenten. Frag nach der Meinung des Lernenden und reagiere mit Zustimmung oder Widerspruch.",open:"Hast du gehört? Die Stadt will die Innenstadt autofrei machen. Ich finde das ehrlich gesagt übertrieben. Was denkst du?"}
+];
+
+/* ================= APP ================= */
+const FOUR_LANES="https://claude.ai/artifact/Vnx7HMkgddgpTuiHVtZHnE";
+const WEEKLY_GOAL=420;
+const NEW_PER_DAY=12;
+const INTERVALS=[0,1,3,7,16,35]; // days per Leitner box
+const CH_ALT_SEIN=new Set(["liegen","sitzen","stehen"]);
+
+/* ---------- utils ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad=n=>String(n).padStart(2,"0");
+const iso=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parseD=s=>{const [y,m,d]=s.split("-").map(Number);return new Date(y,m-1,d);};
+const addDays=(s,n)=>{const d=parseD(s);d.setDate(d.getDate()+n);return iso(d);};
+const daysBetween=(a,b)=>Math.round((parseD(b)-parseD(a))/864e5);
+const today=()=>iso(new Date());
+const fmt=s=>parseD(s).toLocaleDateString("en-US",{month:"short",day:"numeric"});
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const slug=s=>s.toLowerCase().replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,40);
+const clone=o=>JSON.parse(JSON.stringify(o));
+const mondayOf=s=>{const d=parseD(s);d.setDate(d.getDate()-((d.getDay()+6)%7));return iso(d);};
+
+function norm(s){
+  return String(s||"").toLowerCase().normalize("NFC")
+    .replace(/ß/g,"ss").replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue")
+    .replace(/[’'`´]/g,"").replace(/[.,!?;:…"„“()]/g," ").replace(/\s+/g," ").trim();
+}
+function lev(a,b){
+  if(a===b)return 0; const m=a.length,n=b.length; if(!m)return n; if(!n)return m;
+  let prev=Array.from({length:n+1},(_,j)=>j);
+  for(let i=1;i<=m;i++){const cur=[i];for(let j=1;j<=n;j++)cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));prev=cur;}
+  return prev[n];
+}
+/* returns "ok" | "typo" | "no" */
+function judge(given,accepted,{typo=true}={}){
+  const g=norm(given); if(!g)return "no";
+  const alts=String(accepted).split("|").map(norm);
+  if(alts.includes(g))return "ok";
+  if(typo&&alts.some(a=>a.length>=6&&lev(a,g)===1))return "typo";
+  return "no";
+}
+
+/* ---------- content build ---------- */
+const CARDS={};
+const CARD_ORDER=[];
+for(const ch of Object.keys(VOCAB)){
+  for(const line of VOCAB[ch].split("\n")){
+    const [de,pl,en]=line.split("|").map(x=>(x||"").trim()); if(!de)continue;
+    const m=de.match(/^(der|die|das) (.+)$/);
+    const isNoun=!!(m&&/^[A-ZÄÖÜ]/.test(m[2])&&!/[.?!…]/.test(de));
+    const phrase=!isNoun&&(/[.?!…]/.test(de)||/^[A-ZÄÖÜ]/.test(de));
+    const id="w"+ch+"-"+slug(de);
+    CARDS[id]={id,t:"w",ch:+ch,de,en,pl:pl||"",art:isNoun?m[1]:"",noun:isNoun?m[2]:"",kind:isNoun?"noun":phrase?"phrase":"word"};
+    CARD_ORDER.push(id);
+  }
+}
+for(const line of VERBS.split("\n")){
+  const [inf,pr,pt,pf,ch,en]=line.split("|").map(x=>x.trim()); if(!inf)continue;
+  const id="v-"+slug(inf);
+  CARDS[id]={id,t:"v",ch:+ch,inf,pr,pt,pf,en,kind:"verb"};
+  CARD_ORDER.push(id);
+}
+const ALLTOPICS=Object.assign({},TOPICS,GEN);
+for(const [id,t] of Object.entries(ALLTOPICS))t.id=id;
+const itemKey=(tid,it)=>tid+":"+(it.q||(it.w||[]).join(" "));
+
+/* ---------- generators ---------- */
+const ADJ_NOUNS=[
+ {n:"Mantel",g:"m",pl:"Mäntel",p:0},{n:"Freund",g:"m",pl:"Freunde",p:1},{n:"Tisch",g:"m",pl:"Tische",p:0},{n:"Laptop",g:"m",pl:"Laptops",p:0},
+ {n:"Tasche",g:"f",pl:"Taschen",p:0},{n:"Wohnung",g:"f",pl:"Wohnungen",p:0},{n:"Kollegin",g:"f",pl:"Kolleginnen",p:1},{n:"Lampe",g:"f",pl:"Lampen",p:0},
+ {n:"Auto",g:"n",pl:"Autos",p:0},{n:"Kleid",g:"n",pl:"Kleider",p:0},{n:"Hotel",g:"n",pl:"Hotels",p:0},{n:"Fahrrad",g:"n",pl:"Fahrräder",p:0}];
+const ADJ_MASS=[{n:"Wein",g:"m",a:["gut","italienisch","teuer"]},{n:"Kaffee",g:"m",a:["stark","heiß","gut"]},{n:"Milch",g:"f",a:["frisch","kalt","warm"]},{n:"Musik",g:"f",a:["laut","klassisch","gut"]},{n:"Wasser",g:"n",a:["kalt","frisch","warm"]},{n:"Brot",g:"n",a:["frisch","dunkel","gut"]}];
+const ADJ_THING=["neu","alt","schön","klein","groß","teuer","billig","rot","praktisch"];
+const ADJ_PERS=["nett","neu","alt","klug","lustig"];
+const ENDINGS={def:{N:["e","e","e","en"],A:["en","e","e","en"],D:["en","en","en","en"]},
+  ind:{N:["er","e","es","en"],A:["en","e","es","en"],D:["en","en","en","en"]},
+  none:{N:["er","e","es","e"],A:["en","e","es","e"],D:["em","er","em","en"]}};
+const ARTS={def:{N:["der","die","das","die"],A:["den","die","das","die"],D:["dem","der","dem","den"]},
+  ind:{N:["ein","eine","ein","keine"],A:["einen","eine","ein","keine"],D:["einem","einer","einem","keinen"]}};
+const GI={m:0,f:1,n:2,pl:3};
+const CASE_NAME={N:"Nominativ",A:"Akkusativ",D:"Dativ"};
+const stemOf=a=>a==="teuer"?"teur":a==="dunkel"?"dunkl":a;
+const datPl=pl=>/[ns]$/.test(pl)?pl:pl+"n";
+function genAdj(){
+  const cs=pick(["N","A","D","D","A"]);
+  const type=pick(["def","ind","ind","none","def"]);
+  let noun,g,adj,shown;
+  if(type==="none"){
+    if(Math.random()<.55){const m=pick(ADJ_MASS);noun=m.n;g=m.g;adj=pick(m.a);}
+    else{const x=pick(ADJ_NOUNS);g="pl";noun=cs==="D"?datPl(x.pl):x.pl;adj=pick(x.p?ADJ_PERS:ADJ_THING);}
+  }else{
+    const x=pick(ADJ_NOUNS);const plural=Math.random()<.22;
+    g=plural?"pl":x.g;noun=plural?(cs==="D"?datPl(x.pl):x.pl):x.n;adj=pick(x.p?ADJ_PERS:ADJ_THING);
+  }
+  const gi=GI[g], end=ENDINGS[type][cs][gi];
+  const frame={N:g==="pl"?"Hier sind":"Hier ist",A:"für",D:"mit"}[cs];
+  const art=type==="none"?"":ARTS[type][cs][gi];
+  const blankArt=type!=="none"&&Math.random()<.35;
+  const base=type==="def"?"der/die/das":"ein/kein";
+  const q=`${frame} ${type==="none"?"":blankArt?"___ ":art+" "}${stemOf(adj)}___ ${noun}.`;
+  const a=blankArt?[art,end]:[end];
+  const gname={m:"masculine",f:"feminine",n:"neuter",pl:"plural"}[g];
+  let why=`${CASE_NAME[cs]}, ${gname}`;
+  if(type==="none")why+=", no article → the adjective carries the der/die/das signal (-"+end+")";
+  else if(type==="ind"&&["er","es"].includes(end))why+=`: "${art}" hides the gender, so the adjective shows it (-${end})`;
+  else why+=`: the article already shows it, so the adjective takes -${end}`;
+  return {q,a,hint:`${CASE_NAME[cs]} · ${gname}${blankArt?" · article: "+base:""}`,why,gen:"adjgen",tile:end};
+}
+const KOMP=`schnell|schneller|schnellsten
+alt|älter|ältesten
+jung|jünger|jüngsten
+groß|größer|größten
+klein|kleiner|kleinsten
+warm|wärmer|wärmsten
+kalt|kälter|kältesten
+lang|länger|längsten
+kurz|kürzer|kürzesten
+gut|besser|besten
+viel|mehr|meisten
+gern|lieber|liebsten
+hoch|höher|höchsten
+nah|näher|nächsten
+teuer|teurer|teuersten
+dunkel|dunkler|dunkelsten
+billig|billiger|billigsten
+klug|klüger|klügsten
+stark|stärker|stärksten
+arm|ärmer|ärmsten
+interessant|interessanter|interessantesten
+laut|lauter|lautesten
+heiß|heißer|heißesten
+spät|später|spätesten
+gesund|gesünder|gesündesten
+dumm|dümmer|dümmsten`.split("\n").map(l=>l.split("|"));
+function genKomp(){const [a,k,s]=pick(KOMP);return {q:`${a} → ___ → am ___`,a:[k,s],why:`${a}, ${k}, am ${s}`,gen:"kompgen"};}
+const WG_OBJ={stellen:[["Flasche","f"],["Vase","f"],["Lampe","f"],["Glas","n"]],legen:[["Buch","n"],["Handy","n"],["Schlüssel","m"],["Zeitung","f"]],hängen:[["Bild","n"],["Jacke","f"],["Kalender","m"],["Uhr","f"]]};
+const WG_POS={stellen:"steht",legen:"liegt",hängen:"hängt"};
+const WG_DIR={stellen:"stelle",legen:"lege",hängen:"hänge"};
+const WG_PLACE={stellen:[["auf","Tisch","m"],["auf","Regal","n"],["auf","Kommode","f"],["neben","Bett","n"],["in","Schrank","m"],["vor","Tür","f"],["in","Küche","f"],["hinter","Fernseher","m"],["zwischen","Bücher","pl"]],
+ legen:[["auf","Tisch","m"],["auf","Sofa","n"],["unter","Bett","n"],["in","Schublade","f"],["neben","Computer","m"],["auf","Kommode","f"],["zwischen","Zeitschriften","pl"]],
+ hängen:[["an","Wand","f"],["an","Tür","f"],["über","Sofa","n"],["neben","Fenster","n"],["in","Flur","m"],["an","Schrank","m"]]};
+function genWechsel(){
+  const verb=pick(Object.keys(WG_OBJ));const [on,og]=pick(WG_OBJ[verb]);const [prep,pn,pg]=pick(WG_PLACE[verb]);
+  const dir=Math.random()<.5, cs=dir?"A":"D", gi=GI[pg];
+  const art=ARTS.def[cs][gi];
+  const noun=pg==="pl"&&cs==="D"?datPl(pn):pn;
+  const contr={"in dem":"im","in das":"ins","an dem":"am","an das":"ans"}[prep+" "+art];
+  const objNom={m:"Der",f:"Die",n:"Das"}[og], objAkk={m:"den",f:"die",n:"das"}[og];
+  const place=contr?`___ ${noun}`:`${prep} ___ ${noun}`;
+  const q=dir?`Ich ${WG_DIR[verb]} ${objAkk} ${on} ${place}.`:`${objNom} ${on} ${WG_POS[verb]} ${place}.`;
+  const a=[contr?`${contr}|${prep} ${art}`:art];
+  return {q,a,hint:contr?`${prep} + article`:"",why:`${dir?"Wohin? Movement → Akkusativ":"Wo? Location → Dativ"}: ${prep} ${art} ${noun}${contr?" = "+contr+" "+noun:""}`,gen:"wechselgen"};
+}
+const GENFN={adjgen:genAdj,kompgen:genKomp,wechselgen:genWechsel};
+
+/* ---------- state ---------- */
+const DEF={
+  progress:{current:0,done:{},cando:{},days:{},topic:{},introduced:{},settings:{newPerDay:NEW_PER_DAY}},
+  srs:{cards:{}},
+  mistakes:{items:[]},
+  writing:{items:[]}
+};
+const DOCS=Object.keys(DEF);
+const LS="roterfaden.v1";
+let S=clone(DEF);
+try{const c=JSON.parse(localStorage.getItem(LS)||"null");if(c)for(const k of DOCS)if(c[k])S[k]=Object.assign(clone(DEF[k]),c[k]);}catch(e){}
+const ui={tab:"heute",wtab:"write",chFilter:0,sess:null,rule:{},toast:null,write:{prompt:null,text:"",busy:false,result:null,err:""},chat:{scene:null,turns:[],busy:false,feedback:null,err:""},search:"",showForms:true,cOpen:{}};
+try{const t=localStorage.getItem("roterfaden.tab");if(t)ui.tab=t;}catch(e){}
+
+let db=null, sample=null, saveState="local";
+const dirty=new Set(), lastJSON={}; let saveTimer=null, writing=false;
+function localSave(){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}}
+function touch(...names){for(const n of names)dirty.add(n);localSave();clearTimeout(saveTimer);saveTimer=setTimeout(flush,1200);}
+async function flush(){
+  if(!db||writing||!dirty.size){setSave();return;}
+  writing=true;setSave("saving");
+  try{
+    for(const n of [...dirty]){
+      dirty.delete(n);
+      const body=clone(S[n]);const j=JSON.stringify(body);
+      if(j===lastJSON[n])continue;
+      await db.doc("a2/"+n).set(body);lastJSON[n]=j;
+    }
+    saveState="db";
+  }catch(e){saveState="err";console.warn(e);}
+  writing=false;setSave();
+  if(dirty.size){clearTimeout(saveTimer);saveTimer=setTimeout(flush,1500);}
+}
+function setSave(s){const el=$("#save");if(!el)return;const st=s||saveState;el.dataset.s=st;el.textContent={db:"Saved to Claude",saving:"Saving…",err:"Save failed, kept on this device",local:"Saved on this device"}[st];}
+
+async function connect(){
+  const c=window.claude;
+  try{db=c&&c.use?await c.use("db"):null;}catch(e){db=null;}
+  try{sample=c&&c.use?await c.use("sample"):null;}catch(e){sample=null;}
+  if(db){
+    try{
+      const snaps=await Promise.all(DOCS.map(n=>db.doc("a2/"+n).get()));
+      let migrate=[];
+      snaps.forEach((sn,i)=>{const n=DOCS[i];
+        if(sn.exists){S[n]=Object.assign(clone(DEF[n]),clone(sn.data()));lastJSON[n]=JSON.stringify(sn.data());}
+        else if(JSON.stringify(S[n])!==JSON.stringify(DEF[n]))migrate.push(n);});
+      saveState="db";localSave();
+      if(migrate.length)touch(...migrate);
+      for(const n of DOCS)db.doc("a2/"+n).onSnapshot(sn=>{
+        if(!sn.exists||sn.metadata.hasPendingWrites||dirty.has(n))return;
+        const j=JSON.stringify(sn.data());if(j===lastJSON[n])return;
+        lastJSON[n]=j;S[n]=Object.assign(clone(DEF[n]),clone(sn.data()));localSave();
+        if(!ui.sess&&!ui.write.busy&&!ui.chat.busy)render();
+      },()=>{});
+    }catch(e){console.warn(e);saveState="err";}
+  }
+  render();
+}
+
+/* ---------- time tracking ---------- */
+let lastAct=Date.now(), pendingSec=0;
+["pointerdown","keydown","input"].forEach(ev=>document.addEventListener(ev,()=>{lastAct=Date.now();},{passive:true}));
+setInterval(()=>{
+  if(document.visibilityState!=="visible"||Date.now()-lastAct>90000)return;
+  pendingSec+=15;
+  if(pendingSec>=120)commitTime();
+},15000);
+function commitTime(){if(pendingSec<15)return;const d=today();S.progress.days[d]=Math.round(((S.progress.days[d]||0)+pendingSec/60)*10)/10;pendingSec=0;touch("progress");}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden"){commitTime();flush();}});
+const minutesOn=d=>Math.round((S.progress.days[d]||0)+(d===today()?pendingSec/60:0));
+function streak(){let n=0,d=today();if(!minutesOn(d))d=addDays(d,-1);while(minutesOn(d)>=5){n++;d=addDays(d,-1);}return n;}
+function weekMinutes(){const m=mondayOf(today());let t=0;for(let i=0;i<7;i++)t+=minutesOn(addDays(m,i));return t;}
+
+/* ---------- schedule ---------- */
+function scheduledChapter(d=today()){for(const c of CHAPTERS)if(d<=c.to)return c.n;return 9;}
+function currentChapter(){return S.progress.current||Math.min(8,scheduledChapter());}
+function bookToday(){
+  const n=currentChapter(),c=CHAPTERS[n-1],t=today();
+  const span=daysBetween(c.from,c.to)+1,idx=Math.max(0,Math.min(span-1,daysBetween(c.from,t)));
+  const parts=c.parts;const pi=Math.min(parts.length-1,Math.floor(idx/span*parts.length));
+  return {c,part:parts[pi],next:parts[pi+1]};
+}
+
+/* ---------- SRS ---------- */
+const srs=id=>S.srs.cards[id];
+const isDue=id=>{const c=srs(id);return c&&c.due<=today();};
+function grade(id,ok){
+  const t=today();let c=S.srs.cards[id]||{b:0,due:t,n:0,l:0};
+  c.n++;
+  if(ok){c.b=Math.min(5,c.b+1);}else{c.b=1;c.l=(c.l||0)+1;}
+  c.due=addDays(t,ok?INTERVALS[c.b]:0);c.last=t;
+  S.srs.cards[id]=c;touch("srs");
+}
+function introduce(id,known){
+  const t=today();
+  S.srs.cards[id]=known?{b:3,due:addDays(t,INTERVALS[3]),n:1,l:0,last:t}:{b:0,due:t,n:0,l:0,last:t};
+  S.progress.introduced[t]=(S.progress.introduced[t]||0)+1;touch("srs","progress");
+}
+const dueCards=(filter=()=>true)=>CARD_ORDER.filter(id=>isDue(id)&&filter(CARDS[id])).sort((a,b)=>srs(a).due.localeCompare(srs(b).due)||srs(a).b-srs(b).b);
+function newCards(maxCh,n,filter=()=>true){
+  const out=[];for(const id of CARD_ORDER){if(out.length>=n)break;const c=CARDS[id];if(c.ch<=maxCh&&!srs(id)&&filter(c))out.push(id);}
+  // vocabulary first, verbs mixed in every 4th
+  const w=out.filter(i=>CARDS[i].t==="w"),v=out.filter(i=>CARDS[i].t==="v"),r=[];
+  while(w.length||v.length){r.push(...w.splice(0,3));if(v.length)r.push(v.shift());}
+  return r.slice(0,n);
+}
+const newLeftToday=()=>Math.max(0,(S.progress.settings.newPerDay||NEW_PER_DAY)-(S.progress.introduced[today()]||0));
+const learnedCount=()=>Object.values(S.srs.cards).filter(c=>c.b>=3).length;
+
+/* ---------- topic stats + mistakes ---------- */
+function topicAcc(tid){const s=S.progress.topic[tid];if(!s||s.r+s.w===0)return null;return s.r/(s.r+s.w);}
+function recordTopic(tid,ok){const s=S.progress.topic[tid]||{r:0,w:0};ok?s.r++:s.w++;s.last=today();S.progress.topic[tid]=s;touch("progress");}
+function addMistake(tid,item,given){
+  const key=itemKey(tid,item);const list=S.mistakes.items;
+  const ex=list.find(m=>m.key===key);
+  if(ex){ex.n=(ex.n||1)+1;ex.given=given;ex.ts=Date.now();ex.fixed=false;}
+  else list.unshift({key,tid,item,given,n:1,ts:Date.now(),fixed:false});
+  if(list.length>160)list.length=160;touch("mistakes");
+}
+function fixMistake(tid,item){const m=S.mistakes.items.find(x=>x.key===itemKey(tid,item));if(m&&!m.fixed){m.fixed=true;touch("mistakes");}}
+const openMistakes=()=>S.mistakes.items.filter(m=>!m.fixed&&m.tid!=="writing");
+function weakTopics(){
+  return Object.entries(S.progress.topic).filter(([id,s])=>ALLTOPICS[id]&&s.r+s.w>=4).map(([id,s])=>({id,acc:s.r/(s.r+s.w)})).filter(x=>x.acc<.85).sort((a,b)=>a.acc-b.acc).slice(0,3);
+}
+function gramItem(tid){const t=ALLTOPICS[tid];if(t.gen)return GENFN[tid]();return pick(t.items);}
+function topicItems(tid,n){const t=ALLTOPICS[tid];if(t.gen)return Array.from({length:n},()=>GENFN[tid]());return shuffle(t.items).slice(0,n);}
+
+/* ---------- sessions ---------- */
+function startSession(title,queue,opts={}){
+  if(!queue.length){toast("Nothing to practice here right now.");return;}
+  ui.sess={title,q:queue,i:0,ok:0,no:0,start:Date.now(),ret:ui.tab,...opts};
+  ui.tab="drill";render();window.scrollTo({top:0});
+}
+function sessToday(){
+  const cur=currentChapter();
+  const due=dueCards().slice(0,30).map(id=>({k:"card",id}));
+  const fresh=newCards(cur,newLeftToday()).map(id=>({k:"card",id,intro:true}));
+  const curTopics=[...CHAPTERS[cur-1].topics];
+  const prev=CHAPTERS.slice(0,cur-1).flatMap(c=>c.topics);
+  const weak=weakTopics().map(w=>w.id);
+  const gram=[];
+  for(let i=0;i<5;i++){const tid=curTopics[i%curTopics.length];gram.push({k:"gram",tid,item:gramItem(tid)});}
+  weak.slice(0,2).forEach(tid=>gram.push({k:"gram",tid,item:gramItem(tid)}));
+  if(prev.length)for(let i=0;i<2;i++){const tid=pick(prev);gram.push({k:"gram",tid,item:gramItem(tid)});}
+  openMistakes().slice(0,3).forEach(m=>gram.push({k:"gram",tid:m.tid,item:m.item,redo:true}));
+  const cards=[...fresh.slice(0,4),...due,...fresh.slice(4)];
+  const g=shuffle(gram), q=[];
+  while(cards.length||g.length){q.push(...cards.splice(0,5));if(g.length)q.push(...g.splice(0,2));}
+  startSession("Heute · today's session",q,{daily:true});
+}
+function sessTopic(tid,n=10){startSession(ALLTOPICS[tid].title,topicItems(tid,n).map(item=>({k:"gram",tid,item})));}
+function sessChapterWords(ch){
+  const f=c=>c.ch===ch&&c.t==="w";
+  const due=dueCards(f).map(id=>({k:"card",id}));
+  const fresh=newCards(ch,Math.max(6,newLeftToday()),f).map(id=>({k:"card",id,intro:true}));
+  let q=[...due,...fresh];
+  if(q.length<8){const rest=CARD_ORDER.filter(id=>f(CARDS[id])&&srs(id)&&!isDue(id)).sort((a,b)=>srs(a).b-srs(b).b).slice(0,10-q.length).map(id=>({k:"card",id,cram:true}));q=q.concat(rest);}
+  startSession(`Kapitel ${ch} · words`,q.slice(0,25));
+}
+function sessVerbs(){
+  const f=c=>c.t==="v";
+  const cur=Math.max(currentChapter(),1);
+  let q=[...dueCards(f).map(id=>({k:"card",id})),...newCards(8,5,c=>c.t==="v"&&c.ch<=cur).map(id=>({k:"card",id,intro:true}))];
+  if(q.length<12){const rest=CARD_ORDER.filter(id=>f(CARDS[id])&&srs(id)&&!isDue(id)).sort((a,b)=>srs(a).b-srs(b).b).slice(0,12-q.length).map(id=>({k:"card",id,cram:true}));q=q.concat(rest);}
+  startSession("Verben · irregular verbs",q.slice(0,15));
+}
+function sessMistakes(){startSession("Fehler · redo my mistakes",shuffle(openMistakes()).slice(0,15).map(m=>({k:"gram",tid:m.tid,item:m.item,redo:true})));}
+
+/* ---------- drill rendering ---------- */
+function blankSentence(q,n,disabled,vals,states){
+  let i=0;
+  return esc(q).replace(/___/g,()=>{const k=i++;const w=Math.max(3,((vals&&vals[k])||"").length+1);
+    return `<input class="blank ${states?states[k]:""}" data-blank="${k}" autocomplete="off" autocapitalize="off" spellcheck="false" ${disabled?"disabled":""} value="${esc(vals?vals[k]:"")}" style="width:${Math.max(4.5,w*.72)}em" aria-label="Blank ${k+1}">`;});
+}
+function umlautRow(){return `<div class="uml" aria-label="Insert special characters">${["ä","ö","ü","ß","Ä","Ö","Ü"].map(c=>`<button type="button" data-uml="${c}" tabindex="-1">${c}</button>`).join("")}</div>`;}
+function vDrill(){
+  const s=ui.sess; if(!s){ui.tab="heute";return vHeute();}
+  if(s.i>=s.q.length)return vDrillDone();
+  const it=s.q[s.i];const pct=Math.round(s.i/s.q.length*100);
+  const head=`<div class="drill-top"><button class="mini" data-act="sess-quit">✕ End</button><div class="bar" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pct}%"></i></div><span class="mono faint" style="font-size:.8rem">${s.i+1}/${s.q.length}</span></div>`;
+  return `<div class="drill">${head}${it.k==="card"||ALLTOPICS[it.tid].title!==s.title?`<div class="eyebrow">${esc(s.title)}</div>`:""}${it.k==="card"?cardQ(it):gramQ(it)}
+  <p class="keys"><span class="kbd">Enter</span> check / next · type <span class="kbd">ae</span> <span class="kbd">oe</span> <span class="kbd">ue</span> <span class="kbd">ss</span> if you have no umlauts</p></div>`;
+}
+function genderBar(art){return `<span class="gbar ${art}" aria-hidden="true"></span>`;}
+function cardQ(it){
+  const c=CARDS[it.id], st=srs(it.id);
+  const lvl=st?`<span class="pill">box ${st.b}</span>`:`<span class="pill acc">new</span>`;
+  const chip=`<span class="pill">Kap. ${c.ch}</span>`;
+  if(it.intro&&!it.res){
+    if(c.t==="v")return `<div class="q"><div class="kind"><span class="eyebrow">New verb</span><span class="row">${chip}${lvl}</span></div>
+      <div class="prompt">${esc(c.inf)} <span class="muted" style="font-weight:500;font-size:1rem">${esc(c.en)}</span></div>
+      <div class="tablewrap"><table class="vtable"><tr><th>er/sie (now)</th><th>Präteritum</th><th>Perfekt</th></tr><tr><td>${esc(c.pr)}</td><td>${esc(c.pt)}</td><td>${esc(c.pf)}</td></tr></table></div>
+      <div class="row"><button class="btn primary" data-act="intro-go">Got it, test me later</button><button class="btn" data-act="intro-know">I already know this</button></div></div>`;
+    return `<div class="q"><div class="kind"><span class="eyebrow">New word</span><span class="row">${chip}${lvl}</span></div>
+      <div class="row" style="align-items:stretch;flex-wrap:nowrap">${c.art?genderBar(c.art):""}<div><div class="prompt">${c.art?`<span class="g-${c.art}">${c.art}</span> ${esc(c.noun)}`:esc(c.de)}</div>
+      ${c.pl?`<div class="plural">Plural: die ${esc(c.pl)}</div>`:c.art?`<div class="plural">no plural</div>`:""}<div class="muted" style="margin-top:4px">${esc(c.en)}</div></div></div>
+      <div class="row"><button class="btn primary" data-act="intro-go">Got it, test me later</button><button class="btn" data-act="intro-know">I already know this</button></div></div>`;
+  }
+  const shown=!!it.res;
+  if(c.t==="v"){
+    const r=it.res||{};const v=it.vals||["","",""];
+    const cls=k=>shown?(r.parts[k]):"";
+    return `<div class="q"><div class="kind"><span class="eyebrow">Verb forms</span><span class="row">${chip}${lvl}</span></div>
+      <div class="prompt">${esc(c.inf)} <span class="muted" style="font-weight:500;font-size:1rem">${esc(c.en)}</span></div>
+      <div class="grid g3">
+        ${[["er/sie · Präsens","pr"],["er/sie · Präteritum","pt"],["er/sie · Perfekt","pf"]].map(([l,f],k)=>`<label class="stack" style="gap:4px"><span class="eyebrow">${l}</span><input class="field ans ${cls(k)}" data-vf="${k}" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(v[k])}" ${shown?"disabled":""} placeholder="${f==="pf"?"hat/ist …":"er …"}"></label>`).join("")}
+      </div>${shown?"":umlautRow()}
+      ${shown?feedback(r.ok?"ok":r.typo?"typo":"no",`${esc(c.pr)} · ${esc(c.pt)} · ${esc(c.pf)}`,CH_ALT_SEIN.has(c.inf)?"Swiss/southern German also says: ist "+esc(c.pf.split(" ")[1]):""):`<button class="btn primary" data-act="check">Check</button>`}</div>`;
+  }
+  if(c.kind==="phrase"){
+    return `<div class="q"><div class="kind"><span class="eyebrow">Say it in German, then reveal</span><span class="row">${chip}${lvl}</span></div>
+      <div class="prompt sm">${esc(c.en)}</div>
+      ${shown?`<div class="prompt">${esc(c.de)}</div>${it.res.ok?feedback("ok","Nice."):feedback("no","It'll come back soon.")}`:it.revealed?`<div class="prompt">${esc(c.de)}</div><div class="self"><button class="btn" data-act="self-no">Didn't have it</button><button class="btn primary" data-act="self-ok">Had it</button></div>`:`<button class="btn primary" data-act="reveal">Reveal</button>`}</div>`;
+  }
+  const noun=c.kind==="noun", askPl=noun&&c.pl&&st&&st.b>=2;
+  const r=it.res||{};
+  return `<div class="q"><div class="kind"><span class="eyebrow">${noun?"German, with the article":"German"}</span><span class="row">${chip}${lvl}</span></div>
+    <div class="prompt sm">${esc(c.en)}</div>
+    <input class="field ans ${shown?r.cls:""}" data-ans autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${noun?"der / die / das …":""}" value="${esc(it.val||"")}" ${shown?"disabled":""}>
+    ${askPl?`<label class="stack" style="gap:4px"><span class="eyebrow">Plural (die …)</span><input class="field ans ${shown?r.plCls:""}" data-pl autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(it.pl||"")}" ${shown?"disabled":""}></label>`:""}
+    ${shown?"":umlautRow()}
+    ${shown?feedback(r.ok?(r.typo?"typo":"ok"):"no",noun?`<span class="g-${c.art}">${c.art}</span> ${esc(c.noun)}${c.pl?` · die ${esc(c.pl)}`:""}`:esc(c.de),r.msg||""):`<button class="btn primary" data-act="check">Check</button>`}</div>`;
+}
+function feedback(kind,right,extra){
+  const h={ok:pick(["Richtig.","Genau.","Sitzt.","Stimmt."]),typo:"Almost. Typo counted as right.",no:"Nope."}[kind];
+  return `<div class="fb ${kind}" role="status"><b class="h">${h}</b><span class="right">${right}</span>${extra?`<span class="muted">${extra}</span>`:""}
+  <div class="row" style="margin-top:4px"><button class="btn primary" data-act="next">Next →</button></div></div>`;
+}
+function gramQ(it){
+  const t=ALLTOPICS[it.tid], x=it.item, shown=!!it.res;
+  const tag=`<span class="row">${it.redo?`<span class="pill bad">mistake redo</span>`:""}<span class="pill">Kap. ${t.ch}</span></span>`;
+  const head=`<div class="kind"><span class="eyebrow">${esc(t.title)}</span>${tag}</div>`;
+  let body="";
+  if(x.t==="c"){
+    body=`<div class="sentence">${esc(x.q).replace("___",'<b style="color:var(--accent)">___</b>')}</div>
+    <div class="opts">${x.o.map((o,k)=>`<button class="opt ${shown?(k===x.a?"ok":k===it.pickd?"no":""):""}" data-opt="${k}" ${shown?"disabled":""}>${esc(o)}</button>`).join("")}</div>`;
+  }else if(x.t==="o"){
+    const built=it.built||[], pool=it.pool||(it.pool=shuffle(x.w.map((w,k)=>k)));
+    body=`${x.en?`<div class="muted">${esc(x.en)}</div>`:""}
+    <div class="tiles built" aria-label="Your sentence">${built.map((k,j)=>`<button class="tilebtn" data-unbuild="${j}" ${shown?"disabled":""}>${esc(x.w[k])}</button>`).join("")||`<span class="faint" style="padding:6px">Tap the words in order</span>`}</div>
+    <div class="tiles">${pool.filter(k=>!built.includes(k)).map(k=>`<button class="tilebtn" data-build="${k}" ${shown?"disabled":""}>${esc(x.w[k])}</button>`).join("")}</div>`;
+  }else{
+    body=`<div class="sentence">${blankSentence(x.q,x.a.length,shown,it.vals,shown?it.res.parts:null)}</div>${x.hint?`<div class="hint">${esc(x.hint)}</div>`:""}${shown?"":umlautRow()}`;
+  }
+  let fb="";
+  if(shown){
+    const r=it.res;
+    const right=x.t==="c"?x.o[x.a]:x.t==="o"?x.w.join(" ").replace(/ ([,?.!])/g,"$1"):fillAnswer(x);
+    fb=`<div class="fb ${r.kind}" role="status"><b class="h">${{ok:pick(["Richtig.","Genau.","Sitzt."]),typo:"Almost. Typo counted as right.",no:"Nope."}[r.kind]}</b>
+      ${r.kind!=="ok"||x.t==="o"?`<span class="right">${esc(right)}</span>`:""}${x.why?`<span class="muted">${esc(x.why)}</span>`:""}
+      ${it.explain?`<span style="white-space:pre-wrap">${esc(it.explain)}</span>`:""}
+      <div class="row" style="margin-top:4px"><button class="btn primary" data-act="next">Next →</button>
+      ${r.kind==="no"&&sample&&!it.explain?`<button class="btn" data-act="explain" ${it.explaining?"disabled":""}>${it.explaining?"Asking Claude…":"Why? Ask Claude"}</button>`:""}
+      <details class="rulebox"><summary>Rule</summary><div class="rule">${t.rule}</div></details></div></div>`;
+  }
+  return `<div class="q">${head}${body}${shown?fb:`<div class="row"><button class="btn primary" data-act="check">Check</button>${x.t==="o"?`<button class="btn ghost" data-act="tiles-reset">Reset</button>`:""}</div>`}</div>`;
+}
+function fillAnswer(x){let i=0;return x.q.replace(/___/g,()=>String(x.a[i++]).split("|")[0]);}
+function vDrillDone(){
+  const s=ui.sess, tot=s.ok+s.no, pct=tot?Math.round(s.ok/tot*100):0, min=Math.max(1,Math.round((Date.now()-s.start)/60000));
+  const line=pct>=90?"Clean. That's how A2 gets boring in a good way.":pct>=70?"Solid. The misses are in Fehler now, so they'll come back.":"Rough round. That's the point of drilling. The misses are queued up for you.";
+  return `<div class="drill"><div class="q" style="text-align:left">
+    <span class="eyebrow">Session done</span><div class="prompt">${pct}% right</div>
+    <div class="grid g3"><div class="stat"><b>${s.ok}</b><span>right</span></div><div class="stat"><b>${s.no}</b><span>wrong</span></div><div class="stat"><b>~${min} min</b><span>time</span></div></div>
+    <p>${line}</p>
+    ${s.daily?`<div class="note">Log it in Four Lanes: <a href="${FOUR_LANES}" target="_blank" rel="noopener">open the planner ↗</a> and add ${min} min to German.</div>`:""}
+    <div class="row"><button class="btn primary" data-act="sess-close">Done</button>${openMistakes().length?`<button class="btn" data-act="go-mistakes">Redo mistakes (${openMistakes().length})</button>`:""}</div></div></div>`;
+}
+
+/* ---------- drill actions ---------- */
+function curItem(){return ui.sess&&ui.sess.q[ui.sess.i];}
+function readInputs(it){
+  if(it.k==="card"){const c=CARDS[it.id];
+    if(c.t==="v")it.vals=[...document.querySelectorAll("[data-vf]")].map(e=>e.value);
+    else{const a=$("[data-ans]");if(a)it.val=a.value;const p=$("[data-pl]");if(p)it.pl=p.value;}
+  }else if(!it.item.t)it.vals=[...document.querySelectorAll("[data-blank]")].map(e=>e.value);
+}
+function check(){
+  const it=curItem();if(!it||it.res)return;readInputs(it);
+  if(it.k==="card")return checkCard(it);
+  const x=it.item;let kind="no";
+  if(x.t==="c"){if(it.pickd==null)return;kind=it.pickd===x.a?"ok":"no";}
+  else if(x.t==="o"){const got=norm((it.built||[]).map(k=>x.w[k]).join(" "));if(!(it.built||[]).length)return;kind=[x.w.join(" "),...(x.alt||[])].some(a=>norm(a)===got)?"ok":"no";}
+  else{
+    if((it.vals||[]).every(v=>!v.trim()))return;
+    const parts=x.a.map((a,k)=>judge(it.vals[k],a,{typo:!/^(der|die|das|den|dem|des|ein|eine|einen|einem|einer|eines|kein|keine|keinen|keinem|keiner|keins|keines|e|en|er|es|em)$/i.test(String(a).split("|")[0])}));
+    it.res={parts};kind=parts.every(p=>p==="ok")?"ok":parts.every(p=>p!=="no")?"typo":"no";
+  }
+  it.res=Object.assign(it.res||{},{kind});
+  const ok=kind!=="no";
+  recordTopic(it.tid,ok);
+  if(ok){ui.sess.ok++;if(it.redo)fixMistake(it.tid,x);}
+  else{ui.sess.no++;addMistake(it.tid,x,x.t==="c"?x.o[it.pickd]:x.t==="o"?(it.built||[]).map(k=>x.w[k]).join(" "):(it.vals||[]).join(" / "));}
+  render();focusNext();
+}
+function checkCard(it){
+  const c=CARDS[it.id];let ok,typo=false,cls,msg="",plCls="";
+  if(c.t==="v"){
+    const exp=[c.pr,c.pt,c.pf].map((f,k)=>k===2&&CH_ALT_SEIN.has(c.inf)?f+"|"+f.replace(/^hat /,"ist "):f);
+    const vals=it.vals.map(v=>v.replace(/^\s*(er|sie|es)\s+/i,""));
+    if(vals.every(v=>!v.trim()))return;
+    const parts=exp.map((e,k)=>judge(vals[k],e));
+    ok=parts.every(p=>p!=="no");typo=ok&&parts.some(p=>p==="typo");
+    it.res={parts,ok,typo};
+  }else{
+    const g=(it.val||"").trim();if(!g)return;
+    if(c.kind==="noun"){
+      const m=norm(g).match(/^(der|die|das) (.+)$/);
+      if(!m){ok=false;msg="You need the article. That's the whole point of learning the noun.";}
+      else if(m[1]!==c.art){ok=false;msg=`Wrong article: it's <b class="g-${c.art}">${c.art}</b> ${esc(c.noun)}.`;}
+      else{const j=judge(m[2],c.noun);ok=j!=="no";typo=j==="typo";}
+      const askPl=c.pl&&srs(it.id)&&srs(it.id).b>=2;
+      if(askPl){const pj=judge((it.pl||"").replace(/^\s*die\s+/i,""),c.pl);plCls=pj;if(pj==="no"){if(ok)msg=`Plural is die ${esc(c.pl)}.`;ok=false;}}
+    }else{const j=judge(g,c.de);ok=j!=="no";typo=j==="typo";}
+    cls=ok?(typo?"typo":"ok"):"no";
+    it.res={ok,typo,cls,plCls,msg};
+  }
+  if(!it.cram||!ok)grade(it.id,ok);
+  if(ok)ui.sess.ok++;else{ui.sess.no++;requeue(it);}
+  render();focusNext();
+}
+function requeue(it){if(it.requeued)return;const s=ui.sess;s.q.splice(Math.min(s.q.length,s.i+4),0,{k:it.k,id:it.id,requeued:true});}
+function next(){const s=ui.sess;if(!s)return;const it=curItem();if(it&&!it.res&&!it.intro)return;s.i++;if(s.i>=s.q.length)commitTime();render();focusFirst();}
+function focusFirst(){requestAnimationFrame(()=>{const el=document.querySelector(".drill input:not([disabled])");if(el)el.focus({preventScroll:true});});}
+function focusNext(){requestAnimationFrame(()=>{const el=document.querySelector('.drill [data-act="next"]');if(el)el.focus({preventScroll:true});});}
+
+async function explain(){
+  const it=curItem();if(!it||!sample)return;const x=it.item;it.explaining=true;render();
+  const right=x.t==="c"?x.o[x.a]:x.t==="o"?x.w.join(" "):fillAnswer(x);
+  const given=x.t==="c"?x.o[it.pickd]:x.t==="o"?(it.built||[]).map(k=>x.w[k]).join(" "):(it.vals||[]).join(" / ");
+  try{
+    const {text}=await sample(`A German learner at A2 level did this exercise (topic: ${ALLTOPICS[it.tid].title}).\nExercise: ${x.q||x.en||""}\nTheir answer: ${given}\nCorrect: ${right}\nIn 2–3 short sentences of plain American English, explain the rule behind the correct answer and exactly why their answer is wrong. Quote German words in the explanation. No preamble, no encouragement filler.`,{modelTier:"quick"});
+    it.explain=text.trim();
+  }catch(e){it.explain=e.code==="not_granted"?"Claude access was declined for this page.":"Couldn't reach Claude just now. Try again in a bit.";}
+  it.explaining=false;if(curItem()===it)render();
+}
+
+/* ---------- Claude: writing ---------- */
+function promptsSorted(){const cur=currentChapter();return WRITING.map((p,i)=>({...p,i})).sort((a,b)=>(a.ch===cur?-1:0)-(b.ch===cur?-1:0)||a.ch-b.ch);}
+const wordCount=s=>(s.trim().match(/\S+/g)||[]).length;
+async function correctWriting(){
+  const w=ui.write;const p=WRITING[w.prompt];if(!sample||!p)return;
+  const text=($("#wtext")||{}).value||w.text;w.text=text;if(wordCount(text)<5){w.err="Write at least a few sentences first.";render();return;}
+  w.busy=true;w.err="";w.result=null;render();
+  const prompt=`You are a demanding but fair German teacher. The learner passed A1 with a top grade and is now working through Begegnungen A2+ (chapter ${p.ch<9?p.ch:"8, exam prep"}). They live in Switzerland but learn standard German (ss instead of ß is fine).
+Task: ${p.task}
+Target length: ${p.words} words. Grammar focus: ${p.focus}.
+
+Learner's text:
+"""
+${text.slice(0,6000)}
+"""
+
+Reply with ONLY one JSON object:
+{"grade": Swiss school grade from 1 to 6 in half steps (6 best, 4 is a pass), judged against what a good A2 learner should produce for this task,
+ "verdict": "one or two blunt, specific sentences in English",
+ "task_check": "one sentence in English: did they cover every point of the task and hit the length?",
+ "corrected": "their full text, corrected with minimal changes, keeping their meaning and voice",
+ "errors": [{"wrong": "exact wrong fragment from their text", "right": "corrected fragment", "type": "article|case|ending|word order|verb form|tense|preposition|spelling|vocabulary|other", "why": "one short English sentence naming the rule"}],
+ "good": ["up to 3 specific things they did well, in English"],
+ "upgrade": "one German sentence they could add to sound stronger, using this chapter's grammar, with an English gloss in parentheses"}
+List at most 10 errors, most important first. Count missing noun capitalization as an error.`;
+  try{
+    const r=await sample.json(prompt,{modelTier:"default"});
+    if(!r||typeof r!=="object"||!("corrected" in r))throw {code:"invalid_json"};
+    w.result=r;
+    S.writing.items.unshift({ts:Date.now(),d:today(),p:w.prompt,text,r});if(S.writing.items.length>25)S.writing.items.length=25;touch("writing");
+    logClaudeErrors(r.errors,"writing");
+  }catch(e){w.err=errCopy(e);}
+  w.busy=false;render();
+}
+function logClaudeErrors(errs,src){
+  if(!Array.isArray(errs))return;
+  for(const e of errs.slice(0,6)){if(!e||!e.wrong||!e.right)continue;
+    S.mistakes.items.unshift({key:"writing:"+e.wrong+"→"+e.right,tid:"writing",src,item:{wrong:String(e.wrong),right:String(e.right),type:String(e.type||"other"),why:String(e.why||"")},n:1,ts:Date.now(),fixed:false});}
+  if(S.mistakes.items.length>160)S.mistakes.items.length=160;touch("mistakes");
+}
+function errCopy(e){const c=e&&e.code;return c==="not_granted"?"Claude access was declined for this page. Reload to be asked again.":c==="rate_limited"?"Too many requests right now. Give it a minute.":c==="invalid_json"?"Claude's answer came back garbled. Hit the button again.":c==="refused"?"Claude declined that one. Try rephrasing.":"Couldn't reach Claude. Try again in a moment.";}
+
+/* ---------- Claude: conversation ---------- */
+function sceneRules(sc){return `Role-play with a German learner at A2 level. ${sc.role}
+Rules: speak only German at a simple A2 level. Keep each turn to 1–3 short sentences and end most turns with one question so the learner keeps talking. Stay in role. If the learner's latest message had any mistakes, add a final separate line starting with "✎ " that gives a corrected version of their sentence(s), nothing else on that line. If there were no mistakes, don't add that line. Use standard German; Swiss context (Franken, Grüezi) is fine. If the learner writes in English, answer in simple German and give the German for what they meant in the ✎ line.`;}
+async function sendChat(){
+  const c=ui.chat;const sc=SCENES[c.scene];const el=$("#chatin");if(!sample||!sc||!el)return;
+  const msg=el.value.trim();if(!msg||c.busy)return;
+  c.turns.push({role:"user",content:msg});c.busy=true;c.err="";c.stream="";render();scrollChat();
+  const turns=[{role:"user",content:sceneRules(sc)},{role:"assistant",content:sc.open},...c.turns.slice(-16)];
+  try{
+    const {text}=await sample(turns,{cache:false,modelTier:"quick",onText:({text})=>{c.stream=text;const b=$("#streaming");if(b)b.textContent=text;scrollChat();}});
+    c.turns.push({role:"assistant",content:text.trim()});
+  }catch(e){c.err=errCopy(e);if(e&&e.text)c.turns.push({role:"assistant",content:e.text});}
+  c.busy=false;c.stream="";render();scrollChat();const inp=$("#chatin");if(inp)inp.focus();
+}
+async function chatFeedback(){
+  const c=ui.chat;const sc=SCENES[c.scene];if(!sample||!sc)return;
+  const mine=c.turns.filter(t=>t.role==="user").map(t=>t.content);if(!mine.length)return;
+  c.busy=true;c.feedback=null;c.err="";render();
+  const convo=[`(${sc.title}) Partner: ${sc.open}`,...c.turns.map(t=>(t.role==="user"?"Learner: ":"Partner: ")+t.content)].join("\n");
+  try{
+    const r=await sample.json(`Here is a role-play conversation between a German A2 learner and a partner.\n\n${convo.slice(-9000)}\n\nEvaluate ONLY the learner's messages. Reply with ONLY one JSON object:\n{"grade": Swiss grade 1–6 in half steps (6 best, 4 pass) for an A2 speaker in this situation,\n "verdict": "one or two blunt, specific sentences in English",\n "errors": [{"wrong": "fragment", "right": "correction", "type": "article|case|ending|word order|verb form|tense|preposition|spelling|vocabulary|other", "why": "one short English sentence"}],\n "good": ["up to 3 specific things done well"],\n "phrases": ["3 useful German phrases for this situation they didn't use, each with English in parentheses"]}\nAt most 8 errors, most important first.`,{modelTier:"default"});
+    c.feedback=r;logClaudeErrors(r.errors,"chat");
+  }catch(e){c.err=errCopy(e);}
+  c.busy=false;render();
+}
+function scrollChat(){requestAnimationFrame(()=>{const b=$("#chatlog");if(b)b.scrollTop=b.scrollHeight;});}
+
+/* ---------- views ---------- */
+const TABS=[["heute","Today","Heute"],["kapitel","Chapters","Kapitel"],["woerter","Words","Wörter"],["verben","Verbs","Verben"],["grammatik","Grammar","Grammatik"],["schreiben","Write & talk","Schreiben"],["fehler","Mistakes","Fehler"]];
+function knotSvg(){return `<svg class="knot" viewBox="0 0 40 40" aria-hidden="true"><rect x="1" y="1" width="38" height="38" rx="10" fill="var(--text)"/><path d="M6 26 C12 26 14 12 20 12 C27 12 27 24 20 24 C13 24 14 14 22 14 C28 14 30 26 34 26" fill="none" stroke="var(--thread)" stroke-width="3" stroke-linecap="round"/></svg>`;}
+function header(){
+  const mc=openMistakes().length;
+  return `<header class="top"><div class="brand">${knotSvg()}<div><h1>Der rote Faden</h1><div class="sub">A2 with Begegnungen and Grammatik aktiv · ${Math.max(0,daysBetween(today(),TARGET_DATE))} days to Dec 20</div></div></div><span class="save" id="save"></span></header>
+  <nav class="tabs" role="tablist">${TABS.map(([id,en,de])=>`<button class="tab" role="tab" aria-selected="${ui.tab===id||(ui.tab==="drill"&&id===ui.sess?.ret)}" data-tab="${id}"><span>${de}${id==="fehler"&&mc?`<span class="dot">${mc}</span>`:""}</span><small>${en}</small></button>`).join("")}</nav>`;
+}
+function threadLine(){
+  const cur=currentChapter(),t=today();
+  const pos=Math.max(0,Math.min(1,daysBetween(CHAPTERS[0].from,t)/daysBetween(CHAPTERS[0].from,TARGET_DATE)));
+  const knots=[...CHAPTERS.map(c=>({n:c.n,label:"K"+c.n,s:S.progress.done[c.n]?"done":c.n===cur?"now":""})),{n:9,label:"Test",s:cur===9?"now":""}];
+  return `<div class="thread" aria-label="Chapter progress"><div class="thread-line"><i style="width:${pos*100}%"></i></div><div class="knots">${knots.map(k=>`<button class="kn" data-s="${k.s}" data-act="goto-ch" data-ch="${k.n}" title="${k.n<9?esc(CHAPTERS[k.n-1].de):"Review + practice test"}"><b>${k.n<9?k.n:"✓"}</b>${k.label}</button>`).join("")}</div></div>`;
+}
+function vHeute(){
+  const cur=currentChapter(),c=CHAPTERS[cur-1],bt=bookToday();
+  const due=dueCards().length,nw=Math.min(newLeftToday(),newCards(cur,99).length);
+  const est=Math.max(5,Math.round((Math.min(due,30)+nw)*.3+11*.6));
+  const sched=scheduledChapter();const behind=sched<9&&cur<sched;
+  const t=today();const spark=Array.from({length:14},(_,i)=>addDays(t,i-13));const mx=Math.max(30,...spark.map(minutesOn));
+  const weak=weakTopics();
+  const wp=promptsSorted().find(p=>p.ch===cur);
+  const wk=weekMinutes();
+  return `<div class="stack">
+  ${threadLine()}
+  <div class="hero">
+    <section class="today-card">
+      <span class="eyebrow">Heute · Kapitel ${cur}</span>
+      <h2>${esc(c.de)}</h2>
+      <div class="mix"><div><b>${due}</b><span>cards due</span></div><div><b>${nw}</b><span>new words</span></div><div><b>11</b><span>grammar items</span></div><div><b>~${est}</b><span>minutes</span></div></div>
+      <button class="btn primary big" data-act="start-today">Start today's session</button>
+      <span style="font-size:.84rem;opacity:.8">In the book today: <b>${esc(bt.part[0])}</b>, p. ${bt.part[1]} (PDF ${bt.part[1]+PDF_OFFSET})${bt.next?` → next up ${esc(bt.next[0])}`:""}. Read it first, then drill.</span>
+    </section>
+    <section class="card stack" style="gap:14px">
+      <div class="grid g2" style="grid-template-columns:1fr 1fr;gap:12px">
+        <div class="stat"><b>${minutesOn(t)}</b><span>min today</span></div>
+        <div class="stat"><b>${streak()}</b><span>day streak (5+ min)</span></div>
+        <div class="stat"><b>${wk}<small class="faint" style="font-size:.8rem">/${WEEKLY_GOAL}</small></b><span>min this week</span></div>
+        <div class="stat"><b>${learnedCount()}</b><span>cards in long-term memory</span></div>
+      </div>
+      <div class="bar"><i style="width:${Math.min(100,wk/WEEKLY_GOAL*100)}%"></i></div>
+      <div><div class="spark" role="img" aria-label="Minutes per day, last 14 days">${spark.map(d=>{const m=minutesOn(d);return `<i class="${m?"":"z"} ${d===t?"t":""}" style="height:${Math.max(4,m/mx*100)}%" title="${fmt(d)}: ${m} min"></i>`;}).join("")}</div><div class="row" style="justify-content:space-between"><span class="faint" style="font-size:.7rem">${fmt(spark[0])}</span><span class="faint" style="font-size:.7rem">today</span></div></div>
+      <a class="hint" href="${FOUR_LANES}" target="_blank" rel="noopener">Log minutes in Four Lanes ↗</a>
+    </section>
+  </div>
+  ${behind?`<div class="note">By the plan you should be on Kapitel ${sched} by now. You're on ${cur}. Either speed up or accept that Dec 20 slips. Don't pretend otherwise.</div>`:""}
+  <div class="grid g2">
+    <section class="card"><div class="card-h"><h2>Weak spots</h2><span class="hint">below 85% right</span></div>
+      ${weak.length?`<div class="topiclist">${weak.map(w=>`<div class="topic-row"><div><div class="t">${esc(ALLTOPICS[w.id].title)}</div><div class="ref">Kap. ${ALLTOPICS[w.id].ch} · ${gaRef(ALLTOPICS[w.id])}</div></div><div class="row"><span class="pill ${w.acc<.6?"bad":"warn"}">${Math.round(w.acc*100)}%</span><button class="mini" data-act="topic" data-t="${w.id}">Fix it</button></div></div>`).join("")}</div>`:`<p class="empty">Nothing yet. Weak spots show up after a few drills per topic.</p>`}
+      ${openMistakes().length?`<div class="row" style="margin-top:12px"><button class="btn" data-act="go-mistakes">Redo ${openMistakes().length} open mistakes</button></div>`:""}
+    </section>
+    <section class="card"><div class="card-h"><h2>Write something</h2><span class="hint">Claude grades it on the Swiss 1–6 scale</span></div>
+      ${wp?`<p style="font-weight:600">${esc(wp.title)}</p><p class="hint" style="margin:4px 0 12px">${esc(wp.task)}</p><button class="btn" data-act="write-open" data-p="${wp.i}">Write it (${wp.words} words)</button>`:""}
+    </section>
+  </div>
+  </div>`;
+}
+function gaRef(t){return t.ga.map(([n,p])=>`GA §${n} (PDF ${p})`).join(", ");}
+function vKapitel(){
+  const cur=currentChapter();
+  return `<div class="stack">${threadLine()}
+  ${CHAPTERS.map(c=>{
+    const st=S.progress.done[c.n]?"done":c.n===cur?"now":"";
+    const words=CARD_ORDER.filter(id=>CARDS[id].ch===c.n&&CARDS[id].t==="w");const known=words.filter(id=>srs(id)&&srs(id).b>=3).length,seen=words.filter(id=>srs(id)).length;
+    const cd=c.cando.map((x,k)=>({x,k,v:S.progress.cando[c.n+"-"+k]||0}));const good=cd.filter(y=>y.v===2).length;
+    return `<section class="card chap" id="ch-${c.n}" data-s="${st}"><div class="chap-n">${c.n}</div><div class="stack" style="gap:10px">
+      <div class="card-h" style="margin:0"><div><h2>${esc(c.de)}</h2><div class="hint">${esc(c.en)} · ${fmt(c.from)}–${fmt(c.to)} · Begegnungen p. ${c.pages[0]}–${c.pages[1]} (PDF ${c.pages[0]+PDF_OFFSET}–${c.pages[1]+PDF_OFFSET})</div></div>
+        <div class="row">${st==="done"?`<span class="pill ok">done</span>`:st==="now"?`<span class="pill acc">current</span>`:""}</div></div>
+      <div class="parts">${c.parts.map(([p,pg])=>`<span class="part">${esc(p)}<span class="mono">${pg}</span></span>`).join("")}</div>
+      <div class="grid g3" style="gap:10px">
+        <div class="stat"><b>${known}<small class="faint" style="font-size:.8rem">/${words.length}</small></b><span>words solid (${seen} started)</span></div>
+        <div class="stat"><b>${good}<small class="faint" style="font-size:.8rem">/${c.cando.length}</small></b><span>"Ich kann" rated good</span></div>
+        <div class="stat"><b style="font-size:.95rem;font-family:var(--body)">${esc(c.sound)}</b><span>pronunciation focus</span></div>
+      </div>
+      <div class="topiclist">${c.topics.map(tid=>{const t=ALLTOPICS[tid],a=topicAcc(tid);return `<div class="topic-row"><div><div class="t">${esc(t.title)}</div><div class="ref">${gaRef(t)}</div></div><div class="row">${a==null?`<span class="pill">not tried</span>`:`<span class="pill ${a>=.85?"ok":a>=.6?"warn":"bad"}">${Math.round(a*100)}%</span>`}<button class="mini" data-act="topic" data-t="${tid}">Practice</button></div></div>`;}).join("")}</div>
+      <details data-cd="${c.n}" ${ui.cOpen[c.n]?"open":""}><summary class="hint" style="cursor:pointer;font-weight:600">Ich kann … (self-check, like the Rückblick page)</summary>
+      <ul class="cando">${cd.map(y=>`<li><span class="seg" role="group" aria-label="Rating"><button aria-pressed="${y.v===2}" data-act="cando" data-k="${c.n}-${y.k}" data-v="2">gut</button><button aria-pressed="${y.v===1}" data-act="cando" data-k="${c.n}-${y.k}" data-v="1">nicht so gut</button></span><span>${esc(y.x)}</span></li>`).join("")}</ul></details>
+      <div class="row"><button class="btn primary" data-act="ch-words" data-ch="${c.n}">Drill chapter words</button>${c.n!==cur?`<button class="btn" data-act="set-current" data-ch="${c.n}">Make current</button>`:""}<button class="btn ghost" data-act="toggle-done" data-ch="${c.n}">${S.progress.done[c.n]?"Mark not done":"Mark done"}</button></div>
+    </div></section>`;}).join("")}
+  <section class="card chap" data-s="${cur===9?"now":""}"><div class="chap-n">✓</div><div class="stack" style="gap:8px"><h2>${esc(FINALE.de)}</h2><p class="hint">${fmt(FINALE.from)}–${fmt(FINALE.to)} · ${esc(FINALE.en)}. Use the two exam-format writing prompts and the role-plays for the speaking part.</p>
+  <div class="row"><button class="btn" data-act="goto-tab" data-t="schreiben">Exam-format writing</button></div></div></section>
+  </div>`;
+}
+function boxes(id){const c=srs(id);const b=c?c.b:-1;return `<span class="boxes" title="${c?"box "+b+(c.due<=today()?" · due":" · next "+fmt(c.due)):"not started"}">${[1,2,3,4,5].map(k=>`<i class="${b>=k?"on":""}"></i>`).join("")}</span>`;}
+function vWoerter(){
+  const ch=ui.chFilter||currentChapter();
+  const q=norm(ui.search);
+  let ids=CARD_ORDER.filter(id=>CARDS[id].t==="w"&&(q?norm(CARDS[id].de+" "+CARDS[id].en).includes(q):CARDS[id].ch===ch));
+  const due=CARD_ORDER.filter(id=>CARDS[id].t==="w"&&isDue(id)).length;
+  return `<div class="stack">
+  <section class="card"><div class="card-h"><h2>Wörter</h2><div class="row"><button class="btn" data-act="due-words" ${due?"":"disabled"}>Review due (${due})</button><button class="btn primary" data-act="ch-words" data-ch="${ch}">Drill Kapitel ${ch}</button></div></div>
+  <p class="hint" style="margin-bottom:12px">Nouns are colored by gender: <b class="g-der">der</b> <b class="g-die">die</b> <b class="g-das">das</b>. You type the German with the article; from box 2 on you also type the plural. Five squares = in long-term memory.</p>
+  <div class="row" style="justify-content:space-between"><div class="seg" role="group" aria-label="Chapter">${CHAPTERS.map(c=>`<button aria-pressed="${!q&&c.n===ch}" data-act="wch" data-ch="${c.n}">K${c.n}</button>`).join("")}</div>
+  <input class="field" id="wsearch" style="max-width:240px" placeholder="Search all words" value="${esc(ui.search)}" aria-label="Search words"></div></section>
+  <section class="card"><div class="words">${ids.map(id=>{const c=CARDS[id];return `<div class="word"><span class="gbar ${c.art}"></span><div><div class="de">${c.art?`<span class="g-${c.art}">${c.art}</span> ${esc(c.noun)}${c.pl?` <span class="faint" style="font-weight:400">· die ${esc(c.pl)}</span>`:""}`:esc(c.de)}</div><div class="en">${esc(c.en)}${q?` · K${c.ch}`:""}</div></div>${boxes(id)}</div>`;}).join("")||`<p class="empty">No matches.</p>`}</div></section></div>`;
+}
+function vVerben(){
+  const ids=CARD_ORDER.filter(id=>CARDS[id].t==="v");
+  const due=ids.filter(isDue).length,started=ids.filter(id=>srs(id)).length,solid=ids.filter(id=>srs(id)&&srs(id).b>=3).length;
+  return `<div class="stack">
+  <section class="card"><div class="card-h"><h2>Unregelmäßige Verben</h2><button class="btn primary" data-act="verbs">Drill verbs${due?` (${due} due)`:""}</button></div>
+  <p class="hint">Each card asks for all three forms, the way the book's "Kleines Wörterbuch der Verben" lists them. Perfekt includes hat/ist. Unlocked up to your current chapter.</p>
+  <div class="grid g3" style="margin-top:12px"><div class="stat"><b>${started}/${ids.length}</b><span>started</span></div><div class="stat"><b>${solid}</b><span>solid (box 3+)</span></div><div class="stat"><b>${due}</b><span>due now</span></div></div></section>
+  <section class="card"><div class="card-h"><h3>Reference</h3><button class="mini" data-act="toggle-forms">${ui.showForms?"Hide forms (self-test)":"Show forms"}</button></div>
+  <div class="tablewrap"><table class="vtable"><thead><tr><th>Infinitiv</th><th>er/sie</th><th>Präteritum</th><th>Perfekt</th><th>K</th><th></th></tr></thead><tbody>
+  ${ids.map(id=>{const c=CARDS[id];const h=ui.showForms?"":"style=\"color:transparent;background:var(--surface-2);border-radius:4px\"";return `<tr><td>${esc(c.inf)}<div class="faint" style="font-size:.75rem;font-weight:400">${esc(c.en)}</div></td><td ${h}>${esc(c.pr)}</td><td ${h}>${esc(c.pt)}</td><td ${h}>${esc(c.pf)}</td><td class="mono faint">${c.ch}</td><td>${boxes(id)}</td></tr>`;}).join("")}
+  </tbody></table></div></section></div>`;
+}
+function vGrammatik(){
+  return `<div class="stack">
+  <section class="card"><h2>Grammatik</h2><p class="hint" style="margin-top:6px">Every topic points to the matching Grammatik aktiv chapter (GA §) and its PDF page. Read the rule there, then practice here. The three topics marked ∞ generate new items every time.</p></section>
+  ${CHAPTERS.map(c=>`<section class="card"><div class="card-h"><h3>Kapitel ${c.n} · ${esc(c.de)}</h3></div><div class="topiclist">
+    ${c.topics.map(tid=>{const t=ALLTOPICS[tid],a=topicAcc(tid),s=S.progress.topic[tid];const open=ui.rule[tid];
+      return `<div class="topic-row" style="flex-direction:column;align-items:stretch"><div class="row" style="justify-content:space-between"><div><div class="t">${t.gen?"∞ ":""}${esc(t.title)}</div><div class="ref">${gaRef(t)}${s?` · ${s.r+s.w} answered`:""}</div></div>
+      <div class="row">${a==null?"":`<span class="pill ${a>=.85?"ok":a>=.6?"warn":"bad"}">${Math.round(a*100)}%</span>`}<button class="mini" data-act="rule" data-t="${tid}" aria-expanded="${!!open}">Rule</button><button class="mini" data-act="topic" data-t="${tid}" style="color:var(--accent);border-color:var(--accent)">Practice</button></div></div>
+      ${open?`<div class="rule" style="margin-top:10px">${t.rule}</div>`:""}</div>`;}).join("")}
+  </div></section>`).join("")}</div>`;
+}
+function resultBlock(r,isChat){
+  if(!r)return "";
+  const g=Number(r.grade);const gc=g>=5?"ok":g>=4?"warn":"bad";
+  return `<div class="corr">
+   <div class="row" style="align-items:flex-end;gap:16px"><div><div class="eyebrow">Note</div><div class="grade" style="color:var(--${gc})">${isFinite(g)?g.toFixed(1):"–"}</div></div><p style="flex:1;min-width:200px">${esc(r.verdict||"")}</p></div>
+   ${r.task_check?`<p class="hint">${esc(r.task_check)}</p>`:""}
+   ${r.corrected?`<div><div class="eyebrow" style="margin-bottom:6px">Corrected</div><div class="corrected">${esc(r.corrected)}</div></div>`:""}
+   ${Array.isArray(r.errors)&&r.errors.length?`<div><div class="eyebrow">Errors (${r.errors.length}) · saved to Fehler</div>${r.errors.map(e=>`<div class="err"><span class="pill">${esc(e.type||"")}</span><div><s>${esc(e.wrong)}</s> → <ins>${esc(e.right)}</ins><div class="hint">${esc(e.why||"")}</div></div></div>`).join("")}</div>`:`<p class="pill ok">No errors found</p>`}
+   ${Array.isArray(r.good)&&r.good.length?`<div><div class="eyebrow">What worked</div><ul style="margin:6px 0 0;padding-left:18px">${r.good.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`:""}
+   ${r.upgrade?`<div class="note">Level up: ${esc(r.upgrade)}</div>`:""}
+   ${Array.isArray(r.phrases)&&r.phrases.length?`<div><div class="eyebrow">Phrases to steal</div><ul style="margin:6px 0 0;padding-left:18px">${r.phrases.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`:""}
+  </div>`;
+}
+function vSchreiben(){
+  const noClaude=!sample?`<div class="note">Claude grading and role-play need this page open in Claude. Everything else works without it.</div>`:"";
+  return `<div class="stack">
+  <div class="seg" role="group" aria-label="Mode"><button aria-pressed="${ui.wtab==="write"}" data-act="wtab" data-t="write">Schreiben · writing</button><button aria-pressed="${ui.wtab==="talk"}" data-act="wtab" data-t="talk">Sprechen · role-play</button></div>
+  ${noClaude}${ui.wtab==="write"?vWrite():vTalk()}</div>`;
+}
+function vWrite(){
+  const w=ui.write;const ps=promptsSorted();
+  if(w.prompt==null){
+    const hist=S.writing.items;
+    return `<section class="card"><div class="card-h"><h2>Pick a task</h2><span class="hint">Current chapter first</span></div>
+    <div class="grid g2">${ps.map(p=>`<button class="scen" data-act="write-open" data-p="${p.i}"><span class="eyebrow">${p.ch<9?"Kapitel "+p.ch:"Exam format"} · ${esc(p.words)} words</span><b>${esc(p.title)}</b><span>${esc(p.focus)}</span></button>`).join("")}</div></section>
+    ${hist.length?`<section class="card"><div class="card-h"><h2>History</h2></div>${hist.map((h,k)=>`<div class="mist"><div><b>${esc(WRITING[h.p]?.title||"")}</b><div class="hint">${fmt(h.d)} · ${wordCount(h.text)} words · ${(h.r.errors||[]).length} errors</div></div><div class="row"><span class="pill ${h.r.grade>=5?"ok":h.r.grade>=4?"warn":"bad"}">${Number(h.r.grade).toFixed(1)}</span><button class="mini" data-act="hist" data-k="${k}">Open</button></div></div>`).join("")}</section>`:""}`;
+  }
+  const p=WRITING[w.prompt];const wc=wordCount(w.text);
+  return `<section class="card stack" style="gap:12px"><div class="row" style="justify-content:space-between"><button class="mini" data-act="write-back">← All tasks</button><span class="pill">${p.ch<9?"Kapitel "+p.ch:"Exam format"}</span></div>
+    <h2>${esc(p.title)}</h2><p>${esc(p.task)}</p><p class="hint">Target: ${esc(p.words)} words · Focus: ${esc(p.focus)}</p>
+    <textarea class="field" id="wtext" placeholder="Schreib hier …" ${w.busy?"disabled":""} spellcheck="false" lang="de">${esc(w.text)}</textarea>
+    <div class="row" style="justify-content:space-between">${umlautRow()}<span class="mono faint" id="wc">${wc} words</span></div>
+    <div class="row"><button class="btn primary" data-act="write-go" ${w.busy||!sample?"disabled":""}>${w.busy?"Claude is reading…":"Correct and grade"}</button>${w.result?`<button class="btn ghost" data-act="write-new">Start over</button>`:""}</div>
+    ${w.err?`<p class="pill bad">${esc(w.err)}</p>`:""}
+  </section>
+  ${w.result?`<section class="card">${resultBlock(w.result)}</section>`:""}`;
+}
+function vTalk(){
+  const c=ui.chat;
+  if(c.scene==null)return `<section class="card"><div class="card-h"><h2>Pick a situation</h2><span class="hint">Claude plays the other person and fixes your sentences as you go</span></div>
+    <div class="grid g2">${SCENES.map((s,k)=>`<button class="scen" data-act="scene" data-k="${k}"><span class="eyebrow">Kapitel ${s.ch}</span><b>${esc(s.title)}</b><span>“${esc(s.open)}”</span></button>`).join("")}</div></section>`;
+  const sc=SCENES[c.scene];
+  const bubble=t=>{if(t.role==="user")return `<div class="msg me">${esc(t.content)}</div>`;
+    const lines=t.content.split("\n");const fix=lines.filter(l=>l.trim().startsWith("✎"));const main=lines.filter(l=>!l.trim().startsWith("✎")).join("\n").trim();
+    return `<div class="msg them">${esc(main)}${fix.map(f=>`<span class="fix">${esc(f.trim())}</span>`).join("")}</div>`;};
+  return `<section class="card stack" style="gap:12px"><div class="row" style="justify-content:space-between"><button class="mini" data-act="scene-back">← All situations</button><span class="pill">Kapitel ${sc.ch}</span></div>
+    <h2>${esc(sc.title)}</h2>
+    <div class="chat" id="chatlog" aria-live="polite"><div class="msg them">${esc(sc.open)}</div>${c.turns.map(bubble).join("")}${c.busy&&!c.feedback?`<div class="msg them" id="streaming">${esc(c.stream||"…")}</div>`:""}</div>
+    <div class="row" style="flex-wrap:nowrap"><input class="field" id="chatin" placeholder="Antworte auf Deutsch …" autocomplete="off" spellcheck="false" lang="de" ${c.busy||!sample?"disabled":""}><button class="btn primary" data-act="chat-send" ${c.busy||!sample?"disabled":""}>Send</button></div>
+    <div class="row" style="justify-content:space-between">${umlautRow()}<div class="row"><button class="btn" data-act="chat-feedback" ${c.busy||!c.turns.length?"disabled":""}>End and get feedback</button><button class="btn ghost" data-act="chat-reset">Restart</button></div></div>
+    ${c.err?`<p class="pill bad">${esc(c.err)}</p>`:""}
+  </section>${c.feedback?`<section class="card">${resultBlock(c.feedback,true)}</section>`:""}`;
+}
+function vFehler(){
+  const open=openMistakes();const wr=S.mistakes.items.filter(m=>m.tid==="writing"&&!m.fixed);
+  const by={};open.forEach(m=>{(by[m.tid]=by[m.tid]||[]).push(m);});
+  return `<div class="stack">
+  <section class="card"><div class="card-h"><h2>Fehler</h2><button class="btn primary" data-act="go-mistakes" ${open.length?"":"disabled"}>Redo ${Math.min(15,open.length)} mistakes</button></div>
+  <p class="hint">Every wrong grammar answer lands here. Get it right on a redo and it's cleared. Writing and role-play errors are listed below for review.</p></section>
+  ${Object.keys(by).length?Object.entries(by).sort((a,b)=>b[1].length-a[1].length).map(([tid,ms])=>`<section class="card"><div class="card-h"><h3>${esc(ALLTOPICS[tid]?.title||tid)} <span class="pill bad">${ms.length}</span></h3><button class="mini" data-act="topic" data-t="${tid}">Practice topic</button></div>
+    ${ms.map(m=>{const x=m.item;const right=x.t==="c"?x.o[x.a]:x.t==="o"?x.w.join(" "):fillAnswer(x);return `<div class="mist"><div><div>${esc(x.q||x.en||"")}</div><div class="hint">You: <s style="color:var(--bad)">${esc(m.given||"–")}</s> · Right: <b style="color:var(--ok)">${esc(right)}</b>${m.n>1?` · missed ${m.n}×`:""}</div></div><button class="mini" data-act="mist-del" data-key="${esc(m.key)}" aria-label="Remove">✕</button></div>`;}).join("")}</section>`).join(""):`<section class="card"><p class="empty">No open grammar mistakes. Suspicious. Go drill something.</p></section>`}
+  ${wr.length?`<section class="card"><div class="card-h"><h3>From your writing and role-plays</h3><button class="mini" data-act="wr-clear">Mark all reviewed</button></div>${wr.slice(0,40).map(m=>`<div class="mist"><div><s style="color:var(--bad)">${esc(m.item.wrong)}</s> → <b style="color:var(--ok)">${esc(m.item.right)}</b><div class="hint">${esc(m.item.type)} · ${esc(m.item.why)}</div></div><button class="mini" data-act="mist-del" data-key="${esc(m.key)}" aria-label="Remove">✕</button></div>`).join("")}</section>`:""}
+  </div>`;
+}
+
+/* ---------- render + events ---------- */
+function render(){
+  const main={heute:vHeute,kapitel:vKapitel,woerter:vWoerter,verben:vVerben,grammatik:vGrammatik,schreiben:vSchreiben,fehler:vFehler,drill:vDrill}[ui.tab]||vHeute;
+  $("#app").innerHTML=header()+`<main>${main()}</main>`+(ui.toast?`<div class="toast" role="status">${esc(ui.toast)}</div>`:"");
+  setSave();
+}
+function toast(m){ui.toast=m;render();setTimeout(()=>{ui.toast=null;render();},2200);}
+let lastFocus=null;
+document.addEventListener("focusin",e=>{if(e.target.matches("input,textarea"))lastFocus=e.target;});
+document.addEventListener("click",e=>{
+  const u=e.target.closest("[data-uml]");
+  if(u){e.preventDefault();const el=lastFocus&&document.body.contains(lastFocus)?lastFocus:document.querySelector(".drill input:not([disabled]),#wtext,#chatin");if(!el||el.disabled)return;const s=el.selectionStart??el.value.length,en=el.selectionEnd??el.value.length;el.value=el.value.slice(0,s)+u.dataset.uml+el.value.slice(en);el.focus();el.setSelectionRange(s+1,s+1);el.dispatchEvent(new Event("input",{bubbles:true}));return;}
+  const tab=e.target.closest("[data-tab]");
+  if(tab){if(ui.sess&&ui.tab==="drill"){ui.sess=null;commitTime();}ui.tab=tab.dataset.tab;try{localStorage.setItem("roterfaden.tab",ui.tab);}catch(_){}render();window.scrollTo({top:0});return;}
+  const o=e.target.closest("[data-opt]");if(o){const it=curItem();if(it&&!it.res){it.pickd=+o.dataset.opt;check();}return;}
+  const b=e.target.closest("[data-build]");if(b){const it=curItem();(it.built=it.built||[]).push(+b.dataset.build);render();return;}
+  const ub=e.target.closest("[data-unbuild]");if(ub){const it=curItem();it.built.splice(+ub.dataset.unbuild,1);render();return;}
+  const a=e.target.closest("[data-act]");if(!a)return;const d=a.dataset;
+  switch(d.act){
+    case "start-today":sessToday();break;
+    case "check":check();break;
+    case "next":next();break;
+    case "reveal":curItem().revealed=true;render();break;
+    case "self-ok":case "self-no":{const it=curItem();const ok=d.act==="self-ok";it.res={ok};grade(it.id,ok);ok?ui.sess.ok++:(ui.sess.no++,requeue(it));render();focusNext();break;}
+    case "intro-go":{const it=curItem();introduce(it.id,false);ui.sess.q.splice(Math.min(ui.sess.q.length,ui.sess.i+3),0,{k:"card",id:it.id});ui.sess.i++;render();focusFirst();break;}
+    case "intro-know":{const it=curItem();introduce(it.id,true);ui.sess.i++;render();focusFirst();break;}
+    case "tiles-reset":curItem().built=[];render();break;
+    case "explain":explain();break;
+    case "sess-quit":case "sess-close":{const r=ui.sess?.ret||"heute";ui.sess=null;commitTime();ui.tab=r==="drill"?"heute":r;render();break;}
+    case "go-mistakes":ui.sess=null;sessMistakes();break;
+    case "topic":sessTopic(d.t);break;
+    case "rule":ui.rule[d.t]=!ui.rule[d.t];render();break;
+    case "ch-words":sessChapterWords(+d.ch);break;
+    case "due-words":startSession("Wörter · due",dueCards(c=>c.t==="w").slice(0,40).map(id=>({k:"card",id})));break;
+    case "verbs":sessVerbs();break;
+    case "wch":ui.chFilter=+d.ch;ui.search="";render();break;
+    case "toggle-forms":ui.showForms=!ui.showForms;render();break;
+    case "goto-ch":if(+d.ch<9){ui.tab="kapitel";render();requestAnimationFrame(()=>{const el=document.getElementById("ch-"+d.ch);if(el)el.scrollIntoView({behavior:"smooth",block:"start"});});}else{ui.tab="kapitel";render();}break;
+    case "goto-tab":ui.tab=d.t;render();break;
+    case "set-current":S.progress.current=+d.ch;touch("progress");toast("Kapitel "+d.ch+" is now current");break;
+    case "toggle-done":S.progress.done[d.ch]=!S.progress.done[d.ch];touch("progress");render();break;
+    case "cando":{const k=d.k,v=+d.v;S.progress.cando[k]=S.progress.cando[k]===v?0:v;touch("progress");render();break;}
+    case "wtab":ui.wtab=d.t;render();break;
+    case "write-open":ui.tab="schreiben";ui.wtab="write";if(ui.write.prompt!==+d.p){ui.write={prompt:+d.p,text:"",busy:false,result:null,err:""};}render();window.scrollTo({top:0});break;
+    case "write-back":ui.write.prompt=null;render();break;
+    case "write-go":correctWriting();break;
+    case "write-new":ui.write.text="";ui.write.result=null;render();break;
+    case "hist":{const h=S.writing.items[+d.k];ui.write={prompt:h.p,text:h.text,busy:false,result:h.r,err:""};render();break;}
+    case "scene":ui.chat={scene:+d.k,turns:[],busy:false,feedback:null,err:""};render();requestAnimationFrame(()=>{const i=$("#chatin");if(i)i.focus();});break;
+    case "scene-back":ui.chat.scene=null;render();break;
+    case "chat-send":sendChat();break;
+    case "chat-feedback":chatFeedback();break;
+    case "chat-reset":ui.chat={scene:ui.chat.scene,turns:[],busy:false,feedback:null,err:""};render();break;
+    case "mist-del":S.mistakes.items=S.mistakes.items.filter(m=>m.key!==d.key);touch("mistakes");render();break;
+    case "wr-clear":S.mistakes.items.forEach(m=>{if(m.tid==="writing")m.fixed=true;});touch("mistakes");render();break;
+  }
+});
+document.addEventListener("toggle",e=>{const d=e.target;if(d.dataset&&d.dataset.cd)ui.cOpen[d.dataset.cd]=d.open;},true);
+document.addEventListener("input",e=>{
+  if(e.target.id==="wtext"){ui.write.text=e.target.value;const wc=$("#wc");if(wc)wc.textContent=wordCount(e.target.value)+" words";}
+  if(e.target.id==="wsearch"){ui.search=e.target.value;const pos=e.target.selectionStart;render();const el=$("#wsearch");if(el){el.focus();el.setSelectionRange(pos,pos);}}
+});
+document.addEventListener("keydown",e=>{
+  if(e.key!=="Enter"||e.shiftKey)return;
+  if(e.target.id==="chatin"){e.preventDefault();sendChat();return;}
+  if(ui.tab!=="drill"||!ui.sess)return;
+  if(e.target.tagName==="TEXTAREA")return;
+  const it=curItem();if(!it)return;
+  if(e.target.tagName==="BUTTON"&&!e.target.matches('[data-act="next"],[data-act="check"]'))return;
+  e.preventDefault();
+  if(it.intro&&!it.res){document.querySelector('[data-act="intro-go"]')?.click();return;}
+  if(it.res)next();
+  else if(it.k==="card"&&CARDS[it.id].kind==="phrase"){if(!it.revealed){it.revealed=true;render();}}
+  else{const ins=[...document.querySelectorAll(".drill input:not([disabled])")];const i=ins.indexOf(e.target);if(i>=0&&i<ins.length-1&&!ins[i+1].value){ins[i+1].focus();return;}check();}
+});
+
+render();
+connect();
+</script>

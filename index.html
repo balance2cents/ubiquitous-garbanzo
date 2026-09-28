@@ -620,6 +620,7 @@ function vGerman(){
   return `<div class="stack">
   <section class="card lane-top" style="${laneStyle("german")}">
     <div class="card-h"><h2>A2 → B1.2 by end of May</h2><span class="muted" style="font-size:.8rem">${Math.max(0,Math.round(daysBetween(t,"2027-05-31")/7))} weeks left</span></div>
+    <a class="study-link" style="${laneStyle("german")};margin:0 0 14px" href="https://claude.ai/artifact/Qe1GyQzrfDKBA7LZpfnY3P" target="_blank" rel="noopener">Open Der rote Faden, your A2 trainer <span aria-hidden="true">↗</span></a>
     <div class="ladder">${ms.map(m=>{const n=m.target?daysBetween(t,m.target):null;
       return `<div class="rung ${m.done?"done":""}"><div class="row"><button class="chk ${m.done?"on":""}" data-act="ms-toggle" data-id="${m.id}" aria-label="Mark ${esc(m.label)} reached"></button><h3>${esc(m.label)}</h3></div>
         <span class="hint">${esc(m.note||"")}</span>
@@ -644,7 +645,7 @@ function vGerman(){
       <p class="hint" style="margin-bottom:10px">Tue, Wed and Thu give you about 12 hours of commuting. A B1 jump needs roughly 250 study hours, which is about 7 hours a week until May. Most of that can happen on the train.</p>
       <ul class="tasks">
         <li class="task"><span class="t-text"><b>Out, 45 min:</b> listening. Easy German, or DW's <i>Nicos Weg</i> A2–B1 episodes.</span></li>
-        <li class="task"><span class="t-text"><b>Back, 30 min:</b> vocabulary reps, then write 5 sentences about your day.</span></li>
+        <li class="task"><span class="t-text"><b>Back, 30 min:</b> today's session in Der rote Faden, then write 5 sentences about your day.</span></li>
         <li class="task"><span class="t-text"><b>Free days, 20 min:</b> speaking. Say a paragraph out loud and record it.</span></li>
       </ul>
     </section>

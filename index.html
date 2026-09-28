@@ -121,13 +121,20 @@ label.lbl{display:flex; flex-direction:column; gap:4px; font-size:.78rem; color:
 .chk.on{background:var(--c,var(--text)); border-color:var(--c,var(--text))}
 .chk.on::after{content:""; position:absolute; left:6px; top:2px; width:5px; height:10px; border:solid var(--surface); border-width:0 2px 2px 0; transform:rotate(45deg)}
 .empty{color:var(--faint); font-size:.88rem; padding:6px 0}
+.t-meta{font-size:.78rem; color:var(--muted)}
+.pill.next{background:color-mix(in srgb,var(--c,var(--text)) 16%,transparent); color:var(--text); font-size:.66rem; text-transform:uppercase; letter-spacing:.06em; padding:1px 6px; vertical-align:1px}
+.prio{display:flex; align-items:center; gap:14px; flex-wrap:wrap; background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--text); border-radius:var(--r); padding:14px 18px; margin-bottom:18px}
+.prio b{font-family:var(--display); font-size:1.15rem; line-height:1.3; flex:1; min-width:12em}
+.prio .field{flex:1; min-width:12em; font-family:var(--display); font-size:1.05rem}
+.dep .met{border:1px solid var(--board-line); background:transparent; color:var(--board-text); border-radius:5px; font-family:var(--mono); font-size:.72rem; padding:2px 7px; white-space:nowrap}
+.dep .met:hover{border-color:var(--board-hot); color:var(--board-hot)}
 
 /* departure board */
 .board{background:var(--board-bg); color:var(--board-text); border-radius:var(--r); padding:16px 18px; font-family:var(--mono)}
 .board-h{display:flex; justify-content:space-between; align-items:baseline; border-bottom:1px solid var(--board-line); padding-bottom:10px; margin-bottom:4px; gap:8px}
 .board-h b{font-family:var(--display); font-size:1.05rem; letter-spacing:0}
 .board-h span{color:var(--board-dim); font-size:.72rem; text-transform:uppercase; letter-spacing:.1em}
-.dep{display:grid; grid-template-columns:5.2em minmax(0,1fr) auto; gap:12px; align-items:baseline; padding:8px 0; border-bottom:1px dashed var(--board-line); font-size:.86rem}
+.dep{display:grid; grid-template-columns:5.2em minmax(0,1fr) auto auto; gap:12px; align-items:baseline; padding:8px 0; border-bottom:1px dashed var(--board-line); font-size:.86rem}
 .dep:last-child{border-bottom:0}
 .dep .in{color:var(--board-hot); font-weight:700}
 .dep .in.late{color:#FF7A7A}
@@ -373,15 +380,17 @@ function germanStreak(){
 const courseById=id=>S.school.courses.find(c=>c.id===id);
 function upcoming(){
   const t=today(),out=[];
-  S.school.deadlines.filter(d=>!d.done).forEach(d=>{const c=courseById(d.course);out.push({date:d.date,title:d.name,sub:(c?c.name:"")+(d.type?" · "+d.type:""),lane:"school"});});
+  S.school.deadlines.filter(d=>!d.done).forEach(d=>{const c=courseById(d.course);out.push({kind:"dl",id:d.id,date:d.date,title:d.name,sub:(c?c.name:"")+(d.type?" · "+d.type:""),lane:"school"});});
   if(t<=EXAM_END)out.push({date:EXAM_START,title:"Exam period",sub:"4 – 15 Jan · all modules",lane:"school"});
-  S.work.projects.filter(p=>p.status!=="Done"&&p.due).forEach(p=>out.push({date:p.due,title:p.name,sub:p.next||p.service||"",lane:"work"}));
+  S.work.projects.filter(p=>p.status!=="Done"&&p.due&&!p.dueMet).forEach(p=>{const st=nextStep(p.id);out.push({kind:"proj",id:p.id,date:p.due,title:p.name+" due",sub:st?"Next: "+st.text:(p.service||""),lane:"work"});});
   const m=S.german.milestones.find(x=>!x.done&&x.target);
-  if(m)out.push({date:m.target,title:"Reach "+m.label,sub:"German level checkpoint",lane:"german"});
-  S.tasks.items.filter(x=>!x.done&&x.due).forEach(x=>out.push({date:x.due,title:x.text,sub:"Task",lane:x.lane}));
+  if(m)out.push({kind:"ms",id:m.id,date:m.target,title:"Reach "+m.label,sub:"German level checkpoint",lane:"german"});
+  S.tasks.items.filter(x=>!x.done&&x.due).forEach(x=>out.push({kind:"task",id:x.id,date:x.due,title:x.text,sub:"Task",lane:x.lane}));
   if(S.config.book.targetDate)out.push({date:S.config.book.targetDate,title:"First draft done",sub:fmtNum(S.config.book.target)+" words",lane:"book"});
   return out.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
 }
+const nextStep=pid=>S.tasks.items.find(t=>t.project===pid&&!t.done);
+const weekPriority=wk=>((S.reviews.weeks[addDays(wk,-7)]||{}).next||"").trim();
 function bookStats(){
   const e=[...S.book.entries].sort((a,b)=>a.date<b.date?-1:1);
   const total=e.length?e[e.length-1].total:0;
@@ -396,18 +405,19 @@ function bookStats(){
 /* ---------- small renderers ---------- */
 const laneStyle=l=>`--c:var(--${l})`;
 function delBtn(act,id){const armed=ui.armed===act+":"+id;return `<button class="mini del ${armed?"armed":""}" data-act="${act}" data-id="${esc(id)}" aria-label="Delete">${armed?"Delete?":"×"}</button>`;}
-function taskRow(t,showLane){
+function taskRow(t,showLane,isNext){
   const pinned=t.pin===today();
+  const proj=showLane&&t.project?S.work.projects.find(p=>p.id===t.project):null;
   return `<li class="task ${t.done?"is-done":""}" style="${laneStyle(t.lane)}">
     <button class="chk ${t.done?"on":""}" data-act="task-toggle" data-id="${t.id}" aria-label="${t.done?"Mark not done":"Mark done"}"></button>
     ${showLane?`<span class="dot" title="${LANE[t.lane].name}"></span>`:""}
-    <span class="t-text">${esc(t.text)}</span>
+    <span class="t-text">${isNext?`<span class="pill next">Next</span> `:""}${esc(t.text)}${proj?` <span class="t-meta">· ${esc(proj.name)}</span>`:""}</span>
     ${t.done?"":`<button class="mini ${pinned?"on":""}" data-act="${pinned?"task-unpin":"task-pin"}" data-id="${t.id}">${pinned?"On today":"Do today"}</button>`}
     ${delBtn("task-del",t.id)}
   </li>`;
 }
 function tasksCard(lane,title){
-  const items=S.tasks.items.filter(t=>t.lane===lane);
+  const items=S.tasks.items.filter(t=>t.lane===lane&&!t.project);
   const open=items.filter(t=>!t.done), done=items.filter(t=>t.done);
   return `<section class="card">
     <div class="card-h"><h2>${title||"Tasks"}</h2><span class="muted" style="font-size:.8rem">${open.length} open</span></div>
@@ -422,16 +432,20 @@ function vToday(){
   const t=today(), wk=mondayOf(t), plan=getPlan(wk);
   const pinned=S.tasks.items.filter(x=>x.pin===t);
   const openPinned=pinned.filter(x=>!x.done).length;
-  const cands=S.tasks.items.filter(x=>!x.done&&x.pin!==t).sort((a,b)=>{
-    const sa=a.pin&&a.pin<t?0:1, sb=b.pin&&b.pin<t?0:1; if(sa!==sb)return sa-sb;
+  const rank=x=>x.pin&&x.pin<t?0:x.week===wk?1:x.project&&nextStep(x.project)===x?2:x.due?3:4;
+  const cands=S.tasks.items.filter(x=>!x.done&&x.pin!==t&&(!x.project||nextStep(x.project)===x)).sort((a,b)=>{
+    const ra=rank(a), rb=rank(b); if(ra!==rb)return ra-rb;
     return (a.due||"9999")<(b.due||"9999")?-1:1;}).slice(0,5);
+  const prio=weekPriority(wk);
   const deps=upcoming().filter(d=>d.date>=addDays(t,-14)).slice(0,6);
   const whys=LANES.filter(l=>S.config.lanes[l.id]&&S.config.lanes[l.id].why);
   const whyLane=whys.length?whys[daysBetween("2026-01-01",t)%whys.length]:null;
   const bs=bookStats();
   const gMin=Math.round(actual(wk,"german")*60);
 
-  return `<div class="grid g-today">
+  return `${prio?`<div class="prio"><span class="eyebrow">This week's priority</span><b>${esc(prio)}</b></div>`
+    :`<div class="prio"><span class="eyebrow">This week's priority</span><span class="muted" style="flex:1">Not set yet.</span><button class="mini" data-tab="plan">Set it in Week</button></div>`}
+  <div class="grid g-today">
   <div class="stack">
     <section class="card">
       <div class="card-h"><h2>Three things today</h2><span class="muted" style="font-size:.8rem">${fmtLong(t)}</span></div>
@@ -457,7 +471,7 @@ function vToday(){
   <div class="stack">
     <section class="board" aria-label="Upcoming deadlines">
       <div class="board-h"><b>Nächste Abfahrten</b><span>Coming up</span></div>
-      ${deps.map(d=>{const n=daysBetween(t,d.date);return `<div class="dep"><span class="in ${n<0?"late":""}">${inLabel(n)}</span><span class="what">${esc(d.title)}<small>${fmt(d.date)}${d.sub?" · "+esc(d.sub):""}</small></span><span class="gleis" style="${laneStyle(d.lane)}">${LANE[d.lane].name}</span></div>`;}).join("")||`<div class="dep"><span class="in">—</span><span class="what">Nothing scheduled</span><span></span></div>`}
+      ${deps.map(d=>{const n=daysBetween(t,d.date);return `<div class="dep"><span class="in ${n<0?"late":""}">${inLabel(n)}</span><span class="what">${esc(d.title)}<small>${fmt(d.date)}${d.sub?" · "+esc(d.sub):""}</small></span><span class="gleis" style="${laneStyle(d.lane)}">${LANE[d.lane].name}</span>${d.kind?`<button class="met" data-act="board-done" data-kind="${d.kind}" data-id="${esc(d.id)}" aria-label="Mark ${esc(d.title)} as met">✓ Met</button>`:`<span></span>`}</div>`;}).join("")||`<div class="dep"><span class="in">—</span><span class="what">Nothing scheduled</span><span></span><span></span></div>`}
     </section>
 
     ${whyLane?`<section class="card"><div class="why-q" style="${laneStyle(whyLane.id)}"><div class="eyebrow">Why ${whyLane.name.toLowerCase()}</div><p>${esc(S.config.lanes[whyLane.id].why)}</p>${S.config.lanes[whyLane.id].cost?`<p class="hint" style="margin-top:8px">If you skip it: ${esc(S.config.lanes[whyLane.id].cost)}</p>`:""}</div></section>`
@@ -477,8 +491,27 @@ function vToday(){
 function vPlan(){
   const wk=ui.planWeek||mondayOf(today()), p=getPlan(wk);
   const total=LANES.reduce((s,l)=>s+(p.hours[l.id]||0),0), cap=p.capacity||0, max=Math.max(cap,total)||1;
-  const n=semWeek(wk), inSem=n>=1&&n<=SEM_WEEKS;
+  const n=semWeek(wk), inSem=n>=1&&n<=SEM_WEEKS, prevWk=addDays(wk,-7);
+  const prio=(S.reviews.weeks[prevWk]||{}).next||"";
+  const wt=S.tasks.items.filter(x=>x.week===wk), wOpen=wt.filter(x=>!x.done), wDone=wt.filter(x=>x.done);
+  const dueHere=S.tasks.items.filter(x=>!x.week&&x.due&&x.due>=wk&&x.due<=addDays(wk,6));
+  const leftovers=wk>=mondayOf(today())?S.tasks.items.filter(x=>!x.done&&x.week&&x.week<wk):[];
   return `<div class="stack">
+  <div class="prio" style="margin-bottom:0"><label class="eyebrow" for="prio-in">This week's one priority</label>
+    <input class="field" id="prio-in" data-in="rev" data-f="next" data-wk="${prevWk}" value="${esc(prio)}" placeholder="The one thing that makes this week a win"></div>
+
+  <section class="card">
+    <div class="card-h"><h2>This week's list</h2><span class="muted" style="font-size:.8rem">${wOpen.length} open${wDone.length?` · ${wDone.length} done`:""}</span></div>
+    <ul class="tasks">${wOpen.map(x=>taskRow(x,true)).join("")}${wDone.map(x=>taskRow(x,true)).join("")}${!wt.length?`<li class="empty">Everything you need to get done this week, so nothing slips. Pick from here each morning.</li>`:""}</ul>
+    <div class="add">
+      <select class="field" id="nt-week-lane" aria-label="Lane">${LANES.map(l=>`<option value="${l.id}">${l.name}</option>`).join("")}</select>
+      <input class="field" id="nt-week" data-enter="task-add-week" placeholder="Add to this week…" aria-label="New task for this week">
+      <button class="btn primary" data-act="task-add-week">Add</button></div>
+    ${dueHere.length?`<div style="margin-top:16px"><div class="eyebrow" style="margin-bottom:4px">Also due this week</div><ul class="tasks">${dueHere.map(x=>taskRow(x,true)).join("")}</ul></div>`:""}
+    ${leftovers.length?`<div style="margin-top:16px"><div class="row" style="margin-bottom:4px"><span class="eyebrow">Left over from earlier weeks</span><span class="spacer"></span><button class="mini" data-act="task-move-all" data-wk="${wk}">Move all here</button></div>
+      <ul class="tasks">${leftovers.map(x=>`<li class="task" style="${laneStyle(x.lane)}"><span class="dot"></span><span class="t-text">${esc(x.text)} <span class="t-meta">· ${weekLabel(x.week).split(" · ")[0]}</span></span><button class="mini" data-act="task-move-week" data-id="${x.id}" data-wk="${wk}">Move here</button>${delBtn("task-del",x.id)}</li>`).join("")}</ul></div>`:""}
+  </section>
+
   <section class="card">
     <div class="card-h">
       <div class="row"><button class="mini" data-act="plan-nav" data-d="-7" aria-label="Previous week">‹</button><h2>${weekLabel(wk)}</h2><button class="mini" data-act="plan-nav" data-d="7" aria-label="Next week">›</button>${wk!==mondayOf(today())?`<button class="mini" data-act="plan-now">This week</button>`:""}</div>
@@ -531,9 +564,9 @@ function vSchool(){
   <section class="card">
     <div class="card-h"><h2>Deadlines &amp; exams</h2><span class="muted" style="font-size:.8rem">Exam period 4 – 15 Jan</span></div>
     ${dls.map(d=>{const n=daysBetween(t,d.date), c=courseById(d.course), cls=d.done?"":n<0?"bad":n<=3?"bad":n<=10?"warn":"";
-      return `<div class="dl ${d.done?"is-done":""}"><button class="chk ${d.done?"on":""}" style="--c:var(--school)" data-act="dl-toggle" data-id="${d.id}" aria-label="Toggle done"></button>
+      return `<div class="dl ${d.done?"is-done":""}"><button class="chk ${d.done?"on":""}" style="--c:var(--school)" data-act="dl-toggle" data-id="${d.id}" aria-label="${d.done?"Mark as not met":"Mark as met"}" title="${d.done?"Mark as not met":"Mark as met"}"></button>
         <span class="t-text"><b style="font-weight:600">${esc(d.name)}</b><br><span class="muted" style="font-size:.8rem">${esc(c?c.name:"")}${d.type?" · "+esc(d.type):""} · ${fmtLong(d.date)}</span></span>
-        <span class="pill ${cls}">${d.done?"done":inLabel(n)}</span>${delBtn("dl-del",d.id)}</div>`;}).join("")||`<p class="empty">No deadlines yet.</p>`}
+        <span class="pill ${d.done?"ok":cls}">${d.done?"✓ met":inLabel(n)}</span>${delBtn("dl-del",d.id)}</div>`;}).join("")||`<p class="empty">No deadlines yet.</p>`}
     <div class="form-row">
       <select class="field" id="dl-course" aria-label="Course" style="width:100%">${S.school.courses.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select>
       <input class="field" id="dl-name" placeholder="What's due" aria-label="Deadline name">
@@ -545,14 +578,23 @@ function vSchool(){
   </div>`;
 }
 
+function projBody(p){
+  const steps=S.tasks.items.filter(t=>t.project===p.id), open=steps.filter(t=>!t.done), done=steps.filter(t=>t.done);
+  const n=p.due?daysBetween(today(),p.due):null;
+  return `<div><div class="eyebrow" style="margin-bottom:2px">Next steps</div>
+      <ul class="tasks">${open.map((t,i)=>taskRow(t,false,i===0)).join("")||(p.status!=="Done"?`<li class="empty" style="color:var(--warn)">No next step. This project will stall.</li>`:"")}</ul>
+      <div class="add"><input class="field" id="st-${p.id}" data-enter="step-add" data-id="${p.id}" placeholder="Next physical step, e.g. email Maurus the outline" aria-label="New step for ${esc(p.name)}"><button class="btn" data-act="step-add" data-id="${p.id}">Add</button></div>
+      ${done.length?`<p class="hint" style="margin-top:8px">${done.length} step${done.length>1?"s":""} done</p>`:""}</div>
+    <div class="row"><label class="lbl" style="flex-direction:row;align-items:center;gap:8px">Due<input class="field" type="date" data-ch="proj" data-id="${p.id}" data-f="due" value="${esc(p.due||"")}" style="width:auto"></label>
+      ${p.due?(p.dueMet?`<span class="pill ok">✓ met</span><button class="mini" data-act="proj-due-met" data-id="${p.id}">Undo</button>`
+        :`<span class="pill ${n<0?"bad":n<=3?"warn":""}">${inLabel(n)}</span><button class="mini" data-act="proj-due-met" data-id="${p.id}">Mark met</button>`):""}</div>`;
+}
 function vWork(){
   const all=S.work.projects, open=all.filter(p=>p.status!=="Done"), done=all.filter(p=>p.status==="Done");
   const card=p=>`<article class="card proj lane-top" style="${laneStyle("work")}">
     <div class="card-h" style="margin-bottom:0"><div><h2>${esc(p.name)}</h2><span class="muted" style="font-size:.82rem">${esc(p.service||"")}</span></div>
       <div class="row" style="gap:6px"><select class="field" data-ch="proj" data-id="${p.id}" data-f="status" aria-label="Status">${WORK_STATUS.map(s=>`<option ${s===p.status?"selected":""}>${s}</option>`).join("")}</select>${delBtn("proj-del",p.id)}</div></div>
-    <label class="lbl">Next action<input class="field" data-ch="proj" data-id="${p.id}" data-f="next" value="${esc(p.next||"")}" placeholder="The very next physical step"></label>
-    <label class="lbl">Due<input class="field" type="date" data-ch="proj" data-id="${p.id}" data-f="due" value="${esc(p.due||"")}" style="max-width:200px"></label>
-    ${p.next?"":`<p class="hint" style="color:var(--warn)">No next action. This project will stall.</p>`}
+    ${projBody(p)}
   </article>`;
   return `<div class="stack">
     <div class="grid g-2">${open.map(card).join("")||`<p class="empty">No active projects.</p>`}</div>
@@ -695,7 +737,7 @@ function vReview(){
         <label class="lbl">What moved forward?<textarea class="field" id="rv-moved" data-in="rev" data-f="moved" data-wk="${wk}">${esc(r.moved||"")}</textarea></label>
         <label class="lbl">What slipped?<textarea class="field" id="rv-slipped" data-in="rev" data-f="slipped" data-wk="${wk}">${esc(r.slipped||"")}</textarea></label>
         <div class="lbl">Why it slipped<div class="reasons">${REASONS.map(x=>`<button class="${(r.reasons||[]).includes(x)?"on":""}" data-act="rev-reason" data-r="${esc(x)}" aria-pressed="${(r.reasons||[]).includes(x)}">${x}</button>`).join("")}</div></div>
-        <label class="lbl">Next week's one priority<input class="field" id="rv-next" data-in="rev" data-f="next" data-wk="${wk}" value="${esc(r.next||"")}"></label>
+        <label class="lbl">Next week's one priority (shows on Today and Week next week)<input class="field" id="rv-next" data-in="rev" data-f="next" data-wk="${wk}" value="${esc(r.next||"")}"></label>
         <button class="btn" data-tab="plan">Plan next week</button>
       </div>
     </section>
@@ -716,9 +758,9 @@ function render(){
 
 /* ---------- actions ---------- */
 const val=id=>{const el=document.getElementById(id);return el?el.value.trim():"";};
-function addTask(lane,text,pin){
+function addTask(lane,text,pin,extra){
   if(!text)return false;
-  update("tasks",s=>s.items.push({id:uid(),lane,text,done:false,pin:pin||null,created:today()}));
+  update("tasks",s=>s.items.push(Object.assign({id:uid(),lane,text,done:false,pin:pin||null,created:today()},extra||{})));
   return true;
 }
 function doAct(act,el){
@@ -732,6 +774,17 @@ function doAct(act,el){
   case "task-del":update("tasks",s=>{s.items=s.items.filter(i=>i.id!==d.id);});break;
   case "task-add":{const lane=d.lane;if(!addTask(lane,val("nt-"+lane)))return;focusLater("nt-"+lane);break;}
   case "task-add-today":{if(!addTask(val("nt-today-lane")||"school",val("nt-today"),t))return;focusLater("nt-today");break;}
+  case "task-add-week":{const wk=ui.planWeek||mondayOf(t);if(!addTask(val("nt-week-lane")||"school",val("nt-week"),null,{week:wk}))return;focusLater("nt-week");break;}
+  case "task-move-week":update("tasks",s=>{const x=s.items.find(i=>i.id===d.id);if(x)x.week=d.wk;});break;
+  case "task-move-all":update("tasks",s=>{s.items.forEach(x=>{if(!x.done&&x.week&&x.week<d.wk)x.week=d.wk;});});break;
+  case "step-add":{if(!addTask("work",val("st-"+d.id),null,{project:d.id}))return;focusLater("st-"+d.id);break;}
+  case "proj-due-met":update("work",s=>{const x=s.projects.find(i=>i.id===d.id);if(x)x.dueMet=!x.dueMet;});break;
+  case "board-done":{const id=d.id;
+    if(d.kind==="dl")update("school",s=>{const x=s.deadlines.find(i=>i.id===id);if(x)x.done=true;});
+    else if(d.kind==="proj")update("work",s=>{const x=s.projects.find(i=>i.id===id);if(x)x.dueMet=true;});
+    else if(d.kind==="ms")update("german",s=>{const x=s.milestones.find(i=>i.id===id);if(x)x.done=true;});
+    else if(d.kind==="task")update("tasks",s=>{const x=s.items.find(i=>i.id===id);if(x)x.done=true;});
+    toast("Marked as met. Nice.");break;}
   case "clear-done":update("tasks",s=>{s.items=s.items.filter(i=>!(i.lane===d.lane&&i.done));});break;
   case "log":update("log",s=>{const day=s.days[t]||(s.days[t]={});day[d.lane]=Math.max(0,Math.round(((day[d.lane]||0)+Number(d.d))*10)/10);});break;
   case "plan-nav":ui.planWeek=addDays(ui.planWeek||mondayOf(t),Number(d.d));render();break;
@@ -750,7 +803,7 @@ function doAct(act,el){
   case "dl-del":update("school",s=>{s.deadlines=s.deadlines.filter(i=>i.id!==d.id);});break;
   case "dl-add":{const name=val("dl-name"),date=val("dl-date");if(!name||!date){toast("Add a name and a date.");return;}update("school",s=>s.deadlines.push({id:uid(),course:val("dl-course"),name,date,type:val("dl-type"),done:false}));break;}
   case "proj-add":{const name=val("pj-name");if(!name)return;update("work",s=>s.projects.push({id:uid(),name,service:val("pj-svc"),status:"Not started",next:"",due:""}));break;}
-  case "proj-del":update("work",s=>{s.projects=s.projects.filter(p=>p.id!==d.id);});break;
+  case "proj-del":update("work",s=>{s.projects=s.projects.filter(p=>p.id!==d.id);});update("tasks",s=>{s.items=s.items.filter(x=>x.project!==d.id);});break;
   case "work-done-toggle":ui.showDoneWork=!ui.showDoneWork;render();break;
   case "ms-toggle":update("german",s=>{const m=s.milestones.find(x=>x.id===d.id);if(m)m.done=!m.done;});break;
   case "book-log":{const src=d.src||"bw-today",n=parseInt(val(src),10);if(!(n>=0)){toast("Enter your total word count.");return;}
@@ -782,7 +835,7 @@ document.addEventListener("change",e=>{
   const t=today();
   switch(d.ch){
   case "plan-cap":editPlan(ui.planWeek||mondayOf(t),p=>{p.capacity=Math.max(0,Number(el.value)||0);});break;
-  case "proj":update("work",s=>{const p=s.projects.find(x=>x.id===d.id);if(p)p[d.f]=el.value;});break;
+  case "proj":update("work",s=>{const p=s.projects.find(x=>x.id===d.id);if(p){p[d.f]=el.value;if(d.f==="due")p.dueMet=false;}});break;
   case "ms-date":update("german",s=>{const m=s.milestones.find(x=>x.id===d.id);if(m)m.target=el.value;});break;
   case "german-goal":update("config",c=>{c.german.weeklyMin=Math.max(0,Number(el.value)||0);});break;
   case "book-cfg":update("config",c=>{c.book[d.f]=d.f==="target"?Math.max(1,Number(el.value)||1):el.value;});break;

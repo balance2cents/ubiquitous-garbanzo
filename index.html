@@ -347,7 +347,10 @@ async function connect(){
   for(const k of KEYS){
     db.doc("planner/"+k).onSnapshot(snap=>{
       if(dirty.has(k)||!snap.exists)return;
-      const js=JSON.stringify(snap.data());
+      let body=snap.data();
+      // Tolerate a doc written as {data:{...}} by an outside tool
+      if(isObj(body)&&isObj(body.data)&&Object.keys(body).length===1)body=body.data;
+      const js=JSON.stringify(body);
       if(js===lastJson[k])return;
       lastJson[k]=js;
       S[k]=deepMerge(DEFAULTS[k],JSON.parse(js));

@@ -225,6 +225,57 @@ textarea.field{min-height:170px; resize:vertical; line-height:1.6}
 .spark i.t{background:var(--thread)}
 details.rulebox summary{cursor:pointer; font-weight:600; font-size:.88rem; color:var(--accent)}
 details.rulebox[open] summary{margin-bottom:8px}
+/* course */
+.course{display:grid; grid-template-columns:250px minmax(0,1fr); gap:20px; align-items:start}
+.rail{position:sticky; top:calc(env(safe-area-inset-top,0px) + 70px); max-height:calc(100vh - 90px); overflow-y:auto; background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:12px}
+.rail-toggle{display:none; width:100%; border:0; background:none; font-weight:700; text-align:left; justify-content:space-between; padding:4px 2px}
+.rail-g{display:flex; flex-direction:column; gap:2px; margin-bottom:12px}
+.rail-g .eyebrow{margin:0 0 4px 4px}
+.rail-i{display:grid; grid-template-columns:10px 28px 1fr; gap:6px; align-items:center; text-align:left; border:0; background:none; border-radius:8px; padding:5px 6px; font-size:.82rem; color:var(--text)}
+.rail-i:hover{background:var(--surface-2)}
+.rail-i[aria-current="true"]{background:var(--text); color:var(--bg)}
+.rail-i .mono{font-size:.72rem; opacity:.75}
+.rail-i .rt{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.ld{display:inline-block; width:9px; height:9px; border-radius:50%; background:var(--line); flex:none}
+.ld[data-s="partial"]{background:var(--warn)}
+.ld[data-s="done"]{background:var(--thread)}
+.lx-head{display:flex; flex-direction:column; gap:8px; padding-bottom:14px; border-bottom:2px solid var(--text)}
+.lx-title{font-size:1.9rem; line-height:1.1}
+.goals{margin:2px 0 4px; padding-left:18px; font-size:.9rem; color:var(--muted)}
+.lmodes{align-self:flex-start}
+.lesson{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:26px 28px; line-height:1.7; max-width:760px}
+.lesson h3{font-size:1.15rem; margin:22px 0 8px}
+.lesson h3:first-child{margin-top:0}
+.lesson p{margin:0 0 10px}
+.lesson table,.rule table{border-collapse:collapse; font-size:.86rem; margin:8px 0 12px}
+.lesson th,.lesson td{border:1px solid var(--line); padding:6px 9px; text-align:left; vertical-align:top}
+.lesson th{background:var(--surface-2)}
+.lesson em{font-style:normal; font-weight:700; color:var(--accent)}
+.formula{font-family:var(--mono); font-size:.92rem; background:var(--surface-2); border:1px dashed var(--line); border-radius:10px; padding:12px 14px; margin:10px 0 14px; text-align:center}
+.formula span{color:var(--thread); font-weight:700}
+.ex{border:1px solid var(--line); border-radius:10px; overflow:hidden; margin:10px 0 14px}
+.ex-h{background:var(--text); color:var(--bg); font-size:.68rem; font-weight:700; text-transform:uppercase; letter-spacing:.09em; padding:5px 12px}
+.ex p{margin:0; padding:6px 14px}
+.ex p:first-of-type{padding-top:10px} .ex p:last-child{padding-bottom:10px}
+.trap{background:var(--bad-soft); border-left:3px solid var(--bad); border-radius:0 10px 10px 0; padding:10px 14px; margin:10px 0 14px; font-size:.92rem}
+.trap b{color:var(--bad)}
+.book{background:var(--accent-soft); border-left:3px solid var(--accent); border-radius:0 10px 10px 0; padding:10px 14px; margin-top:16px; font-size:.9rem}
+.lx-card{background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:18px 20px; max-width:760px}
+.chips{display:flex; flex-wrap:wrap; gap:6px}
+.chip{font-size:.8rem; background:var(--surface-2); border-radius:8px; padding:3px 9px}
+.reading{font-size:1.02rem; line-height:1.8; margin-top:8px}
+.reading p{margin:0 0 8px}
+.rq{display:flex; flex-direction:column; gap:8px}
+.btn.inv{background:transparent; color:var(--bg); border-color:color-mix(in srgb,var(--bg) 40%,transparent)}
+@media (max-width:860px){
+  .course{grid-template-columns:1fr}
+  .rail{position:static; max-height:none}
+  .rail-toggle{display:flex}
+  .rail:not(.open) .rail-body{display:none}
+  .rail.open .rail-body{margin-top:10px}
+  .lesson{padding:18px 16px}
+  .lx-title{font-size:1.5rem}
+}
 .toast{position:fixed; left:50%; transform:translateX(-50%); bottom:calc(20px + env(safe-area-inset-bottom,0px)); background:var(--text); color:var(--bg); padding:9px 16px; border-radius:99px; font-size:.86rem; font-weight:600; z-index:20}
 @media (prefers-reduced-motion:no-preference){
   .q{animation:rise .18s ease-out}
@@ -1192,6 +1243,1016 @@ const SCENES=[
  {ch:8,title:"Debate: the environment",role:"Du bist Tim, ein Mitstudent. Du findest, Fliegen sollte nicht teurer werden, und Autos in der Stadt sind okay. Diskutiere freundlich, aber mit Gegenargumenten. Frag nach der Meinung des Lernenden und reagiere mit Zustimmung oder Widerspruch.",open:"Hast du gehört? Die Stadt will die Innenstadt autofrei machen. Ich finde das ehrlich gesagt übertrieben. Was denkst du?"}
 ];
 
+
+/* ================= COURSE: LESSONS =================
+   Each lesson: theory (own explanations), guided practice (lesson items + topic pool),
+   a short original reading text with questions, a test (pass at 80%), and an output task.
+   Reading questions and test items use the same formats as TOPICS items.
+   R/F = richtig/falsch choice. */
+const RF=(q,ok,why)=>({t:"c",q,o:["richtig","falsch"],a:ok?0:1,why});
+const LESSONS=[
+/* ---------------- KAPITEL 1 ---------------- */
+{id:"1.1",ch:1,title:"Über mich und meinen Weg: das Perfekt",pages:[8,19],ga:[[24,127],[25,131]],topics:["perfekt"],
+ goals:["Introduce yourself with your education and work history","Build Perfekt sentences with the right auxiliary"],
+ theory:`
+<h3>1 · Why Perfekt first</h3>
+<p>Chapter 1 opens with people telling their life story: where they went to school, what they studied, when they moved. In spoken German almost all of that is told in the <em>Perfekt</em>. If you get the Perfekt automatic, half of A2 speaking is already solved.</p>
+<h3>2 · How it's built</h3>
+<div class="formula"><span>haben / sein</span> in position 2 &nbsp;+&nbsp; … &nbsp;+&nbsp; <span>Partizip II</span> at the end</div>
+<div class="ex"><div class="ex-h">Examples</div>
+<p>Ich <b>habe</b> in Zürich Wirtschaft <b>studiert</b>.</p>
+<p>Nach dem Studium <b>bin</b> ich nach Winterthur <b>umgezogen</b>.</p>
+<p>Wann <b>hast</b> du die Schule <b>abgeschlossen</b>?</p></div>
+<p>The auxiliary is the conjugated verb, so it follows the normal word-order rules: position 2 in a statement, position 1 in a yes/no question, position 2 after a question word. The participle always closes the clause, like the second half of a bracket (<i>Satzklammer</i>).</p>
+<h3>3 · haben or sein?</h3>
+<p>Most verbs take <em>haben</em>. Take <em>sein</em> only when one of these is true:</p>
+<div class="tablewrap"><table>
+<tr><th>Rule</th><th>Verbs</th><th>Example</th></tr>
+<tr><td>Movement from A to B</td><td>gehen, fahren, fliegen, kommen, laufen, umziehen, reisen</td><td>Ich <b>bin</b> nach Bern gefahren.</td></tr>
+<tr><td>Change of state</td><td>aufstehen, einschlafen, werden, sterben, aufwachen</td><td>Er <b>ist</b> früh aufgestanden.</td></tr>
+<tr><td>The three exceptions</td><td>sein, bleiben, passieren</td><td>Wir <b>sind</b> zu Hause geblieben.</td></tr>
+</table></div>
+<div class="trap"><b>Common mistake:</b> reflexive verbs always take haben, even when they feel like movement: <i>Ich <b>habe</b> mich beeilt.</i> Also, <i>fahren</i> with a direct object takes haben: <i>Ich <b>habe</b> das Auto in die Garage gefahren.</i></div>
+<p class="hint">Swiss and southern German: <i>ich bin gesessen / gestanden / gelegen</i>. Standard German in Germany uses haben. Both are correct in Switzerland; exams accept both.</p>
+<h3>4 · Telling your story</h3>
+<div class="ex"><div class="ex-h">Useful phrases</div>
+<p>Ich bin <b>am</b> 6. Mai 2005 <b>in</b> Moskau geboren.</p>
+<p><b>Von</b> 2011 <b>bis</b> 2023 habe ich das Gymnasium besucht.</p>
+<p>Nach der Schule habe ich eine Ausbildung <b>zur</b> Kauffrau gemacht. / … habe ich angefangen zu studieren.</p>
+<p><b>Seit</b> 2024 wohne ich in der Schweiz.</p>
+<p>Ich arbeite <b>als</b> Assistentin <b>bei</b> einer Treuhandfirma.</p></div>
+<p><i>geboren</i> is special: <i>Ich <b>bin</b> … geboren</i> (you are still born), but for dead people <i>Er <b>wurde</b> 1819 geboren.</i> And <i>als</i> + job has no article: <i>Ich arbeite als Lehrerin</i>, never <i>als eine Lehrerin</i>.</p>
+<div class="book">In the book: read the two portraits on p. 8 (PDF 10) and the CV section from p. 16. Mark every Perfekt form you find and sort them into haben / sein.</div>`,
+ extra:[
+ {q:"Ich ___ 2005 in Riga geboren.",a:["bin"],why:"geboren: ich bin … geboren"},
+ {q:"Von 2011 bis 2023 ___ ich das Gymnasium besucht.",a:["habe"],why:"besuchen has an object → haben"},
+ {q:"Letztes Jahr ___ ich in die Schweiz umgezogen.",a:["bin"]},
+ {q:"Ich arbeite ___ Assistentin bei einer Treuhandfirma.",a:["als"],why:"als + job, no article"},
+ {q:"Wir ___ uns im Kurs kennengelernt.",a:["haben"]},
+ {t:"o",w:["Nach der Schule","habe","ich","eine Ausbildung","gemacht"],alt:["Ich habe nach der Schule eine Ausbildung gemacht"],en:"After school I did vocational training."}
+ ],
+ read:{title:"Sofia erzählt",text:`Ich heiße Sofia Brunner und bin 27 Jahre alt. Ich bin in Lugano geboren und dort auch zur Schule gegangen. Nach dem Gymnasium habe ich in Zürich Informatik studiert. Das Studium war schwer, aber ich habe es 2021 abgeschlossen. Danach habe ich ein Jahr in Berlin gearbeitet. Berlin hat mir gut gefallen, aber ich habe meine Familie vermisst. Deshalb bin ich 2022 zurück in die Schweiz gezogen. Seit zwei Jahren arbeite ich als Programmiererin bei einer Versicherung in Winterthur. Ich bin noch ledig und wohne mit einer Freundin in einer kleinen Wohnung. In meiner Freizeit gehe ich oft wandern.`,
+ qs:[RF("Sofia hat in Lugano studiert.",false,"Sie hat in Zürich studiert."),RF("Sie hat nach dem Studium in Deutschland gearbeitet.",true,"ein Jahr in Berlin"),
+ {t:"c",q:"Warum ist sie zurück in die Schweiz gezogen?",o:["Die Arbeit in Berlin war schlecht.","Sie hat ihre Familie vermisst.","Sie hat eine Stelle in Lugano bekommen."],a:1},
+ RF("Sofia ist verheiratet.",false,"Sie ist ledig.")]},
+ test:[
+ {q:"Er ___ drei Jahre in Genf geblieben.",a:["ist"]},
+ {q:"Hast du dein Praktikum schon ___? (beenden)",a:["beendet"]},
+ {q:"Um wie viel Uhr ___ ihr gestern aufgestanden?",a:["seid"]},
+ {q:"Sie ___ sich für die Stelle beworben.",a:["hat"],why:"reflexive → haben"},
+ {q:"Ich ___ gestern mit dem Velo zur Uni gefahren.",a:["bin"]},
+ {t:"c",q:"Ich arbeite ___ Verkäuferin.",o:["als eine","als","wie"],a:1}
+ ],out:{w:0}},
+{id:"1.2",ch:1,title:"Partizip II und trennbare Verben",pages:[11,29],ga:[[26,135],[7,45],[52,261]],topics:["partizip","trennbar"],
+ goals:["Form the Partizip II of regular, irregular, separable and inseparable verbs","Place separable prefixes correctly"],
+ theory:`
+<h3>1 · Four patterns for the Partizip II</h3>
+<div class="tablewrap"><table>
+<tr><th>Type</th><th>Pattern</th><th>Examples</th></tr>
+<tr><td>Regular (weak)</td><td><b>ge</b>-stem-<b>t</b></td><td>machen → gemacht, arbeiten → gearbeitet</td></tr>
+<tr><td>Irregular (strong)</td><td><b>ge</b>-stem-<b>en</b>, often with a vowel change</td><td>schreiben → geschrieben, finden → gefunden</td></tr>
+<tr><td>Separable</td><td>prefix + <b>ge</b> + rest</td><td>einkaufen → ein<b>ge</b>kauft, anfangen → an<b>ge</b>fangen</td></tr>
+<tr><td>No ge-</td><td>be-, ver-, er-, ent-, emp-, ge-, zer-, and all -ieren verbs</td><td>bezahlen → bezahlt, verstehen → verstanden, studieren → studiert</td></tr>
+</table></div>
+<p>Stems ending in -t or -d add an extra e: <i>gearbeitet, geredet</i>. Mixed verbs change the vowel but keep -t: <i>bringen → gebracht, denken → gedacht, kennen → gekannt</i>.</p>
+<div class="trap"><b>Common mistake:</b> "geverstanden", "gestudiert". If the verb starts with an inseparable prefix or ends in -ieren, there is no ge-. Test it out loud: the stress is never on be-, ver- or er-.</div>
+<h3>2 · Separable verbs in the present</h3>
+<p>The prefix carries the stress (<i><b>an</b>rufen, <b>auf</b>stehen, <b>ein</b>kaufen</i>) and splits off to the end of a main clause:</p>
+<div class="ex"><div class="ex-h">Where the prefix goes</div>
+<p>Main clause: Ich <b>rufe</b> dich morgen <b>an</b>.</p>
+<p>Question: <b>Rufst</b> du mich morgen <b>an</b>?</p>
+<p>Imperative: <b>Ruf</b> mich bitte <b>an</b>!</p>
+<p>With a modal verb: Ich <b>kann</b> dich morgen <b>anrufen</b>. (together, at the end)</p>
+<p>Subordinate clause: …, weil ich dich morgen <b>anrufe</b>. (together, at the end)</p></div>
+<p>Separable prefixes are usually real words: <i>an, auf, aus, ein, mit, nach, vor, weg, zu, zurück, fern, kennen</i>. Inseparable prefixes are not: <i>be-, ver-, er-, ent-, emp-, ge-, miss-, zer-</i>.</p>
+<h3>3 · Why this matters in chapter 1</h3>
+<p>Daily-routine language is full of separable verbs: <i>aufstehen, sich anziehen, einkaufen, fernsehen, anfangen, aufhören</i>. When you tell someone what you did yesterday, you need their participles: <i>Ich bin um sieben <b>aufgestanden</b>, habe <b>eingekauft</b> und am Abend <b>ferngesehen</b>.</i></p>
+<div class="book">In the book: the verb list in Rückblick 1 (p. 32, PDF 34) gives Präsens, Präteritum and Perfekt for every irregular verb in the chapter. Drill it in the Verbs tab.</div>`,
+ extra:[
+ {q:"Hast du schon ___? (einkaufen)",a:["eingekauft"]},
+ {q:"Ich habe das nicht ___. (verstehen)",a:["verstanden"]},
+ {q:"Er hat Jura ___. (studieren)",a:["studiert"]},
+ {q:"Wann ___ der Film ___? (anfangen)",a:["fängt","an"]},
+ {q:"Kannst du mich heute Abend ___? (anrufen)",a:["anrufen"]},
+ {q:"Sie hat mir einen Kaffee ___. (bringen)",a:["gebracht"],why:"mixed verb: vowel change + -t"}
+ ],
+ read:{title:"Ein chaotischer Montag",text:`Am Montag hat mein Wecker nicht geklingelt. Ich bin erst um halb acht aufgewacht und sofort aufgestanden. Ich habe keinen Kaffee getrunken und bin zum Bahnhof gelaufen. Natürlich habe ich den Zug verpasst. Der nächste Zug ist zwanzig Minuten später abgefahren. Im Büro hat die Besprechung schon angefangen. Mein Chef hat nichts gesagt, aber er hat mich lange angesehen. Am Nachmittag habe ich viele E-Mails beantwortet und ein Protokoll geschrieben. Nach der Arbeit habe ich noch eingekauft. Am Abend habe ich ferngesehen und bin früh eingeschlafen. Einen neuen Wecker habe ich auch bestellt.`,
+ qs:[RF("Der Wecker hat um halb acht geklingelt.",false,"Er hat nicht geklingelt."),RF("Die Person ist zu spät ins Büro gekommen.",true),
+ {t:"c",q:"Was hat der Chef gemacht?",o:["Er hat laut geschimpft.","Er hat nichts gesagt.","Er hat die Besprechung abgesagt."],a:1},
+ {t:"c",q:"Was hat die Person am Abend gemacht?",o:["eingekauft und gekocht","ferngesehen und früh geschlafen","ein Protokoll geschrieben"],a:1}]},
+ test:[
+ {q:"Wir haben gestern lange ___. (diskutieren)",a:["diskutiert"]},
+ {q:"Ich habe den Zug ___. (verpassen)",a:["verpasst"]},
+ {q:"Er hat mich zur Party ___. (einladen)",a:["eingeladen"]},
+ {q:"Sie ___ jeden Morgen um sechs ___. (aufstehen)",a:["steht","auf"]},
+ {q:"Hast du an den Termin ___? (denken)",a:["gedacht"]},
+ {t:"c",q:"Welche Form ist richtig?",o:["gebezahlt","bezahlt","bezahlen"],a:1}
+ ]},
+{id:"1.3",ch:1,title:"Mein Tag: reflexive Verben, Genus, Genitiv",pages:[20,31],ga:[[29,148],[48,243],[63,314]],topics:["reflexiv","genus","genitiv"],
+ goals:["Describe your daily routine with reflexive verbs","Guess noun gender from the ending","Show possession with the genitive"],
+ theory:`
+<h3>1 · Reflexive verbs</h3>
+<p>A reflexive verb has the action pointing back at the subject: <i>Ich wasche <b>mich</b></i> (I wash myself). German uses far more of these than English: <i>sich beeilen</i> (to hurry), <i>sich freuen</i> (to be glad), <i>sich erinnern</i> (to remember).</p>
+<div class="tablewrap"><table><tr><th>ich</th><th>du</th><th>er / sie / es</th><th>wir</th><th>ihr</th><th>sie / Sie</th></tr><tr><td>mich</td><td>dich</td><td><b>sich</b></td><td>uns</td><td>euch</td><td><b>sich</b></td></tr></table></div>
+<p>Word order: the reflexive pronoun sits right after the conjugated verb, or right after the subject if the subject comes later: <i>Morgens dusche ich <b>mich</b>. / Heute hat <b>sich</b> mein Chef beschwert.</i></p>
+<div class="ex"><div class="ex-h">A reflexive morning</div><p>Ich wache um sechs auf, dusche <b>mich</b>, ziehe <b>mich</b> an und schminke <b>mich</b>. Dann muss ich <b>mich</b> beeilen, weil der Zug um 7.12 Uhr fährt.</p></div>
+<p>Many reflexive verbs come with a fixed preposition. Learn them as one block: <i>sich interessieren <b>für</b>, sich freuen <b>auf</b> / <b>über</b>, sich erinnern <b>an</b>, sich ärgern <b>über</b></i>.</p>
+<h3>2 · der, die, das from the ending</h3>
+<p>You can't guess every gender, but the ending often gives it away. This covers a big share of the nouns you'll meet at A2:</p>
+<div class="tablewrap"><table>
+<tr><th class="g-die">die</th><td>-ung, -heit, -keit, -schaft, -ion, -tät, -ur, -ik, and most nouns ending in -e</td><td>die Zeitung, die Freiheit, die Universität</td></tr>
+<tr><th class="g-das">das</th><td>-chen, -lein, -ment, -um, infinitives used as nouns</td><td>das Mädchen, das Zentrum, das Essen</td></tr>
+<tr><th class="g-der">der</th><td>-ling, -ismus, -or, -ist, -er for people who do something, days, months, seasons</td><td>der Frühling, der Motor, der Lehrer</td></tr>
+</table></div>
+<p>Compound nouns take the gender of the <b>last</b> part: <i>das Kind + <b>der</b> Garten = <b>der</b> Kindergarten</i>.</p>
+<h3>3 · The genitive</h3>
+<p>The genitive answers <i>wessen?</i> (whose?). At A2 you mostly need to <em>recognize</em> it and use it in fixed expressions and writing.</p>
+<div class="tablewrap"><table><tr><th></th><th>m</th><th>f</th><th>n</th><th>pl</th></tr><tr><td>definite</td><td>de<b>s</b> Vater<b>s</b></td><td>de<b>r</b> Mutter</td><td>de<b>s</b> Kind<b>es</b></td><td>de<b>r</b> Eltern</td></tr><tr><td>ein / mein</td><td>(m)ein<b>es</b> Vater<b>s</b></td><td>(m)ein<b>er</b> Mutter</td><td>(m)ein<b>es</b> Kind<b>es</b></td><td>mein<b>er</b> Eltern</td></tr></table></div>
+<p>Names: <i>Annas Wohnung, Peters Auto</i> (no apostrophe). In everyday speech, <i>von + Dativ</i> replaces the genitive: <i>das Auto <b>von meinem</b> Vater</i>.</p>
+<div class="book">In the book: Tagesablauf p. 20 (PDF 22) and Teil C "Die Nomengruppe" p. 30 (PDF 32).</div>`,
+ extra:[
+ {q:"Ich ziehe ___ schnell an.",a:["mich"]},
+ {q:"Wir freuen ___ auf das Wochenende.",a:["uns"]},
+ {q:"Morgens muss er ___ immer beeilen.",a:["sich"]},
+ {t:"c",q:"___ Wohnung",o:["der","die","das"],a:1},
+ {t:"c",q:"___ Frühstück",o:["der","die","das"],a:2,why:"Stück is das → compound"},
+ {q:"Das ist das Büro ___ Chefin. (meine)",a:["meiner"]}
+ ],
+ read:{title:"Der Tag von Herrn Keller",text:`Herr Keller ist Bäcker in Winterthur. Sein Tag beginnt sehr früh: Er steht schon um drei Uhr auf. Er duscht sich nicht am Morgen, sondern am Abend, denn morgens hat er keine Zeit. Um halb vier ist er in der Bäckerei und backt Brot und Gipfeli. Um sieben kommen die ersten Kunden. Viele kennt er schon seit Jahren, und er unterhält sich gern mit ihnen. Um zwölf Uhr ist sein Arbeitstag zu Ende. Am Nachmittag schläft er zwei Stunden. Danach holt er seine Tochter vom Kindergarten ab. Er freut sich immer auf den Sonntag, denn dann ist die Bäckerei geschlossen und er kann lange schlafen.`,
+ qs:[RF("Herr Keller duscht sich morgens.",false,"Er duscht sich am Abend."),{t:"c",q:"Wann ist sein Arbeitstag zu Ende?",o:["um sieben Uhr","um zwölf Uhr","am Nachmittag"],a:1},RF("Er kennt viele Kunden seit langer Zeit.",true),{t:"c",q:"Warum freut er sich auf den Sonntag?",o:["Er backt einen Kuchen.","Die Bäckerei ist zu und er kann ausschlafen.","Seine Tochter hat Geburtstag."],a:1}]},
+ test:[
+ {q:"Kannst du ___ an seinen Namen erinnern? (du)",a:["dich"]},
+ {q:"Ihr müsst ___ beeilen!",a:["euch"]},
+ {t:"c",q:"___ Gesundheit",o:["der","die","das"],a:1},
+ {t:"c",q:"___ Lehrling",o:["der","die","das"],a:0},
+ {q:"Die Farbe ___ Autos gefällt mir nicht.",a:["des"]},
+ {q:"Er interessiert ___ nicht für Fußball.",a:["sich"]}
+ ],out:{w:1}},
+/* ---------------- KAPITEL 2 ---------------- */
+{id:"2.1",ch:2,title:"Freizeit: nicht oder kein?",pages:[36,38],ga:[[15,85]],topics:["negation"],
+ goals:["Talk about what you do and don't do in your free time","Choose between nicht and kein and place nicht correctly"],
+ theory:`
+<h3>1 · kein: the negative of ein</h3>
+<p>If a noun would have <i>ein</i> or <b>no article</b>, you negate it with <em>kein</em>. It takes exactly the same endings as <i>ein</i> (and <i>keine</i> in the plural).</p>
+<div class="tablewrap"><table><tr><th></th><th>m</th><th>f</th><th>n</th><th>pl</th></tr><tr><td>Nom</td><td>kein</td><td>keine</td><td>kein</td><td>keine</td></tr><tr><td>Akk</td><td>kein<b>en</b></td><td>keine</td><td>kein</td><td>keine</td></tr><tr><td>Dat</td><td>kein<b>em</b></td><td>kein<b>er</b></td><td>kein<b>em</b></td><td>kein<b>en</b></td></tr></table></div>
+<div class="ex"><div class="ex-h">Examples</div><p>Ich habe ein Hobby. → Ich habe <b>kein</b> Hobby.</p><p>Ich trinke Kaffee. → Ich trinke <b>keinen</b> Kaffee.</p><p>Wir haben Zeit. → Wir haben <b>keine</b> Zeit.</p></div>
+<h3>2 · nicht: everything else</h3>
+<p><em>nicht</em> negates verbs, adjectives, adverbs, and nouns with a definite article or possessive.</p>
+<div class="tablewrap"><table>
+<tr><th>What</th><th>Where nicht goes</th><th>Example</th></tr>
+<tr><td>the whole sentence</td><td>at the end, but before the second verb part</td><td>Ich komme heute <b>nicht</b>. / Ich bin <b>nicht</b> gekommen.</td></tr>
+<tr><td>adjective / adverb</td><td>right before it</td><td>Der Film war <b>nicht</b> spannend.</td></tr>
+<tr><td>preposition phrase</td><td>right before it</td><td>Wir gehen <b>nicht</b> ins Kino.</td></tr>
+<tr><td>der/die/das, mein…</td><td>before the thing negated</td><td>Das ist <b>nicht</b> mein Handy.</td></tr>
+</table></div>
+<p>Contrast with <em>sondern</em> (but rather): <i>Ich spiele nicht Klavier, <b>sondern</b> Geige. / Ich habe keinen Hund, <b>sondern</b> eine Katze.</i></p>
+<div class="trap"><b>Common mistake:</b> "Ich habe nicht Zeit." Zeit has no article here, so it takes kein: <i>Ich habe <b>keine</b> Zeit.</i> Same with <i>keine Lust, keinen Hunger, keine Ahnung</i>.</div>
+<h3>3 · Useful free-time phrases</h3>
+<div class="ex"><div class="ex-h">Redemittel</div><p>In meiner Freizeit <b>treibe</b> ich Sport / <b>gehe</b> ich wandern / <b>spiele</b> ich Gitarre.</p><p>Ich bin Mitglied <b>in einem</b> Verein.</p><p>Ich habe <b>keine Lust auf</b> Fitnessstudio.</p><p>Am Wochenende <b>unternehme</b> ich gern etwas mit Freunden.</p></div>
+<div class="book">In the book: Freizeitaktivitäten p. 36 (PDF 38), Teil C Negation p. 61 (PDF 63).</div>`,
+ extra:[
+ {q:"Ich habe heute ___ Lust auf Sport.",a:["keine"]},
+ {q:"Wir fahren am Wochenende ___ in die Berge.",a:["nicht"]},
+ {q:"Er ist ___ Mitglied in einem Verein.",a:["kein"]},
+ {q:"Ich spiele nicht Klavier, ___ Geige.",a:["sondern"]},
+ {t:"o",w:["Ich","bin","gestern","nicht","ins Kino","gegangen"],alt:["Gestern bin ich nicht ins Kino gegangen"],en:"I didn't go to the cinema yesterday."}
+ ],
+ read:{title:"Umfrage: Was machst du in deiner Freizeit?",text:`Lukas, 24: „Ich bin Mitglied in einem Fußballverein. Wir trainieren zweimal pro Woche und spielen am Samstag. Ins Fitnessstudio gehe ich nicht, das finde ich langweilig.“
+Mira, 31: „Ich habe zwei Kinder und leider nicht viel Freizeit. Wenn ich Zeit habe, lese ich Krimis. Fernsehen mag ich nicht so gern.“
+Jonas, 19: „Ich sammle alte Münzen. Das ist kein normales Hobby, ich weiß! Außerdem fotografiere ich gern Landschaften. Ich habe keinen teuren Fotoapparat, ich fotografiere mit dem Handy.“`,
+ qs:[RF("Lukas trainiert jeden Tag.",false,"zweimal pro Woche"),RF("Mira hat nicht viel Freizeit.",true),{t:"c",q:"Womit fotografiert Jonas?",o:["mit einem teuren Fotoapparat","mit dem Handy","gar nicht"],a:1},{t:"c",q:"Wer geht nicht ins Fitnessstudio?",o:["Lukas","Mira","Jonas"],a:0}]},
+ test:[
+ {q:"Das Museum ist heute ___ geöffnet.",a:["nicht"]},
+ {q:"Ich habe ___ Instrument gelernt.",a:["kein"]},
+ {q:"Sie hat ___ Geschwister.",a:["keine"]},
+ {q:"Das ist ___ unser Problem.",a:["nicht"]},
+ {q:"Er trinkt ___ Wein, sondern Bier.",a:["keinen"]},
+ {t:"c",q:"Wo steht nicht? „Ich habe das Buch …“",o:["nicht gelesen","gelesen nicht","nicht das Buch gelesen"],a:0}
+ ]},
+{id:"2.2",ch:2,title:"Modalverben: Präsens und Präteritum",pages:[53,60],ga:[[5,36],[6,41],[27,140]],topics:["modal"],
+ goals:["Use können, müssen, wollen, dürfen, sollen, mögen in present and past","Ask about opening times and rules politely"],
+ theory:`
+<h3>1 · The sentence bracket again</h3>
+<div class="formula"><span>modal verb</span> in position 2 &nbsp;+&nbsp; … &nbsp;+&nbsp; <span>infinitive</span> at the end</div>
+<p><i>Ich <b>kann</b> heute leider nicht ins Konzert <b>gehen</b>.</i> The infinitive has no zu.</p>
+<h3>2 · What each one means</h3>
+<div class="tablewrap"><table>
+<tr><th>Verb</th><th>Meaning</th><th>ich / er (present)</th><th>ich / er (past)</th></tr>
+<tr><td>können</td><td>ability, possibility</td><td>kann</td><td>konnte</td></tr>
+<tr><td>müssen</td><td>necessity</td><td>muss</td><td>musste</td></tr>
+<tr><td>wollen</td><td>your own intention</td><td>will</td><td>wollte</td></tr>
+<tr><td>dürfen</td><td>permission</td><td>darf</td><td>durfte</td></tr>
+<tr><td>sollen</td><td>someone else's instruction</td><td>soll</td><td>sollte</td></tr>
+<tr><td>mögen</td><td>liking (mostly with a noun)</td><td>mag</td><td>mochte</td></tr>
+</table></div>
+<p>Two traps English speakers fall into: <i>nicht müssen</i> means "don't have to" (<i>Du musst nicht kommen</i> = you don't need to come), and "must not" is <i>nicht dürfen</i> (<i>Hier darf man nicht rauchen</i>).</p>
+<h3>3 · The past: Präteritum, not Perfekt</h3>
+<p>For modal verbs Germans use the <em>Präteritum</em> even in conversation. It's easy: drop the umlaut, add <b>-te</b>.</p>
+<div class="tablewrap"><table><tr><th>ich</th><th>du</th><th>er/sie</th><th>wir</th><th>ihr</th><th>sie/Sie</th></tr><tr><td>musste</td><td>musstest</td><td>musste</td><td>mussten</td><td>musstet</td><td>mussten</td></tr></table></div>
+<div class="ex"><div class="ex-h">Examples</div><p>Als Kind <b>musste</b> ich jeden Tag Klavier üben.</p><p>Wir <b>konnten</b> das Konzert nicht sehen, weil wir keine Karten hatten.</p><p>Sie <b>wollte</b> eigentlich Schauspielerin werden.</p></div>
+<div class="trap"><b>Common mistake:</b> "Ich habe müssen arbeiten" or "Ich habe gemusst arbeiten." Just say <i>Ich <b>musste</b> arbeiten.</i></div>
+<h3>4 · Phone call to a museum</h3>
+<div class="ex"><div class="ex-h">Redemittel</div><p>Wann hat das Museum geöffnet? / Bis wann ist die Ausstellung zu sehen?</p><p>Darf man im Museum fotografieren?</p><p>Kann man die Karten online kaufen?</p><p>Muss man vorher reservieren?</p></div>
+<div class="book">In the book: Teil C Verben from p. 53 (PDF 55) and the museum dialogues in the Musik section from p. 39.</div>`,
+ extra:[
+ {q:"___ man hier fotografieren? (dürfen)",a:["Darf"]},
+ {q:"Du ___ nicht kommen, es ist nicht wichtig. (müssen)",a:["musst"],why:"nicht müssen = don't have to"},
+ {q:"Gestern ___ wir leider nicht kommen. (können, Prät.)",a:["konnten"]},
+ {q:"Als Kind ___ ich keinen Fisch. (mögen, Prät.)",a:["mochte"]},
+ {t:"o",w:["Muss","man","die Karten","vorher","reservieren","?"],en:"Do you have to book the tickets in advance?"}
+ ],
+ read:{title:"Früher und heute",text:`Als Kind wollte Anna Pianistin werden. Sie musste jeden Tag zwei Stunden Klavier üben, auch am Wochenende. Oft durfte sie nicht mit ihren Freundinnen spielen, weil sie üben sollte. Mit 16 Jahren konnte sie schon sehr gut spielen und gab ihr erstes Konzert. Aber dann wollte sie nicht mehr. Sie hat Medizin studiert und ist heute Ärztin. Klavier spielt sie immer noch, aber nur für sich. „Heute muss ich nicht mehr üben“, sagt sie, „ich darf spielen, wann ich will. Das ist viel schöner.“`,
+ qs:[RF("Anna musste als Kind jeden Tag üben.",true),RF("Sie ist heute Pianistin.",false,"Sie ist Ärztin."),{t:"c",q:"Warum durfte sie oft nicht mit Freundinnen spielen?",o:["Sie war krank.","Sie sollte üben.","Sie hatte keine Freundinnen."],a:1},{t:"c",q:"Was findet Anna heute schöner?",o:["Sie muss nicht mehr üben.","Sie gibt viele Konzerte.","Sie spielt nicht mehr Klavier."],a:0}]},
+ test:[
+ {q:"Ich ___ heute lange arbeiten. (müssen)",a:["muss"]},
+ {q:"Er ___ gestern nicht schlafen. (können, Prät.)",a:["konnte"]},
+ {q:"Im Kino ___ man nicht telefonieren. (dürfen)",a:["darf"]},
+ {q:"Was ___ ihr am Wochenende machen? (wollen)",a:["wollt"]},
+ {q:"Der Arzt sagt, ich ___ mehr schlafen. (sollen)",a:["soll"]},
+ {t:"c",q:"„Ich musste arbeiten“ ist …",o:["Präsens","Präteritum","Perfekt"],a:1}
+ ],out:{s:1}},
+{id:"2.3",ch:2,title:"Biografien: das Präteritum",pages:[39,49],ga:[[23,123],[49,246]],topics:["praet"],
+ goals:["Read and write a short biography","Recognize and form the Präteritum of regular and irregular verbs"],
+ theory:`
+<h3>1 · When Germans use the Präteritum</h3>
+<p>Speech uses the Perfekt. <b>Written</b> narratives (biographies, news, stories, novels) use the <em>Präteritum</em>. Plus, in speech, the Präteritum is standard for <i>sein, haben</i> and the modal verbs. That's why chapter 2's biographies are all Präteritum.</p>
+<h3>2 · Regular verbs: -te</h3>
+<div class="tablewrap"><table><tr><th>ich</th><th>du</th><th>er/sie</th><th>wir</th><th>ihr</th><th>sie/Sie</th></tr><tr><td>leb<b>te</b></td><td>leb<b>test</b></td><td>leb<b>te</b></td><td>leb<b>ten</b></td><td>leb<b>tet</b></td><td>leb<b>ten</b></td></tr></table></div>
+<p>After -t or -d: <i>arbeit<b>ete</b>, red<b>ete</b></i>.</p>
+<h3>3 · Irregular verbs: new stem, no ending in ich/er</h3>
+<div class="tablewrap"><table><tr><th>Infinitive</th><th>ich / er</th><th>wir / sie</th></tr>
+<tr><td>sein</td><td>war</td><td>waren</td></tr><tr><td>haben</td><td>hatte</td><td>hatten</td></tr><tr><td>werden</td><td>wurde</td><td>wurden</td></tr>
+<tr><td>geben</td><td>gab</td><td>gaben</td></tr><tr><td>kommen</td><td>kam</td><td>kamen</td></tr><tr><td>schreiben</td><td>schrieb</td><td>schrieben</td></tr><tr><td>gehen</td><td>ging</td><td>gingen</td></tr><tr><td>sterben</td><td>starb</td><td>starben</td></tr></table></div>
+<p>There's no shortcut: learn the three forms together (<i>schreiben, schrieb, geschrieben</i>). The Verbs tab drills exactly that.</p>
+<h3>4 · Biography toolkit</h3>
+<div class="ex"><div class="ex-h">Redemittel</div><p>Sie <b>wurde</b> 1819 in Leipzig <b>geboren</b>.</p><p>Schon als Kind <b>gab</b> sie Konzerte.</p><p><b>Mit</b> 21 Jahren <b>heiratete</b> sie …</p><p>Sie <b>hatte</b> acht Kinder.</p><p>1896 <b>starb</b> sie in Frankfurt.</p></div>
+<div class="trap"><b>Common mistake:</b> <i>geboren</i> for someone who has died uses <i>wurde</i>: <i>Mozart <b>wurde</b> 1756 geboren.</i> For yourself: <i>Ich <b>bin</b> 2005 geboren.</i></div>
+<div class="book">In the book: the Musik section from p. 39 (PDF 41) and Kino from p. 47. Teil B p. 50 has a crime-fiction text. Good Präteritum reading.</div>`,
+ extra:[
+ {q:"Sie ___ in Leipzig geboren. (werden, Prät.)",a:["wurde"]},
+ {q:"Er ___ viele Jahre in Wien. (leben)",a:["lebte"]},
+ {q:"Wir ___ keine Karten mehr. (bekommen)",a:["bekamen"]},
+ {q:"Das Publikum ___ begeistert. (sein)",a:["war"]},
+ {q:"Sie ___ bis spät in die Nacht. (arbeiten)",a:["arbeitete"]}
+ ],
+ read:{title:"Clara Schumann",text:`Clara Wieck wurde 1819 in Leipzig geboren. Ihr Vater war Klavierlehrer, und sie bekam schon mit fünf Jahren Unterricht. Mit neun Jahren gab sie ihr erstes Konzert. Bald reiste sie durch ganz Europa und wurde sehr berühmt. Mit 20 Jahren heiratete sie den Komponisten Robert Schumann. Ihr Vater war gegen die Ehe, aber Clara und Robert kämpften vor Gericht und gewannen. Das Paar hatte acht Kinder. Clara spielte trotzdem weiter Konzerte und komponierte auch selbst. Nach Roberts Tod 1856 musste sie allein für die Familie Geld verdienen. Sie starb 1896 in Frankfurt. Viele Jahre war ihr Bild auf dem deutschen 100-Mark-Schein.`,
+ qs:[RF("Clara gab mit neun Jahren ihr erstes Konzert.",true),RF("Ihr Vater fand die Ehe mit Robert gut.",false,"Er war dagegen."),{t:"c",q:"Wie viele Kinder hatten Clara und Robert?",o:["fünf","acht","neun"],a:1},{t:"c",q:"Was musste Clara nach 1856 machen?",o:["allein Geld verdienen","nach Leipzig zurückgehen","mit dem Klavierspielen aufhören"],a:0}]},
+ test:[
+ {q:"Er ___ mir einen langen Brief. (schreiben)",a:["schrieb"]},
+ {q:"Wir ___ gestern im Kino. (sein)",a:["waren"]},
+ {q:"Plötzlich ___ die Tür auf. (gehen)",a:["ging"]},
+ {q:"Sie ___ in einem kleinen Dorf. (wohnen)",a:["wohnte"]},
+ {q:"Der Film ___ um 20 Uhr. (beginnen)",a:["begann"]},
+ {t:"c",q:"Mozart ___ 1756 geboren.",o:["ist","wurde","hat"],a:1}
+ ],out:{w:3}},
+/* ---------------- KAPITEL 3 ---------------- */
+{id:"3.1",ch:3,title:"Einkaufen: Gründe und Bedingungen mit weil und wenn",pages:[68,76],ga:[[42,218]],topics:["weilwenn"],
+ goals:["Say why you buy (or don't buy) something","Build subordinate clauses with the verb at the end"],
+ theory:`
+<h3>1 · The verb goes to the end</h3>
+<p><em>weil</em> (because) and <em>wenn</em> (if / whenever) start a <b>subordinate clause</b> (Nebensatz). Inside it, the conjugated verb moves to the very end.</p>
+<div class="ex"><div class="ex-h">Main clause → subordinate clause</div><p>Online ist es billiger. → Ich kaufe online, <b>weil</b> es billiger <b>ist</b>.</p><p>Ich habe Zeit. → <b>Wenn</b> ich Zeit <b>habe</b>, gehe ich auf den Markt.</p></div>
+<p>With two verbs, the conjugated one comes last of all: <i>…, weil ich ein Auto kaufen <b>will</b>. / …, weil ich zu viel Geld ausgegeben <b>habe</b>.</i> Separable verbs join back together: <i>…, wenn ich <b>einkaufe</b>.</i></p>
+<h3>2 · Subordinate clause first: verb, comma, verb</h3>
+<p>If the Nebensatz comes first, it counts as position 1. The main clause starts straight away with its verb:</p>
+<div class="formula"><span>Wenn</span> ich Zeit habe<span>,</span> <b>gehe</b> ich einkaufen.</div>
+<p>This "verb, comma, verb" pattern is one of the clearest signals of good A2 German.</p>
+<h3>3 · weil or denn?</h3>
+<p><em>denn</em> also means "because" but keeps normal word order: <i>Ich kaufe online, <b>denn</b> es <b>ist</b> billiger.</i> Both are correct; <i>weil</i> is more common in speech. Don't mix them: "weil es ist billiger" is a very typical learner error (you'll even hear it from native speakers, but not in exams).</p>
+<h3>4 · wenn vs. ob vs. als</h3>
+<p><i>wenn</i> = if / whenever. <i>ob</i> = whether (indirect yes/no questions, chapter 4). <i>als</i> = when, for a single time in the past (chapter 7).</p>
+<div class="ex"><div class="ex-h">Shopping Redemittel</div><p>Ich kaufe lieber im Geschäft ein, weil die Beratung besser ist.</p><p>Wenn die Hose nicht passt, kann ich sie umtauschen?</p><p>Ich vergleiche die Preise, bevor ich etwas kaufe.</p></div>
+<div class="book">In the book: Einkaufen p. 70 (PDF 72), Teil C Haupt- und Nebensätze p. 87 (PDF 89).</div>`,
+ extra:[
+ {t:"o",w:["Ich","gehe","auf den Markt",",","weil","das Gemüse","frischer","ist"],en:"I go to the market because the vegetables are fresher."},
+ {t:"o",w:["Wenn","die Jacke","nicht","passt",",","tausche","ich","sie","um"],en:"If the jacket doesn't fit, I'll exchange it."},
+ {q:"Ich spare Geld, weil ich im Sommer nach Japan reisen ___. (wollen)",a:["will"]},
+ {q:"Wenn ich Zeit habe, ___ ich einkaufen. (gehen)",a:["gehe"]},
+ {t:"c",q:"Welcher Satz ist richtig?",o:["Ich kaufe online, weil es ist billig.","Ich kaufe online, weil es billig ist.","Ich kaufe online, weil ist es billig."],a:1}
+ ],
+ read:{title:"Online oder im Laden?",text:`Nina (28) kauft fast alles online: „Ich arbeite viel und habe abends keine Zeit. Wenn ich etwas brauche, bestelle ich es im Zug. Das geht schnell und ist oft billiger.“ Ihr Freund Marco sieht das anders. Er kauft Kleidung nur im Geschäft, weil er sie zuerst anprobieren will. „Wenn ich online bestelle, passt mir die Hälfte nicht. Dann muss ich alles zurückschicken. Das nervt!“ Außerdem findet er die Beratung im Laden wichtig. Nur bei Büchern sind sich die beiden einig: Die kaufen sie in der kleinen Buchhandlung im Zentrum, weil sie die Verkäuferin so nett finden.`,
+ qs:[RF("Nina bestellt oft im Zug.",true),RF("Marco bestellt Kleidung gern online.",false),{t:"c",q:"Warum kauft Marco im Geschäft?",o:["Er will die Kleidung anprobieren.","Es ist billiger.","Er hat keinen Computer."],a:0},{t:"c",q:"Wo kaufen beide Bücher?",o:["online","im Supermarkt","in einer kleinen Buchhandlung"],a:2}]},
+ test:[
+ {q:"Er kommt nicht mit, ___ er krank ist.",a:["weil"]},
+ {q:"___ es morgen regnet, bleiben wir zu Hause.",a:["Wenn"]},
+ {q:"Ich bezahle bar, weil ich keine Kreditkarte ___. (haben)",a:["habe"]},
+ {q:"Wenn du Hilfe brauchst, ___ mich an! (anrufen, du)",a:["ruf"],why:"imperative: Ruf mich an!"},
+ {t:"o",w:["Sie","kauft","nichts",",","weil","sie","sparen","muss"],en:"She's not buying anything because she has to save."},
+ {t:"c",q:"„Wenn ich Geld habe, … ich eine Reise.“",o:["ich mache","mache","mache ich"],a:1,why:"The main clause starts with the verb: mache ich eine Reise."}
+ ]},
+{id:"3.2",ch:3,title:"Wem? Was? Verben mit Dativ und Akkusativ",pages:[89,91],ga:[[20,105],[21,110],[22,114],[14,82]],topics:["datakk","einer"],
+ goals:["Say who gets what: geben, schenken, zeigen, empfehlen","Use dative verbs like gefallen, passen, helfen","Replace nouns with pronouns in the right order"],
+ theory:`
+<h3>1 · Two objects: person in the dative, thing in the accusative</h3>
+<div class="formula">Ich schenke <span>meiner Mutter</span> (wem? Dativ) <span>einen Schal</span> (was? Akkusativ).</div>
+<p>Verbs of giving and showing work like this: <i>geben, schenken, schicken, bringen, zeigen, erklären, empfehlen, kaufen, leihen</i>.</p>
+<div class="tablewrap"><table><tr><th></th><th>m</th><th>f</th><th>n</th><th>pl</th></tr><tr><td>Akk</td><td>den / einen</td><td>die / eine</td><td>das / ein</td><td>die / –</td></tr><tr><td>Dat</td><td>de<b>m</b> / eine<b>m</b></td><td>de<b>r</b> / eine<b>r</b></td><td>de<b>m</b> / eine<b>m</b></td><td>de<b>n</b> …<b>n</b></td></tr></table></div>
+<h3>2 · Dative-only verbs</h3>
+<p>Some verbs take only a dative: <i>helfen, danken, gefallen, gehören, passen, schmecken, antworten, gratulieren</i>. In English these look like normal objects, which is why they trip people up:</p>
+<div class="ex"><div class="ex-h">Examples</div><p>Die Jacke gefällt <b>mir</b>. (literally: the jacket pleases me)</p><p>Die Hose passt <b>ihm</b> nicht.</p><p>Kann ich <b>Ihnen</b> helfen?</p><p>Das Handy gehört <b>meinem</b> Bruder.</p></div>
+<h3>3 · Personal pronouns</h3>
+<div class="tablewrap"><table><tr><th>Nom</th><td>ich</td><td>du</td><td>er</td><td>sie</td><td>es</td><td>wir</td><td>ihr</td><td>sie / Sie</td></tr><tr><th>Akk</th><td>mich</td><td>dich</td><td>ihn</td><td>sie</td><td>es</td><td>uns</td><td>euch</td><td>sie / Sie</td></tr><tr><th>Dat</th><td>mir</td><td>dir</td><td>ihm</td><td>ihr</td><td>ihm</td><td>uns</td><td>euch</td><td>ihnen / Ihnen</td></tr></table></div>
+<h3>4 · Word order with two objects</h3>
+<p>Two nouns: dative before accusative. <i>Ich gebe <b>dem Kind</b> <b>den Ball</b>.</i><br>A pronoun comes before a noun. <i>Ich gebe <b>ihm</b> den Ball. / Ich gebe <b>ihn</b> dem Kind.</i><br>Two pronouns: accusative before dative. <i>Ich gebe <b>ihn ihm</b>. / Gib <b>es mir</b>!</i></p>
+<h3>5 · einer, eine, eins: pronouns without a noun</h3>
+<p>When you drop the noun, the pronoun has to show the gender: <i>Brauchst du einen Stift? – Ja, ich brauche <b>einen</b>. / Hast du ein Auto? – Nein, ich habe <b>keins</b>. / Gibt es hier einen Automaten? – Ja, dort ist <b>einer</b>.</i> For plurals: <i>welche / keine</i>.</p>
+<div class="book">In the book: Teil C p. 89 (PDF 91), shopping dialogues from p. 70.</div>`,
+ extra:[
+ {q:"Ich kaufe ___ Freund ein Buch. (mein)",a:["meinem"]},
+ {q:"Der Rock gefällt ___ nicht. (ich)",a:["mir"]},
+ {q:"Können Sie ___ einen guten Laptop empfehlen? (ich)",a:["mir"]},
+ {q:"Ich zeige ___ ___. (es, du)",a:["es","dir"],why:"two pronouns: Akk before Dat"},
+ {q:"Brauchst du eine Tasche? – Nein, ich habe schon ___.",a:["eine"]}
+ ],
+ read:{title:"Das perfekte Geschenk",text:`Nächste Woche hat Tims Mutter Geburtstag, und Tim hat keine Idee. Er geht in ein Kaufhaus. Eine Verkäuferin fragt: „Kann ich Ihnen helfen?“ – „Ja, ich suche ein Geschenk für meine Mutter.“ Die Verkäuferin zeigt ihm einen Schal. „Der ist schön, aber meine Mutter hat schon drei“, sagt Tim. Dann empfiehlt sie ihm ein Parfüm. Das gefällt ihm, aber es kostet 120 Franken. Das ist ihm zu teuer. Am Ende kauft Tim zwei Konzertkarten. Er schenkt sie seiner Mutter und geht mit ihr ins Konzert. Die Mutter freut sich sehr, denn sie hatte schon lange keinen Abend mehr mit ihrem Sohn.`,
+ qs:[RF("Die Verkäuferin zeigt Tim zuerst ein Parfüm.",false,"zuerst einen Schal"),RF("Das Parfüm ist Tim zu teuer.",true),{t:"c",q:"Was schenkt Tim seiner Mutter?",o:["einen Schal","Konzertkarten","ein Parfüm"],a:1},{t:"c",q:"Warum freut sich die Mutter?",o:["Sie mag Parfüm.","Sie verbringt einen Abend mit ihrem Sohn.","Sie hat einen neuen Schal."],a:1}]},
+ test:[
+ {q:"Ich danke ___ für die Hilfe. (du)",a:["dir"]},
+ {q:"Er schenkt ___ Freundin Blumen. (seine)",a:["seiner"]},
+ {q:"Gehört der Schlüssel ___? (Sie)",a:["Ihnen"]},
+ {q:"Die Schuhe passen ___ nicht. (er)",a:["ihm"]},
+ {q:"Hast du einen Regenschirm? – Nein, ich habe ___.",a:["keinen"]},
+ {t:"c",q:"Welche Reihenfolge ist richtig?",o:["Ich gebe dir ihn.","Ich gebe ihn dir.","Ich gebe ihm dir."],a:1}
+ ],out:{s:2}},
+{id:"3.3",ch:3,title:"Wenn ich reich wäre: Konjunktiv II",pages:[80,93],ga:[[55,275],[56,280]],topics:["k2wish"],
+ goals:["Talk about wishes and imaginary situations","Form wäre, hätte, könnte and würde + infinitive"],
+ theory:`
+<h3>1 · Real vs. unreal</h3>
+<p><i>Wenn ich Zeit <b>habe</b>, komme ich.</i> → realistic, it may happen.<br><i>Wenn ich Zeit <b>hätte</b>, <b>würde</b> ich kommen.</i> → I don't have time, it's imaginary.</p>
+<p>The <em>Konjunktiv II</em> marks things as hypothetical: wishes, dreams, "what if" and (in chapter 4) politeness.</p>
+<h3>2 · The forms you actually need</h3>
+<div class="tablewrap"><table><tr><th></th><th>sein</th><th>haben</th><th>werden</th><th>können</th><th>müssen</th></tr>
+<tr><td>ich / er</td><td>wäre</td><td>hätte</td><td>würde</td><td>könnte</td><td>müsste</td></tr>
+<tr><td>du</td><td>wärst</td><td>hättest</td><td>würdest</td><td>könntest</td><td>müsstest</td></tr>
+<tr><td>wir / sie</td><td>wären</td><td>hätten</td><td>würden</td><td>könnten</td><td>müssten</td></tr></table></div>
+<p>For almost every other verb, use <em>würde + infinitive</em>: <i>Ich <b>würde</b> eine Weltreise <b>machen</b>.</i></p>
+<h3>3 · The wenn-sentence</h3>
+<div class="formula"><span>Wenn</span> ich im Lotto gewinnen <span>würde</span>, <span>würde</span> ich ein Haus <span>kaufen</span>.</div>
+<div class="ex"><div class="ex-h">More examples</div><p>Wenn ich reich <b>wäre</b>, <b>würde</b> ich weniger arbeiten.</p><p>Wenn wir ein Auto <b>hätten</b>, <b>könnten</b> wir ans Meer fahren.</p><p>Ich <b>hätte</b> gern mehr Freizeit. (wish)</p><p>Es <b>wäre</b> schön, wenn du kommst.</p></div>
+<div class="trap"><b>Common mistake:</b> "Wenn ich würde reich sein…" For <i>sein</i> and <i>haben</i> always use <i>wäre</i> and <i>hätte</i>. They sound much more natural than <i>würde sein / würde haben</i>.</div>
+<h3>4 · Swiss money talk</h3>
+<p>In Switzerland it's <i>Franken</i> and <i>Rappen</i>. <i>Eine Million Franken</i>, <i>im Lotto gewinnen</i>, <i>einen Teil spenden</i>, <i>den Rest sparen</i>.</p>
+<div class="book">In the book: Lotto from p. 80 (PDF 82), Teil C Konjunktiv II p. 92 (PDF 94).</div>`,
+ extra:[
+ {q:"Wenn ich mehr Geld ___, würde ich ein Auto kaufen. (haben)",a:["hätte"]},
+ {q:"Ich ___ jetzt gern am Meer. (sein)",a:["wäre"]},
+ {q:"Wenn du Zeit hättest, ___ du mitkommen? (werden)",a:["würdest"]},
+ {q:"Wir ___ mehr reisen, wenn wir mehr Urlaub hätten. (können)",a:["könnten"]},
+ {t:"o",w:["Wenn","ich","reich","wäre",",","würde","ich","nicht","arbeiten"],en:"If I were rich, I wouldn't work."}
+ ],
+ read:{title:"Der Lottogewinner",text:`Vor einem Jahr hat Herr Baumann aus Bern 2,3 Millionen Franken im Lotto gewonnen. Viele Leute denken: „Wenn ich so viel Geld hätte, würde ich nie mehr arbeiten.“ Herr Baumann arbeitet aber immer noch als Busfahrer. „Ich mag meinen Job“, sagt er. „Was würde ich den ganzen Tag machen?“ Mit dem Geld hat er seinen Kindern geholfen: Beide konnten eine Wohnung kaufen. Einen Teil hat er einem Kinderspital gespendet. Und einen Traum hat er sich erfüllt: Er ist mit seiner Frau nach Kanada geflogen. „Wenn ich noch einmal gewinnen würde“, lacht er, „würde ich vielleicht doch weniger arbeiten.“`,
+ qs:[RF("Herr Baumann hat nach dem Gewinn aufgehört zu arbeiten.",false),RF("Er hat einen Teil des Geldes gespendet.",true),{t:"c",q:"Was haben seine Kinder mit dem Geld gemacht?",o:["eine Reise","eine Wohnung gekauft","ein Auto gekauft"],a:1},{t:"c",q:"Wohin ist er mit seiner Frau gereist?",o:["nach Kanada","nach Bern","nach Australien"],a:0}]},
+ test:[
+ {q:"Wenn ich Zeit ___, würde ich dich besuchen. (haben)",a:["hätte"]},
+ {q:"Das ___ super! (sein)",a:["wäre"]},
+ {q:"Was ___ du mit einer Million machen? (werden)",a:["würdest"]},
+ {q:"Wenn es nicht regnen ___, würden wir wandern. (werden)",a:["würde"]},
+ {q:"Ich ___ dir gern helfen, aber ich habe keine Zeit. (können)",a:["würde"]},
+ {t:"c",q:"Welcher Satz ist ein Wunsch, der nicht real ist?",o:["Wenn ich Zeit habe, komme ich.","Wenn ich Zeit hätte, würde ich kommen.","Ich habe Zeit, also komme ich."],a:1}
+ ],out:{w:5}},
+/* ---------------- KAPITEL 4 ---------------- */
+{id:"4.1",ch:4,title:"Im Büro: Zeitangaben",pages:[98,100],ga:[[30,157],[78,390]],topics:["zeitprep"],
+ goals:["Say when something happens with um, am, im, seit, vor, ab, bis","Describe your working week"],
+ theory:`
+<h3>1 · Which preposition for which time?</h3>
+<div class="tablewrap"><table>
+<tr><th>Preposition</th><th>Used for</th><th>Examples</th></tr>
+<tr><td><b>um</b></td><td>clock times</td><td>um 9 Uhr, um halb acht</td></tr>
+<tr><td><b>am</b></td><td>days, dates, parts of the day, the weekend</td><td>am Montag, am 5. März, am Abend, am Wochenende</td></tr>
+<tr><td><b>im</b></td><td>months, seasons, years with "Jahr"</td><td>im Juli, im Winter, im Jahr 2020</td></tr>
+<tr><td><b>in der</b></td><td>the night, weeks</td><td>in der Nacht, in der nächsten Woche</td></tr>
+<tr><td>(nothing)</td><td>plain years</td><td>2020 bin ich umgezogen.</td></tr>
+</table></div>
+<p>Swiss usage: <i>am Wochenende</i> is standard everywhere; you'll also hear <i>über das Wochenende</i>.</p>
+<h3>2 · Periods: seit, vor, ab, von … bis</h3>
+<div class="tablewrap"><table>
+<tr><th>seit + Dat</th><td>started in the past and still going</td><td>Ich arbeite <b>seit</b> drei Jahr<b>en</b> hier. (present tense!)</td></tr>
+<tr><th>vor + Dat</th><td>… ago</td><td>Er hat <b>vor</b> zwei Woch<b>en</b> gekündigt.</td></tr>
+<tr><th>ab</th><td>from … on (future)</td><td><b>Ab</b> nächster Woche habe ich Urlaub.</td></tr>
+<tr><th>von … bis</th><td>from … to</td><td><b>von</b> 8 <b>bis</b> 17 Uhr, <b>vom</b> 1. <b>bis zum</b> 5. Mai</td></tr>
+<tr><th>bis</th><td>deadline</td><td><b>bis</b> Freitag, <b>bis</b> morgen</td></tr>
+</table></div>
+<div class="trap"><b>Common mistake:</b> English "I have worked here for three years" is present tense in German: <i>Ich arbeite <b>seit</b> drei Jahren hier.</i> Not "Ich habe … gearbeitet", and not "für drei Jahre".</div>
+<h3>3 · Dates out loud</h3>
+<p>Ordinal numbers: <i>am erst<b>en</b>, zweit<b>en</b>, dritt<b>en</b>, viert<b>en</b> … neunzehnt<b>en</b>, zwanzig<b>sten</b></i>. Written: <i>am 5. März</i>, read: <i>am fünften März</i>. On the phone: <i>Geht es am Dienstag, dem fünften März?</i></p>
+<div class="ex"><div class="ex-h">My working week</div><p><b>Am</b> Montag und Freitag arbeite ich <b>von</b> 8 <b>bis</b> 17 Uhr im Büro. <b>Am</b> Mittwoch arbeite ich im Homeoffice. Die Teamsitzung ist jeden Dienstag <b>um</b> 10 Uhr. <b>Im</b> August habe ich zwei Wochen Ferien. <b>Seit</b> einem Monat habe ich eine neue Chefin.</p></div>
+<div class="book">In the book: Im Büro p. 98 (PDF 100), Teil C Zeitangaben p. 119 (PDF 121). The ordinal numbers are in the appendix of Grammatik aktiv (PDF 470).</div>`,
+ extra:[
+ {q:"Die Sitzung beginnt ___ halb zehn.",a:["um"]},
+ {q:"Ich habe ___ Juni Ferien.",a:["im"]},
+ {q:"Er arbeitet ___ zwei Jahren bei uns.",a:["seit"]},
+ {q:"Wir haben uns ___ einem Monat kennengelernt.",a:["vor"]},
+ {q:"Der Bericht muss ___ Freitag fertig sein.",a:["bis"]},
+ {t:"c",q:"„I have lived here for five years.“",o:["Ich habe hier für fünf Jahre gewohnt.","Ich wohne seit fünf Jahren hier.","Ich wohne vor fünf Jahren hier."],a:1}
+ ],
+ read:{title:"Eine E-Mail an das Team",text:`Liebe Kolleginnen und Kollegen,
+ab nächster Woche gibt es einige Änderungen. Die Teamsitzung ist nicht mehr am Montag um 9 Uhr, sondern am Dienstag um 10 Uhr. Das Büro ist vom 23. Dezember bis zum 2. Januar geschlossen. Bitte schickt mir eure Urlaubswünsche für das nächste Jahr bis zum 15. November. Frau Egli arbeitet seit dem 1. Oktober in unserer Abteilung. Sie ist am Mittwoch und Donnerstag im Büro. Am Freitag, dem 8. November, machen wir am Nachmittag einen Ausflug. Wir treffen uns um 13.30 Uhr am Bahnhof.
+Viele Grüße
+Daniel`,
+ qs:[RF("Die Teamsitzung ist ab jetzt am Montag.",false,"am Dienstag um 10 Uhr"),{t:"c",q:"Bis wann sollen die Urlaubswünsche kommen?",o:["bis zum 2. Januar","bis zum 15. November","bis zum 8. November"],a:1},RF("Frau Egli ist neu in der Abteilung.",true),{t:"c",q:"Wo trifft sich das Team am 8. November?",o:["im Büro","am Bahnhof","im Restaurant"],a:1}]},
+ test:[
+ {q:"Ich rufe dich ___ Abend an.",a:["am"]},
+ {q:"Der Kurs beginnt ___ September.",a:["im"]},
+ {q:"___ drei Tagen hat sie mir geschrieben.",a:["Vor"]},
+ {q:"Das Geschäft ist ___ 9 ___ 18 Uhr offen.",a:["von","bis"]},
+ {q:"Er wohnt ___ 2021 in Basel.",a:["seit"]},
+ {t:"c",q:"___ der Nacht hat es geregnet.",o:["Am","In","Um"],a:1}
+ ]},
+{id:"4.2",ch:4,title:"Telefonieren: höfliche Bitten und indirekte Fragen",pages:[101,110],ga:[[55,275],[67,335]],topics:["k2polite","indirekt"],
+ goals:["Make a business phone call and set an appointment","Ask politely with könnten, würden, hätten","Turn direct questions into indirect ones"],
+ theory:`
+<h3>1 · Politeness = Konjunktiv II</h3>
+<p>On the phone and in the office, the imperative sounds rude. Swap it for Konjunktiv II:</p>
+<div class="tablewrap"><table>
+<tr><th>Too direct</th><th>Polite</th></tr>
+<tr><td>Helfen Sie mir!</td><td><b>Könnten</b> Sie mir bitte helfen?</td></tr>
+<tr><td>Schicken Sie mir die Unterlagen.</td><td><b>Würden</b> Sie mir die Unterlagen schicken?</td></tr>
+<tr><td>Ich will einen Termin.</td><td>Ich <b>hätte</b> gern einen Termin. / Ich <b>würde</b> gern einen Termin vereinbaren.</td></tr>
+<tr><td>Haben Sie Zeit?</td><td><b>Hätten</b> Sie am Dienstag Zeit?</td></tr>
+<tr><td>Passt Dienstag?</td><td><b>Würde</b> es Ihnen am Dienstag passen?</td></tr>
+</table></div>
+<h3>2 · Indirect questions</h3>
+<p>An even softer way to ask: wrap the question in a lead-in. The verb goes to the <b>end</b>.</p>
+<div class="ex"><div class="ex-h">W-question → keep the question word</div><p>Wann kommt Herr Meier zurück? → Können Sie mir sagen, <b>wann</b> Herr Meier zurück<b>kommt</b>?</p></div>
+<div class="ex"><div class="ex-h">Yes/no question → ob</div><p>Ist Frau Keller im Büro? → Wissen Sie, <b>ob</b> Frau Keller im Büro <b>ist</b>?</p></div>
+<p>Lead-ins: <i>Können Sie mir sagen, … / Wissen Sie, … / Ich möchte wissen, … / Ich frage mich, …</i> Statement lead-ins take <em>dass</em>: <i>Ich glaube, <b>dass</b> die Sitzung um zehn beginnt.</i></p>
+<div class="trap"><b>Common mistake:</b> "Wissen Sie, wann kommt der Zug?" In an indirect question the verb goes last: <i>… wann der Zug <b>kommt</b>?</i></div>
+<h3>3 · A business call, step by step</h3>
+<div class="ex"><div class="ex-h">Redemittel</div>
+<p>☎ Firma Alpina, Brunner am Apparat. / Guten Tag, hier spricht …</p>
+<p>Könnte ich bitte Frau Keller sprechen? – Einen Moment, ich verbinde Sie.</p>
+<p>Worum geht es? – Es geht um einen Termin.</p>
+<p>Könnten Sie Ihren Namen bitte buchstabieren?</p>
+<p>Würde es Ihnen am Dienstag um 14 Uhr passen? – Ja, das passt mir gut. / Nein, da habe ich leider keine Zeit.</p>
+<p>Könnte ich eine Nachricht hinterlassen?</p></div>
+<p>Spelling on the phone uses the German spelling alphabet: <i>A wie Anton, B wie Berta, C wie Cäsar, D wie Dora, E wie Emil …</i></p>
+<div class="book">In the book: Telefonieren from p. 101 (PDF 103), Teil C Konjunktiv II p. 121 and Nebensätze p. 126.</div>`,
+ extra:[
+ {q:"___ Sie mir bitte Ihre Telefonnummer geben? (können)",a:["Könnten"]},
+ {q:"___ es Ihnen am Freitag passen? (werden)",a:["Würde"]},
+ {q:"Wissen Sie, ___ das Büro heute geöffnet ist?",a:["ob"]},
+ {t:"o",w:["Können","Sie","mir","sagen",",","wann","Frau Keller","zurückkommt","?"],en:"Can you tell me when Ms. Keller is coming back?"},
+ {t:"c",q:"Welcher Satz ist am höflichsten?",o:["Geben Sie mir Herrn Meier!","Ich will Herrn Meier sprechen.","Könnte ich bitte Herrn Meier sprechen?"],a:2}
+ ],
+ read:{title:"Am Telefon",text:`– Firma Novatec, Sie sprechen mit Lara Frei. Guten Tag.
+– Guten Tag, mein Name ist Novak. Könnte ich bitte Herrn Wyss sprechen?
+– Herr Wyss ist leider in einer Sitzung. Worum geht es denn?
+– Es geht um die Präsentation nächste Woche. Wissen Sie, ob er am Donnerstag Zeit hätte?
+– Am Donnerstag ist er auf Dienstreise. Würde es Ihnen am Freitag um 10 Uhr passen?
+– Ja, das passt mir gut.
+– Könnten Sie Ihren Namen bitte buchstabieren?
+– N wie Nordpol, O wie Otto, V wie Viktor, A wie Anton, K wie Kaufmann.
+– Danke, Frau Novak. Ich sage Herrn Wyss Bescheid.`,
+ qs:[RF("Herr Wyss ist gerade in einer Sitzung.",true),{t:"c",q:"Warum hat Herr Wyss am Donnerstag keine Zeit?",o:["Er ist krank.","Er ist auf Dienstreise.","Er hat eine Präsentation."],a:1},{t:"c",q:"Wann ist der Termin?",o:["Donnerstag, 10 Uhr","Freitag, 10 Uhr","Freitag, 14 Uhr"],a:1},RF("Frau Novak spricht mit Herrn Wyss.",false,"mit Lara Frei")]},
+ test:[
+ {q:"___ Sie mich bitte zurückrufen? (werden)",a:["Würden"]},
+ {q:"Ich ___ gern einen Termin bei Dr. Senn. (haben)",a:["hätte"]},
+ {q:"Können Sie mir sagen, wo die Toilette ___? (sein)",a:["ist"]},
+ {q:"Ich weiß nicht, ___ er heute kommt. (yes/no)",a:["ob"]},
+ {q:"Er sagt, ___ er später anruft.",a:["dass"]},
+ {t:"o",w:["Wissen","Sie",",","wie viel","das Ticket","kostet","?"],en:"Do you know how much the ticket costs?"}
+ ],out:{s:4}},
+{id:"4.3",ch:4,title:"Kommunikation im Büro: Verben mit Präpositionen",pages:[111,125],ga:[[53,265],[54,270]],topics:["verbprep"],
+ goals:["Use verbs with fixed prepositions (warten auf, sich freuen über …)","Ask worauf? and answer darauf","Write a short formal email"],
+ theory:`
+<h3>1 · Verb + preposition = one unit</h3>
+<p>Many verbs come glued to a preposition, and the preposition decides the case. The English equivalent often uses a different preposition or none at all, so learn them as blocks:</p>
+<div class="tablewrap"><table>
+<tr><th>+ Akkusativ</th><th>+ Dativ</th></tr>
+<tr><td>warten <b>auf</b> · sich freuen <b>auf</b> (future)<br>sich freuen <b>über</b> (present/past) · sprechen <b>über</b><br>sich ärgern <b>über</b> · sich beschweren <b>über</b><br>sich interessieren <b>für</b> · sich bedanken <b>für</b><br>denken <b>an</b> · sich erinnern <b>an</b><br>sich bewerben <b>um</b> · sich kümmern <b>um</b></td>
+<td>teilnehmen <b>an</b><br>Angst haben <b>vor</b><br>träumen <b>von</b> · erzählen <b>von</b><br>sprechen <b>mit</b> · telefonieren <b>mit</b><br>fragen <b>nach</b><br>sich verabschieden <b>von</b></td></tr></table></div>
+<h3>2 · Questions and pronouns for things: wo(r)- and da(r)-</h3>
+<p>For <b>things</b>, glue the preposition to <i>wo-</i> (question) or <i>da-</i> (answer). Add an <b>r</b> if the preposition starts with a vowel.</p>
+<div class="ex"><div class="ex-h">Things</div><p><b>Worauf</b> wartest du? – Auf den Bus. / Ich warte <b>darauf</b>.</p><p><b>Wofür</b> interessierst du dich? – Für Kunst. / Ich interessiere mich sehr <b>dafür</b>.</p><p><b>Worüber</b> habt ihr gesprochen? – <b>Darüber</b> möchte ich nicht reden.</p></div>
+<div class="ex"><div class="ex-h">People: preposition + pronoun</div><p><b>Auf wen</b> wartest du? – Auf Anna. / Ich warte <b>auf sie</b>.</p><p><b>Mit wem</b> hast du telefoniert? – <b>Mit meinem Chef</b>.</p></div>
+<div class="trap"><b>Common mistake:</b> "Ich freue mich für das Wochenende." It's <i>auf</i> for something coming, <i>über</i> for something you already have: <i>Ich freue mich <b>auf</b> das Wochenende / <b>über</b> dein Geschenk.</i> <i>für</i> only means "happy for someone": <i>Ich freue mich <b>für</b> dich.</i></div>
+<h3>3 · Formal email frame</h3>
+<div class="ex"><div class="ex-h">Template</div><p>Sehr geehrte Frau Keller, / Sehr geehrter Herr Wyss,</p><p>vielen Dank für Ihre E-Mail vom 3. November.</p><p>Leider kann ich am Donnerstag nicht an der Sitzung teilnehmen, weil …</p><p>Wäre es möglich, den Termin auf Freitag zu verschieben?</p><p>Ich freue mich auf Ihre Antwort.</p><p>Mit freundlichen Grüßen<br>Anna Muster</p></div>
+<p>Note the lowercase after the comma in the greeting (<i>vielen Dank…</i>), and no comma after <i>Mit freundlichen Grüßen</i>. In Switzerland you'll often see <i>Freundliche Grüsse</i> (ss).</p>
+<div class="book">In the book: Kommunikation im Büro p. 111 (PDF 113), Teil C Kasus p. 122 (PDF 124).</div>`,
+ extra:[
+ {q:"Ich warte schon seit 20 Minuten ___ dich.",a:["auf"]},
+ {q:"Sie hat sich ___ den Lärm beschwert.",a:["über"]},
+ {q:"Wir nehmen morgen ___ einem Workshop teil.",a:["an"]},
+ {q:"___ interessierst du dich? – Für Fotografie.",a:["Wofür"]},
+ {q:"Denkst du an den Termin? – Ja, ich denke ___.",a:["daran"]},
+ {t:"c",q:"Ich freue mich ___ die Ferien im Sommer.",o:["für","über","auf"],a:2}
+ ],
+ read:{title:"Eine Beschwerde",text:`Sehr geehrte Damen und Herren,
+am 12. Oktober habe ich bei Ihnen einen Drucker bestellt. Leider warte ich immer noch auf die Lieferung. Ich habe schon zweimal mit Ihrem Kundenservice telefoniert, aber niemand hat sich um mein Problem gekümmert. Darüber ärgere ich mich sehr. Ich brauche den Drucker dringend für meine Arbeit. Bitte teilen Sie mir bis Freitag mit, wann der Drucker kommt. Wenn er bis Ende des Monats nicht da ist, möchte ich mein Geld zurück.
+Mit freundlichen Grüßen
+Jana Horvat`,
+ qs:[RF("Frau Horvat hat den Drucker schon bekommen.",false),RF("Sie hat mit dem Kundenservice telefoniert.",true),{t:"c",q:"Worüber ärgert sie sich?",o:["über den Preis","dass sich niemand um ihr Problem kümmert","über den kaputten Drucker"],a:1},{t:"c",q:"Was möchte sie, wenn der Drucker bis Ende des Monats nicht kommt?",o:["einen anderen Drucker","ihr Geld zurück","mit dem Chef sprechen"],a:1}]},
+ test:[
+ {q:"Ich habe Angst ___ Hunden.",a:["vor"]},
+ {q:"Wir haben lange ___ das Projekt gesprochen.",a:["über"]},
+ {q:"Er bewirbt sich ___ eine Stelle in Luzern.",a:["um"]},
+ {q:"Kümmerst du dich ___ die Katze?",a:["um"]},
+ {q:"___ wartest du? – Auf den Zug.",a:["Worauf"]},
+ {q:"Mit ___ hast du gesprochen? – Mit Frau Brunner.",a:["wem"]}
+ ],out:{w:6}},
+/* ---------------- KAPITEL 5 ---------------- */
+{id:"5.1",ch:5,title:"Wohin fährst du? nach, in, zu, an",pages:[132,136],ga:[[35,178]],topics:["lokal"],
+ goals:["Say where you go, where you are and where you come from","Pick the right preposition for countries, places, people"],
+ theory:`
+<h3>1 · Three questions, three case patterns</h3>
+<div class="tablewrap"><table>
+<tr><th></th><th>Wohin? (to)</th><th>Wo? (at)</th><th>Woher? (from)</th></tr>
+<tr><td>Cities, countries without article</td><td><b>nach</b> Italien, nach Bern</td><td><b>in</b> Italien, in Bern</td><td><b>aus</b> Italien</td></tr>
+<tr><td>Countries with article</td><td><b>in die</b> Schweiz, <b>in die</b> USA, <b>in den</b> Iran</td><td><b>in der</b> Schweiz, <b>in den</b> USA</td><td><b>aus der</b> Schweiz</td></tr>
+<tr><td>Buildings, rooms, closed spaces</td><td><b>ins</b> Kino, <b>in die</b> Stadt</td><td><b>im</b> Kino, <b>in der</b> Stadt</td><td><b>aus dem</b> Kino</td></tr>
+<tr><td>People, shops, institutions</td><td><b>zum</b> Arzt, <b>zur</b> Bank, <b>zu</b> Anna</td><td><b>beim</b> Arzt, <b>bei</b> Anna</td><td><b>vom</b> Arzt</td></tr>
+<tr><td>Water, edges</td><td><b>ans</b> Meer, <b>an den</b> See</td><td><b>am</b> Meer, <b>am</b> See</td><td><b>vom</b> Meer</td></tr>
+<tr><td>Mountains, islands</td><td><b>in die</b> Berge, <b>auf</b> eine Insel</td><td><b>in den</b> Bergen, <b>auf</b> der Insel</td><td><b>aus den</b> Bergen</td></tr>
+<tr><td>Home</td><td><b>nach Hause</b></td><td><b>zu Hause</b></td><td><b>von zu Hause</b></td></tr>
+</table></div>
+<p>Countries with an article are the minority, but many are common: <i>die Schweiz, die Türkei, die USA (pl), die Niederlande (pl), der Iran, der Irak</i>.</p>
+<div class="trap"><b>Common mistake:</b> "Ich fahre nach die Schweiz" or "Ich bin in Schweiz." Articles stick: <i>in <b>die</b> Schweiz / in <b>der</b> Schweiz / aus <b>der</b> Schweiz</i>. And "nach Hause" (to) vs. "zu Hause" (at) is tested constantly.</div>
+<h3>2 · Countries and people</h3>
+<div class="tablewrap"><table><tr><th>Land</th><th>er</th><th>sie</th><th>Adjektiv</th></tr>
+<tr><td>die Schweiz</td><td>der Schweizer</td><td>die Schweizerin</td><td>schweizerisch</td></tr><tr><td>Deutschland</td><td>der Deutsche</td><td>die Deutsche</td><td>deutsch</td></tr><tr><td>Österreich</td><td>der Österreicher</td><td>die Österreicherin</td><td>österreichisch</td></tr><tr><td>Italien</td><td>der Italiener</td><td>die Italienerin</td><td>italienisch</td></tr><tr><td>Frankreich</td><td>der Franzose</td><td>die Französin</td><td>französisch</td></tr><tr><td>Russland</td><td>der Russe</td><td>die Russin</td><td>russisch</td></tr></table></div>
+<div class="book">In the book: Endlich Urlaub! p. 132 (PDF 134), Länder und Nationalitäten p. 134, Teil C Lokalangaben p. 152 (PDF 154).</div>`,
+ extra:[
+ {q:"Im Sommer fliegen wir ___ Portugal.",a:["nach"]},
+ {q:"Meine Kollegin kommt ___ der Türkei.",a:["aus"]},
+ {q:"Ich muss heute noch ___ Post.",a:["zur"]},
+ {q:"Wir waren eine Woche ___ Meer.",a:["am"]},
+ {q:"Nach der Arbeit fahre ich direkt ___ Hause.",a:["nach"]},
+ {t:"c",q:"Sie wohnt seit drei Jahren ___.",o:["in Schweiz","in der Schweiz","in die Schweiz"],a:1}
+ ],
+ read:{title:"Urlaubspläne",text:`Familie Meier plant ihre Sommerferien. Der Vater möchte ans Meer fahren, am liebsten nach Italien. Er will jeden Tag am Strand liegen und nichts tun. Die Mutter findet das langweilig. Sie möchte in die Berge, zum Beispiel ins Engadin, und dort wandern. Die Tochter Lea (16) will nicht mit den Eltern in den Urlaub fahren. Sie möchte mit ihren Freundinnen nach Barcelona fliegen. Der Sohn Tim (10) hat nur einen Wunsch: Er will zu seiner Oma nach Österreich, weil sie einen Bauernhof mit Pferden hat. Am Ende entscheidet die Familie: zwei Wochen in Italien am Meer, danach eine Woche bei der Oma. Und Lea? Sie darf nächstes Jahr nach Barcelona.`,
+ qs:[RF("Die Mutter möchte am Strand liegen.",false,"Sie möchte wandern."),{t:"c",q:"Warum will Tim zu seiner Oma?",o:["Sie wohnt am Meer.","Sie hat Pferde.","Sie wohnt in Barcelona."],a:1},RF("Lea fährt dieses Jahr nach Barcelona.",false,"nächstes Jahr"),{t:"c",q:"Wie lange ist die Familie bei der Oma?",o:["eine Woche","zwei Wochen","drei Wochen"],a:0}]},
+ test:[
+ {q:"Er fährt jeden Sommer ___ die Niederlande.",a:["in"]},
+ {q:"Ich war gestern ___ Arzt.",a:["beim"]},
+ {q:"Wir gehen heute Abend ___ Kino.",a:["ins"]},
+ {q:"Sie kommt gerade ___ der Arbeit.",a:["von"]},
+ {q:"Morgen fahren wir ___ den Bodensee.",a:["an"]},
+ {q:"Bist du morgen ___ Hause?",a:["zu"]}
+ ]},
+{id:"5.2",ch:5,title:"Ein schönes Hotel: Adjektivendungen",pages:[137,157],ga:[[36,186],[37,191],[79,395]],topics:["adjgen"],
+ goals:["Describe hotels, cities and trips with adjectives","Get adjective endings right after der, ein and no article"],
+ theory:`
+<h3>1 · When does an adjective need an ending?</h3>
+<p>After <i>sein, werden, bleiben</i> and as an adverb: no ending. <i>Das Hotel ist <b>schön</b>.</i> Before a noun: always an ending. <i>ein <b>schönes</b> Hotel</i>.</p>
+<h3>2 · The one idea behind all the tables</h3>
+<p>Someone has to show the case and gender. If the article already shows it clearly (<i>der, den, dem, einem</i>…), the adjective relaxes and takes <b>-e</b> or <b>-en</b>. If there is no article, or the article is <i>ein</i> in a form that hides the gender, the adjective has to show it with the "strong" ending.</p>
+<div class="tablewrap"><table><tr><th>after der/die/das</th><th>m</th><th>f</th><th>n</th><th>pl</th></tr>
+<tr><td>Nom</td><td>der neu<b>e</b> Zug</td><td>die neu<b>e</b> Bahn</td><td>das neu<b>e</b> Hotel</td><td>die neu<b>en</b> Zimmer</td></tr>
+<tr><td>Akk</td><td>den neu<b>en</b> Zug</td><td>die neu<b>e</b> Bahn</td><td>das neu<b>e</b> Hotel</td><td>die neu<b>en</b> Zimmer</td></tr>
+<tr><td>Dat</td><td>dem neu<b>en</b> Zug</td><td>der neu<b>en</b> Bahn</td><td>dem neu<b>en</b> Hotel</td><td>den neu<b>en</b> Zimmern</td></tr></table></div>
+<p>Pattern: only five spots take <b>-e</b> (the three Nominative singulars plus feminine and neuter Accusative). Everything else: <b>-en</b>.</p>
+<div class="tablewrap"><table><tr><th>after ein/kein/mein</th><th>m</th><th>f</th><th>n</th><th>pl (kein/mein)</th></tr>
+<tr><td>Nom</td><td>ein neu<b>er</b> Zug</td><td>eine neu<b>e</b> Bahn</td><td>ein neu<b>es</b> Hotel</td><td>keine neu<b>en</b> Zimmer</td></tr>
+<tr><td>Akk</td><td>einen neu<b>en</b> Zug</td><td>eine neu<b>e</b> Bahn</td><td>ein neu<b>es</b> Hotel</td><td>keine neu<b>en</b> Zimmer</td></tr>
+<tr><td>Dat</td><td>einem neu<b>en</b> Zug</td><td>einer neu<b>en</b> Bahn</td><td>einem neu<b>en</b> Hotel</td><td>keinen neu<b>en</b> Zimmern</td></tr></table></div>
+<p>Same as the der-table except the three places where <i>ein</i> has no ending: there the adjective shows <b>-er</b> (masculine) or <b>-es</b> (neuter).</p>
+<div class="tablewrap"><table><tr><th>no article</th><th>m</th><th>f</th><th>n</th><th>pl</th></tr>
+<tr><td>Nom</td><td>gut<b>er</b> Wein</td><td>frisch<b>e</b> Milch</td><td>kalt<b>es</b> Wasser</td><td>nett<b>e</b> Leute</td></tr>
+<tr><td>Akk</td><td>gut<b>en</b> Wein</td><td>frisch<b>e</b> Milch</td><td>kalt<b>es</b> Wasser</td><td>nett<b>e</b> Leute</td></tr>
+<tr><td>Dat</td><td>mit gut<b>em</b> Wein</td><td>mit frisch<b>er</b> Milch</td><td>mit kalt<b>em</b> Wasser</td><td>mit nett<b>en</b> Leuten</td></tr></table></div>
+<p>No article: the adjective takes the ending the article <i>would</i> have had (<i>der → -er, dem → -em</i>). Typical in menus, ads and hotel brochures: <i>Zimmer mit schön<b>em</b> Blick, frisch<b>er</b> Fisch, italienisch<b>er</b> Wein</i>.</p>
+<div class="trap"><b>Spelling:</b> <i>teuer → ein teu<b>r</b>es Hotel</i>, <i>dunkel → ein dunk<b>l</b>er Raum</i>, <i>hoch → ein ho<b>h</b>er Berg</i>.</div>
+<div class="book">In the book: Eine Reise planen p. 137 (PDF 139), Städtereisen p. 145, Teil C Nomengruppe p. 153 (PDF 155). This is the lesson to drill daily: the ∞ generator in Grammar never runs out.</div>`,
+ extra:[
+ {q:"Wir hatten ein sehr schön___ Zimmer.",a:["es"]},
+ {q:"Das Hotel hat einen groß___ Pool.",a:["en"]},
+ {q:"Wir haben in einem klein___ Hotel gewohnt.",a:["en"]},
+ {q:"Die nett___ Rezeptionistin hat uns geholfen.",a:["e"]},
+ {q:"Zimmer mit toll___ Blick auf den See",a:["em"],why:"no article, Dativ neuter → -em"},
+ {q:"Im Restaurant gibt es frisch___ Fisch.",a:["en"],why:"no article, Akkusativ masculine → -en"}
+ ],
+ read:{title:"Hotel Seeblick, Brunnen",text:`Unser familiäres Hotel liegt direkt am schönen Vierwaldstättersee. Alle 24 Zimmer haben einen eigenen Balkon mit herrlichem Blick auf den See und die hohen Berge. Am Morgen erwartet Sie ein reiches Frühstücksbuffet mit frischem Brot, regionalem Käse und hausgemachter Konfitüre. Unser kleines Restaurant bietet traditionelle Schweizer Küche. Nach einem langen Wandertag können Sie sich in unserer neuen Sauna erholen. Der nächste Bahnhof ist nur fünf Minuten zu Fuß entfernt. Von dort fahren Sie in einer Stunde nach Luzern. Doppelzimmer ab 180 Franken pro Nacht, inklusive Frühstück.`,
+ qs:[RF("Das Hotel liegt an einem See.",true),RF("Nur einige Zimmer haben einen Balkon.",false,"Alle Zimmer"),{t:"c",q:"Was ist neu im Hotel?",o:["das Restaurant","die Sauna","der Bahnhof"],a:1},{t:"c",q:"Was ist im Preis inklusive?",o:["das Abendessen","die Sauna","das Frühstück"],a:2}]},
+ test:[
+ {q:"Das ist ein interessant___ Museum.",a:["es"]},
+ {q:"Ich suche einen günstig___ Flug.",a:["en"]},
+ {q:"Wir fahren mit dem neu___ Zug.",a:["en"]},
+ {q:"Das ist eine alt___ Stadt.",a:["e"]},
+ {q:"Ich trinke gern heiß___ Tee. (der Tee)",a:["en"]},
+ {q:"Der klein___ Hund bellt laut.",a:["e"]}
+ ],out:{s:5}},
+{id:"5.3",ch:5,title:"Wetter und Pannen: obwohl, weil, Vorschläge",pages:[140,151],ga:[[42,218]],topics:["obwohl"],
+ goals:["Talk about the weather","Contrast with obwohl and trotzdem","Apologize and make suggestions"],
+ theory:`
+<h3>1 · obwohl: the surprising contrast</h3>
+<p><em>obwohl</em> (although) works like <i>weil</i>: it starts a subordinate clause and the verb goes to the end. But the meaning is the opposite: the result is <b>unexpected</b>.</p>
+<div class="ex"><div class="ex-h">weil vs. obwohl</div><p>Wir bleiben im Hotel, <b>weil</b> es regnet. (logical)</p><p>Wir gehen wandern, <b>obwohl</b> es regnet. (surprising)</p></div>
+<p>The main-clause twin of <i>obwohl</i> is <em>trotzdem</em> (still, anyway). It sits in position 1 and the verb follows directly: <i>Es regnet. <b>Trotzdem gehen</b> wir wandern.</i> (More on this in 7.3.)</p>
+<h3>2 · Weather</h3>
+<div class="tablewrap"><table><tr><th>Verb</th><th>Adjective</th><th>Noun</th></tr>
+<tr><td>Es regnet. Es schneit. Die Sonne scheint. Es blitzt und donnert.</td><td>sonnig, bewölkt, neblig, windig, stürmisch, heiß, kalt, mild</td><td>der Regen, der Schnee, das Gewitter, der Nebel, der Wind</td></tr></table></div>
+<p>Temperatures: <i>Es sind 25 Grad. / Die Temperaturen liegen zwischen 10 und 15 Grad. / Es ist minus fünf Grad.</i></p>
+<h3>3 · When things go wrong</h3>
+<div class="ex"><div class="ex-h">Apologizing</div><p>Entschuldigung, ich bin zu spät, <b>weil</b> ich den Zug verpasst habe.</p><p>Tut mir leid, der Zug hatte 20 Minuten Verspätung.</p><p>Ich stand eine Stunde im Stau.</p></div>
+<h3>4 · Making suggestions</h3>
+<div class="ex"><div class="ex-h">Redemittel</div><p><b>Wie wäre es mit</b> einem Museumsbesuch? (+ Dativ)</p><p>Wir <b>könnten</b> doch ins Museum gehen.</p><p>Ich <b>schlage vor</b>, dass wir eine Stadtrundfahrt machen.</p><p><b>Lass uns</b> an den See gehen!</p><p>Reacting: Gute Idee! / Das klingt gut. / Ich weiß nicht, ich habe eigentlich keine Lust auf …</p></div>
+<div class="book">In the book: weather and traffic announcements in Eine Reise planen (from p. 137), Städtereisen p. 145 (PDF 147).</div>`,
+ extra:[
+ {q:"Wir machen ein Picknick, ___ es bewölkt ist.",a:["obwohl"]},
+ {q:"Ich bin zu spät, ___ ich im Stau stand.",a:["weil"]},
+ {q:"Es ist kalt. ___ gehen wir schwimmen.",a:["Trotzdem"]},
+ {q:"Wie wäre es ___ einem Ausflug nach Luzern?",a:["mit"]},
+ {t:"o",w:["Wir","könnten","doch","eine Stadtrundfahrt","machen"],en:"We could take a city tour."}
+ ],
+ read:{title:"Eine Postkarte aus Wien",text:`Liebe Nora,
+viele Grüße aus Wien! Leider regnet es schon seit drei Tagen, und es sind nur 12 Grad. Trotzdem gefällt mir die Stadt sehr. Gestern haben wir das Schloss Schönbrunn besichtigt, obwohl es wirklich stark geregnet hat. Am Abend waren wir in einem gemütlichen Kaffeehaus und haben Sachertorte gegessen. Morgen soll endlich die Sonne scheinen. Dann machen wir eine Radtour an der Donau. Die Hinfahrt war übrigens ein Chaos: Unser Zug hatte zwei Stunden Verspätung, weil es ein technisches Problem gab.
+Bis bald!
+Deine Emma`,
+ qs:[RF("In Wien ist das Wetter schön.",false),RF("Emma hat Schloss Schönbrunn im Regen besichtigt.",true),{t:"c",q:"Was möchte Emma morgen machen?",o:["ins Museum gehen","eine Radtour machen","nach Hause fahren"],a:1},{t:"c",q:"Warum hatte der Zug Verspätung?",o:["wegen des Wetters","wegen eines technischen Problems","wegen eines Streiks"],a:1}]},
+ test:[
+ {q:"Er arbeitet weiter, ___ er müde ist.",a:["obwohl"]},
+ {q:"Sie trägt eine Jacke, ___ es kalt ist.",a:["weil"]},
+ {q:"Heute ist es sonnig. Morgen ___ es. (regnen)",a:["regnet"]},
+ {q:"Das Wetter ist schlecht. ___ fahren wir ans Meer.",a:["Trotzdem"]},
+ {q:"Ich schlage vor, ___ wir den Zug nehmen.",a:["dass"]},
+ {t:"o",w:["Wir","sind","gewandert",",","obwohl","es","geregnet","hat"],en:"We went hiking although it rained."}
+ ],out:{w:8}},
+/* ---------------- KAPITEL 6 ---------------- */
+{id:"6.1",ch:6,title:"Tiere vergleichen: Komparativ und Superlativ",pages:[162,168],ga:[[38,196],[39,200]],topics:["kompgen","komparativ"],
+ goals:["Compare animals, people and things","Form comparatives and superlatives, including the irregular ones"],
+ theory:`
+<h3>1 · Three steps</h3>
+<div class="tablewrap"><table><tr><th>Positiv</th><th>Komparativ (+ als)</th><th>Superlativ</th></tr>
+<tr><td>schnell</td><td>schnell<b>er</b></td><td>am schnell<b>sten</b> / der schnell<b>ste</b></td></tr>
+<tr><td>klein</td><td>klein<b>er</b></td><td>am klein<b>sten</b></td></tr>
+<tr><td>interessant</td><td>interessant<b>er</b></td><td>am interessant<b>esten</b></td></tr></table></div>
+<p>Adjectives ending in <i>-t, -d, -s, -ß, -z, -sch</i> add an e in the superlative: <i>am ält<b>e</b>sten, am heiß<b>e</b>sten, am kürz<b>e</b>sten</i>.</p>
+<h3>2 · Umlaut and irregular forms</h3>
+<p>Many short adjectives with a, o, u get an umlaut: <i>alt – älter, jung – jünger, groß – größer, warm – wärmer, kalt – kälter, lang – länger, kurz – kürzer, stark – stärker, arm – ärmer, klug – klüger, gesund – gesünder</i>.</p>
+<div class="tablewrap"><table><tr><th>gut</th><td>besser</td><td>am besten</td></tr><tr><th>viel</th><td>mehr</td><td>am meisten</td></tr><tr><th>gern</th><td>lieber</td><td>am liebsten</td></tr><tr><th>hoch</th><td>höher</td><td>am höchsten</td></tr><tr><th>nah</th><td>näher</td><td>am nächsten</td></tr><tr><th>teuer</th><td>teurer</td><td>am teuersten</td></tr></table></div>
+<h3>3 · Comparing</h3>
+<div class="ex"><div class="ex-h">als vs. wie</div><p>Different: Ein Gepard ist schnell<b>er als</b> ein Pferd.</p><p>Equal: Mein Hund ist <b>so</b> groß <b>wie</b> deine Katze. / <b>genauso</b> alt <b>wie</b></p><p>Not equal: Bern ist <b>nicht so</b> groß <b>wie</b> Zürich.</p></div>
+<div class="trap"><b>Common mistake:</b> "größer wie" or "so groß als". Comparative → <b>als</b>, same level → <b>wie</b>.</div>
+<h3>4 · Superlative before a noun</h3>
+<p>Before a noun the superlative takes normal adjective endings: <i>der schnell<b>ste</b> Vogel, das gefährlich<b>ste</b> Tier, mit dem teuer<b>sten</b> Auto</i>. After <i>sein</i> or as an adverb: <i>am … sten</i>: <i>Der Gepard läuft <b>am schnellsten</b>.</i></p>
+<div class="book">In the book: Gefährliche Tiere p. 162 (PDF 164), Teil C Adjektive p. 180 (PDF 182). Teil B has a fun insect text ("Wer sticht am gemeinsten?").</div>`,
+ extra:[
+ {q:"Ein Elefant ist schwerer ___ ein Pferd.",a:["als"]},
+ {q:"Mein Bruder ist genauso alt ___ ich.",a:["wie"]},
+ {q:"Welches Tier ist am ___? (gefährlich)",a:["gefährlichsten"]},
+ {q:"Heute ist es ___ als gestern. (kalt)",a:["kälter"]},
+ {q:"Ich esse ___ Pizza als Pasta. (gern)",a:["lieber"]}
+ ],
+ read:{title:"Rekorde im Tierreich",text:`Welches Tier ist am schnellsten? An Land ist es der Gepard: Er kann bis zu 110 Kilometer pro Stunde laufen, aber nur kurze Zeit. In der Luft ist der Wanderfalke noch viel schneller. Wenn er nach unten fliegt, erreicht er über 300 Kilometer pro Stunde. Das größte Tier der Welt ist der Blauwal. Er ist größer als jeder Dinosaurier und kann über 30 Meter lang werden. Und welches Tier ist am gefährlichsten für Menschen? Nicht der Hai, nicht die Schlange, sondern die Mücke! Sie überträgt Krankheiten wie Malaria und tötet jedes Jahr mehr Menschen als alle anderen Tiere zusammen.`,
+ qs:[RF("Der Gepard kann lange Zeit 110 km/h laufen.",false,"nur kurze Zeit"),{t:"c",q:"Welches Tier ist in der Luft am schnellsten?",o:["der Gepard","der Wanderfalke","die Mücke"],a:1},RF("Der Blauwal ist größer als die Dinosaurier.",true),{t:"c",q:"Welches Tier ist für Menschen am gefährlichsten?",o:["der Hai","die Schlange","die Mücke"],a:2}]},
+ test:[
+ {q:"Zürich ist ___ als Winterthur. (groß)",a:["größer"]},
+ {q:"Wer kann am ___ singen? (gut)",a:["besten"]},
+ {q:"Das ist der ___ Tag des Jahres. (kurz)",a:["kürzeste"]},
+ {q:"Katzen schlafen ___ als Hunde. (viel)",a:["mehr"]},
+ {q:"Dein Handy ist nicht so teuer ___ meins.",a:["wie"]},
+ {q:"Das Matterhorn ist ___ als der Rigi. (hoch)",a:["höher"]}
+ ]},
+{id:"6.2",ch:6,title:"Menschen beschreiben: Relativsätze",pages:[169,186],ga:[[70,350],[71,354]],topics:["relativ"],
+ goals:["Describe appearance and character","Add detail with relative clauses (der, die, das, den, dem, denen)"],
+ theory:`
+<h3>1 · Describing people</h3>
+<div class="ex"><div class="ex-h">Aussehen (appearance)</div><p>Sie <b>hat</b> lange, blonde Haare / blaue Augen / ein rundes Gesicht.</p><p>Er <b>ist</b> groß, schlank und sportlich. Er <b>trägt</b> eine Brille und einen Bart.</p></div>
+<div class="ex"><div class="ex-h">Charakter</div><p>Sie ist geduldig, zuverlässig und sehr hilfsbereit. Manchmal ist sie ein bisschen chaotisch.</p><p>Opposites to learn in pairs: <i>fleißig – faul, ordentlich – chaotisch, optimistisch – pessimistisch, geduldig – ungeduldig, ernst – lustig</i>.</p></div>
+<p>Notice: <i>haben</i> + adjective + noun needs adjective endings (lesson 5.2): <i>Sie hat blau<b>e</b> Augen</i> (no article, plural Akk → -e).</p>
+<h3>2 · Relative clauses</h3>
+<p>A relative clause adds information about a noun, like "who" or "which/that" in English. German never drops the pronoun (English can: "the man I met").</p>
+<div class="formula">Das ist die Frau, <span>die</span> neben mir <span>wohnt</span>.</div>
+<p>Three rules: (1) comma before the relative clause; (2) conjugated verb at the end; (3) the relative pronoun takes <b>gender and number</b> from the noun, but its <b>case</b> from its job inside the relative clause.</p>
+<div class="tablewrap"><table><tr><th></th><th>m</th><th>f</th><th>n</th><th>pl</th></tr>
+<tr><td>Nom</td><td>der</td><td>die</td><td>das</td><td>die</td></tr>
+<tr><td>Akk</td><td><b>den</b></td><td>die</td><td>das</td><td>die</td></tr>
+<tr><td>Dat</td><td><b>dem</b></td><td><b>der</b></td><td><b>dem</b></td><td><b>denen</b></td></tr></table></div>
+<p>It's the definite article, except dative plural <b>denen</b>.</p>
+<h3>3 · Finding the case: a trick</h3>
+<p>Turn the relative clause into a normal sentence with the noun in it:</p>
+<div class="ex"><div class="ex-h">Examples</div>
+<p>Der Mann, ___ ich gestern gesehen habe … → Ich habe <b>den Mann</b> gesehen. → Akk → <b>den</b></p>
+<p>Die Freundin, ___ ich helfe … → Ich helfe <b>der Freundin</b>. → Dat → <b>der</b></p>
+<p>Die Kollegen, ___ ich oft spreche mit … → mit <b>den Kollegen</b> → Dat pl → <b>mit denen</b></p></div>
+<p>A preposition goes in front of the relative pronoun: <i>der Kollege, <b>mit dem</b> ich arbeite; die Stadt, <b>in der</b> ich wohne</i>.</p>
+<div class="trap"><b>Common mistake:</b> "Der Mann, den wohnt neben mir." Here the man is the subject of <i>wohnt</i>, so Nominativ: <b>der</b>. Always ask who does what inside the relative clause.</div>
+<div class="book">In the book: Menschen p. 169 (PDF 171), Teil C Sätze p. 185 (PDF 187).</div>`,
+ extra:[
+ {q:"Meine Schwester hat lang___ Haare.",a:["e"]},
+ {q:"Das ist der Kollege, ___ immer zu spät kommt.",a:["der"]},
+ {q:"Das ist die Wohnung, ___ ich gemietet habe.",a:["die"]},
+ {q:"Das ist der Freund, ___ ich das Buch geliehen habe.",a:["dem"]},
+ {q:"Die Kinder, mit ___ ich spiele, sind sehr lustig.",a:["denen"]},
+ {q:"Wie heißt der Film, ___ du so gut findest?",a:["den"]}
+ ],
+ read:{title:"Meine beste Freundin",text:`Meine beste Freundin heißt Ilona. Wir kennen uns seit der Schule, also schon seit 15 Jahren. Ilona ist ein bisschen größer als ich und hat kurze, rote Haare. Sie trägt fast immer eine große, schwarze Brille, die sie in Paris gekauft hat. Ilona ist die lustigste Person, die ich kenne. Aber sie ist auch sehr ehrlich: Wenn ihr etwas nicht gefällt, sagt sie es sofort. Manchmal ist das nicht so angenehm. Sie ist hilfsbereit und immer für mich da, wenn ich Probleme habe. Nur pünktlich ist sie nie! Der Mann, mit dem sie seit zwei Jahren zusammen ist, sagt: „Ilona kommt immer, aber nie zur richtigen Zeit.“`,
+ qs:[RF("Ilona ist kleiner als die Erzählerin.",false,"ein bisschen größer"),RF("Ilona hat ihre Brille in Paris gekauft.",true),{t:"c",q:"Was ist für die Erzählerin manchmal nicht angenehm?",o:["dass Ilona zu spät kommt","dass Ilona sehr ehrlich ist","dass Ilona oft in Paris ist"],a:1},{t:"c",q:"Welche Eigenschaft hat Ilona NICHT?",o:["hilfsbereit","lustig","pünktlich"],a:2}]},
+ test:[
+ {q:"Das ist das Haus, ___ mein Großvater gebaut hat.",a:["das"]},
+ {q:"Die Frau, ___ dort steht, ist meine Chefin.",a:["die"]},
+ {q:"Der Hund, ___ ich jeden Tag sehe, heißt Bruno.",a:["den"]},
+ {q:"Die Kollegin, ___ ich die Datei geschickt habe, antwortet nicht.",a:["der"]},
+ {q:"Das sind die Leute, ___ wir im Urlaub getroffen haben.",a:["die"]},
+ {q:"Er hat kurz___, schwarz___ Haare.",a:["e","e"]}
+ ],out:{w:10}},
+{id:"6.3",ch:6,title:"Ratschläge, Lob und Kritik: sollte und Präpositionen mit Akkusativ",pages:[184,191],ga:[[6,41],[56,280],[32,165]],topics:["sollten","akkprep"],
+ goals:["Give advice with sollte","Praise and criticize politely","Use für, durch, gegen, ohne, um"],
+ theory:`
+<h3>1 · Advice: sollte</h3>
+<p><i>sollte</i> is the Konjunktiv II of <i>sollen</i>. It's softer than <i>müssen</i> and is the standard way to give advice.</p>
+<div class="tablewrap"><table><tr><td>ich sollte</td><td>du solltest</td><td>er/sie sollte</td><td>wir sollten</td><td>ihr solltet</td><td>sie/Sie sollten</td></tr></table></div>
+<div class="ex"><div class="ex-h">Examples</div><p>Du <b>solltest</b> mehr Wasser <b>trinken</b>.</p><p>Bei Schlafproblemen <b>sollten</b> Sie abends kein Handy <b>benutzen</b>.</p><p>An deiner Stelle <b>würde</b> ich einen Hund <b>adoptieren</b>. (another advice pattern)</p></div>
+<h3>2 · Praise and criticism</h3>
+<div class="tablewrap"><table><tr><th>Lob</th><th>Kritik (polite → strong)</th></tr>
+<tr><td>Das hast du prima gemacht!<br>Das gefällt mir sehr gut.<br>Mach weiter so!<br>Ich bin begeistert!</td>
+<td>Vielleicht <b>solltest</b> du nächstes Mal …<br><b>Könntest</b> du bitte nächstes Mal …?<br>Was hast du denn da gemacht?<br>Hör sofort damit auf!</td></tr></table></div>
+<p>The polite forms use Konjunktiv II again (<i>solltest, könntest</i>). Softeners like <i>vielleicht, bitte, eigentlich, doch</i> make a huge difference in tone. The book calls these <i>Redepartikeln</i>.</p>
+<h3>3 · Prepositions that always take the accusative</h3>
+<p><em>durch, für, gegen, ohne, um</em>. Mnemonic: <b>DOGFU</b> (durch, ohne, gegen, für, um). Only the masculine shows a visible change: <i>der → den, ein → einen, er → ihn</i>.</p>
+<div class="ex"><div class="ex-h">Examples</div><p>Haustiere sind gut <b>gegen den</b> Stress.</p><p>Ich habe ein Geschenk <b>für meinen</b> Bruder / <b>für dich</b>.</p><p>Wir spazieren <b>durch den</b> Park.</p><p>Er geht nie <b>ohne seinen</b> Hund aus dem Haus.</p><p>Wir sitzen <b>um den</b> Tisch.</p></div>
+<div class="trap"><b>Common mistake:</b> "für mir", "ohne ihm". Always accusative: <i>für <b>mich</b>, ohne <b>ihn</b></i>.</div>
+<div class="book">In the book: Von Tieren und Menschen p. 167 (PDF 169), Teil C Verben p. 184 and Präpositionen p. 187 (PDF 189).</div>`,
+ extra:[
+ {q:"Du ___ weniger Kaffee trinken. (sollen, K II)",a:["solltest"]},
+ {q:"Sie ___ mal zum Arzt gehen. (formal)",a:["sollten"]},
+ {q:"Das Geschenk ist für ___. (du)",a:["dich"]},
+ {q:"Wir gehen ohne ___ Chef essen. (unser)",a:["unseren|unsern"]},
+ {t:"o",w:["Vielleicht","solltest","du","nächstes Mal","früher","anfangen"],en:"Maybe next time you should start earlier."}
+ ],
+ read:{title:"Frag Dr. Tier",text:`Liebe Frau Dr. Tier,
+ich bin 34 und wohne allein in einer kleinen Wohnung in der Stadt. Ich arbeite viel und fühle mich oft einsam. Eine Freundin sagt, ich sollte einen Hund haben. Aber ich bin von 8 bis 18 Uhr im Büro. Was meinen Sie?
+Tobias, Basel
+
+Lieber Tobias,
+ein Hund ist wirklich gut gegen Einsamkeit, aber er braucht viel Zeit. Ein Hund sollte nicht zehn Stunden allein sein. Vielleicht sollten Sie eine Katze adoptieren. Katzen sind selbstständiger und brauchen nicht so viel Platz. Oder Sie fragen im Tierheim, ob Sie am Wochenende mit einem Hund spazieren gehen können. So haben Sie Kontakt zu Tieren und lernen vielleicht auch neue Leute kennen.
+Ihre Dr. Tier`,
+ qs:[RF("Tobias fühlt sich oft allein.",true),RF("Dr. Tier findet einen Hund für Tobias ideal.",false),{t:"c",q:"Warum passt eine Katze besser?",o:["Sie ist billiger.","Sie ist selbstständiger.","Sie ist ruhiger."],a:1},{t:"c",q:"Was kann Tobias am Wochenende machen?",o:["im Tierheim mit einem Hund spazieren gehen","eine Katze kaufen","umziehen"],a:0}]},
+ test:[
+ {q:"Ihr ___ mehr Sport machen.",a:["solltet"]},
+ {q:"Er ___ früher ins Bett gehen.",a:["sollte"]},
+ {q:"Wir laufen durch ___ Wald.",a:["den"]},
+ {q:"Ich mache das nur für ___. (ihr, Pl.)",a:["euch"]},
+ {q:"Er ist gegen ___ Idee. (die)",a:["die"]},
+ {t:"c",q:"Welcher Satz ist am höflichsten?",o:["Mach das nie wieder!","Könntest du das bitte nächstes Mal anders machen?","Was hast du denn gemacht?"],a:1}
+ ],out:{s:6}},
+/* ---------------- KAPITEL 7 ---------------- */
+{id:"7.1",ch:7,title:"Die Wohnung einrichten: stellen/stehen und Wechselpräpositionen",pages:[192,198],ga:[[33,169],[34,174],[62,306]],topics:["wechselgen","stellen"],
+ goals:["Describe where things are in a room","Choose Akkusativ (wohin?) or Dativ (wo?) after the nine two-way prepositions","Use stellen/stehen, legen/liegen, hängen"],
+ theory:`
+<h3>1 · The nine two-way prepositions</h3>
+<p><i>in, an, auf, über, unter, vor, hinter, neben, zwischen</i> can take either case. The question decides:</p>
+<div class="tablewrap"><table><tr><th>Wohin? movement to a new place</th><th>Wo? position, no change of place</th></tr>
+<tr><td><b>Akkusativ</b>: Ich hänge das Bild an <b>die</b> Wand.</td><td><b>Dativ</b>: Das Bild hängt an <b>der</b> Wand.</td></tr>
+<tr><td>Ich lege das Buch auf <b>den</b> Tisch.</td><td>Das Buch liegt auf <b>dem</b> Tisch.</td></tr>
+<tr><td>Wir gehen <b>ins</b> Wohnzimmer.</td><td>Wir sitzen <b>im</b> Wohnzimmer.</td></tr></table></div>
+<p>Moving around <i>inside</i> one place is still <b>wo</b>: <i>Die Kinder laufen <b>im</b> Garten.</i> (they don't enter it, they're already there)</p>
+<h3>2 · The verb pairs</h3>
+<div class="tablewrap"><table><tr><th>Action (wohin? + Akk), regular</th><th>Result (wo? + Dat), irregular</th></tr>
+<tr><td><b>stellen</b> – stellte – hat gestellt (upright)</td><td><b>stehen</b> – stand – hat gestanden</td></tr>
+<tr><td><b>legen</b> – legte – hat gelegt (flat)</td><td><b>liegen</b> – lag – hat gelegen</td></tr>
+<tr><td><b>setzen</b> – setzte – hat gesetzt</td><td><b>sitzen</b> – saß – hat gesessen</td></tr>
+<tr><td><b>hängen</b> – hängte – hat gehängt</td><td><b>hängen</b> – hing – hat gehangen</td></tr></table></div>
+<p>Logic: you <i>stellen</i> a bottle (it then <i>steht</i>), you <i>legen</i> a book flat (it then <i>liegt</i>). Things with a base stand, things without lie: <i>Die Flasche steht, das Handy liegt, der Teller steht (on the table) or liegt (in the sink)</i>.</p>
+<h3>3 · Contractions</h3>
+<p><i>in dem = <b>im</b>, in das = <b>ins</b>, an dem = <b>am</b>, an das = <b>ans</b></i>. In speech you'll also hear <i>aufs</i> (auf das).</p>
+<div class="ex"><div class="ex-h">My room</div><p>Mein Bett <b>steht</b> <b>neben dem</b> Fenster. <b>Über dem</b> Bett <b>hängt</b> ein Poster. Meine Bücher <b>stehen</b> <b>im</b> Regal. Mein Laptop <b>liegt</b> meistens <b>auf dem</b> Schreibtisch, aber gestern habe ich ihn <b>aufs</b> Bett <b>gelegt</b>.</p></div>
+<div class="trap"><b>Common mistake:</b> using stellen for position: "Die Vase stellt auf dem Tisch." Position = <i>steht</i>. Also: after these verbs the case follows automatically. stellen/legen/hängen(-te) → Akk, stehen/liegen/hängen(hing) → Dat.</div>
+<div class="book">In the book: Wohnen p. 192 (PDF 194), Teil C Verben p. 207 and Präpositionen p. 213 (PDF 215).</div>`,
+ extra:[
+ {q:"Ich stelle die Lampe neben ___ Sofa.",a:["das"]},
+ {q:"Die Lampe steht neben ___ Sofa.",a:["dem"]},
+ {q:"Wohin hast du meine Brille ___? (legen)",a:["gelegt"]},
+ {q:"Der Mantel ___ im Schrank. (hängen)",a:["hängt"]},
+ {q:"Setz dich doch ___ Sofa! (auf + das)",a:["aufs|auf das"]},
+ {t:"c",q:"Die Kinder spielen ___ Garten.",o:["in den","im"],a:1,why:"already in the garden → wo? → Dativ"}
+ ],
+ read:{title:"Endlich eine eigene Wohnung",text:`Seit einem Monat wohnt Lina in ihrer ersten eigenen Wohnung in Winterthur. Die Wohnung ist klein, aber hell. Im Wohnzimmer steht ein altes Sofa, das sie von ihrer Tante bekommen hat. Neben dem Sofa steht eine große Pflanze. An der Wand über dem Sofa hängt ein Bild von ihrem Lieblingsmaler. Ihren Schreibtisch hat sie direkt ans Fenster gestellt, weil sie beim Lernen gern nach draußen schaut. Nur mit der Küche ist sie nicht zufrieden: Sie ist sehr klein, und der Kühlschrank steht im Flur, weil er nicht in die Küche passt. „Aber die Miete ist günstig“, sagt Lina, „und der Bahnhof ist nur fünf Minuten entfernt.“`,
+ qs:[RF("Lina hat das Sofa neu gekauft.",false,"von ihrer Tante"),{t:"c",q:"Wo hängt das Bild?",o:["über dem Sofa","neben dem Fenster","in der Küche"],a:0},{t:"c",q:"Warum steht der Kühlschrank im Flur?",o:["Er ist kaputt.","Er passt nicht in die Küche.","Lina braucht ihn nicht."],a:1},RF("Der Bahnhof ist nah.",true)]},
+ test:[
+ {q:"Er hängt die Jacke an ___ Haken. (der Haken)",a:["den"]},
+ {q:"Die Jacke hängt an ___ Haken.",a:["dem"]},
+ {q:"Wir gehen heute ___ Theater.",a:["ins"]},
+ {q:"Das Handy ___ unter dem Bett. (liegen)",a:["liegt"]},
+ {q:"Ich habe die Flaschen in den Keller ___. (stellen)",a:["gestellt"]},
+ {q:"Der Teppich liegt zwischen ___ Sofa und ___ Tisch.",a:["dem","dem"]}
+ ],out:{w:12}},
+{id:"7.2",ch:7,title:"Früher: als oder wenn? Infinitiv mit zu",pages:[199,212],ga:[[72,358],[68,340],[69,345]],topics:["alswenn","zu"],
+ goals:["Talk about the past with als and wenn","Use zu + infinitive after Lust haben, versuchen, vergessen …"],
+ theory:`
+<h3>1 · als vs. wenn: the one-time test</h3>
+<div class="tablewrap"><table><tr><th></th><th>Past</th><th>Present / future</th></tr>
+<tr><td>Once, or one period</td><td><b>als</b>: Als ich ein Kind <b>war</b>, …<br>Als ich gestern nach Hause <b>kam</b>, …</td><td rowspan="2"><b>wenn</b>: Wenn ich Zeit habe, … / Wenn du kommst, …</td></tr>
+<tr><td>Repeated</td><td><b>(immer) wenn</b>: Immer wenn ich Oma besuchte, …</td></tr></table></div>
+<p>Both are subordinating: verb at the end, and if they come first, the main clause starts with the verb: <i>Als ich zwölf war, <b>sind</b> wir nach Zürich umgezogen.</i></p>
+<div class="trap"><b>Common mistake:</b> "Wenn ich ein Kind war …" Childhood is one period in the past → <b>als</b>. Test: can you add "jedes Mal" (every time)? If yes → wenn. If no → als.</div>
+<h3>2 · Infinitiv mit zu</h3>
+<p>After certain verbs and expressions, a second action comes as <em>zu + infinitive</em> at the end of the clause:</p>
+<div class="ex"><div class="ex-h">Triggers</div><p>Ich habe keine <b>Lust</b>, heute <b>zu kochen</b>.</p><p>Ich <b>versuche</b>, gesünder <b>zu essen</b>.</p><p><b>Vergiss nicht</b>, den Müll raus<b>zu</b>bringen.</p><p>Ich habe <b>vor</b>, am Wochenende auf<b>zu</b>räumen.</p><p><b>Es ist schwer</b>, in Zürich eine Wohnung <b>zu finden</b>.</p><p>Common triggers: <i>Lust/Zeit/Angst haben, anfangen, aufhören, versuchen, vergessen, vorhaben, beginnen, es ist wichtig/schön/schwer/verboten</i>.</p></div>
+<p>Separable verbs put zu in the middle: <i>auf<b>zu</b>stehen, ein<b>zu</b>kaufen, an<b>zu</b>rufen</i>.</p>
+<p><b>No zu</b> after modal verbs, <i>werden</i>, <i>lassen</i>, and verbs of movement like <i>gehen</i>: <i>Ich <b>muss</b> arbeiten. Ich <b>gehe</b> einkaufen.</i></p>
+<div class="book">In the book: Ein Garten in der Stadt p. 199 (PDF 201), Teil C Sätze p. 210 (PDF 212).</div>`,
+ extra:[
+ {q:"___ ich 18 war, habe ich meinen Führerschein gemacht.",a:["Als"]},
+ {q:"Jedes Mal, ___ ich nach Bern fahre, regnet es.",a:["wenn"]},
+ {q:"Ich habe keine Zeit, dich ___. (anrufen)",a:["anzurufen"]},
+ {q:"Es ist wichtig, genug ___ schlafen.",a:["zu"]},
+ {t:"c",q:"Ich gehe heute ___ schwimmen.",o:["zu","— (no zu)"],a:1}
+ ],
+ read:{title:"Omas Garten",text:`Als ich ein Kind war, habe ich jeden Sommer zwei Wochen bei meiner Oma auf dem Land verbracht. Sie hatte einen riesigen Garten mit Gemüse, Kräutern und Obstbäumen. Immer wenn ich ankam, wartete sie schon mit einem Apfelkuchen auf mich. Morgens hatte ich keine Lust aufzustehen, aber Oma sagte: „Der Garten wartet nicht!“ Also haben wir Tomaten und Bohnen geerntet und Unkraut gezogen. Als ich 14 war, hat Oma mir gezeigt, wie man Konfitüre macht. Heute wohne ich in der Stadt und habe nur einen kleinen Balkon. Trotzdem versuche ich jedes Jahr, ein paar Tomaten und Kräuter anzupflanzen. Jedes Mal, wenn ich sie gieße, denke ich an Oma.`,
+ qs:[RF("Die Erzählerin war jeden Sommer bei ihrer Oma.",true),RF("Sie ist morgens immer gern aufgestanden.",false),{t:"c",q:"Was hat Oma ihr gezeigt, als sie 14 war?",o:["Apfelkuchen backen","Konfitüre machen","Tomaten pflanzen"],a:1},{t:"c",q:"Was hat die Erzählerin heute?",o:["einen großen Garten","einen kleinen Balkon","einen Bauernhof"],a:1}]},
+ test:[
+ {q:"___ wir in Genf wohnten, sprach ich viel Französisch.",a:["Als"]},
+ {q:"___ ich müde bin, trinke ich einen Kaffee.",a:["Wenn"]},
+ {q:"Ich habe vergessen, Milch ___. (kaufen)",a:["zu kaufen"]},
+ {q:"Hast du Lust, mit mir ___? (einkaufen)",a:["einzukaufen"]},
+ {q:"Er hat aufgehört ___ rauchen.",a:["zu"]},
+ {t:"c",q:"Wir können morgen ___ kommen.",o:["zu","— (no zu)"],a:1}
+ ],out:{w:13}},
+{id:"7.3",ch:7,title:"Essen und Restaurant: deshalb und trotzdem",pages:[200,206],ga:[[41,214]],topics:["deshalb"],
+ goals:["Talk about eating habits and recipes","Connect ideas with deshalb (so) and trotzdem (anyway)","Order and complain in a restaurant"],
+ theory:`
+<h3>1 · Connectors in position 1</h3>
+<p><i>deshalb</i> and <i>trotzdem</i> are adverbs, not subordinating words. They take position 1 in their clause, so the <b>verb comes immediately after</b>:</p>
+<div class="formula">Ich esse gern Gemüse<span>,</span> <span>deshalb</span> <b>kaufe</b> ich jede Woche auf dem Markt ein.</div>
+<div class="tablewrap"><table><tr><th>Meaning</th><th>Main clause (verb 2nd)</th><th>Subordinate clause (verb last)</th></tr>
+<tr><td>reason → consequence</td><td>…, <b>deshalb</b> / <b>deswegen</b> / <b>darum</b> + verb</td><td>…, <b>weil</b> … verb</td></tr>
+<tr><td>contrast</td><td>…, <b>trotzdem</b> + verb</td><td>…, <b>obwohl</b> … verb</td></tr></table></div>
+<div class="ex"><div class="ex-h">Same meaning, two structures</div><p>Ich habe keine Zeit, <b>deshalb esse</b> ich in der Kantine.</p><p>Ich esse in der Kantine, <b>weil</b> ich keine Zeit <b>habe</b>.</p><p>Das Restaurant ist teuer, <b>trotzdem gehen</b> wir oft hin.</p><p>Wir gehen oft hin, <b>obwohl</b> das Restaurant teuer <b>ist</b>.</p></div>
+<p>Compare: <i>und, aber, oder, denn, sondern</i> are "position 0" connectors: they don't count, so the order stays normal: <i>…, <b>aber</b> ich <b>habe</b> keine Zeit.</i></p>
+<div class="trap"><b>Common mistake:</b> "…, deshalb ich kaufe …" After deshalb/trotzdem the verb comes first, then the subject.</div>
+<h3>2 · In the restaurant</h3>
+<div class="ex"><div class="ex-h">Redemittel</div><p>Ich hätte gern die Kürbissuppe. / Ich nehme das Tagesmenü.</p><p>Könnte ich bitte noch ein Glas Wasser haben?</p><p>Entschuldigung, das Essen ist kalt. / Ich glaube, Sie haben meine Bestellung vergessen.</p><p>Die Rechnung, bitte. / Zusammen oder getrennt? – Getrennt, bitte.</p><p>Guten Appetit! – Danke, gleichfalls. / Prost! / Zum Wohl!</p></div>
+<p>Switzerland: service is included, but people round up (<i>Das stimmt so.</i> = keep the change). Some Swiss words: <i>das Znüni</i> (morning snack), <i>der Zmittag</i>, <i>das Poulet</i> (chicken), <i>die Rüebli</i> (carrots).</p>
+<div class="book">In the book: Gesunde Ernährung p. 200 (PDF 202). Teil B is about the effect of colors, including on appetite.</div>`,
+ extra:[
+ {t:"o",w:["Ich","trinke","keinen Kaffee",",","deshalb","schlafe","ich","gut"],en:"I don't drink coffee, so I sleep well."},
+ {q:"Das Essen war kalt, ___ haben wir alles gegessen.",a:["trotzdem"]},
+ {q:"Er ist Vegetarier, ___ bestellt er das Gemüsecurry.",a:["deshalb|deswegen|darum"]},
+ {t:"c",q:"Welcher Satz ist richtig?",o:["Ich habe Hunger, deshalb ich esse.","Ich habe Hunger, deshalb esse ich.","Ich habe Hunger, deshalb esse."],a:1},
+ {q:"Ich ___ gern ein Mineralwasser. (haben, K II)",a:["hätte"]}
+ ],
+ read:{title:"Gesund essen im Alltag?",text:`Viele Menschen wissen, dass Gemüse gesund ist. Trotzdem essen die meisten Schweizerinnen und Schweizer zu wenig davon. Experten empfehlen fünf Portionen Obst und Gemüse pro Tag. Das klingt viel, ist aber nicht so schwer: Ein Apfel am Morgen, ein Salat zum Mittagessen und etwas Gemüse am Abend – und schon hat man drei Portionen. Das Problem ist oft die Zeit. Viele arbeiten lange, deshalb kaufen sie Fertigprodukte. Diese enthalten aber oft viel Salz, Zucker und Fett. Ein Tipp: Am Sonntag eine große Portion Gemüsesuppe kochen und sie für die Woche einfrieren. So hat man immer etwas Gesundes zu Hause.`,
+ qs:[RF("Die meisten Menschen in der Schweiz essen genug Gemüse.",false),{t:"c",q:"Wie viele Portionen Obst und Gemüse empfehlen Experten?",o:["drei","fünf","sieben"],a:1},{t:"c",q:"Warum kaufen viele Leute Fertigprodukte?",o:["Sie sind billiger.","Sie haben wenig Zeit.","Sie schmecken besser."],a:1},RF("Der Text empfiehlt, am Sonntag Suppe für die Woche zu kochen.",true)]},
+ test:[
+ {q:"Es regnet, ___ bleiben wir zu Hause.",a:["deshalb|deswegen|darum"]},
+ {q:"Ich bin satt, ___ nehme ich noch ein Dessert.",a:["trotzdem"]},
+ {q:"Der Service war schlecht, deshalb ___ wir kein Trinkgeld gegeben. (haben)",a:["haben"]},
+ {q:"Ich esse wenig Fleisch, ___ ich Tiere liebe.",a:["weil"]},
+ {q:"Könnte ich bitte die ___ haben? (the check)",a:["Rechnung"]},
+ {t:"o",w:["Das Wetter","ist","schlecht",",","trotzdem","grillen","wir"],en:"The weather is bad, but we're barbecuing anyway."}
+ ],out:{s:8}},
+/* ---------------- KAPITEL 8 ---------------- */
+{id:"8.1",ch:8,title:"Nachrichten: das Passiv",pages:[218,223],ga:[[57,284],[58,288]],topics:["passiv"],
+ goals:["Understand short news items","Form the passive in present and past"],
+ theory:`
+<h3>1 · Why the passive exists</h3>
+<p>News, instructions and official texts care about <b>what happens</b>, not who does it. That's the passive: <i>Die Brücke <b>wird</b> renoviert.</i> (Who renovates it? Doesn't matter.)</p>
+<div class="formula"><span>werden</span> in position 2 &nbsp;+&nbsp; … &nbsp;+&nbsp; <span>Partizip II</span> at the end</div>
+<div class="tablewrap"><table><tr><th></th><th>Active</th><th>Passive</th></tr>
+<tr><td>Präsens</td><td>Die Stadt baut ein Stadion.</td><td>Ein Stadion <b>wird</b> gebaut.</td></tr>
+<tr><td>Präteritum</td><td>Die Stadt baute ein Stadion.</td><td>Ein Stadion <b>wurde</b> gebaut.</td></tr>
+<tr><td>Perfekt (B1 preview)</td><td>Die Stadt hat ein Stadion gebaut.</td><td>Ein Stadion <b>ist</b> gebaut <b>worden</b>.</td></tr></table></div>
+<p>The accusative object of the active sentence becomes the <b>subject</b> (Nominativ) of the passive: <i>Man baut <b>den</b> Turm → <b>Der</b> Turm wird gebaut.</i> If you want to name the doer: <i>von + Dativ</i>: <i>Das Telefon wurde <b>von</b> Bell erfunden.</i></p>
+<h3>2 · werden forms</h3>
+<div class="tablewrap"><table><tr><th></th><th>ich</th><th>du</th><th>er/sie/es</th><th>wir</th><th>ihr</th><th>sie/Sie</th></tr>
+<tr><td>Präsens</td><td>werde</td><td>wirst</td><td>wird</td><td>werden</td><td>werdet</td><td>werden</td></tr>
+<tr><td>Präteritum</td><td>wurde</td><td>wurdest</td><td>wurde</td><td>wurden</td><td>wurdet</td><td>wurden</td></tr></table></div>
+<div class="trap"><b>Watch out:</b> <i>werden</i> has three jobs. Future: <i>Ich <b>werde</b> kommen.</i> Becoming: <i>Sie <b>wird</b> Ärztin.</i> Passive: <i>Das Haus <b>wird</b> gebaut.</i> Look at the end of the clause: an infinitive means future, a participle means passive, a noun or adjective means "become".</div>
+<h3>3 · News vocabulary</h3>
+<div class="ex"><div class="ex-h">Typical headlines</div><p>Neue Brücke <b>wird</b> eröffnet. · Zwei Personen <b>wurden</b> verletzt. · Der Streik <b>wurde</b> beendet. · In Bern <b>wird</b> gewählt. · Hier <b>wird</b> nicht geraucht.</p></div>
+<div class="book">In the book: Neues aus dem In- und Ausland p. 218 (PDF 220), Teil C Verben p. 234 (PDF 236).</div>`,
+ extra:[
+ {q:"Der Brief ___ morgen verschickt.",a:["wird"]},
+ {q:"Die Häuser ___ 1970 gebaut. (Prät.)",a:["wurden"]},
+ {q:"Das Auto wurde gestern ___. (reparieren)",a:["repariert"]},
+ {q:"Amerika wurde 1492 von Kolumbus ___. (entdecken)",a:["entdeckt"]},
+ {t:"c",q:"„Sie wird Lehrerin.“ Was bedeutet werden hier?",o:["Passiv","Futur","become"],a:2}
+ ],
+ read:{title:"Kurznachrichten",text:`Zürich: Der neue Velotunnel unter dem Hauptbahnhof wurde gestern eröffnet. Er wird jeden Tag von etwa 3000 Velofahrern benutzt.
+Bern: Im Bundeshaus wird heute über ein neues Energiegesetz diskutiert. Das Ergebnis wird am Abend erwartet.
+Luzern: Bei einem Unfall auf der A2 wurden am Sonntag zwei Personen leicht verletzt. Die Autobahn wurde für drei Stunden gesperrt.
+Basel: Die Kunstmesse Art Basel wurde mit einem neuen Besucherrekord beendet. Über 90 000 Besucher wurden gezählt.`,
+ qs:[RF("Der Velotunnel in Zürich wird nächste Woche eröffnet.",false,"wurde gestern eröffnet"),{t:"c",q:"Worüber wird in Bern diskutiert?",o:["über einen Unfall","über ein Energiegesetz","über eine Kunstmesse"],a:1},RF("Bei dem Unfall wurde niemand schwer verletzt.",true,"leicht verletzt"),{t:"c",q:"Was war in Basel besonders?",o:["ein Besucherrekord","ein Streik","ein neuer Tunnel"],a:0}]},
+ test:[
+ {q:"Das Museum ___ gerade renoviert.",a:["wird"]},
+ {q:"Der Dieb ___ gestern gefunden. (Prät.)",a:["wurde"]},
+ {q:"Die Fenster werden jeden Monat ___. (putzen)",a:["geputzt"]},
+ {q:"Das Buch wurde ___ einer jungen Autorin geschrieben.",a:["von"]},
+ {q:"In Österreich ___ Deutsch gesprochen.",a:["wird"]},
+ {t:"o",w:["Das Stadion","wurde","2005","gebaut"],alt:["2005 wurde das Stadion gebaut"],en:"The stadium was built in 2005."}
+ ]},
+{id:"8.2",ch:8,title:"Umwelt und Meinung: um … zu, damit",pages:[224,226],ga:[[74,366]],topics:["umzu"],
+ goals:["Give your opinion, agree and disagree","Express purpose with um … zu and damit"],
+ theory:`
+<h3>1 · Purpose: um … zu vs. damit</h3>
+<div class="tablewrap"><table><tr><th></th><th>When</th><th>Example</th></tr>
+<tr><td><b>um … zu</b> + infinitive</td><td>same subject in both parts</td><td>Ich fahre Velo, <b>um</b> Energie <b>zu sparen</b>. (I ride, I save)</td></tr>
+<tr><td><b>damit</b> + verb last</td><td>different subjects (and always possible)</td><td>Ich spreche langsam, <b>damit</b> du mich <b>verstehst</b>. (I speak, you understand)</td></tr></table></div>
+<p>Separable verbs: <i>um früh auf<b>zu</b>stehen</i>. Don't put a modal verb into an um-zu clause: <i>um zu können</i> is almost never needed.</p>
+<div class="trap"><b>Common mistake:</b> "für zu sparen" (from English "for to"). German purpose = <i>um … zu</i>. Also: <i>damit</i> here means "so that", not "with it".</div>
+<h3>2 · Opinions</h3>
+<div class="ex"><div class="ex-h">Giving your opinion</div><p><b>Meiner Meinung nach</b> sollte man mehr Zug fahren. (note: verb comes next)</p><p><b>Ich bin der Meinung</b>, dass … / <b>Ich finde</b>, dass … / <b>Ich glaube</b>, dass …</p></div>
+<div class="ex"><div class="ex-h">Agreeing / disagreeing</div><p>Das finde ich auch. / Da hast du recht. / Ich bin ganz deiner Meinung. / Ich bin dafür.</p><p>Das sehe ich anders. / Ich bin ganz anderer Meinung. / Ich bin dagegen. / Da muss ich widersprechen.</p><p>Softer: Einerseits …, andererseits … / Das stimmt, aber …</p></div>
+<h3>3 · Environment vocabulary</h3>
+<p><i>die Umwelt schützen, Energie sparen, den Müll trennen, recyceln, die Luftverschmutzung, der Klimawandel, erneuerbare Energien, öffentliche Verkehrsmittel benutzen, weniger fliegen, Plastik vermeiden</i>.</p>
+<p>Switzerland detail: you pay per garbage bag (<i>Gebührensack</i>), which is a big reason people sort their trash (<i>Müll trennen</i>) so carefully.</p>
+<div class="book">In the book: Neues zum Thema Umwelt p. 224 (PDF 226), Teil C Sätze p. 237 (PDF 239).</div>`,
+ extra:[
+ {q:"Ich lerne Deutsch, ___ in der Schweiz zu studieren.",a:["um"]},
+ {q:"Er erklärt es noch einmal, ___ alle es verstehen.",a:["damit"]},
+ {q:"Wir trennen den Müll, um die Umwelt ___ schützen.",a:["zu"]},
+ {q:"Meiner Meinung nach ___ man weniger fliegen. (sollen, K II)",a:["sollte"]},
+ {t:"o",w:["Ich","fahre","mit dem Zug",",","um","Geld","zu","sparen"],en:"I take the train to save money."}
+ ],
+ read:{title:"Pro und Contra: Autofreie Innenstadt",text:`Die Stadt Winterthur diskutiert: Sollen Autos im Zentrum verboten werden?
+Sandra Huber (Anwohnerin): „Ich bin klar dafür. Die Luft ist schlecht, und es ist zu laut. Meine Kinder sollen sicher auf der Straße spielen können. Man kann ja mit dem Bus oder dem Velo ins Zentrum fahren.“
+Peter Graf (Ladenbesitzer): „Ich bin dagegen. Viele Kunden kommen mit dem Auto, um bei mir einzukaufen. Wenn sie nicht mehr parken können, fahren sie ins Einkaufszentrum am Stadtrand. Dann muss ich vielleicht meinen Laden schließen.“
+Die Stadt will im Frühling eine Umfrage machen, damit alle Einwohner ihre Meinung sagen können.`,
+ qs:[RF("Sandra Huber ist gegen das Autoverbot.",false),{t:"c",q:"Warum ist Peter Graf dagegen?",o:["Er fährt selbst gern Auto.","Er hat Angst, Kunden zu verlieren.","Er findet die Luft gut."],a:1},{t:"c",q:"Was macht die Stadt im Frühling?",o:["Sie verbietet Autos.","Sie macht eine Umfrage.","Sie baut ein Parkhaus."],a:1},RF("Sandra möchte, dass ihre Kinder sicher spielen können.",true)]},
+ test:[
+ {q:"Sie spart, ___ ein Auto zu kaufen.",a:["um"]},
+ {q:"Ich rufe dich an, ___ du nicht allein bist.",a:["damit"]},
+ {q:"Er steht früh auf, um den Zug nicht ___ verpassen.",a:["zu"]},
+ {q:"Ich bin ___, dass wir mehr recyceln. (for it)",a:["dafür"]},
+ {t:"c",q:"„Meiner Meinung nach … das eine gute Idee.“",o:["ist","es ist","sein"],a:0},
+ {t:"c",q:"Welche Antwort widerspricht?",o:["Da hast du recht.","Das sehe ich anders.","Das finde ich auch."],a:1}
+ ],out:{w:14}},
+{id:"8.3",ch:8,title:"Technik: Präpositionen mit Dativ und Gebrauchsanweisungen",pages:[227,239],ga:[[31,161]],topics:["datprep"],
+ goals:["Understand simple instructions for devices","Describe a tech problem","Use aus, bei, mit, nach, seit, von, zu"],
+ theory:`
+<h3>1 · The seven dative prepositions</h3>
+<p><em>aus, bei, mit, nach, seit, von, zu</em> (plus <i>gegenüber</i>) always take the dative. Chant it to the tune of the Blue Danube waltz ("aus-bei-mit, nach-seit-von-zu") if that helps.</p>
+<div class="tablewrap"><table><tr><th>aus</th><td>from (inside), made of</td><td>aus der Schweiz, aus Plastik</td></tr>
+<tr><th>bei</th><td>at someone's place / company, during</td><td>bei meinen Eltern, bei Google, beim Kochen</td></tr>
+<tr><th>mit</th><td>with, by (transport)</td><td>mit dem Zug, mit einem Kabel</td></tr>
+<tr><th>nach</th><td>after, to (cities/countries)</td><td>nach der Arbeit, nach Wien</td></tr>
+<tr><th>seit</th><td>since, for (still going)</td><td>seit einem Jahr</td></tr>
+<tr><th>von</th><td>from, of, by</td><td>von meiner Oma, von 9 bis 5</td></tr>
+<tr><th>zu</th><td>to (people, institutions)</td><td>zum Arzt, zur Arbeit</td></tr></table></div>
+<p>Contractions: <i>zu dem = zum, zu der = zur, von dem = vom, bei dem = beim</i>. Dative plural nouns add <b>-n</b>: <i>mit den Kinder<b>n</b>, mit meinen Freunde<b>n</b></i>.</p>
+<h3>2 · Instructions</h3>
+<p>Manuals use the infinitive or the <i>Sie</i>-imperative:</p>
+<div class="ex"><div class="ex-h">Gebrauchsanweisung</div><p>Gerät <b>einschalten</b>: Taste A drücken. / <b>Drücken Sie</b> die Taste A.</p><p>Akku vor dem ersten Gebrauch vollständig <b>aufladen</b>.</p><p>Das Kabel <b>mit dem</b> Computer <b>verbinden</b>.</p><p>Nicht <b>mit</b> Wasser reinigen!</p></div>
+<h3>3 · Describing a problem</h3>
+<div class="ex"><div class="ex-h">Redemittel</div><p>Mein Laptop funktioniert nicht mehr. / Der Bildschirm bleibt schwarz.</p><p>Seit gestern lässt sich das Handy nicht mehr aufladen.</p><p>Ich habe ihn schon aus- und wieder eingeschaltet.</p><p>Das Gerät ist erst drei Monate alt. Ist das noch Garantie?</p><p>Können Sie ihn reparieren, oder bekomme ich ein neues Gerät?</p></div>
+<div class="trap"><b>Common mistake:</b> "mit der Zug", "nach die Arbeit". These prepositions never take accusative: <i>mit <b>dem</b> Zug, nach <b>der</b> Arbeit</i>.</div>
+<div class="book">In the book: Altes und Neues zum Thema Technik p. 227 (PDF 229), Teil C Präpositionen p. 238 (PDF 240), and the full review (Gesamtwiederholung) from p. 240.</div>`,
+ extra:[
+ {q:"Ich fahre jeden Tag ___ dem Velo zur Uni.",a:["mit"]},
+ {q:"Das Handy ist ___ meinem Bruder.",a:["von"]},
+ {q:"Nach ___ Kurs gehen wir essen. (der Kurs)",a:["dem"]},
+ {q:"Ich muss noch ___ Bank. (zu + die)",a:["zur"]},
+ {q:"Er wohnt noch ___ seinen Eltern.",a:["bei"]},
+ {q:"Sie spielt mit den Kinder___.",a:["n"]}
+ ],
+ read:{title:"Kundenservice-Chat",text:`Kunde: Guten Tag, ich habe seit drei Wochen einen neuen Staubsauger-Roboter. Seit gestern funktioniert er nicht mehr richtig. Er fährt nur noch im Kreis.
+Service: Das tut mir leid. Haben Sie das Gerät schon aus- und wieder eingeschaltet?
+Kunde: Ja, zweimal. Das hat nicht geholfen.
+Service: Bitte reinigen Sie die kleinen Räder mit einem trockenen Tuch. Oft sind dort Haare. Danach stellen Sie den Roboter für zwei Stunden auf die Ladestation.
+Kunde: Okay … Ja, da waren viele Haare! Jetzt lädt er.
+Service: Sehr gut. Wenn er danach immer noch Probleme hat, schicken Sie ihn bitte zu uns. Sie haben zwei Jahre Garantie.`,
+ qs:[RF("Der Roboter funktioniert seit drei Wochen nicht.",false,"seit gestern"),{t:"c",q:"Was macht der Roboter?",o:["Er fährt im Kreis.","Er lädt nicht.","Er ist sehr laut."],a:0},{t:"c",q:"Womit soll der Kunde die Räder reinigen?",o:["mit Wasser","mit einem trockenen Tuch","mit einem Staubsauger"],a:1},RF("Das Gerät hat zwei Jahre Garantie.",true)]},
+ test:[
+ {q:"Ich komme gerade ___ der Arbeit.",a:["von"]},
+ {q:"Sie arbeitet ___ einer Versicherung.",a:["bei"]},
+ {q:"Wir fahren ___ dem Bus.",a:["mit"]},
+ {q:"Seit ___ Woche ist mein Laptop kaputt. (eine)",a:["einer"]},
+ {q:"Ich gehe morgen ___ Zahnarzt. (zu + der)",a:["zum"]},
+ {t:"c",q:"Welche Präposition passt? „Der Tisch ist ___ Holz.“",o:["von","aus","mit"],a:1}
+ ],out:{w:15}},
+/* ---------------- ABSCHLUSS ---------------- */
+{id:"9.1",ch:9,title:"Prüfungstraining: Start Deutsch 2 / A2",pages:[250,256],ga:[],topics:["perfekt","datakk","weilwenn","adjgen","wechselgen","relativ","k2polite","passiv"],
+ goals:["Know the structure of an A2 exam","Practice the writing tasks under time pressure","Test yourself across all eight chapters"],
+ theory:`
+<h3>1 · The exam at a glance</h3>
+<p>The Begegnungen appendix contains a practice test for <i>Start Deutsch 2</i>, the A2 exam that is now called the <b>Goethe-Zertifikat A2</b>. The format is roughly this (check your own exam's official page, since formats change):</p>
+<div class="tablewrap"><table><tr><th>Part</th><th>Time</th><th>What you do</th></tr>
+<tr><td>Hören (listening)</td><td>~30 min</td><td>Announcements, phone messages, short conversations, radio. Multiple choice and matching.</td></tr>
+<tr><td>Lesen (reading)</td><td>~30 min</td><td>Newspaper notes, signs, ads, emails. You find specific information.</td></tr>
+<tr><td>Schreiben (writing)</td><td>~30 min</td><td>Two short texts: an informal message (SMS, ~20–30 words) and a short formal or semi-formal email (~30–40 words). Cover every point listed.</td></tr>
+<tr><td>Sprechen (speaking)</td><td>~15 min, in pairs</td><td>(1) Ask and answer questions with word cards. (2) Talk about your life on a topic. (3) Plan something together with your partner.</td></tr></table></div>
+<p>You usually need about 60% to pass.</p>
+<h3>2 · Writing: how points are lost</h3>
+<p>Most lost points come from <b>missing one of the three task points</b>, not from grammar. Strategy: underline the three points, write one or two sentences per point, and check them off. Use a greeting and a closing that fit the register (<i>Lieber Marco / Liebe Grüße</i> vs. <i>Sehr geehrte Damen und Herren / Mit freundlichen Grüßen</i>).</p>
+<div class="ex"><div class="ex-h">Model answer (SMS, 3 points)</div><p>Hallo Marco, es tut mir leid, aber ich kann am Samstag nicht zu deinem Geburtstag kommen. Meine Schwester heiratet an diesem Tag. Hast du nächste Woche Zeit? Wir könnten zusammen essen gehen. Liebe Grüße, Anna</p></div>
+<h3>3 · Speaking: survival phrases</h3>
+<div class="ex"><div class="ex-h">Redemittel</div><p>Wie bitte? Können Sie das bitte wiederholen?</p><p>Was bedeutet das Wort …?</p><p>Ich weiß nicht genau, wie man das sagt, aber …</p><p>Planning: Wann hast du Zeit? – Am Montag kann ich nicht, aber wie wäre es mit Dienstag? – Gute Idee, dann treffen wir uns um drei.</p></div>
+<h3>4 · Your last two weeks</h3>
+<p>(1) Do the practice test in the book (p. 250, PDF 252) with a timer. (2) Write both exam-format tasks in Schreiben and let Claude grade them. (3) Run the Mistakes tab until it's empty. (4) Do each role-play once more, this time without looking anything up.</p>
+<div class="book">In the book: Übungstest p. 250 (PDF 252) and Grammatik in Übersichten from p. 257 (PDF 259), the best one-stop grammar review in the book.</div>`,
+ extra:[],
+ read:{title:"Aushang im Treppenhaus",text:`Liebe Nachbarinnen und Nachbarn,
+am Samstag, 14. Dezember, feiern wir ab 16 Uhr im Hof ein kleines Winterfest. Es gibt Glühwein, Punsch für die Kinder und Kuchen. Wer möchte, kann gern etwas zu essen mitbringen. Bitte sagt mir bis Mittwoch Bescheid, wenn ihr kommt, damit ich genug Becher kaufen kann. Wenn es regnet, feiern wir im Keller.
+Wichtig: Wegen Bauarbeiten ist der Lift vom 9. bis 13. Dezember außer Betrieb. Bitte benutzt die Treppe.
+Herzliche Grüße
+Carla Rossi, 3. Stock`,
+ qs:[{t:"c",q:"Wann beginnt das Fest?",o:["am 14. Dezember um 16 Uhr","am Mittwoch","am 9. Dezember"],a:0},RF("Alle müssen Essen mitbringen.",false,"Wer möchte, kann …"),{t:"c",q:"Wo feiert man, wenn es regnet?",o:["im Hof","im Keller","bei Carla"],a:1},RF("Am 12. Dezember funktioniert der Lift nicht.",true)]},
+ test:[
+ {q:"Gestern ___ ich mit meiner Schwester im Kino. (sein, Prät.)",a:["war"]},
+ {q:"Kannst du ___ das Buch zurückgeben? (ich)",a:["mir"]},
+ {q:"Ich bleibe zu Hause, weil ich krank ___.",a:["bin"]},
+ {q:"Wir wohnen in einer klein___ Wohnung.",a:["en"]},
+ {q:"Das ist die Kollegin, ___ ich dir erzählt habe. (von + die)",a:["von der"]},
+ {q:"___ Sie mir bitte helfen? (können, K II)",a:["Könnten"]},
+ {q:"Das Paket ___ morgen geliefert.",a:["wird"]},
+ {q:"Er hat seinen Schlüssel auf ___ Tisch gelegt.",a:["den"]},
+ {q:"Als ich klein ___, hatte ich einen Hund. (sein)",a:["war"]},
+ {q:"Ich spare, ___ im Sommer nach Island zu reisen.",a:["um"]}
+ ],out:{w:16}}
+];
+
 /* ================= APP ================= */
 const FOUR_LANES="https://claude.ai/artifact/Vnx7HMkgddgpTuiHVtZHnE";
 const WEEKLY_GOAL=420;
@@ -1235,6 +2296,21 @@ function judge(given,accepted,{typo=true}={}){
   return "no";
 }
 
+const splitList=s=>String(s||"").split(/[,;]/).map(x=>x.trim()).filter(Boolean);
+function umlautLast(w){
+  const i=Math.max(w.lastIndexOf("a"),w.lastIndexOf("o"),w.lastIndexOf("u"));if(i<0)return w;
+  if(w[i]==="u"&&w[i-1]==="a")return w.slice(0,i-1)+"ä"+w.slice(i);
+  return w.slice(0,i)+{a:"ä",o:"ö",u:"ü"}[w[i]]+w.slice(i+1);
+}
+/* plural answer: "die Stellen", "Stellen", or dictionary shorthand "-n", "¨-e", "-" */
+function judgePlural(c,given){
+  let g=String(given||"").trim().replace(/^die\s+/i,"");if(!g)return "no";
+  if(/^(¨?\s*[-–]\s*¨?\s*[a-zäöüß]*|¨[a-zäöüß]*)$/i.test(g)){
+    const um=g.includes("¨"),suf=g.replace(/[¨\-–\s]/g,"");
+    g=(um?umlautLast(c.noun):c.noun)+suf;
+  }
+  return judge(g,c.pl,{typo:false}); // plurals differ by one letter or an umlaut, so no typo slack
+}
 /* ---------- content build ---------- */
 const CARDS={};
 const CARD_ORDER=[];
@@ -1350,7 +2426,8 @@ const GENFN={adjgen:genAdj,kompgen:genKomp,wechselgen:genWechsel};
 
 /* ---------- state ---------- */
 const DEF={
-  progress:{current:0,done:{},cando:{},days:{},topic:{},introduced:{},settings:{newPerDay:NEW_PER_DAY}},
+  progress:{current:0,done:{},cando:{},days:{},topic:{},introduced:{},lessons:{},settings:{newPerDay:NEW_PER_DAY}},
+  notes:{by:{}},
   srs:{cards:{}},
   mistakes:{items:[]},
   writing:{items:[]}
@@ -1359,7 +2436,7 @@ const DOCS=Object.keys(DEF);
 const LS="roterfaden.v1";
 let S=clone(DEF);
 try{const c=JSON.parse(localStorage.getItem(LS)||"null");if(c)for(const k of DOCS)if(c[k])S[k]=Object.assign(clone(DEF[k]),c[k]);}catch(e){}
-const ui={tab:"heute",wtab:"write",chFilter:0,sess:null,rule:{},toast:null,write:{prompt:null,text:"",busy:false,result:null,err:""},chat:{scene:null,turns:[],busy:false,feedback:null,err:""},search:"",showForms:true,cOpen:{}};
+const ui={tab:"heute",wtab:"write",chFilter:0,sess:null,rule:{},toast:null,write:{prompt:null,text:"",busy:false,result:null,err:""},chat:{scene:null,turns:[],busy:false,feedback:null,err:""},search:"",showForms:true,cOpen:{},lesson:null,lmode:"theory",readAns:{},railOpen:false};
 try{const t=localStorage.getItem("roterfaden.tab");if(t)ui.tab=t;}catch(e){}
 
 let db=null, sample=null, saveState="local";
@@ -1516,6 +2593,48 @@ function sessVerbs(){
 }
 function sessMistakes(){startSession("Fehler · redo my mistakes",shuffle(openMistakes()).slice(0,15).map(m=>({k:"gram",tid:m.tid,item:m.item,redo:true})));}
 
+/* ---------- course ---------- */
+const LESSON=Object.fromEntries(LESSONS.map(l=>[l.id,l]));
+const lp=id=>S.progress.lessons[id]||{};
+function setLp(id,patch){S.progress.lessons[id]=Object.assign({},lp(id),patch);touch("progress");}
+const lessonDone=id=>!!lp(id).passed;
+function lessonState(id){const p=lp(id);return p.passed?"done":(p.theory||p.practice!=null||p.read||p.test!=null)?"partial":"";}
+function nextLesson(){return LESSONS.find(l=>!lessonDone(l.id))||LESSONS[LESSONS.length-1];}
+function chapterLessons(ch){return LESSONS.filter(l=>l.ch===ch);}
+function lessonWords(l){
+  const ls=chapterLessons(l.ch);const i=ls.indexOf(l),k=ls.length;
+  const slice=t=>{const ids=CARD_ORDER.filter(id=>CARDS[id].ch===l.ch&&CARDS[id].t===t);return ids.slice(Math.floor(i*ids.length/k),Math.floor((i+1)*ids.length/k));};
+  return l.ch>8?[]:[...slice("w"),...slice("v")];
+}
+function lessonLabel(l){return l.ch<9?`Kapitel ${l.ch} · Lektion ${l.id}`:"Abschluss · Prüfungstraining";}
+function sessLessonWords(id){
+  const l=LESSON[id],ids=lessonWords(l);
+  let q=ids.filter(i=>!srs(i)).map(i=>({k:"card",id:i,intro:true}));
+  q=q.concat(ids.filter(isDue).map(i=>({k:"card",id:i})));
+  if(!q.length)q=ids.slice().sort((a,b)=>srs(a).b-srs(b).b).slice(0,12).map(i=>({k:"card",id:i,cram:true}));
+  startSession(`Lektion ${id} · words`,q,{lesson:id,kind:"words",ret:"kurs"});
+}
+function sessLessonPractice(id){
+  const l=LESSON[id];let items=l.extra.map(item=>({k:"gram",tid:l.topics[0],item}));
+  const need=Math.max(4,10-items.length);const per=Math.ceil(need/l.topics.length);
+  l.topics.forEach(tid=>topicItems(tid,per).forEach(item=>items.push({k:"gram",tid,item})));
+  startSession(`Lektion ${id} · Übungen`,[...items.slice(0,l.extra.length),...shuffle(items.slice(l.extra.length)).slice(0,need)],{lesson:id,kind:"practice",ret:"kurs"});
+}
+function sessLessonTest(id){
+  const l=LESSON[id];const tid0=l.topics[0];
+  const own=l.test.map(item=>({k:"gram",tid:tid0,item}));
+  const extra=[];const pool=shuffle(l.topics);for(let i=0;i<4;i++){const tid=pool[i%pool.length];extra.push({k:"gram",tid,item:gramItem(tid)});}
+  startSession(`Lektion ${id} · Test`,shuffle([...own,...extra]),{lesson:id,kind:"test",ret:"kurs"});
+}
+function finishSession(s){
+  if(s.finished)return;s.finished=true;commitTime();
+  if(!s.lesson)return;
+  const tot=s.ok+s.no,pct=tot?Math.round(s.ok/tot*100):0,p=lp(s.lesson);
+  if(s.kind==="practice")setLp(s.lesson,{practice:Math.max(p.practice||0,pct)});
+  if(s.kind==="test"){const best=Math.max(p.test||0,pct);setLp(s.lesson,{test:best,passed:p.passed||pct>=80,lastTest:pct});}
+  s.pct=pct;
+}
+
 /* ---------- drill rendering ---------- */
 function blankSentence(q,n,disabled,vals,states){
   let i=0;
@@ -1566,7 +2685,7 @@ function cardQ(it){
   const r=it.res||{};
   return `<div class="q"><div class="kind"><span class="eyebrow">${noun?"German, with the article":"German"}</span><span class="row">${chip}${lvl}</span></div>
     <div class="prompt sm">${esc(c.en)}</div>
-    <input class="field ans ${shown?r.cls:""}" data-ans autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${noun?"der / die / das …":""}" value="${esc(it.val||"")}" ${shown?"disabled":""}>
+    <input class="field ans ${shown?r.cls:""}" data-ans autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="${noun?(c.pl?"der / die / das …   (plural optional: die Stelle, die Stellen)":"der / die / das …"):""}" value="${esc(it.val||"")}" ${shown?"disabled":""}>
     ${askPl?`<label class="stack" style="gap:4px"><span class="eyebrow">Plural (die …)</span><input class="field ans ${shown?r.plCls:""}" data-pl autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(it.pl||"")}" ${shown?"disabled":""}></label>`:""}
     ${shown?"":umlautRow()}
     ${shown?feedback(r.ok?(r.typo?"typo":"ok"):"no",noun?`<span class="g-${c.art}">${c.art}</span> ${esc(c.noun)}${c.pl?` · die ${esc(c.pl)}`:""}`:esc(c.de),r.msg||""):`<button class="btn primary" data-act="check">Check</button>`}</div>`;
@@ -1608,6 +2727,12 @@ function gramQ(it){
 function fillAnswer(x){let i=0;return x.q.replace(/___/g,()=>String(x.a[i++]).split("|")[0]);}
 function vDrillDone(){
   const s=ui.sess, tot=s.ok+s.no, pct=tot?Math.round(s.ok/tot*100):0, min=Math.max(1,Math.round((Date.now()-s.start)/60000));
+  if(s.lesson&&s.kind==="test"){const passed=pct>=80,l=LESSON[s.lesson];
+    return `<div class="drill"><div class="q"><span class="eyebrow">Lektion ${esc(l.id)} · Test</span><div class="prompt" style="color:var(--${passed?"ok":"bad"})">${pct}% · ${passed?"bestanden":"nicht bestanden"}</div>
+    <p>${passed?"Lesson complete. That's one knot tied on the thread.":`You need 80%. You got ${s.ok} of ${tot}. Reread the theory for what you missed, then retake it. The misses are in Mistakes.`}</p>
+    <div class="row"><button class="btn primary" data-act="sess-close">Back to the lesson</button>${passed&&nextLesson().id!==l.id?`<button class="btn" data-act="lesson-open" data-l="${nextLesson().id}">Next lesson: ${esc(nextLesson().id)} →</button>`:""}${!passed?`<button class="btn" data-act="lesson-test" data-l="${l.id}">Retake</button>`:""}</div></div></div>`;}
+  if(s.lesson){return `<div class="drill"><div class="q"><span class="eyebrow">${esc(s.title)}</span><div class="prompt">${pct}% right</div><p>${s.kind==="practice"?"Practice done. When it feels solid, take the test.":"Words added to your review queue. They'll come back in Today's session."}</p>
+    <div class="row"><button class="btn primary" data-act="sess-close">Back to the lesson</button>${s.kind==="practice"?`<button class="btn" data-act="lesson-test" data-l="${s.lesson}">Take the test</button>`:""}</div></div></div>`;}
   const line=pct>=90?"Clean. That's how A2 gets boring in a good way.":pct>=70?"Solid. The misses are in Fehler now, so they'll come back.":"Rough round. That's the point of drilling. The misses are queued up for you.";
   return `<div class="drill"><div class="q" style="text-align:left">
     <span class="eyebrow">Session done</span><div class="prompt">${pct}% right</div>
@@ -1633,6 +2758,7 @@ function check(){
   else if(x.t==="o"){const got=norm((it.built||[]).map(k=>x.w[k]).join(" "));if(!(it.built||[]).length)return;kind=[x.w.join(" "),...(x.alt||[])].some(a=>norm(a)===got)?"ok":"no";}
   else{
     if((it.vals||[]).every(v=>!v.trim()))return;
+    if(x.a.length>1&&it.vals.filter(v=>v.trim()).length===1){const k0=it.vals.findIndex(v=>v.includes(","));if(k0>=0){const ps=splitList(it.vals[k0]);if(ps.length===x.a.length)it.vals=ps;}}
     const parts=x.a.map((a,k)=>judge(it.vals[k],a,{typo:!/^(der|die|das|den|dem|des|ein|eine|einen|einem|einer|eines|kein|keine|keinen|keinem|keiner|keins|keines|e|en|er|es|em)$/i.test(String(a).split("|")[0])}));
     it.res={parts};kind=parts.every(p=>p==="ok")?"ok":parts.every(p=>p!=="no")?"typo":"no";
   }
@@ -1647,21 +2773,27 @@ function checkCard(it){
   const c=CARDS[it.id];let ok,typo=false,cls,msg="",plCls="";
   if(c.t==="v"){
     const exp=[c.pr,c.pt,c.pf].map((f,k)=>k===2&&CH_ALT_SEIN.has(c.inf)?f+"|"+f.replace(/^hat /,"ist "):f);
-    const vals=it.vals.map(v=>v.replace(/^\s*(er|sie|es)\s+/i,""));
+    let raw=it.vals.slice();
+    // "fährt, fuhr, ist gefahren" typed into one box fills all three
+    const k0=raw.findIndex(v=>v.includes(","));
+    if(k0>=0&&raw.filter(v=>v.trim()).length===1){let ps=splitList(raw[k0]);if(ps.length===4&&judge(ps[0],c.inf)!=="no")ps=ps.slice(1);if(ps.length>=2){raw=[0,1,2].map(k=>ps[k]||"");it.vals=raw;}}
+    const vals=raw.map(v=>v.replace(/^\s*(er|sie|es)\s+/i,""));
     if(vals.every(v=>!v.trim()))return;
     const parts=exp.map((e,k)=>judge(vals[k],e));
     ok=parts.every(p=>p!=="no");typo=ok&&parts.some(p=>p==="typo");
     it.res={parts,ok,typo};
   }else{
     const g=(it.val||"").trim();if(!g)return;
+    const gp=splitList(g);
     if(c.kind==="noun"){
-      const m=norm(g).match(/^(der|die|das) (.+)$/);
+      const m=norm(gp[0]).match(/^(der|die|das) (.+)$/);
       if(!m){ok=false;msg="You need the article. That's the whole point of learning the noun.";}
       else if(m[1]!==c.art){ok=false;msg=`Wrong article: it's <b class="g-${c.art}">${c.art}</b> ${esc(c.noun)}.`;}
       else{const j=judge(m[2],c.noun);ok=j!=="no";typo=j==="typo";}
       const askPl=c.pl&&srs(it.id)&&srs(it.id).b>=2;
-      if(askPl){const pj=judge((it.pl||"").replace(/^\s*die\s+/i,""),c.pl);plCls=pj;if(pj==="no"){if(ok)msg=`Plural is die ${esc(c.pl)}.`;ok=false;}}
-    }else{const j=judge(g,c.de);ok=j!=="no";typo=j==="typo";}
+      const plGiven=((it.pl||"").trim()||gp[1]||"").trim();
+      if(c.pl&&(askPl||plGiven)){const pj=judgePlural(c,plGiven);plCls=pj;if(pj==="no"){if(ok)msg=plGiven?`Singular right, but the plural is die ${esc(c.pl)}.`:`Plural is die ${esc(c.pl)}.`;ok=false;}else if(pj==="typo")typo=true;}
+    }else{let j=judge(g,c.de);if(j==="no"&&gp.length>1)j=judge(gp[0],c.de);ok=j!=="no";typo=j==="typo";}
     cls=ok?(typo?"typo":"ok"):"no";
     it.res={ok,typo,cls,plCls,msg};
   }
@@ -1670,7 +2802,7 @@ function checkCard(it){
   render();focusNext();
 }
 function requeue(it){if(it.requeued)return;const s=ui.sess;s.q.splice(Math.min(s.q.length,s.i+4),0,{k:it.k,id:it.id,requeued:true});}
-function next(){const s=ui.sess;if(!s)return;const it=curItem();if(it&&!it.res&&!it.intro)return;s.i++;if(s.i>=s.q.length)commitTime();render();focusFirst();}
+function next(){const s=ui.sess;if(!s)return;const it=curItem();if(it&&!it.res&&!it.intro)return;s.i++;if(s.i>=s.q.length)finishSession(s);render();focusFirst();}
 function focusFirst(){requestAnimationFrame(()=>{const el=document.querySelector(".drill input:not([disabled])");if(el)el.focus({preventScroll:true});});}
 function focusNext(){requestAnimationFrame(()=>{const el=document.querySelector('.drill [data-act="next"]');if(el)el.focus({preventScroll:true});});}
 
@@ -1755,12 +2887,12 @@ async function chatFeedback(){
 function scrollChat(){requestAnimationFrame(()=>{const b=$("#chatlog");if(b)b.scrollTop=b.scrollHeight;});}
 
 /* ---------- views ---------- */
-const TABS=[["heute","Today","Heute"],["kapitel","Chapters","Kapitel"],["woerter","Words","Wörter"],["verben","Verbs","Verben"],["grammatik","Grammar","Grammatik"],["schreiben","Write & talk","Schreiben"],["fehler","Mistakes","Fehler"]];
+const TABS=[["heute","Today","Heute"],["kurs","Course","Kurs"],["kapitel","Chapters","Kapitel"],["woerter","Words","Wörter"],["verben","Verbs","Verben"],["grammatik","Grammar","Grammatik"],["schreiben","Write & talk","Schreiben"],["fehler","Mistakes","Fehler"]];
 function knotSvg(){return `<svg class="knot" viewBox="0 0 40 40" aria-hidden="true"><rect x="1" y="1" width="38" height="38" rx="10" fill="var(--text)"/><path d="M6 26 C12 26 14 12 20 12 C27 12 27 24 20 24 C13 24 14 14 22 14 C28 14 30 26 34 26" fill="none" stroke="var(--thread)" stroke-width="3" stroke-linecap="round"/></svg>`;}
 function header(){
   const mc=openMistakes().length;
   return `<header class="top"><div class="brand">${knotSvg()}<div><h1>Der rote Faden</h1><div class="sub">A2 with Begegnungen and Grammatik aktiv · ${Math.max(0,daysBetween(today(),TARGET_DATE))} days to Dec 20</div></div></div><span class="save" id="save"></span></header>
-  <nav class="tabs" role="tablist">${TABS.map(([id,en,de])=>`<button class="tab" role="tab" aria-selected="${ui.tab===id||(ui.tab==="drill"&&id===ui.sess?.ret)}" data-tab="${id}"><span>${de}${id==="fehler"&&mc?`<span class="dot">${mc}</span>`:""}</span><small>${en}</small></button>`).join("")}</nav>`;
+  <nav class="tabs" role="tablist">${TABS.map(([id,en,de])=>`<button class="tab" role="tab" aria-selected="${ui.tab===id||(ui.tab==="drill"&&id===(ui.sess?.ret||"heute"))}" data-tab="${id}"><span>${de}${id==="fehler"&&mc?`<span class="dot">${mc}</span>`:""}</span><small>${en}</small></button>`).join("")}</nav>`;
 }
 function threadLine(){
   const cur=currentChapter(),t=today();
@@ -1784,7 +2916,7 @@ function vHeute(){
       <span class="eyebrow">Heute · Kapitel ${cur}</span>
       <h2>${esc(c.de)}</h2>
       <div class="mix"><div><b>${due}</b><span>cards due</span></div><div><b>${nw}</b><span>new words</span></div><div><b>11</b><span>grammar items</span></div><div><b>~${est}</b><span>minutes</span></div></div>
-      <button class="btn primary big" data-act="start-today">Start today's session</button>
+      <div class="row"><button class="btn primary big" data-act="start-today">Start today's session</button>${(()=>{const nl=nextLesson();return `<button class="btn big inv" data-act="lesson-open" data-l="${nl.id}">${lessonDone(nl.id)?"Review":"Continue"} lesson ${esc(nl.id)} →</button>`;})()}</div>
       <span style="font-size:.84rem;opacity:.8">In the book today: <b>${esc(bt.part[0])}</b>, p. ${bt.part[1]} (PDF ${bt.part[1]+PDF_OFFSET})${bt.next?` → next up ${esc(bt.next[0])}`:""}. Read it first, then drill.</span>
     </section>
     <section class="card stack" style="gap:14px">
@@ -1811,6 +2943,55 @@ function vHeute(){
   </div>
   </div>`;
 }
+function vKurs(){
+  if(!ui.lesson||!LESSON[ui.lesson])ui.lesson=nextLesson().id;
+  const l=LESSON[ui.lesson],p=lp(l.id),done=LESSONS.filter(x=>lessonDone(x.id)).length;
+  const groups=[...CHAPTERS.map(c=>({n:c.n,title:c.de})),{n:9,title:"Abschluss"}];
+  const rail=`<nav class="rail ${ui.railOpen?"open":""}" aria-label="Lessons">
+    <button class="rail-toggle" data-act="rail-toggle" aria-expanded="${ui.railOpen}">Lektion ${esc(l.id)} · ${done}/${LESSONS.length} done <span aria-hidden="true">${ui.railOpen?"▴":"▾"}</span></button>
+    <div class="rail-body"><div class="bar" style="margin:4px 0 12px"><i style="width:${done/LESSONS.length*100}%"></i></div>
+    ${groups.map(g=>`<div class="rail-g"><div class="eyebrow">${g.n<9?"Kapitel "+g.n+" · ":""}${esc(g.title)}</div>${chapterLessons(g.n).map(x=>`<button class="rail-i" aria-current="${x.id===l.id}" data-act="lesson-open" data-l="${x.id}"><i class="ld" data-s="${lessonState(x.id)}"></i><span class="mono">${x.id}</span><span class="rt">${esc(x.title)}</span></button>`).join("")}</div>`).join("")}</div></nav>`;
+  const modes=[["theory","Theorie",p.theory],["practice","Übungen",p.practice!=null],["read","Lesen",!!p.read],["test","Test",!!p.passed],["notes","Notizen",!!(S.notes.by[l.id]||"").trim()]];
+  let body="";
+  if(ui.lmode==="theory"){
+    const w=lessonWords(l);
+    body=`<article class="lesson">${l.theory}</article>
+    ${w.length?`<section class="lx-card"><div class="card-h" style="margin-bottom:8px"><h3>Words for this lesson</h3><span class="hint">${w.filter(i=>srs(i)).length}/${w.length} started</span></div>
+      <div class="chips">${w.map(i=>{const c=CARDS[i];return `<span class="chip">${c.t==="v"?esc(c.inf):c.art?`<b class="g-${c.art}">${c.art}</b> ${esc(c.noun)}`:esc(c.de)}</span>`;}).join("")}</div>
+      <button class="btn" data-act="lesson-words" data-l="${l.id}" style="margin-top:12px">Learn these words</button></section>`:""}
+    <div class="row" style="justify-content:flex-end">${p.theory?`<span class="pill ok">Theory read ✓</span><button class="btn primary" data-act="lmode" data-m="practice">Go to Übungen →</button>`:`<button class="btn primary" data-act="theory-done" data-l="${l.id}">Mark theory as read</button>`}</div>`;
+  }else if(ui.lmode==="practice"){
+    body=`<section class="lx-card stack" style="gap:12px"><h3>Guided practice</h3><p>About 10 exercises: the lesson's own examples first, then mixed items from the topic${l.topics.length>1?"s":""}. Wrong answers go to Mistakes. Run it as often as you like; your best score is kept.</p>
+    ${p.practice!=null?`<p class="hint">Best so far: <b>${p.practice}%</b></p>`:""}
+    <div class="row"><button class="btn primary" data-act="lesson-practice" data-l="${l.id}">${p.practice!=null?"Practice again":"Start practice"}</button>${l.topics.length?`<span class="hint">Want more? The Grammar tab has unlimited items per topic.</span>`:""}</div></section>`;
+  }else if(ui.lmode==="read"){
+    const r=l.read,ans=ui.readAns[l.id]||(ui.readAns[l.id]={});
+    const answered=r.qs.filter((_,k)=>ans[k]!=null).length,right=r.qs.filter((q,k)=>ans[k]===q.a).length;
+    body=`<section class="lx-card"><h3>${esc(r.title)}</h3><div class="reading">${esc(r.text).split("\n").map(x=>`<p>${x}</p>`).join("")}</div></section>
+    <section class="lx-card stack" style="gap:14px"><h3>Fragen zum Text</h3>
+    ${r.qs.map((q,k)=>{const a=ans[k];return `<div class="rq"><p><b class="mono faint">${k+1}</b> ${esc(q.q)}</p><div class="opts">${q.o.map((o,j)=>`<button class="opt ${a!=null?(j===q.a?"ok":j===a?"no":""):""}" data-act="read-ans" data-l="${l.id}" data-k="${k}" data-j="${j}" ${a!=null?"disabled":""}>${esc(o)}</button>`).join("")}</div>${a!=null&&q.why?`<p class="hint">${esc(q.why)}</p>`:""}</div>`;}).join("")}
+    ${answered===r.qs.length?`<div class="row"><span class="pill ${right===r.qs.length?"ok":"warn"}">${right}/${r.qs.length} right</span><button class="mini" data-act="read-reset" data-l="${l.id}">Try again</button><button class="btn primary" data-act="lmode" data-m="test">Go to the test →</button></div>`:""}</section>`;
+  }else if(ui.lmode==="test"){
+    const n=l.test.length+4;
+    body=`<section class="lx-card stack" style="gap:12px"><h3>Lesson test</h3><p>${n} questions from the whole lesson, no hints before you answer. You pass at <b>80%</b>. Passing marks the lesson complete.</p>
+    ${p.test!=null?`<p>Best: <b>${p.test}%</b> ${p.passed?`<span class="pill ok">bestanden</span>`:`<span class="pill bad">not passed yet</span>`}</p>`:""}
+    <div class="row"><button class="btn primary" data-act="lesson-test" data-l="${l.id}">${p.test!=null?"Retake the test":"Start the test"}</button></div></section>
+    ${l.out?`<section class="lx-card stack" style="gap:10px"><h3>Then use it</h3>${l.out.w!=null?`<p><b>Writing:</b> ${esc(WRITING[l.out.w].title)}. ${esc(WRITING[l.out.w].task)}</p><div class="row"><button class="btn" data-act="write-open" data-p="${l.out.w}">Write it, Claude grades it</button></div>`:""}${l.out.s!=null?`<p><b>Role-play:</b> ${esc(SCENES[l.out.s].title)}. Claude plays the other person and corrects you as you go.</p><div class="row"><button class="btn" data-act="scene-open" data-k="${l.out.s}">Start the role-play</button></div>`:""}</section>`:""}`;
+  }else{
+    body=`<section class="lx-card stack" style="gap:10px"><h3>My notes for ${esc(l.id)}</h3><p class="hint">What your teacher added, examples that stuck, exceptions you keep forgetting. Saved to your account.</p>
+    <textarea class="field" id="lnotes" data-l="${l.id}" placeholder="Notizen …" spellcheck="false">${esc(S.notes.by[l.id]||"")}</textarea></section>`;
+  }
+  const bookRef=l.ch<9?`Begegnungen p. ${l.pages[0]}–${l.pages[1]} (PDF ${l.pages[0]+PDF_OFFSET}–${l.pages[1]+PDF_OFFSET})`:`Begegnungen p. ${l.pages[0]}–${l.pages[1]} (PDF ${l.pages[0]+PDF_OFFSET}–${l.pages[1]+PDF_OFFSET})`;
+  const idx=LESSONS.indexOf(l),prev=LESSONS[idx-1],nxt=LESSONS[idx+1];
+  return `<div class="course">${rail}<div class="lx stack">
+    <header class="lx-head"><div class="eyebrow" style="color:var(--thread)">${esc(lessonLabel(l))}</div><h2 class="lx-title">${esc(l.title)}</h2>
+    <p class="hint">${bookRef}${l.ga.length?` · Grammatik aktiv ${l.ga.map(([n,pg])=>`§${n} (PDF ${pg})`).join(", ")}`:""}</p>
+    <ul class="goals">${l.goals.map(g=>`<li>${esc(g)}</li>`).join("")}</ul>
+    <div class="seg lmodes" role="tablist">${modes.map(([m,lab,ok])=>`<button role="tab" aria-pressed="${ui.lmode===m}" data-act="lmode" data-m="${m}">${ok?"✓ ":""}${lab}</button>`).join("")}</div></header>
+    ${body}
+    <div class="row" style="justify-content:space-between;margin-top:6px">${prev?`<button class="btn ghost" data-act="lesson-open" data-l="${prev.id}">← ${esc(prev.id)}</button>`:"<span></span>"}${nxt?`<button class="btn ghost" data-act="lesson-open" data-l="${nxt.id}">${esc(nxt.id)} →</button>`:""}</div>
+  </div></div>`;
+}
 function gaRef(t){return t.ga.map(([n,p])=>`GA §${n} (PDF ${p})`).join(", ");}
 function vKapitel(){
   const cur=currentChapter();
@@ -1828,7 +3009,9 @@ function vKapitel(){
         <div class="stat"><b>${good}<small class="faint" style="font-size:.8rem">/${c.cando.length}</small></b><span>"Ich kann" rated good</span></div>
         <div class="stat"><b style="font-size:.95rem;font-family:var(--body)">${esc(c.sound)}</b><span>pronunciation focus</span></div>
       </div>
-      <div class="topiclist">${c.topics.map(tid=>{const t=ALLTOPICS[tid],a=topicAcc(tid);return `<div class="topic-row"><div><div class="t">${esc(t.title)}</div><div class="ref">${gaRef(t)}</div></div><div class="row">${a==null?`<span class="pill">not tried</span>`:`<span class="pill ${a>=.85?"ok":a>=.6?"warn":"bad"}">${Math.round(a*100)}%</span>`}<button class="mini" data-act="topic" data-t="${tid}">Practice</button></div></div>`;}).join("")}</div>
+      <div class="topiclist">${chapterLessons(c.n).map(l=>`<div class="topic-row"><div><div class="t"><i class="ld" data-s="${lessonState(l.id)}"></i> Lektion ${l.id} · ${esc(l.title)}</div><div class="ref">${lp(l.id).test!=null?`Test best ${lp(l.id).test}%`:"not started"}</div></div><button class="mini" data-act="lesson-open" data-l="${l.id}" style="color:var(--accent);border-color:var(--accent)">Open</button></div>`).join("")}</div>
+      <div class="eyebrow" style="margin-top:6px">Grammar drills</div>
+      <div class="topiclist" style="margin-top:0">${c.topics.map(tid=>{const t=ALLTOPICS[tid],a=topicAcc(tid);return `<div class="topic-row"><div><div class="t">${esc(t.title)}</div><div class="ref">${gaRef(t)}</div></div><div class="row">${a==null?`<span class="pill">not tried</span>`:`<span class="pill ${a>=.85?"ok":a>=.6?"warn":"bad"}">${Math.round(a*100)}%</span>`}<button class="mini" data-act="topic" data-t="${tid}">Practice</button></div></div>`;}).join("")}</div>
       <details data-cd="${c.n}" ${ui.cOpen[c.n]?"open":""}><summary class="hint" style="cursor:pointer;font-weight:600">Ich kann … (self-check, like the Rückblick page)</summary>
       <ul class="cando">${cd.map(y=>`<li><span class="seg" role="group" aria-label="Rating"><button aria-pressed="${y.v===2}" data-act="cando" data-k="${c.n}-${y.k}" data-v="2">gut</button><button aria-pressed="${y.v===1}" data-act="cando" data-k="${c.n}-${y.k}" data-v="1">nicht so gut</button></span><span>${esc(y.x)}</span></li>`).join("")}</ul></details>
       <div class="row"><button class="btn primary" data-act="ch-words" data-ch="${c.n}">Drill chapter words</button>${c.n!==cur?`<button class="btn" data-act="set-current" data-ch="${c.n}">Make current</button>`:""}<button class="btn ghost" data-act="toggle-done" data-ch="${c.n}">${S.progress.done[c.n]?"Mark not done":"Mark done"}</button></div>
@@ -1939,7 +3122,7 @@ function vFehler(){
 
 /* ---------- render + events ---------- */
 function render(){
-  const main={heute:vHeute,kapitel:vKapitel,woerter:vWoerter,verben:vVerben,grammatik:vGrammatik,schreiben:vSchreiben,fehler:vFehler,drill:vDrill}[ui.tab]||vHeute;
+  const main={heute:vHeute,kurs:vKurs,kapitel:vKapitel,woerter:vWoerter,verben:vVerben,grammatik:vGrammatik,schreiben:vSchreiben,fehler:vFehler,drill:vDrill}[ui.tab]||vHeute;
   $("#app").innerHTML=header()+`<main>${main()}</main>`+(ui.toast?`<div class="toast" role="status">${esc(ui.toast)}</div>`:"");
   setSave();
 }
@@ -1957,15 +3140,25 @@ document.addEventListener("click",e=>{
   const a=e.target.closest("[data-act]");if(!a)return;const d=a.dataset;
   switch(d.act){
     case "start-today":sessToday();break;
+    case "lesson-open":ui.sess=null;ui.lesson=d.l;ui.lmode=lp(d.l).theory?(lp(d.l).passed?"theory":"practice"):"theory";ui.tab="kurs";ui.railOpen=false;try{localStorage.setItem("roterfaden.tab","kurs");}catch(_){}render();window.scrollTo({top:0});break;
+    case "lmode":ui.lmode=d.m;render();window.scrollTo({top:0});break;
+    case "rail-toggle":ui.railOpen=!ui.railOpen;render();break;
+    case "theory-done":setLp(d.l,{theory:true});ui.lmode="practice";render();window.scrollTo({top:0});break;
+    case "lesson-words":sessLessonWords(d.l);break;
+    case "lesson-practice":sessLessonPractice(d.l);break;
+    case "lesson-test":ui.sess=null;sessLessonTest(d.l);break;
+    case "read-ans":{const a=ui.readAns[d.l]||(ui.readAns[d.l]={});a[+d.k]=+d.j;const r=LESSON[d.l].read;if(r.qs.every((_,k)=>a[k]!=null)){const right=r.qs.filter((q,k)=>a[k]===q.a).length;setLp(d.l,{read:{right,total:r.qs.length}});}render();break;}
+    case "read-reset":ui.readAns[d.l]={};render();break;
+    case "scene-open":ui.tab="schreiben";ui.wtab="talk";ui.chat={scene:+d.k,turns:[],busy:false,feedback:null,err:""};render();window.scrollTo({top:0});break;
     case "check":check();break;
     case "next":next();break;
     case "reveal":curItem().revealed=true;render();break;
     case "self-ok":case "self-no":{const it=curItem();const ok=d.act==="self-ok";it.res={ok};grade(it.id,ok);ok?ui.sess.ok++:(ui.sess.no++,requeue(it));render();focusNext();break;}
     case "intro-go":{const it=curItem();introduce(it.id,false);ui.sess.q.splice(Math.min(ui.sess.q.length,ui.sess.i+3),0,{k:"card",id:it.id});ui.sess.i++;render();focusFirst();break;}
-    case "intro-know":{const it=curItem();introduce(it.id,true);ui.sess.i++;render();focusFirst();break;}
+    case "intro-know":{const it=curItem();introduce(it.id,true);ui.sess.i++;if(ui.sess.i>=ui.sess.q.length)finishSession(ui.sess);render();focusFirst();break;}
     case "tiles-reset":curItem().built=[];render();break;
     case "explain":explain();break;
-    case "sess-quit":case "sess-close":{const r=ui.sess?.ret||"heute";ui.sess=null;commitTime();ui.tab=r==="drill"?"heute":r;render();break;}
+    case "sess-quit":case "sess-close":{const r=ui.sess?.ret||"heute";ui.sess=null;commitTime();ui.tab=r==="drill"?"heute":r;render();window.scrollTo({top:0});break;}
     case "go-mistakes":ui.sess=null;sessMistakes();break;
     case "topic":sessTopic(d.t);break;
     case "rule":ui.rule[d.t]=!ui.rule[d.t];render();break;
@@ -1996,6 +3189,7 @@ document.addEventListener("click",e=>{
 });
 document.addEventListener("toggle",e=>{const d=e.target;if(d.dataset&&d.dataset.cd)ui.cOpen[d.dataset.cd]=d.open;},true);
 document.addEventListener("input",e=>{
+  if(e.target.id==="lnotes"){S.notes.by[e.target.dataset.l]=e.target.value;touch("notes");return;}
   if(e.target.id==="wtext"){ui.write.text=e.target.value;const wc=$("#wc");if(wc)wc.textContent=wordCount(e.target.value)+" words";}
   if(e.target.id==="wsearch"){ui.search=e.target.value;const pos=e.target.selectionStart;render();const el=$("#wsearch");if(el){el.focus();el.setSelectionRange(pos,pos);}}
 });

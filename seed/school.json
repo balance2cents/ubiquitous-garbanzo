@@ -42,7 +42,9 @@
       "id": "pcm01",
       "code": "W.IBA_APPCM01.H26",
       "name": "Communication Fundamentals",
-      "color": "#C9A93A"
+      "color": "#C9A93A",
+      "link": "https://claude.ai/artifact/QnC5QbyLacCLK5kLrdGCvV",
+      "linkName": "The Red Pen"
     }
   ],
   "weeks": {},
@@ -72,6 +74,14 @@
       "done": false
     },
     {
+      "id": "cf-exam",
+      "course": "pcm01",
+      "name": "Written exam: academic writing (90 min, on paper)",
+      "date": "2026-11-10",
+      "type": "Exam",
+      "done": false
+    },
+    {
       "id": "fa-spa3",
       "course": "fim01",
       "name": "SPA 3",
@@ -93,6 +103,14 @@
       "name": "Assessment Test (multiple choice)",
       "date": "2026-12-17",
       "type": "Test",
+      "done": false
+    },
+    {
+      "id": "cf-talk",
+      "course": "pcm01",
+      "name": "Recorded presentation (MP4 + slide PDF on ILIAS, 23:55)",
+      "date": "2026-12-18",
+      "type": "Presentation",
       "done": false
     }
   ]

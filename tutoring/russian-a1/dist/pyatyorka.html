@@ -1,0 +1,1510 @@
+<title>Пятёрка</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=PT+Sans:ital,wght@0,400;0,700;1,400&family=Caveat:wght@500;700&display=swap">
+<style>
+:root{
+  --paper:#F4F6FA; --grid:rgba(52,86,170,.075); --surface:#FFFFFF; --surface-2:#EEF1F7;
+  --ink:#1A2030; --ink-soft:#545D74; --ink-faint:#8A92A6; --line:#DADFEA; --line-strong:#BFC6D6;
+  --blue:#2446A8; --blue-soft:#E3E9F8; --red:#C42E27; --red-soft:#F8E4E2; --green:#2C7A4B; --green-soft:#E0F1E7;
+  --amber:#A86B00; --amber-soft:#F7ECD5;
+  --shadow:0 1px 2px rgba(26,32,48,.06),0 8px 24px rgba(26,32,48,.06);
+  --f-display:'Unbounded','PT Sans',system-ui,sans-serif; --f-body:'PT Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-hand:'Caveat','Segoe Print','Bradley Hand',cursive;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --paper:#11141B; --grid:rgba(138,166,240,.06); --surface:#191D27; --surface-2:#222735;
+    --ink:#E7EAF2; --ink-soft:#A3ABBF; --ink-faint:#737B90; --line:#2A3040; --line-strong:#3A4254;
+    --blue:#8EA8F2; --blue-soft:#232E4D; --red:#F27B70; --red-soft:#3D2323; --green:#6FCB94; --green-soft:#1C3326;
+    --amber:#E3B04F; --amber-soft:#3A2F17;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --paper:#11141B; --grid:rgba(138,166,240,.06); --surface:#191D27; --surface-2:#222735;
+  --ink:#E7EAF2; --ink-soft:#A3ABBF; --ink-faint:#737B90; --line:#2A3040; --line-strong:#3A4254;
+  --blue:#8EA8F2; --blue-soft:#232E4D; --red:#F27B70; --red-soft:#3D2323; --green:#6FCB94; --green-soft:#1C3326;
+  --amber:#E3B04F; --amber-soft:#3A2F17;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box}
+body{
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:20px 20px;
+  color:var(--ink); font-family:var(--f-body); font-size:16px; line-height:1.55;
+}
+h1,h2,h3{margin:0; text-wrap:balance}
+p{margin:0 0 10px}
+button,input,textarea,select{font:inherit; color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--blue); outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+.hand{font-family:var(--f-hand); color:var(--red); font-weight:700}
+.de{font-size:.86em; color:var(--ink-faint); white-space:nowrap}
+.de::before{content:'DE '; font-weight:700; font-size:.75em; letter-spacing:.06em}
+i.ru{font-style:normal; color:var(--blue); cursor:pointer; border-bottom:1px dotted transparent}
+i.ru:hover{border-bottom-color:var(--blue)}
+.muted{color:var(--ink-soft)} .faint{color:var(--ink-faint)}
+
+/* shell */
+.app{display:flex; min-height:100vh; max-width:1320px; margin:0 auto}
+.rail{width:250px; flex:none; padding:22px 14px 22px 16px; position:sticky; top:env(safe-area-inset-top,0px); align-self:flex-start; height:100vh; overflow-y:auto; border-right:1px solid var(--line); background:color-mix(in srgb,var(--paper) 88%,transparent)}
+.brand{display:flex; align-items:center; gap:10px; margin-bottom:4px}
+.brand-mark{position:relative; width:44px; height:44px; flex:none}
+.brand-mark svg{position:absolute; inset:0}
+.brand-mark span{position:absolute; inset:0; display:grid; place-items:center; font-family:var(--f-hand); font-size:34px; font-weight:700; color:var(--red); line-height:1; padding-top:2px}
+.brand-name{font-family:var(--f-display); font-weight:700; font-size:19px; letter-spacing:-.01em}
+.brand-sub{font-size:12px; color:var(--ink-faint); margin:2px 0 14px}
+.sync{display:flex; align-items:center; gap:7px; font-size:12px; color:var(--ink-faint); padding:8px 0 14px; border-bottom:1px solid var(--line); margin-bottom:10px}
+.sync .dot{width:7px; height:7px; border-radius:50%; background:var(--ink-faint)}
+.sync.ok{color:var(--green)} .sync.ok .dot{background:var(--green)}
+.sync.local .dot{background:var(--amber)}
+.sync.busy .dot{animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.3}}
+.nav-label{font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--ink-faint); font-weight:700; margin:14px 6px 4px}
+.nav{display:flex; align-items:center; gap:9px; width:100%; text-align:left; background:none; border:0; border-radius:7px; padding:6px 8px; font-size:14.5px}
+.nav:hover{background:var(--blue-soft)}
+.nav.on{background:var(--blue); color:#fff}
+.nav.on .nav-meta{color:rgba(255,255,255,.75)}
+.nav-n{font-family:var(--f-display); font-size:11px; font-weight:700; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; border:1.5px solid currentColor; flex:none; opacity:.8}
+.nav-n.done{background:var(--green); border-color:var(--green); color:#fff; opacity:1}
+.nav.on .nav-n.done{background:#fff; color:var(--green)}
+.nav-body{flex:1; min-width:0}
+.nav-t{display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.nav-meta{display:block; font-size:11.5px; color:var(--ink-faint)}
+.nav-badge{font-size:11px; font-weight:700; background:var(--red); color:#fff; border-radius:99px; padding:1px 7px}
+.nav.out{opacity:.45}
+.main{flex:1; min-width:0; padding:26px 36px 120px; position:relative}
+.main::before{content:''; position:absolute; top:0; bottom:0; left:18px; width:1.5px; background:var(--red); opacity:.35}
+
+/* page header */
+.ph{display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap; margin-bottom:22px}
+.eyebrow{font-size:12px; text-transform:uppercase; letter-spacing:.1em; color:var(--blue); font-weight:700; margin-bottom:4px}
+.title{font-family:var(--f-display); font-weight:700; font-size:30px; line-height:1.15; letter-spacing:-.01em}
+.title-en{font-size:17px; color:var(--ink-soft); margin-top:4px}
+.tabs{display:flex; gap:3px; background:var(--surface); border:1px solid var(--line); border-radius:9px; padding:3px; flex-wrap:wrap}
+.tab{border:0; background:none; border-radius:7px; padding:6px 13px; font-size:14px; color:var(--ink-soft)}
+.tab.on{background:var(--blue); color:#fff}
+
+.sheet{background:var(--surface); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); padding:26px 30px}
+.stack{display:flex; flex-direction:column; gap:16px}
+.grid2{display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:16px}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:18px 20px}
+.card h3{font-family:var(--f-display); font-size:15px; font-weight:700; margin-bottom:10px}
+.btn{border:0; border-radius:8px; padding:9px 16px; font-weight:700; font-size:14.5px; background:var(--blue); color:#fff}
+.btn:hover{filter:brightness(1.08)}
+.btn[disabled]{background:var(--line-strong); cursor:default; filter:none}
+.btn.ghost{background:none; border:1px solid var(--line-strong); color:var(--ink)}
+.btn.ghost:hover{background:var(--surface-2)}
+.btn.red{background:var(--red)}
+.btn.sm{padding:5px 11px; font-size:13px}
+.row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.chip{display:inline-flex; align-items:center; gap:5px; font-size:12.5px; font-weight:700; border-radius:99px; padding:3px 10px; background:var(--surface-2); color:var(--ink-soft)}
+.chip.g{background:var(--green-soft); color:var(--green)} .chip.r{background:var(--red-soft); color:var(--red)} .chip.b{background:var(--blue-soft); color:var(--blue)} .chip.a{background:var(--amber-soft); color:var(--amber)}
+.bar{height:6px; border-radius:3px; background:var(--line); overflow:hidden}
+.bar i{display:block; height:100%; background:var(--blue); border-radius:3px}
+.input,.ta,select.input{border:1px solid var(--line-strong); border-radius:8px; background:var(--paper); padding:8px 11px; font-size:16px; min-width:0}
+.ta{width:100%; min-height:160px; resize:vertical; line-height:1.6}
+.input:focus,.ta:focus{outline:none; border-color:var(--blue); box-shadow:0 0 0 3px var(--blue-soft)}
+
+/* grammar */
+.gram h3{font-family:var(--f-display); font-size:16px; font-weight:700; margin:26px 0 10px; color:var(--ink)}
+.gram h3:first-child{margin-top:0}
+.gram p{max-width:70ch}
+.tbl-wrap{overflow-x:auto}
+table.gt{border-collapse:collapse; margin:8px 0 14px; font-size:15px; min-width:min(100%,420px)}
+table.gt td,table.gt th{border:1px solid var(--line); padding:6px 11px; text-align:left; vertical-align:top}
+table.gt th{background:var(--surface-2); font-size:12.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft)}
+.tip{background:var(--amber-soft); border-left:3px solid var(--amber); padding:10px 14px; border-radius:0 8px 8px 0; font-size:15px; max-width:74ch}
+.cando{margin:0; padding-left:20px; color:var(--ink-soft)} .cando li{margin:2px 0}
+
+/* quiz */
+.q{border:1px solid var(--line); border-radius:10px; padding:14px 16px; background:var(--surface)}
+.q + .q{margin-top:10px}
+.q-n{font-family:var(--f-display); font-size:11px; font-weight:700; color:var(--ink-faint); margin-bottom:4px}
+.q-p{margin-bottom:10px; font-size:16.5px}
+.opts{display:flex; gap:8px; flex-wrap:wrap}
+.opt{border:1.5px solid var(--line-strong); background:var(--paper); border-radius:8px; padding:6px 14px; font-size:16px}
+.opt:hover:not([disabled]){border-color:var(--blue)}
+.opt.ok{border-color:var(--green); background:var(--green-soft); color:var(--green); font-weight:700}
+.opt.bad{border-color:var(--red); background:var(--red-soft); color:var(--red); text-decoration:line-through}
+.opt[disabled]{cursor:default}
+.why{margin-top:8px; font-size:14.5px; color:var(--ink-soft)}
+.why b{color:var(--ink)}
+.score{display:flex; align-items:center; gap:18px; flex-wrap:wrap; padding:18px 20px; border:2px solid var(--ink); border-radius:12px; margin-top:16px; background:var(--surface)}
+.score .big{font-family:var(--f-display); font-size:34px; font-weight:700}
+
+/* drills */
+.dr{display:grid; grid-template-columns:minmax(0,1fr) minmax(140px,240px) auto; gap:10px; align-items:center; padding:10px 0; border-bottom:1px dashed var(--line)}
+.dr:last-child{border-bottom:0}
+.dr .mark{width:26px; text-align:center; font-family:var(--f-hand); font-size:24px; font-weight:700; line-height:1}
+.dr .mark.ok{color:var(--green)} .dr .mark.bad{color:var(--red)}
+.dr .fix{grid-column:1/-1; font-size:14px; color:var(--red); margin-top:-4px}
+@media (max-width:560px){.dr{grid-template-columns:1fr auto}.dr .input{grid-column:1/2}}
+
+/* words */
+table.words{width:100%; border-collapse:collapse; font-size:15px}
+table.words td,table.words th{padding:7px 8px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top}
+table.words th{font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint)}
+table.words td.w{font-size:17px; white-space:nowrap}
+.spk{border:0; background:none; color:var(--ink-faint); padding:2px 4px; vertical-align:middle; border-radius:5px}
+.spk:hover{color:var(--blue); background:var(--blue-soft)}
+.box-dots{display:inline-flex; gap:2px}
+.box-dots i{width:6px; height:6px; border-radius:50%; background:var(--line-strong)}
+.box-dots i.on{background:var(--green)}
+
+/* flashcards */
+.fc-wrap{max-width:560px; margin:0 auto}
+.fc{background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:34px 28px; text-align:center; min-height:260px; display:flex; flex-direction:column; justify-content:center; gap:10px; position:relative}
+.fc .front{font-size:34px; font-weight:700; color:var(--ink); line-height:1.25}
+.fc .front.en{font-size:24px}
+.fc .back{border-top:1px dashed var(--line-strong); padding-top:14px; margin-top:6px}
+.fc .back .a{font-size:22px; font-weight:700}
+.fc .meta{font-size:13px; color:var(--ink-faint)}
+.fc .lesson-tag{position:absolute; top:12px; left:14px; font-size:12px; color:var(--ink-faint)}
+.fc-actions{display:flex; gap:10px; justify-content:center; margin-top:16px; flex-wrap:wrap}
+.fc-actions .btn{min-width:140px}
+.stat-row{display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:14px}
+
+/* home */
+.hero{display:grid; grid-template-columns:auto 1fr; gap:24px; align-items:center; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:22px 26px; box-shadow:var(--shadow)}
+.count{font-family:var(--f-display); font-weight:700; font-size:64px; line-height:1; color:var(--ink); letter-spacing:-.03em}
+.count small{display:block; font-family:var(--f-body); font-size:14px; font-weight:400; color:var(--ink-soft); letter-spacing:0; margin-top:6px}
+.week{font-size:18px}
+.note{background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--red); border-radius:0 12px 12px 0; padding:14px 18px}
+.note .hand{font-size:24px; line-height:1.25; white-space:pre-wrap}
+.todo{display:flex; flex-direction:column; gap:8px}
+.todo-i{display:flex; gap:12px; align-items:center; padding:10px 12px; border:1px solid var(--line); border-radius:10px; background:var(--paper)}
+.todo-i .t{flex:1; min-width:0}
+.ready{display:grid; grid-template-columns:repeat(auto-fill,minmax(112px,1fr)); gap:10px}
+.rl{border:1px solid var(--line); border-radius:10px; padding:10px 12px; background:var(--surface); text-align:left; border-width:1px}
+.rl:hover{border-color:var(--blue)}
+.rl .n{font-family:var(--f-display); font-size:12px; font-weight:700; color:var(--ink-faint)}
+.rl .p{font-family:var(--f-display); font-size:20px; font-weight:700}
+.rl.out{opacity:.4}
+.grade{display:inline-grid; place-items:center; width:46px; height:46px; border:2px solid var(--red); border-radius:50%; font-family:var(--f-hand); font-size:32px; font-weight:700; color:var(--red); transform:rotate(-8deg); line-height:1}
+
+/* alphabet */
+.abc{display:grid; grid-template-columns:repeat(auto-fill,minmax(128px,1fr)); gap:10px}
+.lt{border:1px solid var(--line); border-radius:10px; background:var(--surface); padding:10px 12px; text-align:left}
+.lt:hover{border-color:var(--blue)}
+.lt .L{font-family:var(--f-display); font-size:26px; font-weight:700}
+.lt .s{font-size:13px; color:var(--ink-soft)}
+.lt .x{font-size:13.5px; color:var(--blue)}
+.lt.trap{border-color:var(--red); background:var(--red-soft)}
+.lt .tr{font-size:12px; color:var(--red); font-weight:700}
+
+/* exam */
+.timer{font-family:var(--f-display); font-weight:700; font-size:20px}
+.part-h{font-family:var(--f-display); font-size:15px; font-weight:700; margin:22px 0 10px}
+.reading{font-size:17.5px; line-height:1.7; background:var(--paper); border:1px solid var(--line); border-radius:10px; padding:14px 18px; margin-bottom:12px}
+.tf{display:flex; gap:10px; align-items:center; padding:7px 0; border-bottom:1px dashed var(--line); flex-wrap:wrap}
+.tf .t{flex:1; min-width:180px}
+
+/* tutor */
+table.stats{width:100%; border-collapse:collapse; font-size:14.5px}
+table.stats td,table.stats th{padding:7px 8px; border-bottom:1px solid var(--line); text-align:left}
+table.stats th{font-size:12px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint)}
+.fb{border-top:1px dashed var(--line-strong); margin-top:12px; padding-top:12px}
+.sub{white-space:pre-wrap; background:var(--paper); border:1px solid var(--line); border-radius:8px; padding:12px 14px; font-size:16.5px; line-height:1.6}
+.pill-btn{border:1.5px solid var(--line-strong); background:var(--paper); border-radius:99px; padding:3px 12px; font-weight:700}
+.pill-btn.on{background:var(--red); border-color:var(--red); color:#fff}
+
+/* keyboard */
+.kbd-toggle{position:fixed; right:16px; bottom:calc(16px + env(safe-area-inset-bottom,0px)); z-index:40; border:0; border-radius:99px; background:var(--ink); color:var(--paper); font-weight:700; padding:10px 16px; box-shadow:var(--shadow); font-size:15px}
+.kbd{position:fixed; left:0; right:0; bottom:0; z-index:50; background:var(--surface); border-top:1px solid var(--line-strong); box-shadow:0 -8px 24px rgba(0,0,0,.12); padding:10px 10px calc(10px + env(safe-area-inset-bottom,0px))}
+.kbd-rows{max-width:760px; margin:0 auto; display:flex; flex-direction:column; gap:5px}
+.kbd-row{display:flex; gap:4px; justify-content:center}
+.key{flex:1; max-width:52px; min-width:0; height:42px; border:1px solid var(--line-strong); border-radius:7px; background:var(--paper); font-size:18px; padding:0}
+.key:active{background:var(--blue-soft)}
+.key.w{max-width:120px; font-size:13px; font-weight:700}
+.key.on{background:var(--blue); color:#fff}
+.toast{position:fixed; left:50%; top:calc(16px + env(safe-area-inset-top,0px)); transform:translateX(-50%); background:var(--ink); color:var(--paper); padding:9px 16px; border-radius:9px; font-size:14px; z-index:60; box-shadow:var(--shadow); max-width:calc(100% - 32px)}
+
+@media (max-width:900px){
+  .app{flex-direction:column}
+  .rail{position:static; width:auto; height:auto; border-right:0; border-bottom:1px solid var(--line); padding:14px 16px 8px}
+  .nav-scroll{display:flex; gap:4px; overflow-x:auto; padding-bottom:6px}
+  .nav-scroll .nav-label{display:none}
+  .nav-scroll .nav{width:auto; flex:none; white-space:nowrap}
+  .nav-scroll .nav-meta{display:none}
+  .brand-sub{margin-bottom:4px}
+  .main{padding:20px 16px 120px}
+  .main::before{display:none}
+  .hero{grid-template-columns:1fr}
+  .sheet{padding:18px 16px}
+  .title{font-size:24px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important; transition:none!important}}
+</style>
+
+<div class="app">
+  <nav class="rail" aria-label="Sections">
+    <div class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 44 44"><path d="M22 3.5c10.5-.4 19 7.6 18.5 18.2-.5 10-8.6 18.6-19 18.4C11.3 39.9 3.6 31.6 4 21.4 4.4 11.8 12 5 23.8 4.6" fill="none" stroke="var(--red)" stroke-width="2.2" stroke-linecap="round"/></svg>
+        <span>5</span>
+      </div>
+      <div><div class="brand-name">Пятёрка</div></div>
+    </div>
+    <div class="brand-sub">Russian A1 · Jasno! neu · exam Wed 16 Dec</div>
+    <div class="sync" id="sync"><span class="dot"></span><span id="sync-t">Connecting…</span></div>
+    <div class="nav-scroll" id="nav"></div>
+  </nav>
+  <main class="main" id="main" tabindex="-1"></main>
+</div>
+<button class="kbd-toggle" id="kbd-toggle" hidden>АБВ keyboard</button>
+<div class="kbd" id="kbd" hidden></div>
+
+<script>
+const VOCAB = {"1":[["Здра́вствуйте!","Hello (formal / to several people)","Guten Tag! formell (Sg. / Pl.), informell (Pl.)",""],["Здра́вствуй!","Hello (informal, one person)","Guten Tag! informell (Sg.)",""],["Приве́т!","Hi!","Hallo!",""],["До свида́ния!","Goodbye!","Auf Wiedersehen!",""],["Пока́!","Bye!","Tschüss!",""],["кто","who","wer",""],["э́то","this (is) / that (is)","das (ist / sind)",""],["я","I","ich",""],["что","what","was",""],["там","there","dort",""],["вот","here is / there is (pointing)","da, hier (ist, sind)",""],["ты","you (informal)","du",""],["вы","you (formal / plural)","Sie, ihr",""],["да","yes","ja",""],["нет","no","nein",""],["не","not","nicht",""],["а","and / but (contrast)","und (als Gegensatz)",""],["ма́ма","mom","Mama, Mutti",""],["Москва́","Moscow","Moskau",""],["рестора́н","restaurant","Restaurant",""],["метро́","subway, metro","U-Bahn",""],["торт","cake","Torte",""],["и","and","und",""],["кафе́","café","Café",""],["туале́т","toilet","Toilette",""],["тра́нспорт","transport","Transport, hier: Verkehrsmittel",""],["ко́фе","coffee","Kaffee",""],["телефо́н","phone","Telefon",""],["авто́бус","bus","Bus, Autobus",""],["проду́кты","groceries","Lebensmittel, Nahrungsmittel",""],["шокола́д","chocolate","Schokolade",""],["са́хар","sugar","Zucker",""],["маши́на","car","Auto",""],["му́зыка","music","Musik",""],["велосипе́д","bicycle","Fahrrad",""],["фру́кты","fruit","Obst",""]],"2":[["Как вас / тебя́ зову́т?","What's your name?","Wie heißen Sie? / Wie heißt du?",""],["Меня́ зову́т …","My name is …","Ich heiße …","lit. \"they call me …\""],["О́чень прия́тно.","Nice to meet you.","Sehr angenehm.",""],["о́чень","very","sehr",""],["прия́тно","pleasant","angenehm",""],["Как дела́?","How are you?","Wie geht es?",""],["спаси́бо","thank you","danke",""],["пожа́луйста","please / you're welcome","bitte",""],["норма́льно","fine, OK","normal",""],["хорошо́","good, well","gut",""],["пло́хо","bad, badly","schlecht",""],["отку́да?","from where?","woher?",""],["Отку́да вы / ты?","Where are you from?","Woher kommen Sie / kommst du?",""],["из","from (+ genitive)","aus",""],["Кто вы по национа́льности?","What nationality are you?","Welche Nationalität haben Sie?",""],["национа́льность","nationality","Nationalität",""],["ру́сский","Russian (man)","der Russe",""],["ру́сская","Russian (woman)","die Russin",""],["не́мец","German (man)","der Deutsche",""],["не́мка","German (woman)","die Deutsche",""],["магази́н","shop, store","Geschäft, Laden",""],["моро́женое","ice cream","(Speise-)Eis",""],["оде́жда","clothes","Kleidung",""],["ме́неджер","manager","Manager / in",""],["юри́ст","lawyer","Jurist / in",""],["компью́тер","computer","Computer",""],["инжене́р","engineer","Ingenieur / in",""],["газе́та","newspaper","Zeitung",""],["рубль","ruble","Rubel",""],["журнали́ст","journalist","Journalist / in",""],["секрета́рь","secretary","Sekretär",""],["бюро́","office, bureau","Büro",""],["гид","tour guide","Reiseführer, Reiseleiter",""],["журна́л","magazine","Zeitschrift",""],["вас","you (acc., formal)","Sie, euch",""],["тебя́","you (acc., informal)","dich",""],["меня́","me","mich",""],["Познако́мьтесь!","Let me introduce you! / Meet …!","Machen Sie sich bekannt!",""],["актёр","actor","Schauspieler",""]],"3":[["Герма́ния","Germany","Deutschland",""],["А́нглия","England","England",""],["Фра́нция","France","Frankreich",""],["говори́ть","to speak","sprechen","говорю́, говори́шь … говоря́т"],["по-ру́сски","(in) Russian","(auf) Russisch",""],["по-неме́цки","(in) German","(auf) Deutsch",""],["по-англи́йски","(in) English","(auf) Englisch",""],["по-испа́нски","(in) Spanish","(auf) Spanisch",""],["к сожале́нию","unfortunately","leider",""],["немно́го","a little","ein wenig, etwas",""],["ничего́","so-so, not bad","es geht",""],["то́же","also, too","auch",""],["не о́чень","not very (well)","nicht besonders (gut)",""],["До́брый день!","Good afternoon!","Guten Tag!",""],["он","he","er",""],["она́","she","sie",""],["оно́","it","es",""],["мы","we","wir",""],["они́","they","sie",""],["де́ти","children","Kinder",""],["Скажи́те","Tell me (formal)","Sagen Sie",""],["Скажи́","Tell me (informal)","Sag",""],["где","where","wo",""],["а́дрес","address","Adresse",""],["но́мер","number","Nummer",""],["А́встрия","Austria","Österreich",""],["коне́чно","of course","natürlich, selbstverständlich",""],["ещё","still, more, else","noch",""],["отли́чно","excellent","ausgezeichnet",""],["свобо́дно","fluently, freely","frei, fließend",""],["сейча́с","now","jetzt, gerade",""],["здесь","here","hier",""],["фотогра́фия","photo","Foto",""],["го́род","city, town","Stadt",""],["се́вер","north","Norden","на се́вере = in the north"],["гости́ница","hotel","Hotel",""],["аэропо́рт","airport","Flughafen",""],["ско́ро","soon","bald",""],["самолёт","airplane","Flugzeug",""],["Не мо́жет быть!","No way! That can't be!","Das kann nicht (wahr) sein! Das gibt´s doch nicht!",""],["жить","to live","leben, wohnen","живу́, живёшь … живу́т"],["оди́н","one","eins",""],["два","two","zwei",""],["три","three","drei",""],["четы́ре","four","vier",""],["пять","five","fünf",""],["шесть","six","sechs",""],["семь","seven","sieben",""],["во́семь","eight","acht",""],["де́вять","nine","neun",""],["де́сять","ten","zehn",""],["оди́ннадцать","eleven","elf",""],["двена́дцать","twelve","zwölf",""],["трина́дцать","thirteen","dreizehn",""],["четы́рнадцать","fourteen","vierzehn",""],["пятна́дцать","fifteen","fünfzehn",""],["шестна́дцать","sixteen","sechszehn",""],["семна́дцать","seventeen","siebzehn",""],["восемна́дцать","eighteen","achtzehn",""],["девятна́дцать","nineteen","neunzehn",""],["два́дцать","twenty","zwanzig",""],["Како́й у тебя́ / у вас но́мер телефо́на?","What's your phone number?","Welche Telefonnummer hast du / haben Sie?",""],["у́лица","street","Straße",""],["дом","house, building","Haus",""],["кварти́ра","apartment","Wohnung",""],["Алло́!","Hello? (on the phone)","Hallo! (Begrüßung am Telefon)",""],["Дава́й встре́тимся!","Let's meet!","wörtl.: Lass uns treffen / Treffen wir uns doch!",""]],"4":[["оте́ц","father","Vater",""],["мать","mother","Mutter",""],["сын","son","Sohn",""],["дочь","daughter","Tochter",""],["ба́бушка","grandmother","Großmutter, Oma",""],["де́душка","grandfather","Großvater, Opa",""],["внук","grandson","Enkel",""],["его́ зову́т","his name is …","er heißt …",""],["её зову́т","her name is …","sie heißt …",""],["рабо́тать","to work","arbeiten","рабо́таю, рабо́таешь … рабо́тают"],["пенсионе́р","retiree (m)","Rentner",""],["роди́тели","parents","Eltern",""],["муж","husband","Ehemann",""],["жена́","wife","Ehefrau",""],["до́чка","daughter (affectionate)","(kleine) Tochter",""],["брат","brother","Bruder",""],["сестра́","sister","Schwester",""],["вну́чка","granddaughter","Enkelin",""],["друг","friend (m)","Freund",""],["подру́га","friend (f)","Freundin",""],["друзья́","friends","Freunde","plural of друг"],["недалеко́ от","not far from","nicht weit von","+ genitive"],["мой, моя́","my (m / f)","mein, meine (Sg.)",""],["мои́","my (plural)","meine (Pl.)",""],["наш, на́ша","our (m / f)","unser, unsere (Sg.)",""],["на́ши","our (plural)","unsere (Pl.)",""],["все","everyone, all","alle",""],["вме́сте","together","zusammen, gemeinsam",""],["па́па","dad","Papa, Vater",""],["их зову́т","their names are …","sie heißen … (Pl.)",""],["у вас есть …","you have …","Sie haben … / Ihr habt …",""],["уже́ давно́","for a long time already","schon lange (zeitlich)",""],["по профе́ссии","by profession","von Beruf, beruflich",""],["врач","doctor","Arzt / Ärztin",""],["у нас есть …","we have …","wir haben …",""],["у него́ есть …","he has …","er hat …",""],["у них есть …","they have …","sie haben",""],["ко́шка","cat","Katze",""],["тепе́рь","now (these days)","nun, jetzt",""],["у меня́ есть …","I have …","ich habe …",""],["оди́н","alone","allein",""],["далеко́ от","far from","weit von","+ genitive"],["у тебя́ есть …","you have … (informal)","du hast …",""],["у неё есть …","she has …","sie hat …",""],["дво́е дете́й","two children","zwei Kinder",""],["тро́е дете́й","three children","drei Kinder",""],["де́лать","to do, to make","machen, tun","де́лаю, де́лаешь … де́лают"],["больни́ца","hospital","Krankenhaus",""],["домохозя́йка","housewife","Hausfrau",""],["до́ма","at home","zu Hause",""],["мно́го","a lot, many","viel",""],["знать","to know","wissen, kennen","зна́ю, зна́ешь … зна́ют"],["у кого́ есть …?","Who has …?","Wer hat …?",""],["студе́нт","student (m)","Student",""],["студе́нтка","student (f)","Studentin",""],["актри́са","actress","Schauspielerin",""],["бухга́лтер","accountant","Buchhalter / in",""],["шко́льник","schoolboy","Schüler",""],["шко́льница","schoolgirl","Schülerin",""],["учи́тель","teacher (m)","Lehrer","m"],["учи́тельница","teacher (f)","Lehrerin",""],["пенсионе́рка","retiree (f)","Rentnerin",""],["продаве́ц","salesman","Verkäufer",""],["продавщи́ца","saleswoman","Verkäuferin",""],["преподава́тель","university lecturer (m)","Hochschullehrer","m"],["преподава́тельница","university lecturer (f)","Hochschullehrerin",""],["посо́льство","embassy","Botschaft",""],["заво́д","factory","Fabrik, Werk, Betrieb",""]],"5":[["ма́сло","butter, oil","Butter",""],["я́блоко","apple","Apfel",""],["мя́со","meat","Fleisch",""],["колбаса́","sausage (salami)","Wurst",""],["варе́нье","jam","Konfitüre, Marmelade",""],["гру́ша","pear","Birne",""],["ку́рица","chicken","Huhn",""],["пе́рец","pepper","Paprika, Pfeffer","pl. пе́рцы"],["бу́лочка","bread roll","Brötchen",""],["сок","juice","Saft",""],["капу́ста","cabbage","Kohl",""],["мёд","honey","Honig",""],["хлеб","bread","Brot",""],["сыр","cheese","Käse",""],["молоко́","milk","Milch",""],["пиро́г","pie, cake","Kuchen",""],["чай","tea","Tee",""],["йо́гурт","yogurt","Joghurt",""],["помидо́р","tomato","Tomate",""],["яйцо́","egg","Ei","pl. я́йца"],["мю́сли","muesli","Müsli",""],["ры́ба","fish","Fisch",""],["конфе́та","candy","Praline, Bonbon",""],["шни́цель","schnitzel","Schnitzel","m"],["напи́ток","drink, beverage","Getränk","pl. напи́тки"],["вино́","wine","Wein; Weinsorten (im Pl.)","pl. ви́на"],["пече́нье","cookies","Gebäck, Keks, Plätzchen",""],["вода́","water","Wasser","acc. во́ду"],["пи́во","beer","Bier",""],["тво́рог","quark, cottage cheese","Quark",""],["мука́","flour","Mehl",""],["соль","salt","Salz","f"],["карто́фель","potatoes","Kartoffeln","m, singular only"],["морко́вь","carrots","Karotten","f, singular only"],["лук","onion(s)","Zwiebel","singular only"],["соси́ска","hot dog sausage","(Wiener) Würstchen",""],["фру́кты","fruit","Obst","usually plural"],["огуре́ц","cucumber","Gurke","pl. огурцы́"],["о́вощи","vegetables","Gemüse",""],["за́втрак","breakfast","Frühstück",""],["у́жин","dinner","Abendessen",""],["день рожде́ния","birthday","Geburtstag",""],["стол","table","Tisch",""],["смета́на","sour cream","saure Sahne, Schmand",""],["холоди́льник","fridge","Kühlschrank",""],["Ско́лько сто́ит / сто́ят …?","How much is / are …?","Wie viel kostet / kosten …?",""],["ско́лько?","how much? how many?","wie viel?",""],["сто́ить","to cost","kosten",""],["три́дцать","thirty","dreißig",""],["со́рок","forty","vierzig",""],["пятьдеся́т","fifty","fünfzig",""],["шестьдеся́т","sixty","sechzig",""],["се́мьдесят","seventy","siebzig",""],["во́семьдесят","eighty","achtzig",""],["девяно́сто","ninety","neunzig",""],["сто","one hundred","hundert",""],["две́сти","two hundred","zweihundert",""],["е́вро","euro","Euro","m, never changes"],["упако́вка","package","Verpackung","gen. pl. упако́вок"],["цена́","price","Preis","pl. це́ны"],["грамм","gram","Gramm","gen. pl. гра́ммов / грамм"],["па́чка","pack","Päckchen","gen. pl. па́чек"],["коро́бка","box","Schachtel","gen. pl. коро́бок"],["килогра́мм","kilogram","Kilogramm","gen. pl. килогра́ммов / килогра́мм"],["паке́т","bag; carton","Tüte, Beutel; hier: Tetrapack",""],["литр","liter","Liter",""],["буты́лка","bottle","Flasche","gen. pl. буты́лок"],["ры́нок","market","Markt",""],["покупа́тель","customer","Käufer, Kunde","m"],["покупа́ть","to buy","kaufen","покупа́ю, покупа́ешь … покупа́ют"],["шту́ка","piece","Stück",""],["Да́йте мне, пожа́луйста, …","Give me …, please.","Geben Sie mir bitte …","informal: Дай …"],["мне","(to) me","mir",""],["Что ещё?","Anything else?","Was (möchten Sie) noch?",""],["Э́то всё.","That's all.","Das ist (wäre) alles.",""],["С вас … рубле́й.","That'll be … rubles.","Das macht … Rubel.",""],["де́ньги","money","Geld","plural only"],["Приходи́те ещё!","Come again!","Kommen Sie noch mal vorbei!",""],["сда́ча","change (money back)","Wechselgeld",""]],"6":[["хо́бби","hobby","Hobby","n, never changes"],["волейбо́л","volleyball","Volleyball",""],["та́нец","dance","Tanz","pl. та́нцы"],["рыба́лка","fishing","Angeln",""],["гандбо́л","handball","Handball",""],["люби́ть","to love, to like","mögen, lieben","люблю́, лю́бишь … лю́бят"],["осо́бенно","especially","besonders",""],["слу́шать","to listen (to)","hören, zuhören","слу́шаю, слу́шаешь … слу́шают"],["чита́ть","to read","lesen","чита́ю, чита́ешь … чита́ют"],["свобо́дное вре́мя","free time","Freizeit",""],["сиде́ть","to sit","sitzen","сижу́, сиди́шь … сидя́т"],["смотре́ть","to watch, to look","(an)sehen, (an)schauen","смотрю́, смо́тришь … смо́трят"],["гуля́ть","to go for a walk","spazieren gehen","гуля́ю, гуля́ешь … гуля́ют"],["лес","forest","Wald","в лесу́ = in the forest"],["пла́вать","to swim","schwimmen","пла́ваю, пла́ваешь … пла́вают"],["да́ча","dacha, country house","Datscha, Landhaus",""],["сад","garden","(Obst-)Garten","в саду́ = in the garden"],["встреча́ться","to meet (up)","sich treffen, sich begegnen","встреча́юсь, встреча́ешься … встреча́ются"],["встреча́ться с друзья́ми","to meet up with friends","sich mit Freunden treffen",""],["обща́ться","to chat, to hang out","kommunizieren, verkehren","обща́юсь, обща́ешься … обща́ются"],["отдыха́ть","to relax, to rest","sich erholen, sich ausruhen","отдыха́ю, отдыха́ешь … отдыха́ют"],["приро́да","nature","Natur",""],["кни́га","book","Buch",""],["ча́сто","often","oft",""],["молоды́е лю́ди","young people","junge Leute",""],["ску́чно","boring","langweilig",""],["музе́й","museum","Museum",""],["вы́ставка","exhibition","Ausstellung",""],["ведь","after all, you know","doch",""],["игра́ть","to play","spielen","игра́ю, игра́ешь … игра́ют"],["звоно́к","phone call","Anruf",""],["наприме́р","for example","zum Beispiel",""],["изуча́ть","to study","lernen, studieren","изуча́ю, изуча́ешь … изуча́ют"],["ша́хматы","chess","Schach","plural only"],["планше́т","tablet","Tablet",""],["ката́ться","to ride (for fun)","fahren; spazieren fahren","ката́юсь, ката́ешься … ката́ются"],["обы́чно","usually","gewöhnlich",""],["воскресе́нье","Sunday","Sonntag",""],["понеде́льник","Monday","Montag",""],["вто́рник","Tuesday","Dienstag",""],["среда́","Wednesday","Mittwoch",""],["четве́рг","Thursday","Donnerstag",""],["пя́тница","Friday","Freitag",""],["суббо́та","Saturday","Samstag",""],["сего́дня","today","heute",""],["Когда́?","When?","Wann?",""],["В како́й день?","On which day?","An welchem Tag?",""],["день","day","Tag",""],["неде́ля","week","Woche",""],["Куда́?","Where to?","Wohin?",""],["ходи́ть","to go (on foot, regularly)","gehen","хожу́, хо́дишь … хо́дят"],["поэ́тому","that's why, so","deshalb",""],["кинотеа́тр","movie theater","Kino",""],["зоопа́рк","zoo","Zoo",""],["туда́","(to) there","dorthin",""],["иногда́","sometimes","manchmal",""],["гора́","mountain","Berg","pl. го́ры"],["бе́гать","to run, to jog","laufen, rennen","бе́гаю, бе́гаешь … бе́гают"]],"7":[["десе́рт","dessert","Dessert, Nachtisch",""],["на десе́рт","for dessert","zum Nachtisch",""],["на за́втрак","for breakfast","zum Frühstück",""],["на обе́д","for lunch","zum Mittagessen",""],["обе́д","lunch","Mittagessen",""],["на у́жин","for dinner","zum Abendessen",""],["еда́","food","Essen",""],["блю́до","dish","Gericht, Speise",""],["заку́ска","appetizer","Vorspeise",""],["есть","to eat","essen","ем, ешь, ест, еди́м, еди́те, едя́т"],["суп","soup","Suppe","pl. супы́"],["бутербро́ды","open sandwiches","belegte Brote",""],["сала́т","salad","Salat",""],["пить","to drink","trinken","пью, пьёшь … пьют"],["блины́","blini, pancakes","Pfannkuchen",""],["икра́","caviar","Kaviar",""],["шампа́нское","champagne","Sekt",""],["ка́ша","porridge","Brei",""],["котле́та","meat patty","Bulette",""],["окро́шка","okroshka (cold soup)","Okroschka, kalte Kwasssuppe",""],["раз","time (occurrence)","Mal",""],["Ско́лько раз?","How many times?","Wie viele Male? Wie oft?",""],["лю́ди","people","Menschen","gen. pl. люде́й"],["жа́рко","hot (weather)","heiß",""],["у́тром","in the morning","am Morgen",""],["днём","in the afternoon","tagsüber",""],["ве́чером","in the evening","am Abend",""],["яи́чница","fried eggs, omelet","Rührei, Omelett (Eierspeise); Spiegelei",""],["сы́рник","syrnik (cottage cheese pancake)","Quarkpfannkuchen",""],["кака́о","cocoa","Kakao","n, never changes"],["ча́ще всего́","most often","am häufigsten",""],["гарни́р","side dish","Beilage",""],["макаро́ны","pasta","Nudeln, Makkaroni",""],["рис","rice","Reis",""],["морс","berry drink (mors)","Moosbeergetränk",""],["компо́т","fruit drink (kompot)","kompottähnliches Getränk aus Dörrobst oder Früchten",""],["квас","kvass","Kwass",""],["с удово́льствием","with pleasure","mit Vergnügen, gern",""],["ле́том","in summer","im Sommer",""],["гриб","mushroom","Pilz","pl. грибы́"],["ветчина́","ham","Schinken",""],["селёдка","herring","Hering",""],["вре́мя","time","Zeit","n! gen. вре́мени"],["час","hour","Stunde","gen. pl. часо́в"],["Ско́лько вре́мени?","What time is it?","Wie spät ist es?",""],["Кото́рый час?","What time is it?","Wie spät ist es?",""],["мину́та","minute","Minute",""],["за́втракать","to have breakfast","frühstücken",""],["обе́дать","to have lunch","zu Mittag essen",""],["у́жинать","to have dinner","zu Abend essen",""],["хоте́ть","to want","wollen, möchten","хочу́, хо́чешь, хо́чет, хоти́м, хоти́те, хотя́т"],["Мне, пожа́луйста, …","For me, please, …","Für mich bitte …",""],["мне","(to / for) me","mir, hier: für mich",""],["газ","gas (sparkling)","Kohlensäure",""],["с","with (+ instrumental)","mit","+ instrumental"],["Э́то вам.","This is for you.","Das ist für Sie / für euch.",""],["вам","(to / for) you","Ihnen / euch; hier: für Sie / für euch",""],["Проходи́ / Проходи́те пожа́луйста!","Come in, please!","Komm / Kommen Sie herein!",""],["Прошу́ к столу́!","Please, come to the table!","Ich bitte zu Tisch!",""],["е́сли мо́жно","if possible","wenn möglich, wenn es geht",""],["Я за рулём.","I'm driving.","Ich bin mit dem Auto hier.",""],["во́дка","vodka","Wodka",""],["без","without (+ genitive)","ohne","+ genitive"],["Попро́буйте!","Try it!","Kosten Sie …!",""],["то́лько","only","nur",""],["вку́сно","tasty","lecker",""],["Всё о́чень вку́сно.","Everything is delicious.","Alles ist sehr lecker. / Alles schmeckt sehr gut.",""],["три́ста","three hundred","dreihundert",""],["четы́реста","four hundred","vierhundert",""],["пятьсо́т","five hundred","fünfhundert",""],["шестьсо́т","six hundred","sechshundert",""],["семьсо́т","seven hundred","siebenhundert",""],["восемьсо́т","eight hundred","achthundert",""],["девятьсо́т","nine hundred","neunhundert",""],["ты́сяча","thousand","Tausend",""],["говя́дина","beef","Rindfleisch",""],["горо́шек","peas","(eingelegte) Erbsen","gen. горо́шка"],["свёкла","beet","Rote Bete",""],["морко́вка","carrot","Karotte, Möhre",""],["чесно́к","garlic","Knoblauch",""],["соля́нка","solyanka (soup)","Soljanka",""],["свини́на","pork","Schweinefleisch",""],["пирожо́к","pirozhok (small pie)","kleine Pirogge","pl. пирожки́"],["меню́","menu","Speisekarte","n, never changes"],["Принеси́те …!","Bring (me / us) …!","Bringen Sie …!",""],["нам","(to / for) us","uns",""],["официа́нт","waiter","Kellner",""],["официа́нтка","waitress","Kellnerin",""],["зака́з","order","Bestellung",""],["принима́ть зака́з","to take an order","eine Bestellung entgegennehmen",""],["клие́нт","client","Kunde",""],["зака́зывать","to order","bestellen",""]],"8":[["ю́бка","skirt","Rock",""],["блу́зка","blouse","Bluse",""],["руба́шка","shirt","Hemd",""],["брю́ки","pants","Hose","plural only"],["джи́нсы","jeans","Jeans","plural only"],["кроссо́вки","sneakers","Laufschuhe, Sneaker",""],["ту́фли","(women's) shoes","(Damen-)Schuhe",""],["ко́фта","cardigan","Strickjacke, Cardigan",""],["та́почки","slippers","Hausschuhe",""],["сви́тер","sweater","Pullover",""],["боти́нки","boots, lace-up shoes","Schuhe, Schnürschuhe",""],["шарф","scarf","Schal","pl. шарфы́"],["плато́к","headscarf","Kopftuch","pl. платки́"],["костю́м","suit","Kostüm, Herrenanzug",""],["шо́рты","shorts","Shorts","plural only"],["же́нщина","woman","Frau",""],["мужчи́на","man","Mann",""],["всегда́","always","immer",""],["понима́ть","to understand","verstehen","понима́ю, понима́ешь … понима́ют"],["бо́льше","more","mehr",""],["заче́м","what for, why","wozu",""],["футбо́лка","T-shirt","T-Shirt",""],["тра́тить","to spend (money)","ausgeben","тра́чу, тра́тишь … тра́тят"],["ку́ртка","jacket","Jacke",""],["га́лстук","tie","Krawatte, Schlips",""],["очки́","glasses","Brille","plural only"],["пла́тье","dress","Kleid",""],["су́мка","bag, handbag","Tasche",""],["же́нский","women's","Damen-","-ая, -ое, -ие"],["мужско́й","men's","Herren-","-а́я, -о́е, -и́е"],["о́бувь","footwear","Schuhe, Schuhwerk","f, singular only"],["э́тот, э́та, э́то, э́ти","this (m / f / n / pl)","dieser, diese, dieses, diese",""],["пальто́","coat","Mantel","n, never changes"],["… тебе́ / вам идёт","… suits you","… steht dir / Ihnen (gut)",""],["цвет","color","Farbe","pl. цвета́"],["чёрный","black","schwarz","-ая, -ое; -ые"],["зелёный","green","grün","-ая, -ое; -ые"],["кра́сный","red","rot","-ая, -ое; -ые"],["ора́нжевый","orange","orange","-ая -ое; -ые"],["жёлтый","yellow","gelb","-ая, -ое; -ые"],["си́ний","dark blue","blau","-яя, -ее; -ие"],["бе́лый","white","weiß","-ая, -ое; -ые"],["кори́чневый","brown","braun","-ая -ое; -ые"],["се́рый","gray","grau","-ая, -ое; -ые"],["голубо́й","light blue","hellblau","-а́я, -о́е; -ы́е"],["ро́зовый","pink","rosa","-ая, -ое; -ые"],["фиоле́товый","purple","violett","-ая -ое; -ые"],["како́й","which? what kind of?","welcher? was für ein?","-а́я, -о́е; -и́е"],["люби́мый","favorite","Lieblings-","-ая, -ое; -ые"],["потому́ что","because","weil",""],["со́лнце","sun","Sonne",""],["дорого́й","expensive; dear","teuer","-ая, -ое; -ие"],["ма́ленький","small","klein","-ая -ое; -ие"],["ша́пка","hat, winter hat","Mütze",""],["краси́вый","beautiful","schön","-ая, -ое; -ые"],["хоро́ший","good","gut","-ая, -ее; -ие"],["молодо́й","young","jung","-а́я, -о́е; -ы́е"],["челове́к","person","Mensch","pl. лю́ди"],["большо́й","big","groß","-а́я, -о́е; -и́е"],["разме́р","size","Größe",""],["друго́й","other, different","anderer","-а́я, -о́е; -и́е"],["наде́жда","hope","Hoffnung",""],["ка́жется","it seems","es scheint",""],["всё равно́","it doesn't matter","egal",""],["Како́го цве́та футбо́лка?","What color is the T-shirt?","Welche Farbe hat das T-Shirt?",""],["по-мо́ему","in my opinion","meiner Meinung nach",""],["удо́бный","comfortable","bequem","-ая, -ое; -ые"],["интере́сный","interesting","interessant","-ая -ое; -ые"],["ску́чный","boring","langweilig","-ая, -ое; -ые"],["плохо́й","bad","schlecht","-а́я, -о́е; -и́е"],["дешёвый","cheap","billig","-ая, -ое; -ые"],["нра́виться","to be pleasing (to like)","gefallen","нра́вится / нра́вятся + dative: мне нра́вится …"],["де́вушка","young woman, girl","junges Mädchen; junge Frau",""],["мо́жно","may I / one can","man kann / darf",""],["приме́рить","to try on","anprobieren",""],["ря́дом с","next to","neben","+ instrumental"],["Ну как?","So? How do I look?","Und, wie findest du mich?",""],["сли́шком","too (much)","zu",""],["мо́жет быть","maybe","es kann sein; es ist möglich, vielleicht",""],["как раз","just right","passt genau",""],["гла́вное","the main thing","die Hauptsache (ist)",""],["носи́ть","to wear, to carry","tragen","ношу́, но́сишь … но́сят"],["пижа́ма","pajamas","Schlafanzug",""],["хала́т","bathrobe","Morgenmantel, Kittel",""],["посте́льное бельё","bed linen","Bettwäsche",""],["това́р","goods, product","Ware",""],["распрода́жа","sale","Ausverkauf",""],["ски́дка","discount","Rabatt",""],["Покажи́те!","Show me!","Zeigen Sie!",""],["Бу́дьте добры́ …","Would you be so kind …","Seien Sie so lieb, …",""],["ка́рта","(bank) card","die Bankkarte",""],["тёмный","dark","dunkel","-ая, -ое; -ые"],["я́ркий","bright","leuchtend, grell, hell","-ая, -ое; -ие"],["ту́фли на высо́ком каблуке́","high-heeled shoes","hochhackige Schuhe",""],["стро́гий","strict, formal","streng","-ая, -ое; -ие"],["ста́рый","old","alt","-ая, -ое; -ые"]],"9":[["зимо́й","in winter","im Winter",""],["о́сенью","in autumn","im Herbst",""],["весно́й","in spring","im Frühling",""],["Всего́ хоро́шего!","All the best!","Alles Gute! (als Glückwunsch)",""],["Сча́стья!","(Wishing you) happiness!","(Ich wünsche dir) Glück!",""],["Здоро́вья!","(Wishing you) health!","(Ich wünsche dir) Gesundheit!",""],["здоро́вье","health","Gesundheit",""],["пода́рок","present, gift","Geschenk","pl. пода́рки"],["С Па́схой!","Happy Easter!","Frohes Osterfest! / Frohe Ostern!",""],["С Но́вым го́дом!","Happy New Year!","Frohes neues Jahr!",""],["С Рождество́м!","Merry Christmas!","Frohe Weihnachten!",""],["отмеча́ть","to celebrate, to mark","feiern, begehen",""],["поздравля́ть","to congratulate","beglückwünschen, gratulieren",""],["жела́ть","to wish","wünschen",""],["дари́ть","to give (a gift)","schenken","дарю́, да́ришь … да́рят"],["пра́здновать","to celebrate","feiern","пра́здную, пра́зднуешь … пра́зднуют"],["Но́вый год","New Year","Neujahr",""],["Рождество́","Christmas","Weihnachten",""],["Па́сха","Easter","Ostern",""],["пра́здник","holiday, celebration","Feiertag, Fest",""],["почему́","why","warum",""],["почти́","almost","fast",""],["фотографи́ровать","to photograph","fotografieren","фотографи́рую, фотографи́руешь … фотографи́руют"],["танцева́ть","to dance","tanzen","танцу́ю, танцу́ешь … танцу́ют"],["ме́сяц","month","Monat",""],["янва́рь","January","Januar","в январе́"],["февра́ль","February","Februar","в феврале́"],["март","March","März",""],["апре́ль","April","April","m"],["май","May","Mai",""],["ию́нь","June","Juni","m"],["ию́ль","July","Juli","m"],["а́вгуст","August","August",""],["сентя́брь","September","September","в сентябре́"],["октя́брь","October","Oktober","в октябре́"],["ноя́брь","November","November","в ноябре́"],["дека́брь","December","Dezember","в декабре́"],["и … , и …","both … and …","sowohl … als auch …",""],["вообще́","in general","allgemein, insgesamt, generell",""],["везде́","everywhere","überall",""],["пра́здничный","festive","feierlich","-ая -ое; -ые"],["не то́лько … но и …","not only … but also …","nicht nur …, sondern auch …",""],["получа́ть","to receive","erhalten, bekommen",""],["жаль","it's a pity","schade",""],["год","year","Jahr",""],["Ско́лько ему́ лет?","How old is he?","Wie alt ist er?",""],["ему́","(to) him","ihm",""],["ей","(to) her","ihr",""],["им","(to) them","ihnen",""],["пе́рвый","first","(der, die, das) erste(n)","-ая, -ое; -ые"],["второ́й","second","(der, die, das) zweite(n)","-а́я, -о́е; -ы́е"],["тре́тий тре́тья тре́тье; тре́тьи","third","(der, die, das) dritte(n)",""],["четвёртый","fourth","(der, die, das) vierte(n)","-ая -ое; -ые"],["пя́тый","fifth","(der, die, das) fünfte(n)","-ая, -ое; -ые"],["шесто́й","sixth","(der, die, das) sechste(n)","-а́я, -о́е; -ы́е"],["седьмо́й","seventh","(der) siebte","-а́я, -о́е, -ы́е"],["восьмо́й","eighth","(der) achte","-а́я, -о́е, -ы́е"],["девя́тый","ninth","(der, die, das) neunte(n)","-ая, -ое; -ые"],["деся́тый","tenth","(der, die, das) zehnte(n)","-ая, -ое; -ые"],["оди́ннадцатый","eleventh","(der, die, das) elfte(n)","-ая -ое; -ые"],["двена́дцатый","twelfth","(der, die, das) zwölfte(n)","-ая -ое; -ые"],["трина́дцатый","thirteenth","(der, die, das) dreizehnte n)","-ая -ое; -ые"],["четы́рнадцатый","fourteenth","(der, die, das) vierzehnte(n)","-ая, -ое; -ые"],["пятна́дцатый","fifteenth","(der, die, das) fünfzehnte(n)","-ая -ое; -ые"],["шестна́дцатый","sixteenth","(der, die, das) sechzehnte(n)","-ая -ое; -ые"],["семна́дцатый","seventeenth","(der, die, das) siebzehnte(n)","-ая -ое; -ые"],["восемна́дцатый","eighteenth","(der, die, das) achtzehnte(n)","-ая, -ое, -ые"],["девятна́дцатый","nineteenth","(der, die, das) neunzehnte(n)","-ая, -ое; -ые"],["двадца́тый","twentieth","(der, die, das) zwanzigste(n)","-ая -ое; -ые"],["тридца́тый","thirtieth","(der, die, das) dreißigste(n)","-ая -ое; -ые"],["ме́сто","place, seat","Platz, Sitzplatz","pl. места́"],["откры́тка","postcard","Postkarte",""],["число́","date (of the month)","Datum, Tag",""],["Како́е (сего́дня) число́?","What's the date (today)?","Der Wievielte ist (heute)?",""],["ве́село","cheerfully, fun","fröhlich, lustig",""],["украша́ть","to decorate","schmücken",""],["поздравле́ние","congratulations, greeting","Glückwunsch, Gratulation",""],["пото́м","then, afterward","dann, danach",""],["мир","peace","Frieden",""],["сча́стье","happiness","Glück",""],["успе́х","success","Erfolg",""],["День Побе́ды","Victory Day (May 9)","Tag des Sieges (Feiertag in Russland am 9. Mai)",""],["звони́ть","to call (someone)","anrufen","кому́? + dative"],["однокла́ссник","classmate","Mitschüler",""],["близнецы́","twins","Zwillinge","sg. близне́ц"],["Что ново́го?","What's new?","Was gibt es Neues?",""],["биле́т","ticket","Eintrittskarte",""],["за","for (in exchange)","für",""],["сове́т","advice","Rat, Tipp",""],["цветы́","flowers","Blumen","sg. цвето́к"]]};
+</script>
+<script>
+// Lesson content for Jasno! neu A1–A2, Lektion 1–9 (the A1 half of the book).
+// quiz  = the workbook's "Что правильно?" self-test for the lesson (answer keys written by us)
+// drill = typed answers in Cyrillic; answers are compared without stress marks, ё≈е, case, punctuation
+// Russian inside <i class="ru"> is clickable to hear it.
+
+const EXAM_DATE = '2026-12-16';
+
+const LESSONS = [
+{
+  n:1, ru:'Здравствуйте!', en:'Hello!', kb:'KB p. 12–25 · ÜB p. 6–15',
+  can:['Greet people and say goodbye','Ask "who is this / what is this?"','Read the first 25 letters and recognize international words'],
+  grammar:`
+<h3>1 · No "to be" in the present</h3>
+<p>Russian simply drops <em>am / is / are</em> in the present tense. The book calls this <span class="de">das Hilfsverb „sein“</span>.</p>
+<table class="gt"><tr><td><i class="ru">Это Москва.</i></td><td>This <b>is</b> Moscow.</td></tr>
+<tr><td><i class="ru">Я Анна.</i></td><td>I <b>am</b> Anna.</td></tr>
+<tr><td><i class="ru">Кто это?</i></td><td>Who <b>is</b> this?</td></tr>
+<tr><td><i class="ru">Что это?</i></td><td>What <b>is</b> this?</td></tr></table>
+<p><b>кто</b> asks about people (and animals), <b>что</b> about things.</p>
+
+<h3>2 · Questions are just intonation</h3>
+<p>A yes/no question has the same word order as a statement. Only the voice rises on the word you're asking about. In writing, only the <b>?</b> changes.</p>
+<table class="gt"><tr><td><i class="ru">Это Анна.</i></td><td>That's Anna.</td></tr><tr><td><i class="ru">Это Анна?</i></td><td>Is that Anna?</td></tr></table>
+
+<h3>3 · Saying "no" and "not"</h3>
+<p><b>нет</b> = no (the answer). <b>не</b> = not (goes right before the word it negates).</p>
+<table class="gt"><tr><td><i class="ru">Это Анна? — Нет, это не Анна. Это Ольга.</i></td><td>Is that Anna? No, that's not Anna. That's Olga.</td></tr></table>
+
+<h3>4 · ты vs. вы</h3>
+<p><b>ты</b> = one person you know well (friend, kid, family). <b>вы</b> = polite "you" <em>or</em> any group. Your teacher is always <b>вы</b>. Greetings follow the same split: <i class="ru">Здравствуй!</i> (ты) vs. <i class="ru">Здравствуйте!</i> (вы). <i class="ru">Привет!</i> and <i class="ru">Пока!</i> are casual only.</p>
+
+<h3>5 · Stress changes the sound</h3>
+<p>Each word has one stressed vowel (the book marks it with an accent: <i class="ru">молоко́</i>). An <b>unstressed о sounds like "a"</b>: <i class="ru">молоко́</i> ≈ "ma-la-KO". This is why every word in this platform shows its stress mark. Learn it with the word. <span class="de">Betonung = stress</span></p>`,
+  quiz:[
+    ['Кто это? asks about…', ['a person','a thing'], 0, 'кто = who (people). что = what (things).'],
+    ['You greet your teacher in the morning:', ['Привет!','Здравствуйте!'], 1, 'Teacher = вы → Здравствуйте!'],
+    ['— Это Анна? — Нет, это … Анна.', ['не','нет'], 0, 'не = not (inside the sentence). нет = the answer "no".'],
+    ['Which letter sounds like English "r"?', ['Р','Н','В'], 0, 'Р = r. Н = n, В = v. These three look like Latin letters but sound different.'],
+    ['Which letter sounds like English "n"?', ['Н','Р','П'], 0, 'Н = n. П = p.'],
+    ['<i class="ru">ресторан</i> means…', ['restaurant','subway','theater'], 0, 'Read it letter by letter: r-e-s-t-o-r-a-n.'],
+    ['In <i class="ru">молоко́</i> the first two <i class="ru">о</i> sound like…', ['o','a'], 1, 'Unstressed о is reduced to an "a" sound.'],
+    ['You say bye to a friend:', ['До свидания!','Пока!'], 1, 'Пока is casual. До свидания is the neutral/formal goodbye.'],
+    ['<i class="ru">Это Москва?</i> is…', ['a statement','a question'], 1, 'The question mark (and rising intonation) is the only difference.'],
+    ['<i class="ru">вы</i> can mean…', ['only polite "you"','polite "you" or several people'], 1, 'вы = formal singular and any plural.'],
+  ],
+  drill:[
+    ['yes', 'да'], ['no', 'нет'], ['who', 'кто'], ['what', 'что'],
+    ['Hi! (casual)', 'Привет'], ['This is Moscow.', 'Это Москва'],
+    ['you (polite)', 'вы'], ['Goodbye! (neutral)', 'До свидания'],
+  ],
+},
+{
+  n:2, ru:'Мы из Владимира!', en:'We are from Vladimir!', kb:'KB p. 26–37 · ÜB p. 16–25',
+  can:['Ask for and give a name','Introduce someone and react','Ask how someone is and where they are from','Use the whole alphabet'],
+  grammar:`
+<h3>1 · Pronouns: nominative and accusative</h3>
+<p>Russian says "they call me …" instead of "my name is …". The person being called goes in the <b>accusative</b> (<span class="de">Akkusativ</span>).</p>
+<table class="gt"><tr><th>Nominative</th><th>Accusative</th><th></th></tr>
+<tr><td><i class="ru">я</i></td><td><i class="ru">меня</i></td><td><i class="ru">Меня зовут Лиза.</i></td></tr>
+<tr><td><i class="ru">ты</i></td><td><i class="ru">тебя</i></td><td><i class="ru">Как тебя зовут?</i></td></tr>
+<tr><td><i class="ru">он / оно</i></td><td><i class="ru">его</i> (say "yevo")</td><td><i class="ru">Его зовут Макс.</i></td></tr>
+<tr><td><i class="ru">она</i></td><td><i class="ru">её</i></td><td><i class="ru">Её зовут Анна.</i></td></tr>
+<tr><td><i class="ru">мы</i></td><td><i class="ru">нас</i></td><td></td></tr>
+<tr><td><i class="ru">вы</i></td><td><i class="ru">вас</i></td><td><i class="ru">Как вас зовут?</i></td></tr>
+<tr><td><i class="ru">они</i></td><td><i class="ru">их</i></td><td><i class="ru">Их зовут Том и Тея.</i></td></tr></table>
+
+<h3>2 · Every noun has a gender, and the ending tells you</h3>
+<table class="gt"><tr><th>Masculine</th><th>Neuter</th><th>Feminine</th></tr>
+<tr><td>consonant / -ь / -й<br><i class="ru">фильм, кремль, музей</i></td><td>-о / -е<br><i class="ru">слово, море</i></td><td>-а / -я<br><i class="ru">фирма, неделя</i></td></tr></table>
+<p class="tip">-ь words can be masculine <em>or</em> feminine. Learn those with their gender. The vocab list marks them.</p>
+
+<h3>3 · "From" = из + genitive</h3>
+<p>After <b>из</b> the noun goes into the <b>genitive</b> (<span class="de">Genitiv</span>):</p>
+<table class="gt"><tr><th>m / n</th><th>add -а / -я</th></tr>
+<tr><td><i class="ru">Берлин → из Берлина</i></td><td><i class="ru">Суздаль → из Суздаля</i></td></tr>
+<tr><th>f</th><th>-а → -ы, -я → -и</th></tr>
+<tr><td><i class="ru">Москва → из Москвы</i></td><td><i class="ru">Калуга → из Калуги</i> (!)</td></tr></table>
+<p class="tip"><b>Spelling rule (the "7-letter rule"):</b> after <b>г к х ж ш ч щ</b> you never write <b>ы</b>, you write <b>и</b>. That's why it's <i class="ru">из Калуги</i>, not "Калугы". This rule comes back in every lesson. <span class="de">Zischlaut = ж ш ч щ</span></p>
+
+<h3>4 · Nationality has two forms</h3>
+<table class="gt"><tr><td><i class="ru">Он русский. Она русская.</i></td><td>He's Russian. She's Russian.</td></tr>
+<tr><td><i class="ru">Он немец. Она немка.</i></td><td>He's German. She's German.</td></tr></table>
+<p>Ask: <i class="ru">Кто вы по национальности?</i> Answer with your own gender form.</p>
+
+<h3>5 · Formal names</h3>
+<p>Russians address each other formally with first name + patronymic (<i class="ru">отчество</i>): <i class="ru">Анна Сергеевна, Игорь Андреевич</i>. That's the cue for <b>вы</b> and <i class="ru">ваши дела</i>. First name alone means <b>ты</b> and <i class="ru">твои дела</i>.</p>`,
+  quiz:[
+    ['— Здравствуйте, как … зовут?<br>— Меня зовут Татьяна Борисовна.', ['тебя','вас'], 1, 'Name + patronymic = formal → вас.'],
+    ['— Меня зовут Михаил Петрович.<br>— … .', ['Очень приятно','Спасибо'], 0, 'Reply to an introduction: Очень приятно (nice to meet you).'],
+    ['Здравствуйте, Надежда Михайловна. Как …?', ['твои дела','ваши дела'], 1, 'Formal address → ваши дела.'],
+    ['— Маша, … ты?<br>— Я из Москвы.', ['как','откуда'], 1, 'The answer "from Moscow" means the question was откуда (from where).'],
+    ['— Вадим, вы из Мурманска?<br>— Нет, я из … .', ['Владимир','Владимира'], 1, 'из + genitive: masculine adds -а.'],
+    ['Меня зовут Таня. Я из … .', ['Калуга','Калуги'], 1, 'из + genitive; after г write и, not ы.'],
+    ['— Привет! Как … зовут?<br>— Таня. А тебя?', ['вас','тебя'], 1, 'Привет is casual → тебя.'],
+    ['…, пожалуйста! Это Валентина Васильевна, а это Григорий Петрович.', ['Очень приятно','Познакомьтесь'], 1, 'Познакомьтесь = "let me introduce you" / "meet each other".'],
+    ['Привет, Миша! Как … дела?', ['ваши','твои'], 1, 'Привет + first name = ты → твои.'],
+    ['Познакомьтесь, пожалуйста! Это Пётр Иванович. Он из … .', ['Суздаля','Суздаль'], 0, 'Суздаль is masculine (-ь) → genitive -я.'],
+    ['Это Маргарита Голубева. Она менеджер. Она … .', ['русский','русская'], 1, 'Она → feminine form русская.'],
+    ['— Мартин, кто вы по национальности?<br>— Я … .', ['немец','немка'], 0, 'Martin is a man → немец.'],
+  ],
+  drill:[
+    ['What\'s your name? (polite) — Как … зовут?', 'вас'],
+    ['My name is Lisa. — … зовут Лиза.', 'Меня'],
+    ['from Berlin — из (Берлин)', 'Берлина'],
+    ['from Moscow — из (Москва)', 'Москвы'],
+    ['from Kaluga — из (Калуга)', 'Калуги'],
+    ['She is German. — Она (немец → f)', 'немка'],
+    ['She is Russian. — Она (русский → f)', 'русская'],
+    ['Nice to meet you.', 'Очень приятно'],
+    ['Where are you from? (polite)', ['Откуда вы','Вы откуда']],
+  ],
+  write:{id:'w2', prompt:'Introduce yourself in 4–5 sentences: name, where you are from (country and city), nationality, how you are today.', words:25},
+},
+{
+  n:3, ru:'Где вы живёте?', en:'Where do you live?', kb:'KB p. 38–49 · ÜB p. 26–35',
+  can:['Say where you come from and which languages you speak (and how well)','Ask for and give an address and phone number','Count to 20'],
+  grammar:`
+<h3>1 · Countries in -ия</h3>
+<p>Feminine nouns ending in <b>-ия</b> take <b>-ии</b> in both genitive and prepositional:</p>
+<table class="gt"><tr><th>Nominative</th><th>из + genitive</th><th>в + prepositional</th></tr>
+<tr><td><i class="ru">Германия</i></td><td><i class="ru">из Германии</i></td><td><i class="ru">в Германии</i></td></tr>
+<tr><td><i class="ru">Россия</i></td><td><i class="ru">из России</i></td><td><i class="ru">в России</i></td></tr>
+<tr><td><i class="ru">Франция</i></td><td><i class="ru">из Франции</i></td><td><i class="ru">во Франции</i></td></tr></table>
+<p class="tip">Foreign names ending in a vowel (except unstressed -а) never change: <i class="ru">из Токио, в Баку, в Хельсинки</i>. Same for <i class="ru">кафе, кино, метро, такси</i>: <i class="ru">в кафе, в метро</i>.</p>
+
+<h3>2 · The two verb conjugations</h3>
+<p>Verbs come in two families, named after the vowel in their endings (<span class="de">e-Konjugation / и-Konjugation</span>). Learn the <b>я</b>, <b>ты</b> and <b>они</b> forms and you can build the rest.</p>
+<table class="gt"><tr><th></th><th>жить (е-conj.)</th><th>говорить (и-conj.)</th></tr>
+<tr><td>я</td><td><i class="ru">живу</i></td><td><i class="ru">говорю</i></td></tr>
+<tr><td>ты</td><td><i class="ru">живёшь</i></td><td><i class="ru">говоришь</i></td></tr>
+<tr><td>он / она</td><td><i class="ru">живёт</i></td><td><i class="ru">говорит</i></td></tr>
+<tr><td>мы</td><td><i class="ru">живём</i></td><td><i class="ru">говорим</i></td></tr>
+<tr><td>вы</td><td><i class="ru">живёте</i></td><td><i class="ru">говорите</i></td></tr>
+<tr><td>они</td><td><i class="ru">живут</i></td><td><i class="ru">говорят</i></td></tr></table>
+<p class="tip">The <b>ты</b> form always ends in <b>-шь</b>, with a soft sign. Leaving off the ь is the most common exam mistake here.</p>
+
+<h3>3 · Where? = в / на + prepositional</h3>
+<p>The prepositional case (<span class="de">Präpositiv</span>) only appears after prepositions. For <b>где?</b> (where?) use <b>в</b> (in) or <b>на</b> (on/at). Most nouns just take <b>-е</b>:</p>
+<table class="gt"><tr><td><i class="ru">город → в городе</i></td><td><i class="ru">центр → в центре</i></td></tr>
+<tr><td><i class="ru">Москва → в Москве</i></td><td><i class="ru">улица → на улице</i></td></tr>
+<tr><td><i class="ru">море → на море</i></td><td><i class="ru">Россия → в России</i> (-ия → -ии)</td></tr></table>
+<p><b>на</b> goes with streets, open spaces and some fixed words: <i class="ru">на улице, на море, на севере</i>. Learn those as a set.</p>
+
+<h3>4 · Languages: по-русски</h3>
+<p>With <i class="ru">говорить</i> use the adverb form: <i class="ru">Я говорю по-немецки, по-английски и немного по-русски.</i> How well: <i class="ru">свободно</i> (fluently), <i class="ru">хорошо</i>, <i class="ru">немного</i>, <i class="ru">плохо</i>, <i class="ru">к сожалению, не говорю</i>.</p>
+
+<h3>5 · Numbers 1–20 and phone numbers</h3>
+<p>11–19 all end in <b>-надцать</b> (from "на десять", on top of ten): <i class="ru">одиннадцать, двенадцать … девятнадцать</i>. Russians read phone numbers in pairs: 8 (916) 45-78-99.</p>`,
+  quiz:[
+    ['— Привет! Меня зовут Томас. Я из … .', ['Германия','Германии'], 1, 'из + genitive, -ия → -ии.'],
+    ['— Анна, ты из Канады?<br>— Нет, я из … .', ['Франции','Франция'], 0, 'из + genitive → Франции.'],
+    ['Это моя коллега Мария. Она из … .', ['России','Россия'], 0, 'из + genitive → России.'],
+    ['Мы из Канады. Мы … по-английски и по-французски.', ['говорят','говорим'], 1, 'мы → -им in the и-conjugation.'],
+    ['— Вы … по-русски?<br>— Да, немного.', ['говорю','говорите'], 1, 'вы → говорите.'],
+    ['— Кристиан, ты … по-французски?', ['говорите','говоришь'], 1, 'ты → -ишь.'],
+    ['Это студенты из Германии. Они хорошо … по-русски.', ['говорим','говорят'], 1, 'они → говорят.'],
+    ['— Пётр, где вы живёте?<br>— В … .', ['Москва','Москве'], 1, 'где? → в + prepositional (-е).'],
+    ['— Мария, где ты сейчас?<br>— Я в … .', ['Париже','Парижа'], 0, 'где? → prepositional -е. (Парижа is genitive.)'],
+    ['Мы живём в … .', ['центр','центре'], 1, 'в + prepositional → центре.'],
+    ['Это моя сестра Надя. Она … в Германии.', ['живут','живёт'], 1, 'она → живёт.'],
+    ['— Вы … в России?<br>— Да, мы из Санкт-Петербурга.', ['живут','живёте'], 1, 'вы → живёте.'],
+    ['Коля, ты живёшь … улице Вернадского?', ['на','в'], 0, 'Streets take на: на улице.'],
+    ['— Какой у тебя адрес?<br>— Улица Центральная, дом 5, … 2.', ['квартира','квартире'], 0, 'An address is a list in the nominative: улица …, дом 5, квартира 2.'],
+  ],
+  drill:[
+    ['я (жить) в Москве', 'живу'], ['они (жить)', 'живут'], ['ты (говорить)', 'говоришь'], ['мы (говорить)', 'говорим'],
+    ['в (Москва)', 'Москве'], ['в (Россия)', 'России'], ['на (улица)', 'улице'], ['из (Франция)', 'Франции'],
+    ['14 in words', 'четырнадцать'], ['I speak a little Russian.', ['Я немного говорю по-русски','Я говорю немного по-русски']],
+  ],
+  write:{id:'w3', prompt:'Write about where you live: country, city, street. Which languages do you speak and how well? Where does your best friend live?', words:30},
+},
+{
+  n:4, ru:'Моя семья', en:'My family', kb:'KB p. 50–59 · ÜB p. 36–43',
+  can:['Introduce family and friends','Say what you have and don\'t have','Say what someone does for work and where'],
+  grammar:`
+<h3>1 · Possessives: my, your, our</h3>
+<p>These agree with the <b>thing owned</b>, not the owner:</p>
+<table class="gt"><tr><th></th><th>m</th><th>f</th><th>n</th><th>pl</th></tr>
+<tr><td>my</td><td><i class="ru">мой</i></td><td><i class="ru">моя</i></td><td><i class="ru">моё</i></td><td><i class="ru">мои</i></td></tr>
+<tr><td>your (ты)</td><td><i class="ru">твой</i></td><td><i class="ru">твоя</i></td><td><i class="ru">твоё</i></td><td><i class="ru">твои</i></td></tr>
+<tr><td>our</td><td><i class="ru">наш</i></td><td><i class="ru">наша</i></td><td><i class="ru">наше</i></td><td><i class="ru">наши</i></td></tr>
+<tr><td>your (вы)</td><td><i class="ru">ваш</i></td><td><i class="ru">ваша</i></td><td><i class="ru">ваше</i></td><td><i class="ru">ваши</i></td></tr></table>
+<p class="tip"><b>his / her / their never change:</b> <i class="ru">его</i> (his), <i class="ru">её</i> (her), <i class="ru">их</i> (their). <i class="ru">его брат, его сестра, его дети</i>.</p>
+
+<h3>2 · "I have" = у меня есть</h3>
+<p>Russian has no everyday "to have". It says "at me there is". The owner goes in the <b>genitive</b> after <b>у</b>, and the thing owned stays in the <b>nominative</b>:</p>
+<table class="gt"><tr><td><i class="ru">У меня есть брат.</i></td><td>I have a brother.</td></tr>
+<tr><td><i class="ru">У Ирины есть сестра.</i></td><td>Irina has a sister.</td></tr></table>
+<p>After a preposition, <i class="ru">его / её / их</i> get an <b>н-</b>: <i class="ru">у него, у неё, у них</i>.</p>
+<table class="gt"><tr><th>я</th><th>ты</th><th>он</th><th>она</th><th>мы</th><th>вы</th><th>они</th></tr>
+<tr><td><i class="ru">у меня</i></td><td><i class="ru">у тебя</i></td><td><i class="ru">у него</i></td><td><i class="ru">у неё</i></td><td><i class="ru">у нас</i></td><td><i class="ru">у вас</i></td><td><i class="ru">у них</i></td></tr></table>
+
+<h3>3 · "I don't have" = у меня нет + genitive</h3>
+<p>With <b>нет</b>, the missing thing <b>also</b> goes into the genitive:</p>
+<table class="gt"><tr><td><i class="ru">У меня нет брата.</i></td><td>I don't have a brother.</td></tr>
+<tr><td><i class="ru">У неё нет сестры.</i></td><td>She doesn't have a sister.</td></tr></table>
+<p class="tip">Check: <b>есть</b> + nominative, <b>нет</b> + genitive. The exam tests this every time.</p>
+
+<h3>4 · Counting people: 1 vs. 2–4</h3>
+<table class="gt"><tr><td><b>1</b> + nominative</td><td><i class="ru">один брат, одна сестра</i></td></tr>
+<tr><td><b>2, 3, 4</b> + genitive singular</td><td><i class="ru">два брата, две сестры, три сына, четыре студента</i></td></tr></table>
+<p><i class="ru">два</i> for m/n, <i class="ru">две</i> for f. For children specifically: <i class="ru">двое детей, трое детей</i>. (<span class="de">Rektion der Grundzahlen</span> = which case a number requires.)</p>
+
+<h3>5 · Where do you work? в / на + prepositional</h3>
+<p><i class="ru">в офисе, в школе, в больнице, в банке, в редакции</i> · but <i class="ru">на заводе, на фирме</i> (also <i class="ru">в фирме</i>). Profession: <i class="ru">Кто он по профессии? — Он инженер.</i></p>`,
+  quiz:[
+    ['— Это моя мама.<br>— Как … зовут?<br>— Надежда.', ['его','её'], 1, 'мама is "she" → её.'],
+    ['— Это твой папа?<br>— Да. … зовут Геннадий Петрович.', ['Их','Его'], 1, 'папа is "he" → Его.'],
+    ['— Это мои братья.<br>— Как … зовут?', ['его','их'], 1, 'братья = plural → их.'],
+    ['Это … дочь. Её зовут Аня.', ['мой','моя'], 1, 'дочь is feminine (despite -ь) → моя.'],
+    ['Это я и мой муж Николай. А это … внуки.', ['ваши','наши'], 1, '"me and my husband" → our → наши.'],
+    ['— У … есть брат?<br>— Да, его зовут Валерий.', ['вас','ваш'], 0, 'у + genitive pronoun → у вас.'],
+    ['— … муж работает в редакции?', ['Ваши','Ваш'], 1, 'муж is masculine singular → Ваш.'],
+    ['— У вас есть дети?<br>— Да, у меня три … .', ['сын','сына'], 1, '2–4 + genitive singular → три сына.'],
+    ['У неё три сына и … дочь, моя мама.', ['один','одна'], 1, 'дочь is feminine → одна.'],
+    ['Это мой сын Михаил. У … три сына.', ['него','неё'], 0, 'сын = he → у него.'],
+    ['Моя сестра Светлана − менеджер. У … интересная работа.', ['нас','неё'], 1, 'сестра = she → у неё.'],
+    ['У Татьяны три дочки. Но у неё нет … .', ['сын','сына'], 1, 'нет + genitive → сына.'],
+    ['— Где ты работаешь?<br>— Я работаю … заводе.', ['в','на'], 1, 'завод takes на: на заводе.'],
+    ['— Кто ваш отец по профессии?<br>— Инженер. Он работает на … .', ['фирма','фирме'], 1, 'на + prepositional → фирме.'],
+  ],
+  drill:[
+    ['(my) мама', 'моя'], ['(our) дети', 'наши'], ['У (он) есть сестра.', 'него'], ['У меня нет (брат).', 'брата'],
+    ['У неё нет (сестра).', 'сестры'], ['два (сын)', 'сына'], ['(2) дочки', 'две'], ['Он работает на (завод).', 'заводе'],
+    ['teacher (f) — учитель → ?', 'учительница'], ['I have a cat.', 'У меня есть кошка'],
+  ],
+  write:{id:'w4', prompt:'Describe your family: who is in it, their names, where they live, what they do. Say one thing you don\'t have (a brother, a cat…).', words:40},
+},
+{
+  n:5, ru:'В магазине', en:'At the store', kb:'KB p. 60–69 · ÜB p. 44–51',
+  can:['Buy food at the supermarket and the market','Give amounts, weights and packaging','Ask for and understand prices','Write a shopping list'],
+  grammar:`
+<h3>1 · Plural (nominative)</h3>
+<table class="gt"><tr><th>m / f</th><th>hard stem → <b>-ы</b></th><th>soft stem, or after г к х ж ш ч щ → <b>-и</b></th></tr>
+<tr><td></td><td><i class="ru">помидор → помидоры</i><br><i class="ru">конфета → конфеты</i></td><td><i class="ru">шницель → шницели, груша → груши, пирог → пироги</i></td></tr>
+<tr><th>n</th><th>-о → <b>-а</b></th><th>-е → <b>-я</b></th></tr>
+<tr><td></td><td><i class="ru">яйцо → яйца</i></td><td><i class="ru">печенье → печенья</i></td></tr></table>
+<p class="tip">Exception: <i class="ru">яблоко → яблоки</i>. Some words lose a vowel (<span class="de">Vokalausfall</span>): <i class="ru">огурец → огурцы, напиток → напитки</i>.</p>
+<p>Some words are singular-only (<i class="ru">масло, творог, капуста, лук, картофель, морковь</i>) and some are plural-only (<i class="ru">деньги</i>). The verb follows: <i class="ru">Сколько стоит капуста? Сколько стоят яблоки?</i></p>
+
+<h3>2 · Accusative: what you buy or ask for</h3>
+<p>For <b>things</b> (inanimate), the accusative looks like the nominative, <b>except feminine -а / -я → -у / -ю</b>:</p>
+<table class="gt"><tr><td><i class="ru">Дайте, пожалуйста, лук, масло, капусту и бананы.</i></td></tr></table>
+<table class="gt"><tr><th></th><th>m</th><th>n</th><th>f</th></tr>
+<tr><td>Nom.</td><td><i class="ru">один литр</i></td><td><i class="ru">одно яйцо</i></td><td><i class="ru">одна пачка</i></td></tr>
+<tr><td>Acc.</td><td><i class="ru">один литр</i></td><td><i class="ru">одно яйцо</i></td><td><i class="ru">одну пачку</i></td></tr></table>
+
+<h3>3 · Numbers 21–200</h3>
+<p><i class="ru">двадцать, тридцать, сорок, пятьдесят, шестьдесят, семьдесят, восемьдесят, девяносто, сто, двести</i>. Build compounds like English: <i class="ru">сто двадцать пять</i> = 125.</p>
+
+<h3>4 · Prices: рубль / рубля / рублей</h3>
+<p>The <b>last word of the number</b> decides the form:</p>
+<table class="gt"><tr><td>ends in 1 (21, 31, 101…)</td><td>+ nominative singular</td><td><i class="ru">один рубль, 31 рубль</i></td></tr>
+<tr><td>ends in 2, 3, 4</td><td>+ genitive singular</td><td><i class="ru">два рубля, 152 рубля</i></td></tr>
+<tr><td>ends in 5–9, 0, and 11–14</td><td>+ genitive plural</td><td><i class="ru">пять рублей, 12 рублей, 165 рублей</i></td></tr></table>
+<p class="tip">11, 12, 13, 14 always take <i class="ru">рублей</i>, even though they "end" in 1–4. <i class="ru">евро</i> never changes.</p>
+<p>Price per unit: <i class="ru">Масло стоит 200 рублей пачка. Морковь стоит 52 рубля килограмм.</i></p>
+
+<h3>5 · At the counter</h3>
+<table class="gt"><tr><td><i class="ru">Что вы хотите? / Что ещё?</i></td><td>What would you like? / Anything else?</td></tr>
+<tr><td><i class="ru">Дайте мне, пожалуйста, хлеб и молоко.</i></td><td>Give me bread and milk, please.</td></tr>
+<tr><td><i class="ru">Это всё. Сколько с меня?</i></td><td>That's all. How much do I owe?</td></tr>
+<tr><td><i class="ru">С вас 178 рублей. Вот сдача.</i></td><td>That's 178 rubles. Here's your change.</td></tr></table>`,
+  quiz:[
+    ['Скажите, сколько стоит …?', ['булочка','булочки'], 0, 'стоит (singular) → булочка.'],
+    ['Сколько стоят …?', ['яблоко','яблоки'], 1, 'стоят (plural) → яблоки.'],
+    ['— Извините, где здесь …?<br>— Они там.', ['огурец','огурцы'], 1, 'Они → plural огурцы (vowel drops out).'],
+    ['— У нас есть …?<br>— Да, они в холодильнике.', ['яйцо','яйца'], 1, 'они → plural яйца.'],
+    ['Конфеты стоят 152 … коробка.', ['рубль','рубля','рублей'], 1, 'Ends in 2 → рубля.'],
+    ['Картофель стоит 31 … килограмм.', ['рубль','рубля','рублей'], 0, 'Ends in 1 → рубль.'],
+    ['Чай стоит 165 … пачка.', ['рубль','рубля','рублей'], 2, 'Ends in 5 → рублей.'],
+    ['В бутылке … литр.', ['один','одна','одну'], 0, 'литр is masculine → один.'],
+    ['… пачка стоит 198 рублей.', ['Один','Одно','Одна'], 2, 'пачка is feminine, subject → Одна.'],
+    ['Лук стоит 48 … килограмм.', ['рубль','рубля','рублей'], 2, 'Ends in 8 → рублей.'],
+    ['Дайте мне, пожалуйста, … .', ['капуста','капусту'], 1, 'Object of дайте → accusative, -а → -у.'],
+    ['Дайте, пожалуйста, … .', ['груша','грушу'], 1, 'Accusative feminine → грушу.'],
+    ['Дайте мне, пожалуйста, … пачку.', ['один','одна','одну'], 2, 'Accusative feminine → одну.'],
+    ['Мне, пожалуйста, … коробку.', ['один','одна','одну'], 2, 'коробку is accusative feminine → одну.'],
+    ['Сколько стоит … бутылка?', ['один','одна','одну'], 1, 'бутылка is the subject → nominative одна.'],
+    ['Вот сдача – 151 … .', ['рубль','рубля','рублей'], 0, 'Ends in 1 (not 11) → рубль.'],
+    ['С вас 178 … .', ['рубль','рубля','рублей'], 2, 'Ends in 8 → рублей.'],
+  ],
+  drill:[
+    ['plural: помидор', 'помидоры'], ['plural: груша', 'груши'], ['plural: яблоко', 'яблоки'], ['plural: яйцо', 'яйца'],
+    ['Дайте, пожалуйста, (колбаса).', 'колбасу'], ['22 (рубль)', 'рубля'], ['45 (рубль)', 'рублей'], ['12 (рубль)', 'рублей'],
+    ['Сколько (стоить) яблоки?', 'стоят'], ['90 in words', 'девяносто'], ['Anything else?', 'Что ещё'],
+  ],
+  write:{id:'w5', prompt:'Write a shopping list with amounts (a kilo of…, a bottle of…, a pack of…) and a short dialog at the market: ask the price, buy two things, pay.', words:40},
+},
+{
+  n:6, ru:'Свободное время', en:'Free time', kb:'KB p. 70–81 · ÜB p. 52–59',
+  can:['Talk about hobbies and what you (don\'t) like doing','Say when and how often you do things','Say where you like to go'],
+  grammar:`
+<h3>1 · любить and ходить: the consonant changes in "я"</h3>
+<p>Both are и-conjugation, but the <b>я</b> form changes a consonant, and the stress moves after it:</p>
+<table class="gt"><tr><th></th><th>любить (б → бл)</th><th>ходить (д → ж)</th></tr>
+<tr><td>я</td><td><i class="ru">люблю</i></td><td><i class="ru">хожу</i></td></tr>
+<tr><td>ты</td><td><i class="ru">любишь</i></td><td><i class="ru">ходишь</i></td></tr>
+<tr><td>он / она</td><td><i class="ru">любит</i></td><td><i class="ru">ходит</i></td></tr>
+<tr><td>мы</td><td><i class="ru">любим</i></td><td><i class="ru">ходим</i></td></tr>
+<tr><td>вы</td><td><i class="ru">любите</i></td><td><i class="ru">ходите</i></td></tr>
+<tr><td>они</td><td><i class="ru">любят</i></td><td><i class="ru">ходят</i></td></tr></table>
+<p><b>любить</b> + accusative (<i class="ru">Я люблю музыку, спорт</i>) or + infinitive (<i class="ru">Я люблю читать</i>).</p>
+
+<h3>2 · играть в vs. играть на</h3>
+<table class="gt"><tr><td>sports and games</td><td><b>в</b> + accusative</td><td><i class="ru">играть в футбол, в теннис, в шахматы</i></td></tr>
+<tr><td>instruments and devices</td><td><b>на</b> + prepositional</td><td><i class="ru">играть на гитаре, на пианино, на планшете</i></td></tr></table>
+
+<h3>3 · Reflexive verbs: -ся / -сь</h3>
+<p>Conjugate normally, then add <b>-ся</b> after a consonant and <b>-сь</b> after a vowel:</p>
+<table class="gt"><tr><td><i class="ru">я катаюсь</i></td><td><i class="ru">мы катаемся</i></td></tr>
+<tr><td><i class="ru">ты катаешься</i></td><td><i class="ru">вы катаетесь</i></td></tr>
+<tr><td><i class="ru">он катается</i></td><td><i class="ru">они катаются</i></td></tr></table>
+<p><i class="ru">кататься на</i> + prepositional: <i class="ru">на велосипеде, на лыжах, на коньках</i>.</p>
+
+<h3>4 · Where? vs. where to?</h3>
+<table class="gt"><tr><td><b>где?</b> (location)</td><td>в / на + <b>prepositional</b></td><td><i class="ru">Я в театре.</i></td></tr>
+<tr><td><b>куда?</b> (direction)</td><td>в / на + <b>accusative</b></td><td><i class="ru">Я хожу в театр, в кино, на выставку.</i></td></tr></table>
+<p class="tip">German speakers have this exact logic (wo? + Dativ, wohin? + Akkusativ). Use it: <span class="de">Wo? → Präpositiv, Wohin? → Akkusativ</span>.</p>
+
+<h3>5 · Days of the week: в + accusative</h3>
+<p><i class="ru">в понедельник, во вторник, в среду, в четверг, в пятницу, в субботу, в воскресенье</i>. Feminine days change -а → -у. How often: <i class="ru">всегда, обычно, часто, иногда, редко, никогда не</i>.</p>`,
+  quiz:[
+    ['— Наташа, вы … читать книги?', ['любит','любите'], 1, 'вы → любите.'],
+    ['— Да, а ещё мы … играть в гандбол.', ['любят','любим'], 1, 'мы → любим.'],
+    ['— Твой брат тоже играет в хоккей?<br>— Нет, он не … спорт.', ['любит','любят'], 0, 'он → любит.'],
+    ['— Ты любишь гулять в парке?<br>— Нет, я … сидеть в Интернете.', ['любим','люблю'], 1, 'я → люблю (б → бл).'],
+    ['Я люблю слушать … .', ['музыка','музыку'], 1, 'Object → accusative -у.'],
+    ['В воскресенье наша семья любит … на природе.', ['отдыхает','отдыхать'], 1, 'любить + infinitive.'],
+    ['— Когда ты … в теннис?', ['играешь','играете'], 0, 'ты → играешь.'],
+    ['Маша очень любит музыку. Она играет … гитаре и пианино.', ['в','на'], 1, 'Instruments → на + prepositional.'],
+    ['Наши дети любят спорт. Они часто играют … футбол.', ['в','на'], 0, 'Sports → в + accusative.'],
+    ['— У тебя есть хобби?<br>— Да, я люблю … на велосипеде.', ['катаюсь','кататься'], 1, 'любить + infinitive.'],
+    ['— Что ты сегодня делаешь?<br>— Я … на скейтборде.', ['катаюсь','катаешься'], 0, 'я → катаюсь (-сь after vowel).'],
+    ['— Куда ты … в воскресенье?', ['ходит','ходишь'], 1, 'ты → ходишь.'],
+    ['— Вы … на выставки?', ['ходят','ходите'], 1, 'вы → ходите.'],
+    ['Это мои друзья. Мы вместе … в бассейн и в парк.', ['ходим','ходят'], 0, 'мы → ходим.'],
+  ],
+  drill:[
+    ['я (любить)', 'люблю'], ['ты (любить)', 'любишь'], ['я (ходить)', 'хожу'], ['они (ходить)', 'ходят'],
+    ['играть … футбол (preposition)', 'в'], ['играть на (гитара)', 'гитаре'], ['мы (кататься)', 'катаемся'],
+    ['on Wednesday', 'в среду'], ['Я люблю (музыка).', 'музыку'], ['кататься на (велосипед)', 'велосипеде'],
+  ],
+  write:{id:'w6', prompt:'What do you do in your free time? Name three hobbies, say when/how often you do them (use days of the week), and where you like to go.', words:40},
+},
+{
+  n:7, ru:'Приятного аппетита!', en:'Enjoy your meal!', kb:'KB p. 82–91 · ÜB p. 60–67',
+  can:['Talk about what you eat and drink at each meal','Ask and tell the time','Host guests and thank the host','Order in a restaurant'],
+  grammar:`
+<h3>1 · Instrumental singular: "with"</h3>
+<table class="gt"><tr><th>m / n</th><th>-ом / -ем</th><td><i class="ru">салат → с салатом, молоко → с молоком, картофель → с картофелем</i></td></tr>
+<tr><th>f</th><th>-ой / -ей</th><td><i class="ru">колбаса → с колбасой, курица → с курицей</i></td></tr></table>
+<p><b>с</b> + instrumental = with. <b>без</b> + genitive = without:</p>
+<table class="gt"><tr><td><i class="ru">чай с лимоном и без сахара</i></td><td>tea with lemon and without sugar</td></tr>
+<tr><td><i class="ru">вода без газа</i></td><td>still water</td></tr></table>
+
+<h3>2 · Three irregular verbs you'll use constantly</h3>
+<table class="gt"><tr><th></th><th>есть (eat)</th><th>пить (drink)</th><th>хотеть (want)</th></tr>
+<tr><td>я</td><td><i class="ru">ем</i></td><td><i class="ru">пью</i></td><td><i class="ru">хочу</i></td></tr>
+<tr><td>ты</td><td><i class="ru">ешь</i></td><td><i class="ru">пьёшь</i></td><td><i class="ru">хочешь</i></td></tr>
+<tr><td>он / она</td><td><i class="ru">ест</i></td><td><i class="ru">пьёт</i></td><td><i class="ru">хочет</i></td></tr>
+<tr><td>мы</td><td><i class="ru">едим</i></td><td><i class="ru">пьём</i></td><td><i class="ru">хотим</i></td></tr>
+<tr><td>вы</td><td><i class="ru">едите</i></td><td><i class="ru">пьёте</i></td><td><i class="ru">хотите</i></td></tr>
+<tr><td>они</td><td><i class="ru">едят</i></td><td><i class="ru">пьют</i></td><td><i class="ru">хотят</i></td></tr></table>
+<p class="tip">хотеть is е-conjugation in the singular and и-conjugation in the plural. That's why the exam likes it.</p>
+
+<h3>3 · Dative pronouns: мне, тебе, нам, вам</h3>
+<p>"To / for me": <i class="ru">Мне, пожалуйста, чай.</i> (For me, tea please.) <i class="ru">Что вам принести?</i> (What can I bring you?) <i class="ru">Принесите нам воду.</i></p>
+
+<h3>4 · Telling the time</h3>
+<table class="gt"><tr><th></th><th>hours</th><th>minutes</th></tr>
+<tr><td>1</td><td><i class="ru">час</i></td><td><i class="ru">одна минута</i></td></tr>
+<tr><td>2, 3, 4</td><td><i class="ru">часа</i></td><td><i class="ru">две, три, четыре минуты</i></td></tr>
+<tr><td>5–20</td><td><i class="ru">часов</i></td><td><i class="ru">пять … минут</i></td></tr></table>
+<p>Same last-digit logic as rubles: <i class="ru">22 часа, 21 минута</i>. Ask: <i class="ru">Который час? / Сколько времени?</i> "At" a time = <b>в</b>: <i class="ru">В 8 часов 30 минут мы ужинаем.</i></p>
+
+<h3>5 · Meals</h3>
+<p><i class="ru">на завтрак / на обед / на ужин / на десерт</i> = for breakfast / lunch / dinner / dessert. Verbs: <i class="ru">завтракать, обедать, ужинать</i>. Times of day: <i class="ru">утром, днём, вечером</i>. Numbers now go to 1000: <i class="ru">триста, четыреста, пятьсот … девятьсот, тысяча</i>.</p>`,
+  quiz:[
+    ['Что ты обычно … на обед?', ['ем','едят','ешь'], 2, 'ты → ешь.'],
+    ['На обед я обычно … щи.', ['ем','ест','ешь'], 0, 'я → ем.'],
+    ['Утром мы любим … кашу.', ['ест','есть','ешь'], 1, 'любить + infinitive есть.'],
+    ['Они … воду и сок.', ['пьют','пьёт','пить'], 0, 'они → пьют.'],
+    ['Попробуйте блины с … .', ['творогом','творог'], 0, 'с + instrumental → творогом.'],
+    ['Нам, пожалуйста, пироги с … .', ['курицей','курица'], 0, 'с + instrumental, feminine -ей.'],
+    ['Я очень … есть.', ['хотеть','хочу','хочешь'], 1, 'я → хочу.'],
+    ['Мы не … рыбу.', ['хотим','хотят','хотеть'], 0, 'мы → хотим.'],
+    ['— Сколько сейчас времени?<br>— Сейчас 8 … 20 минут.', ['час','часа','часов'], 2, '8 → часов.'],
+    ['Сейчас 22 … 31 минута.', ['час','часа','часов'], 1, 'Ends in 2 → часа.'],
+    ['— Когда мы сегодня обедаем?<br>— …', ['В два часа.','Два часа.'], 0, 'когда? (at what time) → в + time.'],
+    ['— Скажите, который час?<br>— Сейчас 10 часов 21 … .', ['минута','минуты','минут'], 0, 'Ends in 1 → минута.'],
+    ['Мы ужинаем сегодня в 18 часов 30 … .', ['минута','минуты','минут'], 2, '30 → минут.'],
+    ['Вы хотите …?', ['пицца','пиццей','пиццу'], 2, 'Object of хотеть → accusative пиццу.'],
+    ['Я не пью воду без … .', ['газ','газа','газом'], 1, 'без + genitive → газа.'],
+    ['Мне, пожалуйста, чай без … .', ['лимон','лимона','лимоном'], 1, 'без + genitive → лимона.'],
+    ['Что вы хотите? Что … принести?', ['вы','вас','вам'], 2, 'bring to you → dative вам.'],
+    ['Мы хотим пить. Принесите …, пожалуйста, воду.', ['мне','нам','вам'], 1, 'мы → to us → нам.'],
+  ],
+  drill:[
+    ['я (есть)', 'ем'], ['они (есть)', 'едят'], ['ты (пить)', 'пьёшь'], ['мы (хотеть)', 'хотим'], ['он (хотеть)', 'хочет'],
+    ['чай с (лимон)', 'лимоном'], ['кофе без (сахар)', 'сахара'], ['с (рыба)', 'рыбой'], ['3 (час)', 'часа'], ['5 (минута)', 'минут'],
+    ['For me, please, … (start of an order)', 'Мне, пожалуйста'], ['500 in words', 'пятьсот'],
+  ],
+  write:{id:'w7', prompt:'Describe a normal day of eating: what you eat and drink for breakfast, lunch and dinner, and at what time. Then order a meal in a café (3–4 lines of dialog).', words:45},
+},
+{
+  n:8, ru:'Что мы носим', en:'What we wear', kb:'KB p. 92–101 · ÜB p. 68–75',
+  can:['Name clothes and colors','Ask about price and size','Say what you think of clothes and give compliments','Talk about what you like to wear'],
+  grammar:`
+<h3>1 · носить (с → ш in "я")</h3>
+<p><i class="ru">я ношу, ты носишь, он носит, мы носим, вы носите, они носят</i>. Same pattern as <i class="ru">ходить → хожу</i>.</p>
+
+<h3>2 · этот: this</h3>
+<table class="gt"><tr><th></th><th>m</th><th>f</th><th>n</th><th>pl</th></tr>
+<tr><td>Nom.</td><td><i class="ru">этот</i></td><td><i class="ru">эта</i></td><td><i class="ru">это</i></td><td><i class="ru">эти</i></td></tr>
+<tr><td>Acc.</td><td><i class="ru">этот</i></td><td><b><i class="ru">эту</i></b></td><td><i class="ru">это</i></td><td><i class="ru">эти</i></td></tr></table>
+<p><i class="ru">Покажите мне, пожалуйста, эти шорты, эту блузку, это платье и этот свитер.</i></p>
+<p class="tip">Don't mix up <i class="ru">это платье</i> (this dress) and <i class="ru">Это платье.</i> (This is a dress.).</p>
+
+<h3>3 · Adjectives: nominative</h3>
+<table class="gt"><tr><th></th><th>m</th><th>f</th><th>n</th><th>pl</th></tr>
+<tr><td>hard, stem-stressed</td><td><i class="ru">белый</i></td><td><i class="ru">белая</i></td><td><i class="ru">белое</i></td><td><i class="ru">белые</i></td></tr>
+<tr><td>hard, end-stressed</td><td><i class="ru">голубой</i></td><td><i class="ru">голубая</i></td><td><i class="ru">голубое</i></td><td><i class="ru">голубые</i></td></tr>
+<tr><td>soft</td><td><i class="ru">синий</i></td><td><i class="ru">синяя</i></td><td><i class="ru">синее</i></td><td><i class="ru">синие</i></td></tr></table>
+<p class="tip">The 7-letter rule again: after г к х ж ш ч щ write <b>и</b>, never ы: <i class="ru">маленький, дорогие, большие, хорошие</i>. After ж ш ч щ an unstressed о becomes е: <i class="ru">хорошее</i> (not "хорошое").</p>
+<p>Adjectives agree with their noun: <i class="ru">зелёная рубашка, модное пальто, удобные кроссовки</i>. <b>какой?</b> (which? / what kind of?) works exactly like an adjective: <i class="ru">какой костюм, какая футболка, какое платье, какие туфли</i>.</p>
+
+<h3>4 · Adjectives: accusative</h3>
+<p>For things, the accusative looks like the nominative, <b>except feminine: -ую / -юю</b>.</p>
+<table class="gt"><tr><td><i class="ru">Какую куртку вы хотите? — Коричневую или синюю?</i></td></tr></table>
+
+<h3>5 · "I like it" and "it suits you" use the dative</h3>
+<p>In Russian the <b>thing</b> is the subject and the person is in the dative: "it pleases me".</p>
+<table class="gt"><tr><td><i class="ru">Мне нравится эта куртка.</i></td><td>I like this jacket.</td></tr>
+<tr><td><i class="ru">Мне нравятся эти джинсы.</i></td><td>I like these jeans. (plural → нравятся)</td></tr>
+<tr><td><i class="ru">Эта блузка вам очень идёт!</i></td><td>This blouse really suits you!</td></tr></table>
+<p>Color questions: <i class="ru">Какого цвета футболка? — Красная.</i> Numbers now go to 20 000 for prices: <i class="ru">пять тысяч триста рублей</i>.</p>`,
+  quiz:[
+    ['— Сколько стоит … платье?<br>— 5300 рублей.', ['эта','это'], 1, 'платье is neuter → это.'],
+    ['— … блузка вам очень идёт!', ['Это','Эта'], 1, 'блузка is feminine → Эта.'],
+    ['Наташа, … пуловер стоит 7800 рублей.', ['эти','этот'], 1, 'пуловер is masculine → этот.'],
+    ['Дайте мне, пожалуйста, … блузку.', ['эту','эта'], 0, 'Accusative feminine → эту.'],
+    ['— У вас есть … рубашки?<br>— Да. Какой у вас размер?', ['белая','белые'], 1, 'рубашки is plural → белые.'],
+    ['— Виктор, тебе нравится эта … куртка?', ['синяя','синюю'], 0, 'куртка is the subject of нравится → nominative синяя.'],
+    ['— Ира, это … пальто тебе очень идёт!', ['красные','красное'], 1, 'пальто is neuter → красное.'],
+    ['— Какой костюм вы хотите? …?', ['Классические','Классический'], 1, 'костюм is masculine singular.'],
+    ['— … у вас размер?<br>— 44-ый.', ['Какая','Какой'], 1, 'размер is masculine → Какой.'],
+    ['— … футболку мне примерить? Голубую или жёлтую?', ['Какую','Какая'], 0, 'Accusative feminine → Какую.'],
+    ['У нас строгий дресс-код, поэтому я ношу костюм и … рубашку.', ['белое','белую'], 1, 'Accusative feminine → белую.'],
+    ['— Лена, что ты покупаешь?<br>— … туфли на высоком каблуке.', ['модные','модную'], 0, 'туфли is plural → модные.'],
+    ['— Какую одежду ты любишь … дома?', ['носишь','носить'], 1, 'любить + infinitive.'],
+    ['— Что вы обычно носите в офисе?<br>— На работе я … костюм.', ['ношу','носит'], 0, 'я → ношу.'],
+  ],
+  drill:[
+    ['я (носить)', 'ношу'], ['Дайте (этот) блузку.', 'эту'], ['(белый) рубашка', 'белая'], ['(синий) платье', 'синее'],
+    ['(большой) сумки', 'большие'], ['Я хочу (красный) куртку.', 'красную'], ['Мне (нравиться) эти джинсы.', 'нравятся'],
+    ['Вам (идти) этот цвет.', 'идёт'], ['(какой) платье?', 'какое'], ['(хороший) пальто', 'хорошее'],
+  ],
+  write:{id:'w8', prompt:'What do you usually wear at school, at home, and at a party? What is your favorite color? Describe one piece of clothing you really like (color, price, why).', words:45},
+},
+{
+  n:9, ru:'С праздником!', en:'Happy holidays!', kb:'KB p. 102–113 · ÜB p. 76–83',
+  can:['Name holidays and say when they are','Ask and give the date and someone\'s age','Congratulate and wish someone well','Talk about presents'],
+  grammar:`
+<h3>1 · Verbs in -овать / -евать</h3>
+<p>In the present tense, <b>-ова- / -ева-</b> becomes <b>-у-</b>:</p>
+<table class="gt"><tr><td><i class="ru">праздновать → я праздную, ты празднуешь … они празднуют</i></td></tr>
+<tr><td><i class="ru">танцевать → я танцую, ты танцуешь … они танцуют</i></td></tr>
+<tr><td><i class="ru">фотографировать → я фотографирую …</i></td></tr></table>
+
+<h3>2 · Months: в + prepositional</h3>
+<p><i class="ru">в январе, в феврале, в марте, в апреле, в мае, в июне, в июле, в августе, в сентябре, в октябре, в ноябре, в декабре</i>. Months aren't capitalized. Seasons: <i class="ru">зимой, весной, летом, осенью</i> (no preposition).</p>
+
+<h3>3 · Ordinal numbers and dates</h3>
+<p>Ordinals behave like adjectives: <i class="ru">первый, второй, третий, четвёртый, пятый …</i> In compound numbers only the last word is ordinal: <i class="ru">двадцать седьмой</i>.</p>
+<table class="gt"><tr><td>What's the date?</td><td><i class="ru">Какое сегодня число?</i></td></tr>
+<tr><td>Today is May 1.</td><td><i class="ru">Сегодня первое мая.</i><br>neuter ordinal (nom.) + month in the <b>genitive</b></td></tr>
+<tr><td>On what date?</td><td><i class="ru">Какого числа?</i></td></tr>
+<tr><td>On May 1.</td><td><i class="ru">Первого мая.</i><br>everything in the <b>genitive</b></td></tr></table>
+<p class="tip">The ordinal is neuter because it agrees with the hidden word <i class="ru">число</i> (date). Dates are written without a dot: 2 мая.</p>
+
+<h3>4 · Dative: giving and wishing "to" someone</h3>
+<table class="gt"><tr><th>m</th><td>-у / -ю</td><td><i class="ru">брат → брату, учитель → учителю</i></td></tr>
+<tr><th>f</th><td>-е / -и</td><td><i class="ru">мама → маме, подруга → подруге, Мария → Марии</i></td></tr></table>
+<p>Pronouns: <i class="ru">мне, тебе, ему, ей, нам, вам, им</i>. <i class="ru">дарить</i> <b>кому</b> (dative) <b>что</b> (accusative): <i class="ru">Я дарю подруге книгу. Мы дарим учителю цветы.</i></p>
+
+<h3>5 · Age: dative + год / года / лет</h3>
+<table class="gt"><tr><td><i class="ru">Сколько тебе лет? — Мне двадцать один год.</i></td></tr>
+<tr><td><i class="ru">Ей двадцать три года. Ему тридцать лет.</i></td></tr></table>
+<p>Same last-digit rule: 1 → <i class="ru">год</i>, 2–4 → <i class="ru">года</i>, 5–20 and 0 → <i class="ru">лет</i>.</p>
+
+<h3>6 · Animate masculine accusative = genitive</h3>
+<p>Masculine <b>people and animals</b> take <b>-а / -я</b> in the accusative: <i class="ru">Я фотографирую брата, учителя.</i> Things don't change: <i class="ru">Я фотографирую парк, музей.</i> Congratulate someone: <i class="ru">поздравлять</i> + accusative + <i class="ru">с</i> + instrumental: <i class="ru">Я поздравляю друга с днём рождения!</i></p>`,
+  quiz:[
+    ['Моя семья … Женский день.', ['праздновать','празднует'], 1, 'семья = она → празднует.'],
+    ['Мы любим … Новый год.', ['праздновать','празднуем'], 0, 'любить + infinitive.'],
+    ['Рождество люди в России празднуют седьмого … .', ['январь','январе','января'], 2, 'Date → month in the genitive.'],
+    ['У меня день рождения в … .', ['июль','июле','июля'], 1, 'в + month → prepositional июле.'],
+    ['— Когда у тебя день рождения?<br>— …', ['Второго февраля.','Второе февраля.'], 0, 'Когда? → all genitive: второго февраля.'],
+    ['Сегодня двадцать … сентября.', ['третье','третьего'], 0, 'Сегодня … → nominative neuter ordinal.'],
+    ['У сестры день рождения … октября.', ['тридцать первое','тридцать первого'], 1, 'When something happens on a date → genitive.'],
+    ['Что ты обычно даришь …?', ['брат','брата','брату'], 2, 'дарить кому → dative брату.'],
+    ['Мы дарим … цветы.', ['Мария','Марии'], 1, 'Dative of Мария → Марии.'],
+    ['Я дарю … футболку.', ['сестра','сестре','сестру'], 1, 'дарить кому → dative сестре.'],
+    ['Я поздравляю … с праздником.', ['учитель','учителю','учителя'], 2, 'поздравлять кого → accusative; animate masculine = -я.'],
+    ['Олег фотографирует … .', ['мама','мамы','маму'], 2, 'Accusative feminine → маму.'],
+    ['Что ты обычно даришь …?', ['папа','папе','папу'], 1, 'дарить кому → dative папе.'],
+    ['— Что ты даришь бабушке?<br>— Обычно я дарю … книгу.', ['ей','ему','им'], 0, 'бабушка = she → ей.'],
+    ['Я очень люблю … .', ['дедушка','дедушке','дедушку'], 2, 'любить + accusative; дедушка declines like a feminine -а noun → дедушку.'],
+    ['— Что вы дарите детям?<br>— Мы дарим … игрушки.', ['ей','ему','им'], 2, 'дети = they → им.'],
+    ['Сколько лет …?', ['Ирины','Ирине'], 1, 'Age uses the dative → Ирине.'],
+    ['… 38 лет.', ['Виктора','Виктору'], 1, 'Age uses the dative → Виктору.'],
+  ],
+  drill:[
+    ['я (праздновать)', 'праздную'], ['in March', 'в марте'], ['Today is May 1. (in words)', 'Сегодня первое мая'], ['on May 9 (in words)', 'девятого мая'],
+    ['Я дарю (брат) книгу.', 'брату'], ['Мы дарим (мама) цветы.', 'маме'], ['Сколько (он) лет?', 'ему'],
+    ['Мне 21 (год).', 'год'], ['Ей 23 (год).', 'года'], ['Ему 30 (год).', 'лет'], ['Я поздравляю (друг).', 'друга'],
+  ],
+  write:{id:'w9', prompt:'Write a birthday card to a friend (congratulate, wish 2–3 things). Then write when your birthday is, how old you are, and what your favorite holiday is and how you celebrate it.', words:45},
+},
+];
+
+// Reading passages for the mock exam. lessons = the lessons whose grammar/vocab it needs.
+const READINGS = [
+  {id:'r1', lessons:[2,3,4], title:'Лиза', text:'Меня зовут Лиза. Я из Германии, из Гамбурга, но сейчас я живу в Москве. Я студентка. Я говорю по-немецки, по-английски и немного по-русски. У меня есть брат и сестра. Брата зовут Макс, он инженер и работает на заводе. Сестру зовут Анна, она врач и работает в больнице. Мои родители живут в Гамбурге. Папа журналист, а мама учительница.',
+   items:[['Liza is from Hamburg.',true],['Liza lives in Hamburg now.',false],['Liza speaks Russian fluently.',false],['Max works at a factory.',true],['Anna is a teacher.',false],['Liza\'s mom is a teacher.',true]]},
+  {id:'r2', lessons:[5,6,7], title:'Суббота', text:'В субботу Олег обычно ходит на рынок. Там он покупает хлеб, сыр, помидоры и яблоки. Яблоки стоят сто двадцать рублей килограмм. Потом он гуляет в парке или играет в теннис. Вечером Олег и его подруга Маша ужинают в кафе. Маша не ест мясо. Она ест рыбу с рисом и пьёт чай с лимоном. Олег хочет пиццу и пьёт сок.',
+   items:[['Oleg usually goes to the market on Sundays.',false],['Apples cost 120 rubles a kilo.',true],['After the market he plays volleyball.',false],['Masha eats fish with rice.',true],['Masha drinks tea with sugar.',false],['Oleg drinks juice.',true]]},
+  {id:'r3', lessons:[8,9], title:'День рождения', text:'Сегодня двадцать пятое декабря. У Кати день рождения! Ей девятнадцать лет. Мама дарит Кате красное платье, а брат дарит ей книгу. Катя очень любит Новый год. В России Рождество празднуют седьмого января. Вечером Катя и её друзья танцуют. Катя носит новое платье и чёрные туфли.',
+   items:[['Today is December 25.',true],['Katya is 18.',false],['Her mom gives her a red dress.',true],['Her brother gives her flowers.',false],['In Russia, Christmas is on January 7.',true],['Katya wears white shoes.',false]]},
+];
+
+// German instructions and grammar terms that will appear on the exam paper.
+const EXAM_GERMAN = [
+  ['Setzen Sie die Endungen / Wörter ein.','Fill in the endings / words.','Вставьте окончания / слова.'],
+  ['Wählen Sie die richtige Antwort aus.','Choose the correct answer.','Выберите правильный ответ.'],
+  ['Kreuzen Sie an.','Tick / check the box.','Отметьте.'],
+  ['Richtig oder falsch?','True or false?','Правильно или неправильно?'],
+  ['Ergänzen Sie die Sätze / die Tabelle.','Complete the sentences / the table.','Дополните предложения / таблицу.'],
+  ['Beantworten Sie die Fragen.','Answer the questions.','Ответьте на вопросы.'],
+  ['Stellen Sie Fragen.','Ask questions.','Задайте вопросы.'],
+  ['Formulieren Sie die Fragen.','Write the questions.','Сформулируйте вопросы.'],
+  ['Übersetzen Sie die Sätze ins Russische.','Translate the sentences into Russian.','Переведите предложения на русский.'],
+  ['Ordnen Sie zu.','Match (the items).','Подберите / соедините.'],
+  ['Bilden Sie Sätze.','Make sentences.','Составьте предложения.'],
+  ['Bilden Sie den Plural.','Form the plural.','Образуйте множественное число.'],
+  ['Konjugieren Sie die Verben.','Conjugate the verbs.','Проспрягайте глаголы.'],
+  ['Markieren Sie die Betonung.','Mark the stress.','Поставьте ударение.'],
+  ['Verneinen Sie die Sätze.','Make the sentences negative.','Ответьте отрицательно.'],
+  ['Korrigieren Sie die Fehler.','Correct the mistakes.','Исправьте ошибки.'],
+  ['Lesen Sie den Text.','Read the text.','Прочитайте текст.'],
+  ['Welches Wort passt nicht in die Reihe?','Which word doesn\'t belong?','Какое слово лишнее?'],
+  ['Schreiben Sie einen Text über …','Write a text about …','Напишите текст о …'],
+  ['Schreiben Sie in Schreibschrift.','Write in cursive (handwriting).','Напишите прописью.'],
+  ['Beschreiben Sie das Foto.','Describe the photo.','Опишите фотографию.'],
+  ['Notieren Sie …','Write down …','Запишите …'],
+];
+const GERMAN_TERMS = [
+  ['Nominativ','nominative: the subject, dictionary form'],['Genitiv','genitive: "of", after из, у, без, нет, 2–4'],
+  ['Dativ','dative: "to / for" someone, мне нравится, age'],['Akkusativ','accusative: the direct object, куда?'],
+  ['Instrumental','instrumental: "with" (с), by means of'],['Präpositiv','prepositional: after в / на / о for где?'],
+  ['Maskulinum / Femininum / Neutrum','masculine / feminine / neuter'],['Singular / Plural','singular / plural'],
+  ['Endung','ending'],['Stamm / Stammauslaut','stem / last letter of the stem'],['Konjugation','conjugation (е- or и-)'],
+  ['Betonung','stress (the accented vowel)'],['Zischlaut','hushing consonant: ж ш ч щ'],
+  ['Weichheitszeichen / Härtezeichen','soft sign ь / hard sign ъ'],['Rektion','which case a word requires'],
+  ['Grundzahl / Ordnungszahl','cardinal (два) / ordinal (второй) number'],['belebt / unbelebt','animate / inanimate'],
+  ['Vokalausfall','fleeting vowel (огурец → огурцы)'],['Personalpronomen','personal pronoun'],
+  ['Possessivpronomen','possessive (мой, твой…)'],['Demonstrativpronomen','demonstrative (этот)'],
+  ['Infinitiv','infinitive (-ть)'],['Präsens','present tense'],['reflexiv','reflexive (-ся / -сь)'],
+];
+
+// The 33 letters. [letter, sound in English, example word, "trap" note]
+const ALPHABET = [
+  ['А а','a in "father"','ма́ма',''],['Б б','b','банк',''],['В в','v','вода́','Looks like B, sounds like V'],
+  ['Г г','g in "go"','го́род',''],['Д д','d','дом',''],['Е е','ye in "yes"','е́вро',''],['Ё ё','yo in "yonder"','мёд','Always stressed'],
+  ['Ж ж','s in "measure"','жена́',''],['З з','z','зоопа́рк','Looks like 3'],['И и','ee in "meet"','и́мя','Looks like a backward N'],
+  ['Й й','y in "boy"','чай',''],['К к','k','ко́фе',''],['Л л','l','лимо́н',''],['М м','m','метро́',''],
+  ['Н н','n','нет','Looks like H, sounds like N'],['О о','o (stressed) / a (unstressed)','молоко́',''],['П п','p','па́па',''],
+  ['Р р','rolled r','рестора́н','Looks like P, sounds like R'],['С с','s','суп','Looks like C, always S'],['Т т','t','торт',''],
+  ['У у','oo in "boot"','у́лица','Looks like y, sounds like OO'],['Ф ф','f','футбо́л',''],['Х х','kh, as in "Bach"','хлеб','Looks like X'],
+  ['Ц ц','ts in "cats"','цирк',''],['Ч ч','ch in "cheese"','чай',''],['Ш ш','sh (hard)','шарф',''],['Щ щ','shsh (soft, long)','щи',''],
+  ['Ъ ъ','hard sign (no sound)','объе́кт','Separates sounds'],['Ы ы','i in "bit" pushed back','ры́ба','No English equivalent'],
+  ['Ь ь','soft sign (no sound)','день','Softens the consonant before it'],['Э э','e in "met"','э́то',''],
+  ['Ю ю','yu in "you"','ю́бка',''],['Я я','ya in "yard"','я',''],
+];
+
+// Default study plan: 16 Dec exam, assuming the class covers Lektion 1–9.
+const DEFAULT_WEEKS = [
+  ['2026-09-28','Lektion 1–2: alphabet, greetings, names, из + genitive'],
+  ['2026-10-05','Lektion 3: conjugations, в/на + prepositional, numbers 1–20'],
+  ['2026-10-12','Lektion 4: family, у меня есть / нет, possessives'],
+  ['2026-10-19','Lektion 5: shopping, plurals, accusative, prices'],
+  ['2026-10-26','Lektion 6: free time, любить/ходить, где? vs. куда?'],
+  ['2026-11-02','Review 1–6 + first mock exam'],
+  ['2026-11-09','Lektion 7: food, instrumental, есть/пить/хотеть, time'],
+  ['2026-11-16','Lektion 8: clothes, adjectives, этот, нравится'],
+  ['2026-11-23','Lektion 9: holidays, dates, dative, age'],
+  ['2026-11-30','Full review 1–9 + mock exam 2'],
+  ['2026-12-07','Fix weak spots, mock exam 3, writing tasks'],
+  ['2026-12-14','Exam week: light review only. Exam Wed 16 Dec'],
+];
+
+</script>
+<script>
+// ============================================================
+// Пятёрка: app logic
+// Data: VOCAB (per lesson [ru, en, de, extra]), LESSONS, READINGS, ... from content.js
+// Two shared db docs: p5/student (her progress, she writes) and p5/tutor (plan, notes, feedback, tutor writes).
+// ============================================================
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const STRESS = /́/g;
+const norm = s => String(s||'').replace(STRESS,'').toLowerCase().replace(/ё/g,'е').replace(/[.,!?…:;"«»()]/g,' ').replace(/\s+/g,' ').trim();
+const answers = a => Array.isArray(a) ? a : [a];
+const isRight = (given, a) => answers(a).some(x => norm(x) === norm(given));
+const uid = () => Math.random().toString(36).slice(2,9);
+const todayStr = () => { const d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); };
+const dayNum = (s=todayStr()) => Math.round(Date.parse(s+'T00:00:00Z')/864e5);
+const fmtDate = s => new Date(s+'T12:00:00').toLocaleDateString('en-US',{weekday:'short', month:'short', day:'numeric'});
+const pct = x => Math.round((x||0)*100);
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]];} return a; };
+
+// ---------- words ----------
+const WORDS = [];
+Object.keys(VOCAB).forEach(L => VOCAB[L].forEach((w,i) => WORDS.push({id:L+'-'+i, L:+L, ru:w[0], en:w[1], de:w[2], x:w[3]})));
+// Accepted typed answers for a headword: "Как вас / тебя зовут?" → both variants; "мой, моя" → each part.
+function ruAnswers(ru){
+  const base = ru.replace(/…/g,'').trim(); const out=[base];
+  if(/ \/ /.test(base)){ const m=base.match(/(\S+) \/ (\S+)/); out.push(base.replace(m[0],m[1]), base.replace(m[0],m[2])); }
+  if(base.includes(',')) out.push(...base.split(',').map(x=>x.trim()));
+  return out;
+}
+const WORD = Object.fromEntries(WORDS.map(w => [w.id, w]));
+const SRS_DAYS = [0, 1, 3, 7, 14, 30]; // interval after reaching box n
+
+// ---------- state ----------
+const DEF_STUDENT = () => ({ srs:{}, newLog:{}, quiz:{}, drill:{}, mistakes:[], writing:{}, mocks:[], hw:{}, read:{}, streak:{last:'', n:0}, _v:0 });
+const DEF_TUTOR = () => ({ scope:[1,2,3,4,5,6,7,8,9], classAt:1, newPerDay:15, note:'', noteTs:0, weeks:DEFAULT_WEEKS.map(([d,f])=>({d,f})), homework:[], fb:{}, _v:0 });
+const loadLocal = (k, def) => { try { const v = JSON.parse(localStorage.getItem(k)||'null'); return v ? Object.assign(def(), v) : def(); } catch(e){ return def(); } };
+const saveLocal = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} };
+const S = { student: loadLocal('p5-student', DEF_STUDENT), tutor: loadLocal('p5-tutor', DEF_TUTOR), scratch: DEF_STUDENT() };
+let role = 'student';          // becomes 'tutor' for the artifact owner
+let preview = false;           // tutor looking at the student pages
+const ui = (() => { try { return JSON.parse(localStorage.getItem('p5-ui')||'{}'); } catch(e){ return {}; } })();
+const saveUi = () => { try { localStorage.setItem('p5-ui', JSON.stringify(ui)); } catch(e){} };
+// Where practice gets recorded: her record for her, a throwaway scratch record for the tutor.
+const P = () => role === 'tutor' ? S.scratch : S.student;
+const T = () => S.tutor;
+const inScope = L => T().scope.includes(L);
+
+// ---------- sync (db capability, with localStorage as the always-on cache) ----------
+const refs = {}; const timers = {}; const lastJSON = {};
+let dbOK = false;
+function setSync(t, cls){ const el=$('#sync'); el.className='sync '+cls; $('#sync-t').textContent=t; }
+function save(which){
+  if(which==='student' && role==='tutor') return; // tutor's own practice stays in scratch
+  if(which==='tutor' && role!=='tutor') return;
+  const obj = S[which]; obj._v = (obj._v||0)+1;
+  saveLocal('p5-'+which, obj);
+  if(!refs[which]) return;
+  setSync('Saving…','ok busy');
+  clearTimeout(timers[which]);
+  timers[which] = setTimeout(async () => {
+    const json = JSON.stringify(obj);
+    if(json === lastJSON[which]) { setSync('Synced','ok'); return; }
+    try { await refs[which].set(JSON.parse(json)); lastJSON[which]=json; setSync('Synced','ok'); }
+    catch(e){ setSync('Saved on this device only','local'); }
+  }, 700);
+}
+function adopt(which, data){
+  if(!data) return false;
+  if((data._v||0) <= (S[which]._v||0)) return false;
+  const def = which==='student' ? DEF_STUDENT() : DEF_TUTOR();
+  S[which] = Object.assign(def, data);
+  lastJSON[which] = JSON.stringify(S[which]);
+  saveLocal('p5-'+which, S[which]);
+  return true;
+}
+async function initSync(){
+  let db=null, user=null;
+  try { if(window.claude && typeof window.claude.use==='function'){ [db, user] = await Promise.all([window.claude.use('db'), window.claude.use('user')]); } } catch(e){}
+  try { if(user && await user.isOwner()) { role='tutor'; if(!location.hash) route='tutor'; } } catch(e){}
+  if(!db){ setSync('Saved on this device only','local'); render(); return; }
+  refs.student = db.doc('p5/student'); refs.tutor = db.doc('p5/tutor');
+  try {
+    for(const w of ['student','tutor']){
+      const snap = await refs[w].get();
+      const mine = (w==='student' && role!=='tutor') || (w==='tutor' && role==='tutor');
+      if(snap.exists){
+        const remote = snap.data();
+        if(!adopt(w, remote) && mine && (S[w]._v||0) > (remote._v||0)) { await refs[w].set(S[w]); lastJSON[w]=JSON.stringify(S[w]); }
+      } else if(mine && S[w]._v > 0){ await refs[w].set(S[w]); lastJSON[w]=JSON.stringify(S[w]); }
+    }
+    dbOK = true; setSync(role==='tutor' ? 'Synced · tutor view' : 'Synced','ok');
+  } catch(e){ setSync('Saved on this device only','local'); render(); return; }
+  for(const w of ['student','tutor']){
+    refs[w].onSnapshot(snap => { if(snap.exists && adopt(w, snap.data())) softRender(); }, () => setSync('Saved on this device only','local'));
+  }
+  render();
+}
+// Never re-render under someone's cursor: wait until they leave the field.
+let pendingRender=false;
+function softRender(){
+  const a=document.activeElement;
+  if(a && (a.tagName==='INPUT'||a.tagName==='TEXTAREA'||a.tagName==='SELECT') && $('#main').contains(a)){ pendingRender=true; return; }
+  render();
+}
+document.addEventListener('focusout', () => setTimeout(() => { if(pendingRender && !$('#main').contains(document.activeElement)){ pendingRender=false; render(); } }, 50));
+
+// ---------- speech ----------
+let ruVoice=null;
+function loadVoices(){ try { const vs=speechSynthesis.getVoices(); ruVoice = vs.find(v=>/^ru/i.test(v.lang)) || null; } catch(e){} }
+if('speechSynthesis' in window){ loadVoices(); speechSynthesis.onvoiceschanged = loadVoices; }
+let warnedVoice=false;
+function speak(t){
+  if(!('speechSynthesis' in window)) return toast('This browser can\'t read aloud.');
+  const u = new SpeechSynthesisUtterance(String(t).replace(STRESS,'').replace(/…/g,''));
+  u.lang='ru-RU'; u.rate=.85; if(ruVoice) u.voice=ruVoice;
+  speechSynthesis.cancel(); speechSynthesis.speak(u);
+  if(!ruVoice && !warnedVoice){ warnedVoice=true; setTimeout(()=>{ loadVoices(); if(!ruVoice) toast('No Russian voice found on this device. Add one in your system language settings for real pronunciation.'); }, 600); }
+}
+const SPK = '<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12" stroke="currentColor" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>';
+const spkBtn = t => `<button class="spk" data-say="${esc(t)}" aria-label="Hear it">${SPK}</button>`;
+
+function toast(msg){ const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(), 3200); }
+
+// ---------- progress maths ----------
+function mastery(L){ const ws=WORDS.filter(w=>w.L===L); if(!ws.length) return 0; const r=P().srs; return ws.filter(w => r[w.id] && r[w.id][0]>=3).length / ws.length; }
+function seenShare(L){ const ws=WORDS.filter(w=>w.L===L); const r=P().srs; return ws.filter(w=>r[w.id]).length/ws.length; }
+function lessonReady(L, rec=P()){
+  const q=rec.quiz[L]?.best||0, d=rec.drill[L]?.best||0;
+  const ws=WORDS.filter(w=>w.L===L); const m = ws.filter(w => rec.srs[w.id] && rec.srs[w.id][0]>=3).length/ws.length;
+  return .4*q + .3*d + .3*m;
+}
+function overall(rec=P()){ const sc=T().scope; if(!sc.length) return 0; return sc.reduce((a,L)=>a+lessonReady(L,rec),0)/sc.length; }
+function gradeFor(x){ return x>=.9?['5','A']:x>=.75?['4','B']:x>=.6?['3','C']:['2','not yet']; }
+function dueCards(){
+  const r=P().srs, today=dayNum();
+  return WORDS.filter(w => inScope(w.L) && r[w.id] && r[w.id][1] <= today);
+}
+function newCards(onlyL){
+  const r=P().srs, t=todayStr();
+  const left = Math.max(0, (T().newPerDay||15) - (P().newLog[t]||0));
+  return WORDS.filter(w => (onlyL ? w.L===onlyL : inScope(w.L)) && !r[w.id]).slice(0, onlyL ? 20 : left);
+}
+function daysLeft(){ return dayNum(EXAM_DATE) - dayNum(); }
+function thisWeek(){ const t=todayStr(); const ws=[...T().weeks].sort((a,b)=>a.d<b.d?-1:1); let cur=null; for(const w of ws){ if(w.d<=t) cur=w; } return cur || ws[0] || {d:todayStr(), f:'No plan set yet'}; }
+function touchStreak(){
+  const rec=P(), t=todayStr(); if(rec.streak.last===t) return;
+  const y = new Date(Date.now()-864e5); const ys = y.getFullYear()+'-'+String(y.getMonth()+1).padStart(2,'0')+'-'+String(y.getDate()).padStart(2,'0');
+  rec.streak = {last:t, n: rec.streak.last===ys ? rec.streak.n+1 : 1};
+}
+function logMistake(src, q, given, right){
+  const rec=P();
+  const key = norm(q).slice(0,80);
+  const ex = rec.mistakes.find(m => m.key===key);
+  if(ex){ ex.n=(ex.n||1)+1; ex.given=given; ex.ts=Date.now(); }
+  else rec.mistakes.unshift({key, src, q, given, right, ts:Date.now(), n:1});
+  rec.mistakes = rec.mistakes.slice(0,150);
+}
+
+// ---------- routing ----------
+let route = (location.hash||'#home').slice(1) || 'home';
+let lessonTab = ui.lessonTab || 'grammar';
+function go(r){ route=r; if(location.hash.slice(1)!==r) history.replaceState(null,'','#'+r); render(); $('#main').focus({preventScroll:true}); window.scrollTo({top:0}); }
+window.addEventListener('hashchange', () => { const r=location.hash.slice(1)||'home'; if(r!==route){ route=r; render(); } });
+
+// ---------- nav ----------
+function renderNav(){
+  const rec=P(); const due=dueCards().length;
+  const item = (r, n, t, meta, extra='') => `<button class="nav ${route===r||route.startsWith(r+':')?'on':''} ${extra}" data-go="${r}">${n}<span class="nav-body"><span class="nav-t">${t}</span>${meta?`<span class="nav-meta">${meta}</span>`:''}</span></button>`;
+  let h='';
+  if(role==='tutor'){
+    h += `<div class="nav-label">Tutor</div>`;
+    h += item('tutor','<span class="nav-n">T</span>','Tutor desk', subsCount()? subsCount()+' to grade':'plan · progress · feedback');
+    h += `<button class="nav" data-act="preview"><span class="nav-n">${preview?'✓':'S'}</span><span class="nav-body"><span class="nav-t">${preview?'Hide student pages':'Student pages'}</span><span class="nav-meta">your practice here isn't saved</span></span></button>`;
+    if(!preview){ $('#nav').innerHTML=h; return; }
+  }
+  h += `<div class="nav-label">Today</div>`;
+  h += item('home','<span class="nav-n">★</span>','Home', daysLeft()+' days to the exam');
+  h += item('cards','<span class="nav-n">✦</span>','Flashcards', due? due+' due now':'up to date');
+  h += `<div class="nav-label">Lektionen</div>`;
+  LESSONS.forEach(l => {
+    const r = lessonReady(l.n); const done = r>=.85;
+    h += item('l'+l.n, `<span class="nav-n ${done?'done':''}">${l.n}</span>`, l.ru, inScope(l.n)? (pct(r)+'% ready') : 'not on the exam', inScope(l.n)?'':'out');
+  });
+  h += `<div class="nav-label">Exam</div>`;
+  h += item('mock','<span class="nav-n">✎</span>','Mock exam', rec.mocks.length? 'best '+pct(Math.max(...rec.mocks.map(m=>m.score/m.max)))+'%':'timed, like the real thing');
+  h += item('mistakes','<span class="nav-n">!</span>','Mistake log', rec.mistakes.length? rec.mistakes.length+' to fix':'empty');
+  h += item('abc','<span class="nav-n">А</span>','Alphabet','33 letters, sounds, traps');
+  h += item('german','<span class="nav-n">DE</span>','Exam German','instructions + grammar terms');
+  $('#nav').innerHTML = h;
+}
+function subsCount(){ const st=S.student, fb=T().fb; return Object.keys(st.writing||{}).filter(k => !fb[k] || fb[k].ts < st.writing[k].ts).length; }
+
+// ---------- views ----------
+function render(){
+  renderNav();
+  const m = $('#main');
+  if(role==='tutor' && !preview && route!=='tutor') route='tutor';
+  let h='';
+  if(route==='tutor' && role==='tutor') h=vTutor();
+  else if(route==='home') h=vHome();
+  else if(route==='cards') h=vCards();
+  else if(/^l\d/.test(route)) h=vLesson(+route[1]);
+  else if(route==='mock') h=vMock();
+  else if(route==='mistakes') h=vMistakes();
+  else if(route==='abc') h=vAbc();
+  else if(route==='german') h=vGerman();
+  else { route='home'; h=vHome(); }
+  const banner = role==='tutor' && route!=='tutor' ? `<div class="chip a" style="margin-bottom:14px">Student preview · your answers here aren't saved to her record</div>` : '';
+  m.innerHTML = banner + h;
+  afterRender();
+}
+function afterRender(){
+  if(route==='cards') mountCard();
+  if(route==='mock' && mock.on) tickTimer();
+}
+
+// ----- home -----
+function vHome(){
+  const rec=P(), T_=T(), dl=daysLeft(), wk=thisWeek(), due=dueCards().length, nw=newCards().length;
+  const ov=overall(), [g,letter]=gradeFor(ov);
+  const next = LESSONS.find(l => inScope(l.n) && lessonReady(l.n) < .85);
+  const hw = T_.homework.filter(x=>!rec.hw[x.id]);
+  let h = '';
+  if(!ui.introSeen && role!=='tutor') h += `<div class="card" style="margin-bottom:16px"><h3>Привет! This is your Russian platform.</h3>
+    <p class="muted">It follows your course book, <b>Jasno! neu</b>, Lektion 1–9. Every lesson has the grammar in plain English (with the German terms your class uses), the book's vocabulary with stress marks, the workbook self-test, and typing drills. Click any <i class="ru">blue Russian</i> to hear it. Your progress syncs, so your tutor can see what to work on with you.</p>
+    <button class="btn sm" data-act="intro-ok">Got it</button></div>`;
+  h += `<div class="hero">
+    <div class="count num">${Math.max(dl,0)}<small>${dl>0?'days until the A1 exam':'exam day has passed'}<br><b>Wed 16 Dec 2026</b></small></div>
+    <div class="stack" style="gap:8px">
+      <div class="eyebrow">This week · from ${fmtDate(wk.d)}</div>
+      <div class="week">${esc(wk.f)}</div>
+      <div class="row" style="margin-top:6px">
+        <span class="chip ${ov>=.75?'g':ov>=.5?'a':'r'}">Readiness ${pct(ov)}%</span>
+        <span class="chip">${ov>=.6?`on track for a ${g} (${letter})`:'keep going: the grade estimate starts at 60%'}</span>
+        ${rec.streak.n>1?`<span class="chip b">${rec.streak.n}-day streak</span>`:''}
+      </div>
+    </div></div>`;
+  h += `<div class="grid2" style="margin-top:16px">`;
+  h += `<div class="card"><h3>Today</h3><div class="todo">
+    <div class="todo-i"><div class="t"><b>${due}</b> flashcards due${nw?` · <b>${nw}</b> new`:''}<div class="faint" style="font-size:13px">10 minutes a day beats 2 hours on Sunday.</div></div><button class="btn sm" data-go="cards" ${due+nw?'':'disabled'}>${due+nw?'Start':'Done ✓'}</button></div>
+    ${next?`<div class="todo-i"><div class="t">Next up: <b>Lektion ${next.n}</b> · ${esc(next.en)}<div class="faint" style="font-size:13px">${pct(lessonReady(next.n))}% ready · ${nextStep(next.n)}</div></div><button class="btn sm ghost" data-go="l${next.n}">Open</button></div>`:''}
+    ${rec.mistakes.length?`<div class="todo-i"><div class="t"><b>${rec.mistakes.length}</b> ${rec.mistakes.length===1?'mistake':'mistakes'} waiting in your log</div><button class="btn sm ghost" data-go="mistakes">Fix</button></div>`:''}
+    ${hw.map(x=>`<div class="todo-i"><div class="t"><span class="chip r">Homework</span> ${esc(x.text)}${x.due?`<div class="faint" style="font-size:13px">due ${fmtDate(x.due)}</div>`:''}</div><button class="btn sm ghost" data-act="hw-done" data-id="${x.id}">Done</button></div>`).join('')}
+  </div></div>`;
+  h += `<div class="stack">`;
+  if(T_.note) h += `<div class="note"><div class="eyebrow" style="color:var(--red)">From your tutor</div><div class="hand">${esc(T_.note)}</div></div>`;
+  const fbNew = Object.entries(T_.fb).filter(([k,f]) => f.ts > (ui.fbSeen||0));
+  if(fbNew.length) h += `<div class="card"><h3>New feedback on your writing</h3>${fbNew.map(([k,f])=>`<div class="row" style="margin-bottom:6px"><span class="grade" style="width:34px;height:34px;font-size:24px">${esc(f.grade||'✓')}</span><span>${esc(writingTitle(k))}</span><button class="btn sm ghost" data-go="${writingRoute(k)}">Read</button></div>`).join('')}</div>`;
+  h += `<div class="card"><h3>Lessons on the exam</h3><div class="ready">${LESSONS.map(l=>{const r=lessonReady(l.n);return `<button class="rl ${inScope(l.n)?'':'out'}" data-go="l${l.n}"><div class="n">L${l.n}</div><div class="p num" style="color:${r>=.85?'var(--green)':r>=.5?'var(--ink)':'var(--ink-faint)'}">${pct(r)}%</div><div class="bar"><i style="width:${pct(r)}%;background:${r>=.85?'var(--green)':'var(--blue)'}"></i></div></button>`}).join('')}</div>
+    <p class="faint" style="font-size:13px;margin:10px 0 0">Readiness = 40% self-test + 30% drills + 30% words you know solidly.${T_.classAt?` Your class is at Lektion ${T_.classAt}.`:''}</p></div>`;
+  h += `</div></div>`;
+  return h;
+}
+function nextStep(L){ const rec=P(); if(!rec.read[L]) return 'start with the grammar'; if(!rec.quiz[L]) return 'take the self-test'; if(!rec.drill[L]) return 'do the drill'; if(mastery(L)<.6) return 'learn the words'; return 'retake what\'s weakest'; }
+function writingTitle(k){ if(k.startsWith('mock-')) return 'Mock exam writing, '+new Date(+k.slice(5)).toLocaleDateString('en-US',{month:'short',day:'numeric'}); const l=LESSONS.find(l=>l.write&&l.write.id===k); return l?`Lektion ${l.n} writing task`:k; }
+function writingRoute(k){ if(k.startsWith('mock-')) return 'mock'; const l=LESSONS.find(l=>l.write&&l.write.id===k); return l?'l'+l.n+':write':'home'; }
+
+// ----- lesson -----
+function vLesson(n){
+  const l = LESSONS.find(x=>x.n===n); const rec=P();
+  if(route.includes(':')) { lessonTab = route.split(':')[1]; route='l'+n; }
+  const tabs = [['grammar','Grammar'],['words','Words'],['quiz','Self-test'],['drill','Drill']].concat(l.write?[['write','Writing']]:[]);
+  if(!tabs.some(t=>t[0]===lessonTab)) lessonTab='grammar';
+  const q=rec.quiz[n], d=rec.drill[n];
+  let h = `<div class="ph"><div><div class="eyebrow">Lektion ${n} · ${esc(l.kb)}${inScope(n)?'':' · not on the exam'}</div>
+    <h1 class="title"><i class="ru" style="color:inherit">${esc(l.ru)}</i></h1><div class="title-en">${esc(l.en)}</div></div>
+    <div class="tabs" role="tablist">${tabs.map(([k,t])=>`<button class="tab ${lessonTab===k?'on':''}" data-tab="${k}" role="tab" aria-selected="${lessonTab===k}">${t}</button>`).join('')}</div></div>
+  <div class="row" style="margin:-8px 0 18px">
+    <span class="chip ${rec.read[n]?'g':''}">${rec.read[n]?'Grammar read ✓':'Grammar not read'}</span>
+    <span class="chip ${q?(q.best>=.85?'g':'a'):''}">Self-test ${q?pct(q.best)+'%':'—'}</span>
+    <span class="chip ${d?(d.best>=.85?'g':'a'):''}">Drill ${d?pct(d.best)+'%':'—'}</span>
+    <span class="chip ${mastery(n)>=.85?'g':''}">Words ${pct(mastery(n))}% solid</span>
+  </div>`;
+  if(lessonTab==='grammar') h += `<div class="sheet"><div class="eyebrow">By the end you can</div><ul class="cando">${l.can.map(c=>`<li>${esc(c)}</li>`).join('')}</ul><hr style="border:0;border-top:1px solid var(--line);margin:18px 0"><div class="gram">${wrapTables(l.grammar)}</div>
+    <div class="row" style="justify-content:flex-end;margin-top:20px">${rec.read[n]?'<span class="chip g">Read ✓</span>':''}<button class="btn" data-act="read" data-l="${n}">${rec.read[n]?'Next: self-test →':'I\'ve read it → self-test'}</button></div></div>`;
+  if(lessonTab==='words') h += vWords(n);
+  if(lessonTab==='quiz') h += vQuiz(l);
+  if(lessonTab==='drill') h += vDrill(l);
+  if(lessonTab==='write') h += vWrite(l.write, `Lektion ${n}`);
+  return h;
+}
+const wrapTables = html => html.replace(/<table class="gt">/g,'<div class="tbl-wrap"><table class="gt">').replace(/<\/table>/g,'</table></div>');
+function vWords(n){
+  const ws=WORDS.filter(w=>w.L===n), r=P().srs;
+  return `<div class="sheet"><div class="row" style="justify-content:space-between;margin-bottom:12px"><p class="muted" style="margin:0">${ws.length} words the book marks as <b>Lernwortschatz</b> (to learn). The accent shows the stressed vowel. Dots = how solid you know it.</p>
+    <button class="btn" data-act="study-lesson" data-l="${n}">Study these as flashcards</button></div>
+    <div class="tbl-wrap"><table class="words"><thead><tr><th>Russian</th><th>English</th><th>German</th><th>Notes</th><th></th></tr></thead><tbody>
+    ${ws.map(w=>{const b=r[w.id]?r[w.id][0]:0; return `<tr><td class="w"><i class="ru" data-say="${esc(w.ru)}">${esc(w.ru)}</i></td><td>${esc(w.en)}</td><td class="faint">${esc(w.de)}</td><td class="faint" style="font-size:13.5px">${esc(w.x)}</td><td><span class="box-dots" title="level ${b} of 5">${[1,2,3,4,5].map(i=>`<i class="${b>=i?'on':''}"></i>`).join('')}</span></td></tr>`}).join('')}
+    </tbody></table></div></div>`;
+}
+
+// quiz: answers are kept in memory until the whole test is done
+const quizRun = {};
+function vQuiz(l){
+  const run = quizRun[l.n] || (quizRun[l.n] = {ans:{}});
+  const done = Object.keys(run.ans).length, total=l.quiz.length;
+  let h = `<div class="sheet"><p class="muted">From the workbook (<b>Что правильно?</b>, end of the lesson). Pick the right form. You get the reason right after each answer.</p>
+    <div class="row" style="margin-bottom:14px"><div class="bar" style="flex:1"><i style="width:${done/total*100}%"></i></div><span class="num faint">${done} / ${total}</span></div>`;
+  h += l.quiz.map((q,i)=>{
+    const a = run.ans[i];
+    return `<div class="q"><div class="q-n">${i+1}</div><div class="q-p">${ruify(q[0])}</div><div class="opts">${q[1].map((o,j)=>{
+      let c=''; if(a!==undefined){ if(j===q[2]) c='ok'; else if(j===a) c='bad'; }
+      return `<button class="opt ${c}" data-act="qa" data-l="${l.n}" data-i="${i}" data-j="${j}" ${a!==undefined?'disabled':''}>${esc(o)}</button>`;}).join('')}</div>
+      ${a!==undefined?`<div class="why">${a===q[2]?'<b style="color:var(--green)">Right.</b>':'<b style="color:var(--red)">Not quite.</b>'} ${esc(q[3])}</div>`:''}</div>`;
+  }).join('');
+  if(done===total){
+    const sc = l.quiz.filter((q,i)=>run.ans[i]===q[2]).length;
+    h += `<div class="score"><span class="big num">${sc}/${total}</span><span class="grade">${gradeFor(sc/total)[0]}</span><span class="muted">${sc===total?'Perfect. Move on to the drill.':sc/total>=.85?'Solid. Check the red ones, then the drill.':'Re-read the grammar box for the ones you missed, then retake.'}</span><button class="btn ghost" data-act="q-reset" data-l="${l.n}">Retake</button></div>`;
+  }
+  return h+'</div>';
+}
+function ruify(s){ // wrap Cyrillic runs so they are clickable/speakable, keep existing tags
+  if(/<i class="ru">/.test(s)) return s;
+  return s.split(/(<[^>]+>)/).map(p => p.startsWith('<') ? p : p.replace(/([А-Яа-яЁё][А-Яа-яЁё́\- ,…!?–—.]*[А-Яа-яЁё.!?…])/g, m=>`<i class="ru">${m}</i>`)).join('');
+}
+
+// drill
+const drillRun = {};
+function vDrill(l){
+  const run = drillRun[l.n] || (drillRun[l.n] = {val:{}, checked:false});
+  let h = `<div class="sheet"><p class="muted">Type the answer in Cyrillic. Stress marks don't matter, ё = е is fine. No Russian keyboard? Use the <b>АБВ keyboard</b> button at the bottom right.</p>`;
+  h += l.drill.map((d,i)=>{
+    const v = run.val[i]||''; const ok = run.checked && isRight(v, d[1]);
+    return `<div class="dr"><div>${ruify(esc(d[0]))}</div><input class="input" lang="ru" autocomplete="off" autocapitalize="off" spellcheck="false" id="dr-${l.n}-${i}" data-drill="${l.n}" data-i="${i}" value="${esc(v)}" ${run.checked?'readonly':''}>
+      <span class="mark ${run.checked?(ok?'ok':'bad'):''}">${run.checked?(ok?'✓':'✗'):''}</span>
+      ${run.checked&&!ok?`<div class="fix">→ ${esc(answers(d[1])[0])}</div>`:''}</div>`;
+  }).join('');
+  if(!run.checked) h += `<div class="row" style="justify-content:flex-end;margin-top:16px"><button class="btn" data-act="d-check" data-l="${l.n}">Check answers</button></div>`;
+  else { const sc=l.drill.filter((d,i)=>isRight(run.val[i]||'',d[1])).length;
+    h += `<div class="score"><span class="big num">${sc}/${l.drill.length}</span><span class="grade">${gradeFor(sc/l.drill.length)[0]}</span><span class="muted">Wrong answers went to your mistake log.</span><button class="btn ghost" data-act="d-reset" data-l="${l.n}">Try again</button></div>`; }
+  return h+'</div>';
+}
+
+// writing (lesson tasks and mock exam)
+function vWrite(w, label){
+  const rec=S.student, sub=rec.writing[w.id], fb=T().fb[w.id];
+  const draftKey='p5-draft-'+w.id; let draft=''; try{ draft=localStorage.getItem(draftKey)||''; }catch(e){}
+  const text = draft || (sub?sub.text:'');
+  const words = text.trim()? text.trim().split(/\s+/).length : 0;
+  let h = `<div class="sheet"><div class="eyebrow">${esc(label)} · writing task</div><p style="font-size:17px">${esc(w.prompt)}</p>
+   <p class="faint" style="font-size:14px">Aim for about ${w.words} words. The exam will have a task like this. Write in Russian; your tutor corrects it in red.</p>
+   <textarea class="ta" id="wr-${w.id}" data-write="${w.id}" lang="ru" placeholder="Пишите здесь…">${esc(text)}</textarea>
+   <div class="row" style="justify-content:space-between;margin-top:10px"><span class="faint num" id="wc-${w.id}">${words} words</span>
+   <button class="btn" data-act="submit-write" data-id="${w.id}" ${role==='tutor'?'disabled title="Only the student submits"':''}>${sub?'Resubmit to tutor':'Submit to tutor'}</button></div>`;
+  if(sub) h += `<p class="faint" style="font-size:13px;margin-top:8px">Submitted ${new Date(sub.ts).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}.</p>`;
+  if(fb){ h += `<div class="fb"><div class="row"><span class="grade">${esc(fb.grade||'✓')}</span><div class="eyebrow" style="color:var(--red);margin:0">Tutor's corrections</div></div><div class="hand" style="font-size:23px;white-space:pre-wrap;margin-top:8px">${esc(fb.text)}</div></div>`;
+    if(fb.ts > (ui.fbSeen||0)){ ui.fbSeen=Date.now(); saveUi(); } }
+  return h+'</div>';
+}
+
+// ----- flashcards -----
+let deck=null; // {cards:[id], i, mode, reveal, stats, lesson}
+function buildDeck(lesson){
+  const due = lesson ? WORDS.filter(w=>w.L===lesson && P().srs[w.id] && P().srs[w.id][1]<=dayNum()) : dueCards();
+  const fresh = newCards(lesson);
+  deck = {cards: shuffle(due.map(w=>w.id)).concat(fresh.map(w=>w.id)), i:0, reveal:false, stats:{ok:0,bad:0}, lesson, mode: ui.cardMode||'rec'};
+}
+function vCards(){
+  if(!deck) buildDeck(null);
+  const total=deck.cards.length;
+  let h = `<div class="ph"><div><div class="eyebrow">Spaced repetition${deck.lesson?` · Lektion ${deck.lesson}`:' · all lessons on the exam'}</div><h1 class="title">Flashcards</h1></div>
+    <div class="tabs"><button class="tab ${deck.mode==='rec'?'on':''}" data-act="cmode" data-m="rec">Russian → English</button><button class="tab ${deck.mode==='pro'?'on':''}" data-act="cmode" data-m="pro">English → Russian (type)</button></div></div>`;
+  h += `<div class="fc-wrap"><div class="stat-row"><span class="chip">${Math.min(deck.i,total)} / ${total}</span><span class="chip g">${deck.stats.ok} knew</span><span class="chip r">${deck.stats.bad} again</span></div><div id="fc"></div>
+    <p class="faint" style="font-size:13px;text-align:center;margin-top:14px">Cards you know come back after 1, 3, 7, 14, then 30 days. Cards you miss come back in this session. ${T().newPerDay} new cards a day.</p></div>`;
+  return h;
+}
+function mountCard(){
+  const el=$('#fc'); if(!el) return;
+  if(deck.i>=deck.cards.length){
+    el.innerHTML = `<div class="fc"><div class="front en">${deck.cards.length?'Done for now.':'Nothing due right now.'}</div><div class="meta">${deck.cards.length?`${deck.stats.ok} right, ${deck.stats.bad} to repeat. Come back tomorrow.`:'New cards unlock each day. You can also study a single lesson from its Words tab.'}</div>
+    <div class="fc-actions"><button class="btn ghost" data-go="home">Home</button>${deck.lesson?'':`<button class="btn ghost" data-act="deck-more">Practice any 20 words</button>`}</div></div>`;
+    return;
+  }
+  const w = WORD[deck.cards[deck.i]]; const isNew = !P().srs[w.id];
+  const tag = `<span class="lesson-tag">L${w.L}${isNew?' · new':''}</span>`;
+  if(deck.mode==='rec'){
+    el.innerHTML = `<div class="fc">${tag}<div class="front"><i class="ru" data-say="${esc(w.ru)}" style="color:inherit">${esc(w.ru)}</i> ${spkBtn(w.ru)}</div>
+      ${deck.reveal?`<div class="back"><div class="a">${esc(w.en)}</div><div class="meta">${esc(w.de)}${w.x?' · '+esc(w.x):''}</div></div>`:''}</div>
+      <div class="fc-actions">${deck.reveal?`<button class="btn red" data-act="card" data-ok="0">Again</button><button class="btn" data-act="card" data-ok="1" style="background:var(--green)">I knew it</button>`:`<button class="btn" data-act="reveal" id="reveal-btn">Show answer</button>`}</div>`;
+    if(!deck.reveal && ui.autoSay) speak(w.ru);
+  } else {
+    el.innerHTML = `<div class="fc">${tag}<div class="front en">${esc(w.en)}</div><div class="meta">${w.x&&!/[а-яё]/i.test(w.x)?esc(w.x):''}</div>
+      ${deck.reveal?`<div class="back"><div class="a"><i class="ru" data-say="${esc(w.ru)}">${esc(w.ru)}</i></div><div class="meta">${deck.last?'<span style="color:var(--green);font-weight:700">Correct</span>':`<span style="color:var(--red);font-weight:700">You wrote: ${esc(deck.typed||'(nothing)')}</span>`}</div></div>`
+      :`<input class="input" id="fc-in" lang="ru" autocomplete="off" autocapitalize="off" spellcheck="false" style="text-align:center;font-size:22px;margin-top:8px" placeholder="по-русски…">`}</div>
+      <div class="fc-actions">${deck.reveal?`<button class="btn" data-act="next-card" id="next-btn">Next</button>`:`<button class="btn ghost" data-act="pro-check" data-skip="1">I don't know</button><button class="btn" data-act="pro-check">Check</button>`}</div>`;
+    const inp=$('#fc-in'); if(inp) inp.focus();
+    else $('#next-btn')?.focus();
+  }
+}
+function grade(ok){
+  const w = WORD[deck.cards[deck.i]], rec=P(), cur=rec.srs[w.id];
+  if(!cur){ const t=todayStr(); rec.newLog = {[t]:(rec.newLog[t]||0)+1}; }
+  if(ok){ const b=Math.min(5,(cur?cur[0]:0)+1); rec.srs[w.id]=[b, dayNum()+SRS_DAYS[b]]; deck.stats.ok++; }
+  else { rec.srs[w.id]=[1, dayNum()]; deck.stats.bad++; deck.cards.push(w.id); if(deck.mode==='pro') logMistake('Flashcards', w.en, deck.typed||'', w.ru); }
+  touchStreak(); save('student');
+}
+
+// ----- mock exam -----
+const mock = {on:false};
+function buildMock(){
+  const sc=T().scope, maxL=Math.max(...sc);
+  const readings = READINGS.filter(r => r.lessons.every(L=>L<=maxL) && r.lessons.some(L=>sc.includes(L)));
+  const qpool = shuffle(LESSONS.filter(l=>sc.includes(l.n)).flatMap(l=>l.quiz.map(q=>({L:l.n,q})))).slice(0,15);
+  const dpool = shuffle(LESSONS.filter(l=>sc.includes(l.n)).flatMap(l=>l.drill.map(d=>({L:l.n,d})))).slice(0,10);
+  const wpool = LESSONS.filter(l=>sc.includes(l.n) && l.write).map(l=>l.write);
+  const w = wpool.length ? wpool[Math.floor(Math.random()*wpool.length)] : null;
+  Object.assign(mock, {on:true, start:Date.now(), mins:60, readings:shuffle(readings).slice(0,2), qpool, dpool, w, ra:{}, qa:{}, da:{}, wtext:'', done:false});
+}
+function vMock(){
+  const rec=P();
+  if(!mock.on){
+    let h = `<div class="ph"><div><div class="eyebrow">Practice under exam conditions</div><h1 class="title">Mock exam</h1></div></div>
+    <div class="sheet"><p style="font-size:17px">60 minutes, closed book, no dictionary. Four parts, drawn fresh each time from the lessons on the exam (${T().scope.length? 'Lektion '+T().scope.join(', '):'none selected'}):</p>
+    <ol class="cando" style="font-size:16px"><li><b>Reading</b>: short texts, richtig oder falsch</li><li><b>Grammar</b>: 15 multiple-choice gaps</li><li><b>Forms</b>: 10 typed answers</li><li><b>Writing</b>: one short text, graded by your tutor</li></ol>
+    <p class="muted" style="margin-top:10px">Parts 1–3 are scored instantly. Do the first one around Lektion 6, then one every week in December.</p>
+    <button class="btn" data-act="mock-start" ${T().scope.length?'':'disabled'}>Start the 60-minute mock</button></div>`;
+    if(rec.mocks.some(m=>(T().fb['mock-'+m.ts]?.ts||0)>(ui.fbSeen||0))){ ui.fbSeen=Date.now(); saveUi(); }
+    if(rec.mocks.length) h += `<div class="card" style="margin-top:16px"><h3>Past attempts</h3><table class="stats"><thead><tr><th>Date</th><th>Score</th><th>Grade</th><th>Writing</th></tr></thead><tbody>${rec.mocks.slice().reverse().map(m=>{const f=T().fb['mock-'+m.ts];return `<tr><td>${new Date(m.ts).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</td><td class="num">${m.score}/${m.max} (${pct(m.score/m.max)}%)</td><td><span class="chip ${m.score/m.max>=.75?'g':'a'}">${gradeFor(m.score/m.max)[0]}</span></td><td>${f?`<span class="hand" style="font-size:20px">${esc(f.grade||'✓')}</span> ${esc(f.text).slice(0,80)}${f.text.length>80?'…':''}`:(S.student.writing['mock-'+m.ts]?'<span class="faint">waiting for tutor</span>':'—')}</td></tr>`}).join('')}</tbody></table></div>`;
+    return h;
+  }
+  let h = `<div class="ph"><div><div class="eyebrow">Mock exam · Lektion ${T().scope.join(', ')}</div><h1 class="title">Контрольная работа</h1></div><div class="timer num" id="timer"></div></div><div class="sheet">`;
+  if(mock.readings.length){ h+=`<div class="part-h">Teil 1 · Lesen Sie den Text. Richtig oder falsch?</div>`;
+    mock.readings.forEach(r=>{ h+=`<div class="reading">${ruify(esc(r.text))}</div>` + r.items.map((it,i)=>{const k=r.id+i, a=mock.ra[k];
+      const cls = v => mock.done ? (v===it[1]?'ok':(a===v?'bad':'')) : (a===v?'ok':'');
+      return `<div class="tf"><span class="t">${esc(it[0])}</span><button class="opt ${cls(true)}" data-act="m-r" data-k="${k}" data-v="1" ${mock.done?'disabled':''}>richtig</button><button class="opt ${cls(false)}" data-act="m-r" data-k="${k}" data-v="0" ${mock.done?'disabled':''}>falsch</button></div>`}).join(''); }); }
+  h += `<div class="part-h">Teil 2 · Wählen Sie die richtige Antwort.</div>`;
+  h += mock.qpool.map(({L,q},i)=>{const a=mock.qa[i]; return `<div class="q"><div class="q-n">${i+1} · L${L}</div><div class="q-p">${ruify(q[0])}</div><div class="opts">${q[1].map((o,j)=>{let c=''; if(mock.done){ if(j===q[2]) c='ok'; else if(j===a) c='bad'; } else if(a===j) c='ok'; return `<button class="opt ${c}" data-act="m-q" data-i="${i}" data-j="${j}" ${mock.done?'disabled':''}>${esc(o)}</button>`}).join('')}</div>${mock.done&&a!==q[2]?`<div class="why">${esc(q[3])}</div>`:''}</div>`}).join('');
+  h += `<div class="part-h">Teil 3 · Setzen Sie die richtige Form ein.</div>`;
+  h += mock.dpool.map(({L,d},i)=>{const v=mock.da[i]||'', ok=isRight(v,d[1]); return `<div class="dr"><div>${ruify(esc(d[0]))}</div><input class="input" id="md-${i}" data-mdrill="${i}" lang="ru" autocomplete="off" autocapitalize="off" spellcheck="false" value="${esc(v)}" ${mock.done?'readonly':''}><span class="mark ${mock.done?(ok?'ok':'bad'):''}">${mock.done?(ok?'✓':'✗'):''}</span>${mock.done&&!ok?`<div class="fix">→ ${esc(answers(d[1])[0])}</div>`:''}</div>`}).join('');
+  if(mock.w){ h += `<div class="part-h">Teil 4 · Schreiben Sie einen Text.</div><p style="font-size:16.5px">${esc(mock.w.prompt)}</p><textarea class="ta" id="m-write" data-mwrite="1" lang="ru" ${mock.done?'readonly':''}>${esc(mock.wtext)}</textarea>`; }
+  if(!mock.done) h += `<div class="row" style="justify-content:space-between;margin-top:18px"><button class="btn ghost" data-act="mock-quit">Abandon</button><button class="btn" data-act="mock-submit">Hand in</button></div>`;
+  else { const r=mock.result; h += `<div class="score"><span class="big num">${r.score}/${r.max}</span><span class="grade">${gradeFor(r.score/r.max)[0]}</span><span class="muted">Parts 1–3 (${pct(r.score/r.max)}%). ${mock.w?'Your writing went to your tutor.':''} Weakest: ${r.weak||'—'}</span><button class="btn ghost" data-act="mock-close">Close</button></div>`; }
+  return h+'</div>';
+}
+let timerInt=null;
+function tickTimer(){
+  clearInterval(timerInt);
+  const upd=()=>{ const el=$('#timer'); if(!el||!mock.on||mock.done){ clearInterval(timerInt); if(el&&mock.done) el.textContent=''; return; } const left=mock.start+mock.mins*6e4-Date.now(); const m=Math.max(0,Math.floor(left/6e4)), s=Math.max(0,Math.floor(left/1e3)%60); el.textContent=`${m}:${String(s).padStart(2,'0')} left`; el.style.color=left<5*6e4?'var(--red)':''; };
+  upd(); timerInt=setInterval(upd,1000);
+}
+function submitMock(){
+  let score=0, max=0; const byL={};
+  const add=(L,ok)=>{ byL[L]=byL[L]||[0,0]; byL[L][1]++; if(ok) byL[L][0]++; };
+  mock.readings.forEach(r=>r.items.forEach((it,i)=>{ max++; const ok=mock.ra[r.id+i]===it[1]; if(ok) score++; add(Math.max(...r.lessons),ok); }));
+  mock.qpool.forEach(({L,q},i)=>{ max++; const ok=mock.qa[i]===q[2]; if(ok) score++; else logMistake('Mock · L'+L, q[0].replace(/<[^>]+>/g,' '), q[1][mock.qa[i]]??'(blank)', q[1][q[2]]); add(L,ok); });
+  mock.dpool.forEach(({L,d},i)=>{ max++; const ok=isRight(mock.da[i]||'',d[1]); if(ok) score++; else logMistake('Mock · L'+L, d[0], mock.da[i]||'(blank)', answers(d[1])[0]); add(L,ok); });
+  const weak = Object.entries(byL).filter(([L,[a,b]])=>a/b<.7).map(([L])=>'Lektion '+L).join(', ');
+  const ts=Date.now();
+  const rec=P(); rec.mocks.push({ts, score, max, byL}); rec.mocks=rec.mocks.slice(-20);
+  if(mock.w && mock.wtext.trim() && role!=='tutor') rec.writing['mock-'+ts]={text:mock.wtext, ts, prompt:mock.w.prompt};
+  touchStreak(); save('student');
+  mock.done=true; mock.result={score,max,weak};
+}
+
+// ----- mistakes -----
+function vMistakes(){
+  const rec=P();
+  let h = `<div class="ph"><div><div class="eyebrow">Everything you got wrong, most recent first</div><h1 class="title">Mistake log</h1></div></div>`;
+  if(!rec.mistakes.length) return h+`<div class="sheet"><p class="muted">Nothing here. Wrong answers from self-tests, drills, typed flashcards and mock exams collect here automatically.</p></div>`;
+  h += `<div class="sheet"><p class="muted">Say the right answer out loud before you reveal it. Clear a mistake once you'd get it right tomorrow.</p>`;
+  h += rec.mistakes.map((m,i)=>`<div class="q"><div class="q-n">${esc(m.src)}${m.n>1?` · missed ${m.n}×`:''}</div><div class="q-p">${ruify(esc(m.q))}</div>
+    <div class="row"><span class="faint">You: <s style="color:var(--red)">${esc(m.given)}</s></span>
+    <details><summary class="btn sm ghost" style="list-style:none;display:inline-block">Show answer</summary><div style="margin-top:6px;font-size:17px"><i class="ru" data-say="${esc(m.right)}">${esc(m.right)}</i></div></details>
+    <button class="btn sm" data-act="mis-clear" data-i="${i}" style="margin-left:auto;background:var(--green)">Got it now</button></div></div>`).join('');
+  return h+'</div>';
+}
+
+// ----- alphabet -----
+const COGNATES = [['ресторан','restaurant'],['метро','metro'],['торт','cake'],['кафе','café'],['туалет','toilet'],['кофе','coffee'],['телефон','telephone'],['автобус','bus'],['шоколад','chocolate'],['музыка','music'],['компьютер','computer'],['менеджер','manager'],['журналист','journalist'],['инженер','engineer'],['футбол','soccer'],['спорт','sport'],['суши','sushi'],['сувенир','souvenir'],['теннис','tennis'],['лимон','lemon'],['банан','banana'],['велосипед','bicycle'],['машина','car'],['баскетбол','basketball'],['театр','theater'],['актёр','actor'],['секретарь','secretary'],['студент','student'],['банк','bank'],['музей','museum']];
+let abcQ=null;
+function newAbcQ(){ const [ru,en]=COGNATES[Math.floor(Math.random()*COGNATES.length)]; const opts=shuffle([en,...shuffle(COGNATES.filter(c=>c[1]!==en)).slice(0,3).map(c=>c[1])]); abcQ={ru,en,opts,a:null}; }
+function vAbc(){
+  if(!abcQ) newAbcQ();
+  let h = `<div class="ph"><div><div class="eyebrow">Lektion 1–2 · 33 letters</div><h1 class="title">Alphabet</h1></div></div>
+  <div class="stack"><div class="card"><h3>Read it: which word is this?</h3><div class="row" style="gap:16px"><span style="font-size:32px;font-weight:700"><i class="ru" data-say="${abcQ.ru}" style="color:inherit">${abcQ.ru}</i></span>${spkBtn(abcQ.ru)}</div>
+  <div class="opts" style="margin-top:10px">${abcQ.opts.map(o=>{let c=''; if(abcQ.a){ if(o===abcQ.en) c='ok'; else if(o===abcQ.a) c='bad'; } return `<button class="opt ${c}" data-act="abc" data-v="${esc(o)}" ${abcQ.a?'disabled':''}>${esc(o)}</button>`}).join('')}</div>
+  ${abcQ.a?`<div class="row" style="margin-top:10px"><span class="muted">${abcQ.a===abcQ.en?'Right!':'It\'s '+abcQ.en+'.'}</span><button class="btn sm" data-act="abc-next">Next word</button></div>`:''}</div>
+  <p class="muted" style="margin:0">Red tiles are traps: letters that look like Latin letters but sound different. Tap a tile to hear the example.</p>
+  <div class="abc">${ALPHABET.map(a=>`<button class="lt ${a[3]&&/Looks like|No English/.test(a[3])?'trap':''}" data-say="${esc(a[2])}"><div class="L">${a[0]}</div><div class="s">${esc(a[1])}</div><div class="x">${esc(a[2])}</div>${a[3]?`<div class="tr">${esc(a[3])}</div>`:''}</button>`).join('')}</div>
+  <div class="card"><h3>Handwriting</h3><p class="muted" style="margin:0">Your workbook asks for answers <b>in Schreibschrift</b> (Russian cursive). Several cursive letters look nothing like print: <b>т</b> is written like an m, <b>д</b> like a g, <b>и</b> like a u. Practice the ÜB pages for Lektion 1–2 by hand. Typing here won't train that.</p></div></div>`;
+  return h;
+}
+
+// ----- exam german -----
+function vGerman(){
+  return `<div class="ph"><div><div class="eyebrow">The exam paper is in German</div><h1 class="title">Exam German</h1></div></div>
+  <div class="stack"><div class="sheet"><p class="muted">Misreading an instruction costs points even when your Russian is right. Here are the task instructions from your Kursbuch (p. 10) and the workbook, with English and the Russian version your teacher may say aloud.</p>
+  <div class="tbl-wrap"><table class="words"><thead><tr><th>On the paper</th><th>Means</th><th>Russian</th></tr></thead><tbody>${EXAM_GERMAN.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td><td><i class="ru">${esc(r[2])}</i></td></tr>`).join('')}</tbody></table></div></div>
+  <div class="sheet"><h3 style="font-family:var(--f-display);font-size:16px;margin-bottom:10px">Grammar terms your teacher uses</h3>
+  <div class="tbl-wrap"><table class="words"><tbody>${GERMAN_TERMS.map(r=>`<tr><td><b>${esc(r[0])}</b></td><td>${esc(r[1])}</td></tr>`).join('')}</tbody></table></div></div></div>`;
+}
+
+// ----- tutor desk -----
+function vTutor(){
+  const st=S.student, T_=T();
+  const ov=overall(st);
+  let h = `<div class="ph"><div><div class="eyebrow">Only you see this page</div><h1 class="title">Tutor desk</h1><div class="title-en">${daysLeft()} days to the exam · her readiness ${pct(ov)}% · streak ${st.streak.n||0} days</div></div></div>`;
+  h += `<div class="grid2">`;
+  // progress table
+  h += `<div class="card" style="grid-column:1/-1"><h3>Her progress by lesson</h3><div class="tbl-wrap"><table class="stats"><thead><tr><th>Lektion</th><th>Grammar</th><th>Self-test</th><th>Drill</th><th>Words solid</th><th>Readiness</th></tr></thead><tbody>
+    ${LESSONS.map(l=>{const q=st.quiz[l.n], d=st.drill[l.n]; const ws=WORDS.filter(w=>w.L===l.n); const m=ws.filter(w=>st.srs[w.id]&&st.srs[w.id][0]>=3).length/ws.length; const r=lessonReady(l.n,st);
+      return `<tr style="${inScope(l.n)?'':'opacity:.45'}"><td><b>${l.n}</b> ${esc(l.ru)}</td><td>${st.read[l.n]?'✓':'—'}</td><td class="num">${q?pct(q.best)+'%'+(q.n>1?` <span class="faint">(${q.n}×)</span>`:''):'—'}</td><td class="num">${d?pct(d.best)+'%':'—'}</td><td class="num">${pct(m)}%</td><td><span class="chip ${r>=.85?'g':r>=.5?'a':'r'}">${pct(r)}%</span></td></tr>`}).join('')}
+  </tbody></table></div>
+  ${st.mocks.length?`<p style="margin:12px 0 0"><b>Mock exams:</b> ${st.mocks.map(m=>`${new Date(m.ts).toLocaleDateString('en-US',{month:'short',day:'numeric'})} <b>${pct(m.score/m.max)}%</b>`).join(' · ')}</p>`:'<p class="faint" style="margin:12px 0 0">No mock exams yet.</p>'}</div>`;
+  // writing inbox
+  const subs = Object.entries(st.writing||{}).sort((a,b)=>b[1].ts-a[1].ts);
+  h += `<div class="card" style="grid-column:1/-1"><h3>Writing inbox</h3>${subs.length?subs.map(([k,s])=>{const f=T_.fb[k]; const fresh=!f||f.ts<s.ts;
+    return `<div class="q"><div class="row" style="justify-content:space-between"><b>${esc(writingTitle(k))}</b>${fresh?'<span class="chip r">needs grading</span>':'<span class="chip g">graded</span>'}</div>
+    ${s.prompt?`<p class="faint" style="font-size:14px;margin:6px 0">${esc(s.prompt)}</p>`:''}<div class="sub" style="margin-top:8px">${esc(s.text)}</div>
+    <div class="fb"><div class="row" style="margin-bottom:8px"><span class="muted">Grade:</span>${['5','4','3','2','✓'].map(g=>`<button class="pill-btn ${(f?.grade||'')===g?'on':''}" data-act="fb-grade" data-k="${k}" data-g="${g}">${g}</button>`).join('')}<span class="faint" style="font-size:13px">5 = A · 4 = B · 3 = C · 2 = not yet</span></div>
+    <textarea class="ta" style="min-height:90px" id="fb-${k}" data-fb="${k}" placeholder="Corrections and comments. Show up for her in red pen.">${esc(f?.text||'')}</textarea>
+    <div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn red sm" data-act="fb-save" data-k="${k}">Send feedback</button></div></div></div>`}).join(''):'<p class="faint">Nothing submitted yet. Each lesson (2–9) has a writing task, and every mock exam ends with one.</p>'}</div>`;
+  // note + homework
+  h += `<div class="card"><h3>Note on her home page</h3><textarea class="ta" style="min-height:110px;font-family:var(--f-hand);font-size:22px;color:var(--red)" id="t-note" data-tnote="1" placeholder="Молодец! This week: у меня есть / нет…">${esc(T_.note)}</textarea><div class="row" style="justify-content:flex-end;margin-top:8px"><button class="btn red sm" data-act="note-save">Pin note</button></div></div>`;
+  h += `<div class="card"><h3>Homework</h3><div class="todo">${T_.homework.map(x=>`<div class="todo-i"><div class="t">${esc(x.text)}${x.due?`<div class="faint" style="font-size:13px">due ${fmtDate(x.due)}</div>`:''}</div>${st.hw[x.id]?'<span class="chip g">done</span>':'<span class="chip">open</span>'}<button class="btn sm ghost" data-act="hw-del" data-id="${x.id}" aria-label="Remove">✕</button></div>`).join('')||'<p class="faint" style="margin:0">None assigned.</p>'}</div>
+    <div class="row" style="margin-top:10px"><input class="input" id="hw-text" placeholder="e.g. Lektion 4 drill until 100%" style="flex:1"><input class="input" type="date" id="hw-due"><button class="btn sm" data-act="hw-add">Assign</button></div></div>`;
+  // settings
+  h += `<div class="card"><h3>Exam scope and pace</h3><p class="muted" style="font-size:14.5px">Tick the Lektionen her teacher says are on the 16 Dec exam. Flashcards, readiness and mock exams follow this.</p>
+    <div class="row">${LESSONS.map(l=>`<label class="chip ${inScope(l.n)?'b':''}" style="cursor:pointer"><input type="checkbox" data-scope="${l.n}" ${inScope(l.n)?'checked':''} style="margin:0 4px 0 0">L${l.n}</label>`).join('')}</div>
+    <div class="row" style="margin-top:12px"><label>Her class is at Lektion <select class="input" id="t-class" data-tset="classAt">${LESSONS.map(l=>`<option ${T_.classAt===l.n?'selected':''}>${l.n}</option>`).join('')}</select></label>
+    <label>New cards / day <input class="input" type="number" min="0" max="60" style="width:80px" id="t-new" data-tset="newPerDay" value="${T_.newPerDay}"></label></div></div>`;
+  // plan
+  h += `<div class="card"><h3>Week plan</h3><div class="stack" style="gap:6px">${T_.weeks.map((w,i)=>`<div class="row" style="flex-wrap:nowrap"><span class="num faint" style="width:92px;flex:none;font-size:13.5px">${fmtDate(w.d)}</span><input class="input" style="flex:1" id="wk-${i}" data-week="${i}" value="${esc(w.f)}"></div>`).join('')}</div></div>`;
+  // mistakes
+  const top = st.mistakes.slice().sort((a,b)=>(b.n||1)-(a.n||1)).slice(0,10);
+  h += `<div class="card"><h3>Her repeat mistakes</h3>${top.length?`<table class="stats"><tbody>${top.map(m=>`<tr><td style="font-size:14px">${ruify(esc(m.q))}</td><td><s style="color:var(--red)">${esc(m.given)}</s> → <b>${esc(m.right)}</b></td><td class="num faint">${m.n}×</td></tr>`).join('')}</tbody></table>`:'<p class="faint" style="margin:0">None yet.</p>'}</div>`;
+  h += `<div class="card"><h3>Teaching with this</h3><ul class="cando" style="font-size:14.5px"><li>Before each session, check the table: red readiness = what you teach that day.</li><li>Use "Student pages" to walk through a lesson together on screen. Your clicks there don't touch her record.</li><li>Grade her writing here; she sees it in red on her home page.</li><li>From Lektion 6 on, have her do one mock exam a week.</li></ul></div>`;
+  h += `</div>`;
+  return h;
+}
+
+// ---------- events ----------
+document.addEventListener('click', e => {
+  const say = e.target.closest('[data-say]'); if(say && !e.target.closest('[data-act]')) { speak(say.dataset.say); if(say.classList.contains('spk')||say.classList.contains('lt')||say.tagName==='I') return; }
+  const ru = e.target.closest('i.ru'); if(ru && !ru.dataset.say && !e.target.closest('button')) { speak(ru.textContent); return; }
+  const g = e.target.closest('[data-go]'); if(g){ if(g.dataset.go==='cards' && (!deck || deck.i>=deck.cards.length || deck.lesson)) buildDeck(null); go(g.dataset.go); return; }
+  const t = e.target.closest('[data-tab]'); if(t){ lessonTab=t.dataset.tab; ui.lessonTab=lessonTab; saveUi(); render(); return; }
+  const a = e.target.closest('[data-act]'); if(!a) return;
+  const act=a.dataset.act, rec=P();
+  switch(act){
+    case 'intro-ok': ui.introSeen=1; saveUi(); render(); break;
+    case 'preview': preview=!preview; go(preview?'home':'tutor'); break;
+    case 'read': { const L=+a.dataset.l; if(!rec.read[L]){ rec.read[L]=true; touchStreak(); save('student'); } lessonTab='quiz'; render(); window.scrollTo({top:0}); break; }
+    case 'qa': { const L=+a.dataset.l, i=+a.dataset.i, j=+a.dataset.j, l=LESSONS.find(x=>x.n===L), run=quizRun[L];
+      run.ans[i]=j; const q=l.quiz[i]; if(j!==q[2]) logMistake('Self-test · L'+L, q[0].replace(/<[^>]+>/g,' '), q[1][j], q[1][q[2]]);
+      if(Object.keys(run.ans).length===l.quiz.length){ const sc=l.quiz.filter((q,k)=>run.ans[k]===q[2]).length/l.quiz.length; const prev=rec.quiz[L]||{best:0,n:0}; rec.quiz[L]={best:Math.max(prev.best,sc), last:sc, n:prev.n+1, ts:Date.now()}; touchStreak(); }
+      save('student'); const y=window.scrollY; render(); window.scrollTo({top:y}); break; }
+    case 'q-reset': delete quizRun[+a.dataset.l]; render(); window.scrollTo({top:0}); break;
+    case 'd-check': { const L=+a.dataset.l, l=LESSONS.find(x=>x.n===L), run=drillRun[L];
+      $$(`[data-drill="${L}"]`).forEach(inp=>run.val[+inp.dataset.i]=inp.value);
+      run.checked=true; const sc=l.drill.filter((d,i)=>isRight(run.val[i]||'',d[1])).length/l.drill.length;
+      l.drill.forEach((d,i)=>{ if(!isRight(run.val[i]||'',d[1])) logMistake('Drill · L'+L, d[0], run.val[i]||'(blank)', answers(d[1])[0]); });
+      const prev=rec.drill[L]||{best:0,n:0}; rec.drill[L]={best:Math.max(prev.best,sc), last:sc, n:prev.n+1, ts:Date.now()}; touchStreak(); save('student'); const y=window.scrollY; render(); window.scrollTo({top:y}); break; }
+    case 'd-reset': delete drillRun[+a.dataset.l]; render(); break;
+    case 'submit-write': { const id=a.dataset.id, ta=$('#wr-'+id); if(!ta.value.trim()) return toast('Write something first.');
+      const l=LESSONS.find(l=>l.write&&l.write.id===id);
+      S.student.writing[id]={text:ta.value, ts:Date.now(), prompt:l?l.write.prompt:''}; touchStreak(); save('student'); try{localStorage.removeItem('p5-draft-'+id);}catch(e){} toast('Sent to your tutor.'); render(); break; }
+    case 'study-lesson': buildDeck(+a.dataset.l); go('cards'); break;
+    case 'cmode': deck.mode=a.dataset.m; ui.cardMode=deck.mode; saveUi(); deck.reveal=false; render(); break;
+    case 'reveal': deck.reveal=true; mountCard(); break;
+    case 'card': grade(a.dataset.ok==='1'); deck.i++; deck.reveal=false; renderNav(); render(); break;
+    case 'pro-check': { const inp=$('#fc-in'); const w=WORD[deck.cards[deck.i]]; deck.typed = a.dataset.skip? '' : (inp?inp.value:''); deck.last = !a.dataset.skip && isRight(deck.typed, ruAnswers(w.ru)); deck.reveal=true; grade(deck.last); mountCard(); speak(w.ru); break; }
+    case 'next-card': deck.i++; deck.reveal=false; render(); break;
+    case 'deck-more': { const pool=shuffle(WORDS.filter(w=>inScope(w.L)&&P().srs[w.id])).slice(0,20); deck={cards:pool.map(w=>w.id), i:0, reveal:false, stats:{ok:0,bad:0}, lesson:null, mode:deck.mode}; if(!pool.length) toast('Learn some new words first.'); render(); break; }
+    case 'mock-start': buildMock(); render(); break;
+    case 'm-r': mock.ra[a.dataset.k]=a.dataset.v==='1'; { const y=window.scrollY; render(); window.scrollTo({top:y}); } break;
+    case 'm-q': mock.qa[+a.dataset.i]=+a.dataset.j; { const y=window.scrollY; render(); window.scrollTo({top:y}); } break;
+    case 'mock-submit': $$('[data-mdrill]').forEach(i=>mock.da[+i.dataset.mdrill]=i.value); { const w=$('#m-write'); if(w) mock.wtext=w.value; } submitMock(); render(); window.scrollTo({top:0}); break;
+    case 'mock-quit': mock.on=false; render(); break;
+    case 'mock-close': mock.on=false; render(); break;
+    case 'mis-clear': rec.mistakes.splice(+a.dataset.i,1); save('student'); render(); break;
+    case 'hw-done': rec.hw[a.dataset.id]=true; touchStreak(); save('student'); render(); break;
+    case 'abc': abcQ.a=a.dataset.v; render(); break;
+    case 'abc-next': newAbcQ(); render(); break;
+    // tutor
+    case 'note-save': T().note=$('#t-note').value; T().noteTs=Date.now(); save('tutor'); toast('Pinned to her home page.'); break;
+    case 'hw-add': { const tx=$('#hw-text').value.trim(); if(!tx) return; T().homework.push({id:uid(), text:tx, due:$('#hw-due').value||''}); save('tutor'); render(); break; }
+    case 'hw-del': T().homework=T().homework.filter(x=>x.id!==a.dataset.id); save('tutor'); render(); break;
+    case 'fb-grade': { const k=a.dataset.k; const ta=$('#fb-'+k); T().fb[k]=Object.assign({text:'',ts:0}, T().fb[k], {grade:a.dataset.g, text:ta?ta.value:(T().fb[k]?.text||'')}); render(); break; }
+    case 'fb-save': { const k=a.dataset.k; T().fb[k]=Object.assign({}, T().fb[k], {text:$('#fb-'+k).value, ts:Date.now()}); save('tutor'); toast('Feedback sent.'); render(); break; }
+  }
+});
+document.addEventListener('input', e => {
+  const t=e.target;
+  if(t.dataset.write){ try{ localStorage.setItem('p5-draft-'+t.dataset.write, t.value); }catch(err){} const c=$('#wc-'+t.dataset.write); if(c) c.textContent=(t.value.trim()?t.value.trim().split(/\s+/).length:0)+' words'; }
+  if(t.dataset.drill){ const run=drillRun[+t.dataset.drill]; if(run) run.val[+t.dataset.i]=t.value; }
+  if(t.dataset.mdrill) mock.da[+t.dataset.mdrill]=t.value;
+  if(t.dataset.mwrite) mock.wtext=t.value;
+});
+document.addEventListener('change', e => {
+  const t=e.target;
+  if(t.dataset.scope){ const L=+t.dataset.scope; let sc=T().scope.filter(x=>x!==L); if(t.checked) sc.push(L); T().scope=sc.sort((a,b)=>a-b); save('tutor'); render(); }
+  if(t.dataset.tset){ T()[t.dataset.tset]=+t.value; save('tutor'); renderNav(); }
+  if(t.dataset.week!==undefined){ T().weeks[+t.dataset.week].f=t.value; save('tutor'); }
+});
+document.addEventListener('keydown', e => {
+  if(e.key!=='Enter' || e.shiftKey) return;
+  const t=e.target;
+  if(t.id==='fc-in'){ e.preventDefault(); $('[data-act="pro-check"]:not([data-skip])')?.click(); return; }
+  if(route==='cards' && deck && deck.reveal && t.tagName!=='INPUT' && t.tagName!=='TEXTAREA'){ const n=$('#next-btn'); if(n){ e.preventDefault(); n.click(); } return; }
+  if(t.dataset.drill!==undefined){ e.preventDefault(); const nx=$(`#dr-${t.dataset.drill}-${+t.dataset.i+1}`); if(nx) nx.focus(); else $(`[data-act="d-check"][data-l="${t.dataset.drill}"]`)?.click(); }
+  if(t.dataset.mdrill!==undefined){ e.preventDefault(); $(`#md-${+t.dataset.mdrill+1}`)?.focus(); }
+  if(t.id==='hw-text'){ e.preventDefault(); $('[data-act="hw-add"]').click(); }
+});
+document.addEventListener('keydown', e => { // space reveals a flashcard
+  if(route==='cards' && deck && deck.mode==='rec' && !deck.reveal && e.key===' ' && document.activeElement.tagName!=='INPUT'){ e.preventDefault(); deck.reveal=true; mountCard(); }
+});
+
+// ---------- on-screen Cyrillic keyboard ----------
+const KROWS = ['йцукенгшщзхъ','фывапролджэ','ячсмитьбюё'];
+let kTarget=null, kShift=false, kOpen=false;
+function drawKbd(){
+  const up = s => kShift ? s.toUpperCase() : s;
+  $('#kbd').innerHTML = `<div class="kbd-rows">${KROWS.map(r=>`<div class="kbd-row">${[...r].map(c=>`<button class="key" data-k="${up(c)}" tabindex="-1">${up(c)}</button>`).join('')}</div>`).join('')}
+   <div class="kbd-row"><button class="key w ${kShift?'on':''}" data-k="SHIFT" tabindex="-1">Shift</button><button class="key w" data-k=" " tabindex="-1" style="max-width:260px">space</button><button class="key w" data-k="BK" tabindex="-1">⌫</button><button class="key w" data-k="HIDE" tabindex="-1">Hide</button></div></div>`;
+}
+document.addEventListener('focusin', e => {
+  const t=e.target;
+  if((t.tagName==='INPUT' && t.getAttribute('lang')==='ru') || (t.tagName==='TEXTAREA' && t.getAttribute('lang')==='ru')){ kTarget=t; $('#kbd-toggle').hidden = kOpen; }
+});
+$('#kbd-toggle').addEventListener('mousedown', e=>e.preventDefault());
+$('#kbd-toggle').addEventListener('click', () => { kOpen=true; drawKbd(); $('#kbd').hidden=false; $('#kbd-toggle').hidden=true; kTarget?.focus(); });
+$('#kbd').addEventListener('mousedown', e => e.preventDefault()); // keep focus in the field
+$('#kbd').addEventListener('click', e => {
+  const k=e.target.closest('[data-k]'); if(!k) return; const v=k.dataset.k;
+  if(v==='HIDE'){ kOpen=false; $('#kbd').hidden=true; $('#kbd-toggle').hidden=false; return; }
+  if(v==='SHIFT'){ kShift=!kShift; drawKbd(); return; }
+  if(!kTarget || !document.body.contains(kTarget) || kTarget.readOnly) return;
+  const s=kTarget.selectionStart ?? kTarget.value.length, en=kTarget.selectionEnd ?? s, val=kTarget.value;
+  if(v==='BK'){ const from = s===en ? Math.max(0,s-1) : s; kTarget.value = val.slice(0,from)+val.slice(en); kTarget.setSelectionRange(from,from); }
+  else { kTarget.value = val.slice(0,s)+v+val.slice(en); kTarget.setSelectionRange(s+v.length,s+v.length); if(kShift){ kShift=false; drawKbd(); } }
+  kTarget.dispatchEvent(new Event('input',{bubbles:true}));
+  kTarget.focus();
+});
+
+// ---------- boot ----------
+render();
+initSync();
+
+</script>

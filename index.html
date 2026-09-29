@@ -6,7 +6,7 @@
 :root{
   --bg:#F2F4F7; --surface:#FFFFFF; --surface-2:#EBEEF2; --line:#D9DEE5;
   --text:#141920; --muted:#586272; --faint:#8a94a3;
-  --school:#2E6BE6; --work:#C9720F; --german:#0B9483; --book:#7446CC;
+  --school:#2E6BE6; --work:#C9720F; --german:#0B9483; --book:#7446CC; --other:#687384;
   --ok:#1E8E5A; --warn:#B7790A; --bad:#C62D2D;
   --board-bg:#0E1A2E; --board-line:#23324B; --board-text:#F1F4F9; --board-dim:#8FA0BC; --board-hot:#FFCF3F;
   --focus:#2E6BE6;
@@ -20,7 +20,7 @@
     color-scheme:dark;
     --bg:#0E1115; --surface:#161A20; --surface-2:#1E232B; --line:#2A313B;
     --text:#E7EBF0; --muted:#9BA5B3; --faint:#6B7585;
-    --school:#6B9BFF; --work:#F0A445; --german:#2FC6B1; --book:#A884F5;
+    --school:#6B9BFF; --work:#F0A445; --german:#2FC6B1; --book:#A884F5; --other:#A3AEBD;
     --ok:#3CC47F; --warn:#E3AA2E; --bad:#F06262;
     --board-bg:#0A1322; --board-line:#1F2C42;
     --focus:#6B9BFF;
@@ -30,7 +30,7 @@
   color-scheme:dark;
   --bg:#0E1115; --surface:#161A20; --surface-2:#1E232B; --line:#2A313B;
   --text:#E7EBF0; --muted:#9BA5B3; --faint:#6B7585;
-  --school:#6B9BFF; --work:#F0A445; --german:#2FC6B1; --book:#A884F5;
+  --school:#6B9BFF; --work:#F0A445; --german:#2FC6B1; --book:#A884F5; --other:#A3AEBD;
   --ok:#3CC47F; --warn:#E3AA2E; --bad:#F06262;
   --board-bg:#0A1322; --board-line:#1F2C42;
   --focus:#6B9BFF;
@@ -127,7 +127,13 @@ label.lbl{display:flex; flex-direction:column; gap:4px; font-size:.78rem; color:
 .prio b{font-family:var(--display); font-size:1.15rem; line-height:1.3; flex:1; min-width:12em}
 .prio .field{flex:1; min-width:12em; font-family:var(--display); font-size:1.05rem}
 .dep .met{border:1px solid var(--board-line); background:transparent; color:var(--board-text); border-radius:5px; font-family:var(--mono); font-size:.72rem; padding:2px 7px; white-space:nowrap}
-.dep .met:hover{border-color:var(--board-hot); color:var(--board-hot)}
+.dep .met:hover,.board .met:hover{border-color:var(--board-hot); color:var(--board-hot)}
+.board .met{border:1px solid var(--board-line); background:transparent; color:var(--board-text); border-radius:5px; font-family:var(--mono); font-size:.72rem; padding:2px 7px; white-space:nowrap}
+.board-form{display:grid; grid-template-columns:auto minmax(0,1fr) auto auto; gap:6px; padding:10px 0; border-bottom:1px solid var(--board-line)}
+.board-form .field{background:rgba(255,255,255,.06); border-color:var(--board-line); color:var(--board-text); color-scheme:dark; font-family:var(--body); width:auto}
+.board-form .btn.primary{background:var(--board-hot); color:#1a1300; border-color:var(--board-hot)}
+@media (max-width:520px){.board-form{grid-template-columns:1fr 1fr}}
+.board-more{padding-top:10px; text-align:center}
 
 /* departure board */
 .board{background:var(--board-bg); color:var(--board-text); border-radius:var(--r); padding:16px 18px; font-family:var(--mono)}
@@ -246,10 +252,10 @@ table.sum th.n{text-align:right}
 (function(){
 "use strict";
 /* ---------- constants ---------- */
-const LANES=[{id:"school",name:"School",de:"Schule"},{id:"work",name:"Work",de:"Arbeit"},{id:"german",name:"German",de:"Deutsch"},{id:"book",name:"Book",de:"Buch"}];
+const LANES=[{id:"school",name:"School",de:"Schule"},{id:"work",name:"Work",de:"Arbeit"},{id:"german",name:"German",de:"Deutsch"},{id:"book",name:"Book",de:"Buch"},{id:"other",name:"Other",de:"Sonstiges"}];
 const LANE=Object.fromEntries(LANES.map(l=>[l.id,l]));
 const MODES=[["push","Push"],["maintain","Maintain"],["pause","Pause"]];
-const SUGGEST={school:{push:14,maintain:8,pause:0},work:{push:14,maintain:8,pause:0},german:{push:7,maintain:4,pause:1},book:{push:10,maintain:5,pause:0}};
+const SUGGEST={school:{push:14,maintain:8,pause:0},work:{push:14,maintain:8,pause:0},german:{push:7,maintain:4,pause:1},book:{push:10,maintain:5,pause:0},other:{push:4,maintain:2,pause:0}};
 const SEM_START="2026-09-14", SEM_WEEKS=14, EXAM_START="2027-01-04", EXAM_END="2027-01-15";
 const REASONS=["Overplanned","Low energy","Avoided it","Urgent stuff came up","Sick / life happened","Unclear next step"];
 const CH_STATUS=["planned","drafting","drafted","revised"];
@@ -259,7 +265,7 @@ const TABS=[["today","Today","Heute"],["plan","Week","Woche"],["school","School"
 const WHY_FIELDS=[["why","Why am I doing this?","In your own words. Not a quote."],["cost","What it costs me if I skip it","The concrete thing you lose."],["done","Done looks like","Something you could check off."]];
 
 const DEFAULTS={
-  config:{capacity:40,lanes:{school:{why:"",cost:"",done:""},work:{why:"",cost:"",done:""},german:{why:"",cost:"",done:""},book:{why:"",cost:"",done:""}},german:{weeklyMin:420},book:{title:"My book",target:100000,targetDate:"2027-09-30"}},
+  config:{capacity:40,lanes:{school:{why:"",cost:"",done:""},work:{why:"",cost:"",done:""},german:{why:"",cost:"",done:""},book:{why:"",cost:"",done:""},other:{why:"",cost:"",done:""}},german:{weeklyMin:420},book:{title:"My book",target:100000,targetDate:"2027-09-30"}},
   plan:{weeks:{}},
   log:{days:{}},
   tasks:{items:[]},
@@ -267,7 +273,8 @@ const DEFAULTS={
   work:{projects:[]},
   book:{entries:[],chapters:[]},
   german:{milestones:[]},
-  reviews:{weeks:{}}
+  reviews:{weeks:{}},
+  deadlines:{items:[]}
 };
 const KEYS=Object.keys(DEFAULTS);
 
@@ -368,7 +375,7 @@ function getPlan(wk){
   if(w[wk])return w[wk];
   const prev=Object.keys(w).filter(k=>k<wk).sort().pop();
   if(prev)return w[prev];
-  const modes={school:"push",work:"push",german:"push",book:"maintain"};
+  const modes={school:"push",work:"push",german:"push",book:"maintain",other:"maintain"};
   return {capacity:S.config.capacity,modes,hours:Object.fromEntries(LANES.map(l=>[l.id,SUGGEST[l.id][modes[l.id]]]))};
 }
 function editPlan(wk,fn){update("plan",p=>{if(!p.weeks[wk])p.weeks[wk]=clone(getPlan(wk));fn(p.weeks[wk]);});}
@@ -389,6 +396,7 @@ function upcoming(){
   const m=S.german.milestones.find(x=>!x.done&&x.target);
   if(m)out.push({kind:"ms",id:m.id,date:m.target,title:"Reach "+m.label,sub:"German level checkpoint",lane:"german"});
   S.tasks.items.filter(x=>!x.done&&x.due).forEach(x=>out.push({kind:"task",id:x.id,date:x.due,title:x.text,sub:"Task",lane:x.lane}));
+  S.deadlines.items.filter(x=>!x.done).forEach(x=>out.push({kind:"gdl",id:x.id,date:x.date,title:x.title,sub:"",lane:LANE[x.lane]?x.lane:"other"}));
   if(S.config.book.targetDate)out.push({date:S.config.book.targetDate,title:"First draft done",sub:fmtNum(S.config.book.target)+" words",lane:"book"});
   return out.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
 }
@@ -440,7 +448,7 @@ function vToday(){
     const ra=rank(a), rb=rank(b); if(ra!==rb)return ra-rb;
     return (a.due||"9999")<(b.due||"9999")?-1:1;}).slice(0,5);
   const prio=weekPriority(wk);
-  const deps=upcoming().filter(d=>d.date>=addDays(t,-14)).slice(0,6);
+  const allDeps=upcoming().filter(d=>d.date>=addDays(t,-60)), deps=ui.boardAll?allDeps:allDeps.slice(0,6);
   const whys=LANES.filter(l=>S.config.lanes[l.id]&&S.config.lanes[l.id].why);
   const whyLane=whys.length?whys[daysBetween("2026-01-01",t)%whys.length]:null;
   const bs=bookStats();
@@ -473,8 +481,14 @@ function vToday(){
 
   <div class="stack">
     <section class="board" aria-label="Upcoming deadlines">
-      <div class="board-h"><b>Nächste Abfahrten</b><span>Coming up</span></div>
+      <div class="board-h"><b>Nächste Abfahrten</b><span class="row" style="gap:8px"><button class="met" data-act="board-form" aria-expanded="${!!ui.boardForm}">${ui.boardForm?"Close":"+ Deadline"}</button></span></div>
+      ${ui.boardForm?`<div class="board-form">
+        <select class="field" id="gd-lane" aria-label="Lane">${LANES.map(l=>`<option value="${l.id}" ${ui.gdLane===l.id?"selected":""}>${l.name}</option>`).join("")}</select>
+        <input class="field" id="gd-title" data-enter="gdl-add" placeholder="What's due" aria-label="Deadline">
+        <input class="field" id="gd-date" type="date" aria-label="Date">
+        <button class="btn primary" data-act="gdl-add">Add</button></div>`:""}
       ${deps.map(d=>{const n=daysBetween(t,d.date);return `<div class="dep"><span class="in ${n<0?"late":""}">${inLabel(n)}</span><span class="what">${esc(d.title)}<small>${fmt(d.date)}${d.sub?" · "+esc(d.sub):""}</small></span><span class="gleis" style="${laneStyle(d.lane)}">${LANE[d.lane].name}</span>${d.kind?`<button class="met" data-act="board-done" data-kind="${d.kind}" data-id="${esc(d.id)}" aria-label="Mark ${esc(d.title)} as met">✓ Met</button>`:`<span></span>`}</div>`;}).join("")||`<div class="dep"><span class="in">—</span><span class="what">Nothing scheduled</span><span></span><span></span></div>`}
+      ${allDeps.length>6?`<div class="board-more"><button class="met" data-act="board-all">${ui.boardAll?"Show fewer":`Show all ${allDeps.length}`}</button></div>`:""}
     </section>
 
     ${whyLane?`<section class="card"><div class="why-q" style="${laneStyle(whyLane.id)}"><div class="eyebrow">Why ${whyLane.name.toLowerCase()}</div><p>${esc(S.config.lanes[whyLane.id].why)}</p>${S.config.lanes[whyLane.id].cost?`<p class="hint" style="margin-top:8px">If you skip it: ${esc(S.config.lanes[whyLane.id].cost)}</p>`:""}</div></section>`
@@ -538,6 +552,7 @@ function vPlan(){
     </section>`;}).join("")}
   </div>
   <p class="hint">Push, Maintain and Pause set a suggested budget for the lane. Adjust hours after. Weeks you don't edit copy the last week you did.</p>
+  ${tasksCard("other","Other tasks")}
   </div>`;
 }
 
@@ -620,6 +635,7 @@ function vGerman(){
   return `<div class="stack">
   <section class="card lane-top" style="${laneStyle("german")}">
     <div class="card-h"><h2>A2 → B1.2 by end of May</h2><span class="muted" style="font-size:.8rem">${Math.max(0,Math.round(daysBetween(t,"2027-05-31")/7))} weeks left</span></div>
+    <a class="study-link" style="${laneStyle("german")};margin:0 0 14px" href="https://claude.ai/artifact/Qe1GyQzrfDKBA7LZpfnY3P" target="_blank" rel="noopener">Open Der rote Faden, your A2 trainer <span aria-hidden="true">↗</span></a>
     <div class="ladder">${ms.map(m=>{const n=m.target?daysBetween(t,m.target):null;
       return `<div class="rung ${m.done?"done":""}"><div class="row"><button class="chk ${m.done?"on":""}" data-act="ms-toggle" data-id="${m.id}" aria-label="Mark ${esc(m.label)} reached"></button><h3>${esc(m.label)}</h3></div>
         <span class="hint">${esc(m.note||"")}</span>
@@ -644,7 +660,7 @@ function vGerman(){
       <p class="hint" style="margin-bottom:10px">Tue, Wed and Thu give you about 12 hours of commuting. A B1 jump needs roughly 250 study hours, which is about 7 hours a week until May. Most of that can happen on the train.</p>
       <ul class="tasks">
         <li class="task"><span class="t-text"><b>Out, 45 min:</b> listening. Easy German, or DW's <i>Nicos Weg</i> A2–B1 episodes.</span></li>
-        <li class="task"><span class="t-text"><b>Back, 30 min:</b> vocabulary reps, then write 5 sentences about your day.</span></li>
+        <li class="task"><span class="t-text"><b>Back, 30 min:</b> today's session in Der rote Faden, then write 5 sentences about your day.</span></li>
         <li class="task"><span class="t-text"><b>Free days, 20 min:</b> speaking. Say a paragraph out loud and record it.</span></li>
       </ul>
     </section>
@@ -712,7 +728,7 @@ function vBook(){
 function vWhy(){
   return `<div class="stack">
   <p class="hint" style="max-width:62ch">Write these yourself. One honest line beats a paragraph. They show up on Today, one lane per day, so you remember why a lane matters on the days it's losing.</p>
-  <div class="grid g-2">${LANES.map(l=>{const w=S.config.lanes[l.id]||{};
+  <div class="grid g-2">${LANES.filter(l=>l.id!=="other").map(l=>{const w=S.config.lanes[l.id]||{};
     return `<section class="card lane-top" style="${laneStyle(l.id)}"><div class="card-h"><h2>${l.name}</h2><span class="muted" style="font-style:italic;font-size:.85rem">${l.de}</span></div>
       <div class="stack" style="gap:12px">${WHY_FIELDS.map(([f,lab,ph])=>`<label class="lbl">${lab}<textarea class="field" id="why-${l.id}-${f}" data-in="why" data-lane="${l.id}" data-f="${f}" placeholder="${esc(ph)}">${esc(w[f]||"")}</textarea></label>`).join("")}</div></section>`;}).join("")}</div>
   </div>`;
@@ -787,7 +803,15 @@ function doAct(act,el){
     else if(d.kind==="proj")update("work",s=>{const x=s.projects.find(i=>i.id===id);if(x)x.dueMet=true;});
     else if(d.kind==="ms")update("german",s=>{const x=s.milestones.find(i=>i.id===id);if(x)x.done=true;});
     else if(d.kind==="task")update("tasks",s=>{const x=s.items.find(i=>i.id===id);if(x)x.done=true;});
+    else if(d.kind==="gdl")update("deadlines",s=>{const x=s.items.find(i=>i.id===id);if(x)x.done=true;});
     toast("Marked as met. Nice.");break;}
+  case "board-form":ui.boardForm=!ui.boardForm;render();if(ui.boardForm)focusLater("gd-title");break;
+  case "board-all":ui.boardAll=!ui.boardAll;render();break;
+  case "gdl-add":{const lane=val("gd-lane")||"other",title=val("gd-title"),date=val("gd-date");ui.gdLane=lane;
+    if(!title||!date){toast("Add what's due and a date.");return;}
+    if(lane==="school")update("school",s=>s.deadlines.push({id:uid(),course:"",name:title,date,type:"",done:false}));
+    else update("deadlines",s=>s.items.push({id:uid(),lane,title,date,done:false}));
+    toast("Deadline added.");focusLater("gd-title");break;}
   case "clear-done":update("tasks",s=>{s.items=s.items.filter(i=>!(i.lane===d.lane&&i.done));});break;
   case "log":update("log",s=>{const day=s.days[t]||(s.days[t]={});day[d.lane]=Math.max(0,Math.round(((day[d.lane]||0)+Number(d.d))*10)/10);});break;
   case "plan-nav":ui.planWeek=addDays(ui.planWeek||mondayOf(t),Number(d.d));render();break;

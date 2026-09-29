@@ -1,0 +1,981 @@
+<title>The Outlier</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: sticky left rail (course nav) + one working column; the drill card is the hero, answers go into calculator-style LCD fields. */
+:root{
+  --bg:#F5F4F8; --surface:#FFFFFF; --surface-2:#EFEDF4;
+  --ink:#1D1A25; --muted:#5C5869; --faint:#8E899C;
+  --line:#E2DFE9; --line-strong:#CBC6D6;
+  --accent:#B83A72; --accent-strong:#8E2656; --accent-soft:#F7E1EB;
+  --good:#1D7657; --good-soft:#DDF0E7;
+  --bad:#B1372D; --bad-soft:#F7E0DC;
+  --warn:#8F5E00; --warn-soft:#F6EBCF;
+  --lcd:#CDD5BE; --lcd-ink:#1E2718; --lcd-edge:#A9B39A;
+  --key:#2C2A33; --key-ink:#F3F1F7; --key-2nd:#3E78B8; --key-alpha:#3F8F5C;
+  --shadow:0 1px 2px rgba(29,26,37,.06),0 8px 22px rgba(29,26,37,.07);
+  --f-display:'Bricolage Grotesque','Avenir Next','Segoe UI',sans-serif;
+  --f-body:'IBM Plex Sans',-apple-system,'Segoe UI',sans-serif;
+  --f-mono:'IBM Plex Mono','SF Mono',Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15131A; --surface:#1E1B24; --surface-2:#26222D;
+    --ink:#EEEBF3; --muted:#ABA6B8; --faint:#797487;
+    --line:#2E2A36; --line-strong:#403B4A;
+    --accent:#EE7FAE; --accent-strong:#F6A5C6; --accent-soft:#3B1F2D;
+    --good:#62C99F; --good-soft:#15302A;
+    --bad:#EC8B80; --bad-soft:#3B211E;
+    --warn:#E0B055; --warn-soft:#352A12;
+    --lcd:#27301F; --lcd-ink:#CFE6AE; --lcd-edge:#3B4830;
+    --key:#3A3642; --key-ink:#F3F1F7; --key-2nd:#6FA2DA; --key-alpha:#6DBE8A;
+    --shadow:0 1px 2px rgba(0,0,0,.35),0 10px 26px rgba(0,0,0,.4);
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15131A; --surface:#1E1B24; --surface-2:#26222D;
+  --ink:#EEEBF3; --muted:#ABA6B8; --faint:#797487;
+  --line:#2E2A36; --line-strong:#403B4A;
+  --accent:#EE7FAE; --accent-strong:#F6A5C6; --accent-soft:#3B1F2D;
+  --good:#62C99F; --good-soft:#15302A;
+  --bad:#EC8B80; --bad-soft:#3B211E;
+  --warn:#E0B055; --warn-soft:#352A12;
+  --lcd:#27301F; --lcd-ink:#CFE6AE; --lcd-edge:#3B4830;
+  --key:#3A3642; --key-ink:#F3F1F7; --key-2nd:#6FA2DA; --key-alpha:#6DBE8A;
+  --shadow:0 1px 2px rgba(0,0,0,.35),0 10px 26px rgba(0,0,0,.4);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg); color:var(--ink); font-family:var(--f-body); font-size:15px; line-height:1.55; margin:0}
+h1,h2,h3{font-family:var(--f-display); text-wrap:balance; margin:0; font-weight:700; letter-spacing:-.01em}
+p{margin:0 0 10px}
+button{font-family:inherit; font-size:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.mono,.num{font-family:var(--f-mono); font-variant-numeric:tabular-nums}
+a{color:var(--accent)}
+@media (prefers-reduced-motion: reduce){*{transition:none!important; animation:none!important}}
+
+/* ---------- shell ---------- */
+.app{display:flex; min-height:100vh; max-width:1320px; margin:0 auto}
+.rail{width:264px; flex:none; padding:24px 16px 24px 18px; border-right:1px solid var(--line); position:sticky; top:env(safe-area-inset-top,0px); align-self:flex-start; height:100vh; overflow-y:auto}
+.brand{font-family:var(--f-display); font-weight:800; font-size:26px; letter-spacing:-.02em; line-height:1; display:flex; align-items:center; gap:10px}
+.brand svg{flex:none}
+.course-tag{font-size:12px; color:var(--muted); margin:8px 0 18px; padding-bottom:14px; border-bottom:1px solid var(--line)}
+.course-tag .code{font-family:var(--f-mono); font-size:11px; color:var(--faint); display:block}
+.nav-label{font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--faint); font-weight:600; margin:16px 0 6px 8px}
+.nav{display:flex; flex-direction:column; gap:2px}
+.nav button{display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; text-align:left; background:none; border:0; padding:7px 9px; border-radius:7px; cursor:pointer; font-size:14px}
+.nav button:hover{background:var(--surface-2)}
+.nav button[aria-current="page"]{background:var(--ink); color:var(--bg)}
+.nav button[aria-current="page"] .nav-meta{color:inherit; opacity:.7}
+.nav-meta{font-family:var(--f-mono); font-size:11px; color:var(--faint)}
+.rail-foot{margin-top:18px; padding-top:14px; border-top:1px solid var(--line); font-size:12px; color:var(--muted); display:flex; flex-direction:column; gap:10px}
+.exam-count{font-family:var(--f-display); font-size:15px; font-weight:700; color:var(--ink); display:block}
+.sync{display:flex; align-items:center; gap:7px; font-size:11.5px; color:var(--faint)}
+.sync-dot{width:7px; height:7px; border-radius:50%; background:var(--faint)}
+.sync-dot.synced{background:var(--good)} .sync-dot.local{background:var(--warn)}
+.main{flex:1; min-width:0; padding:26px 36px 80px}
+.view-head{display:flex; justify-content:space-between; align-items:flex-end; gap:14px; flex-wrap:wrap; padding-bottom:14px; margin-bottom:22px; border-bottom:2px solid var(--ink)}
+.eyebrow{font-size:12px; text-transform:uppercase; letter-spacing:.1em; color:var(--accent); font-weight:600; margin-bottom:4px}
+.view-title{font-size:30px}
+.lede{color:var(--muted); max-width:64ch; margin-bottom:18px}
+@media (max-width:900px){
+  .app{flex-direction:column}
+  .rail{position:static; height:auto; width:100%; border-right:0; border-bottom:1px solid var(--line); padding:16px}
+  .nav{flex-direction:row; flex-wrap:wrap; gap:4px}
+  .nav button{width:auto; border:1px solid var(--line)}
+  .nav-meta{display:none}
+  .nav-label{display:none}
+  .rail>.nav{display:inline-flex; margin:0 4px 4px 0}
+  .course-tag{margin:6px 0 10px; padding-bottom:0; border:0}
+  .course-tag .code{display:inline; margin-left:6px}
+  .brand{font-size:22px}
+  .rail-foot{flex-direction:row; flex-wrap:wrap; justify-content:space-between; align-items:center; margin-top:8px; padding-top:8px}
+  .rail-foot .exam-count{display:inline; font-size:13px}
+  .rail-foot .exam-count+div{display:inline}
+  .main{padding:20px 16px 60px}
+  .view-title{font-size:24px}
+}
+
+/* ---------- drill card ---------- */
+.session{display:flex; align-items:center; gap:12px; margin-bottom:14px; font-size:13px; color:var(--muted); flex-wrap:wrap}
+.pips{display:flex; gap:4px}
+.pip{width:18px; height:6px; border-radius:3px; background:var(--line-strong)}
+.pip.ok{background:var(--good)} .pip.miss{background:var(--bad)} .pip.now{background:var(--accent)}
+.card{background:var(--surface); border:1px solid var(--line); border-radius:12px; box-shadow:var(--shadow); padding:24px 26px}
+@media (max-width:640px){.card{padding:18px 16px}}
+.q-meta{display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:10px}
+.chip{font-size:11px; font-weight:600; letter-spacing:.04em; text-transform:uppercase; padding:3px 9px; border-radius:99px; background:var(--surface-2); color:var(--muted)}
+.chip.topic{background:var(--accent-soft); color:var(--accent-strong)}
+.q-title{font-size:20px; margin-bottom:10px}
+.q-prompt{max-width:70ch}
+.q-prompt p:last-child{margin-bottom:0}
+.tbl-wrap{overflow-x:auto; margin:12px 0}
+table.data{border-collapse:collapse; font-size:14px; min-width:260px}
+table.data th{font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--faint); text-align:right; padding:6px 12px; border-bottom:1px solid var(--line-strong); font-weight:600; white-space:nowrap}
+table.data th:first-child,table.data td:first-child{text-align:left}
+table.data td{padding:6px 12px; border-bottom:1px solid var(--line); text-align:right; font-family:var(--f-mono); font-variant-numeric:tabular-nums; white-space:nowrap}
+table.data td.txt{font-family:var(--f-body)}
+table.data tr.hl td{background:var(--accent-soft)}
+table.data tr.tot td{font-weight:600; border-top:1px solid var(--line-strong)}
+.fields{display:flex; flex-wrap:wrap; gap:14px 22px; margin:18px 0 4px}
+.field{display:flex; flex-direction:column; gap:5px; min-width:0}
+.field label{font-size:12.5px; color:var(--muted); font-weight:500}
+.lcd-wrap{display:flex; align-items:center; background:var(--lcd); border:2px solid var(--lcd-edge); border-radius:6px; padding:0 10px; box-shadow:inset 0 2px 4px rgba(0,0,0,.12)}
+.lcd{background:transparent; border:0; color:var(--lcd-ink); font-family:var(--f-mono); font-size:19px; font-weight:500; padding:8px 0; width:10ch; text-align:right; outline:none}
+.lcd::placeholder{color:var(--lcd-ink); opacity:.35}
+.lcd-wrap:focus-within{border-color:var(--accent)}
+.lcd-unit{font-family:var(--f-mono); color:var(--lcd-ink); opacity:.75; margin-left:6px; font-size:14px}
+.field.ok .lcd-wrap{border-color:var(--good)} .field.miss .lcd-wrap{border-color:var(--bad)}
+.verdict{font-size:13px; font-weight:600}
+.field.ok .verdict{color:var(--good)} .field.miss .verdict{color:var(--bad)}
+.hint-line{font-size:12.5px; color:var(--faint); margin-top:4px}
+.opts{display:flex; flex-direction:column; gap:8px; margin-top:16px; max-width:640px}
+.opt{display:flex; gap:10px; align-items:flex-start; text-align:left; border:1px solid var(--line-strong); border-radius:8px; padding:10px 13px; background:var(--surface); cursor:pointer}
+.opt:hover:not([disabled]){border-color:var(--accent)}
+.opt .k{font-family:var(--f-mono); font-size:12px; color:var(--faint); padding-top:2px}
+.opt.right{border-color:var(--good); background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad); background:var(--bad-soft)}
+.opt[disabled]{cursor:default}
+.actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:18px; align-items:center}
+.btn{border:0; border-radius:8px; padding:10px 18px; font-weight:600; cursor:pointer; font-size:14px}
+.btn-primary{background:var(--accent); color:#fff}
+:root[data-theme="dark"] .btn-primary{color:#1D1A25}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn-primary{color:#1D1A25}}
+.btn-primary:hover{background:var(--accent-strong)}
+.btn-ghost{background:none; border:1px solid var(--line-strong)}
+.btn-ghost:hover{background:var(--surface-2)}
+.btn-link{background:none; border:0; color:var(--muted); text-decoration:underline; cursor:pointer; padding:10px 4px; font-size:13px}
+.kbd-hint{font-size:12px; color:var(--faint)}
+.feedback{margin-top:18px; border-radius:10px; padding:14px 16px; font-size:14px}
+.feedback.ok{background:var(--good-soft)} .feedback.miss{background:var(--bad-soft)}
+.feedback h4{margin:0 0 4px; font-family:var(--f-display); font-size:16px}
+.feedback.ok h4{color:var(--good)} .feedback.miss h4{color:var(--bad)}
+.trap-hit{margin-top:8px; padding:10px 12px; border-left:3px solid var(--warn); background:var(--warn-soft); border-radius:0 7px 7px 0; font-size:13.5px}
+.trap-hit b{color:var(--warn)}
+.solution{margin-top:16px; border-top:1px dashed var(--line-strong); padding-top:14px}
+.solution h4{font-family:var(--f-display); font-size:15px; margin:0 0 8px}
+.solution ol{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:6px}
+.solution li{padding-left:2px}
+.eq{font-family:var(--f-mono); font-size:13.5px; background:var(--surface-2); border-radius:6px; padding:8px 10px; margin:6px 0; overflow-x:auto; white-space:nowrap}
+.keys{margin-top:12px; padding:12px 14px; border:1px solid var(--line); border-radius:9px; background:var(--bg)}
+.keys-title{font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--faint); font-weight:600; margin-bottom:8px}
+.seq{display:flex; flex-wrap:wrap; gap:5px; align-items:center; font-size:13px; line-height:2}
+kbd.key{display:inline-block; font-family:var(--f-mono); font-size:11.5px; font-weight:600; background:var(--key); color:var(--key-ink); border-radius:5px; padding:1px 7px; box-shadow:0 2px 0 rgba(0,0,0,.35); line-height:1.7; white-space:nowrap}
+kbd.key.k2{background:var(--key-2nd); color:#fff}
+kbd.key.menu{background:transparent; color:var(--ink); border:1px solid var(--line-strong); box-shadow:none; font-weight:500}
+.arrow{color:var(--faint); font-size:12px}
+code.x{font-family:var(--f-mono); font-size:.92em; background:var(--surface-2); padding:1px 5px; border-radius:4px}
+
+/* ---------- topic picker ---------- */
+.topics{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px}
+.topics button{border:1px solid var(--line-strong); background:var(--surface); border-radius:99px; padding:6px 13px; cursor:pointer; font-size:13px}
+.topics button[aria-pressed="true"]{background:var(--ink); color:var(--bg); border-color:var(--ink)}
+.gen-list{display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:10px; margin-bottom:22px}
+.gen{display:flex; flex-direction:column; gap:6px; text-align:left; border:1px solid var(--line); background:var(--surface); border-radius:10px; padding:13px 14px; cursor:pointer}
+.gen:hover{border-color:var(--accent)}
+.gen[aria-pressed="true"]{border-color:var(--accent); box-shadow:0 0 0 1px var(--accent)}
+.gen-name{font-weight:600}
+.gen-sub{font-size:12px; color:var(--muted)}
+.meter{height:5px; border-radius:3px; background:var(--line); overflow:hidden}
+.meter i{display:block; height:100%; background:var(--good)}
+.meter.low i{background:var(--bad)} .meter.mid i{background:var(--warn)}
+.gen-stat{font-family:var(--f-mono); font-size:11px; color:var(--faint)}
+
+/* ---------- reference ---------- */
+.stack{display:flex; flex-direction:column; gap:12px; max-width:820px}
+.trap{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:16px 18px}
+.trap-head{display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:baseline; margin-bottom:6px}
+.trap h3{font-size:17px}
+.status{font-size:11px; font-weight:600; padding:2px 9px; border-radius:99px; white-space:nowrap}
+.status.ok{background:var(--good-soft); color:var(--good)}
+.status.warn{background:var(--warn-soft); color:var(--warn)}
+.trap .src{font-size:12px; color:var(--faint); margin-top:6px}
+.trap p{margin-bottom:6px}
+.ref-sec{margin-bottom:26px}
+.ref-sec h2{font-size:20px; margin-bottom:10px}
+.recipe{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:14px 16px}
+.recipe h3{font-size:15.5px; margin-bottom:6px}
+.recipe p{font-size:13.5px; color:var(--muted); margin:6px 0 0}
+.grid2{display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:12px}
+@media (max-width:420px){.grid2{grid-template-columns:1fr}}
+.callout{border-left:3px solid var(--accent); background:var(--accent-soft); border-radius:0 8px 8px 0; padding:12px 16px; font-size:14px; max-width:820px; margin-bottom:18px}
+table.ref{border-collapse:collapse; font-size:13.5px; width:100%}
+table.ref th{font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--faint); text-align:left; padding:7px 10px; border-bottom:1px solid var(--line-strong)}
+table.ref td{padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top}
+table.ref td.f{font-family:var(--f-mono); font-size:12.5px; white-space:nowrap}
+
+/* ---------- map ---------- */
+.weeks{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:10px}
+.wk{border:1px solid var(--line); background:var(--surface); border-radius:10px; padding:13px 14px; display:flex; flex-direction:column; gap:6px}
+.wk.locked{background:transparent; border-style:dashed}
+.wk-n{font-family:var(--f-mono); font-size:11px; color:var(--faint)}
+.wk-t{font-family:var(--f-display); font-weight:700; font-size:15px}
+.wk-s{font-size:12px; color:var(--muted)}
+.wk.locked .wk-t{color:var(--muted)}
+.summary{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin-bottom:22px}
+.tile{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:12px 14px}
+.tile .v{font-family:var(--f-display); font-size:26px; font-weight:800}
+.tile .l{font-size:12px; color:var(--muted)}
+.log{display:flex; flex-direction:column; gap:8px; max-width:820px}
+.log-row{background:var(--surface); border:1px solid var(--line); border-left:3px solid var(--bad); border-radius:0 9px 9px 0; padding:11px 14px; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:center}
+.log-row .what{font-weight:600}
+.log-row .det{font-size:12.5px; color:var(--muted)}
+.empty{color:var(--faint); font-style:italic}
+.done-card{text-align:center; padding:30px 20px}
+.done-card .big{font-family:var(--f-display); font-size:48px; font-weight:800; line-height:1}
+</style>
+
+<div class="app">
+  <nav class="rail" aria-label="The Outlier">
+    <div class="brand">
+      <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><g fill="var(--faint)"><circle cx="5" cy="22" r="2.4"/><circle cx="10" cy="19" r="2.4"/><circle cx="14" cy="21" r="2.4"/><circle cx="18" cy="17" r="2.4"/></g><circle cx="25" cy="6" r="3.4" fill="var(--accent)"/></svg>
+      The Outlier
+    </div>
+    <div class="course-tag">Data Analysis I<span class="code">W.IBA_APMAT12.H26</span></div>
+    <div class="nav-label">Practice</div>
+    <div class="nav" id="nav-practice"></div>
+    <div class="nav-label">Reference</div>
+    <div class="nav" id="nav-ref"></div>
+    <div class="nav-label">You</div>
+    <div class="nav" id="nav-you"></div>
+    <div class="rail-foot">
+      <div><span class="exam-count" id="exam-count"></span> <span>until the exam block (4 Jan)</span></div>
+      <div class="sync"><span class="sync-dot" id="sync-dot"></span><span id="sync-label">Checking sync…</span></div>
+    </div>
+  </nav>
+  <main class="main" id="view"></main>
+</div>
+
+<script>
+/* =====================================================================
+   helpers
+   ===================================================================== */
+const $=s=>document.querySelector(s);
+const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+const sum=a=>a.reduce((s,v)=>s+v,0);
+const mean=a=>sum(a)/a.length;
+const rnd=(x,d=2)=>{const f=10**d;return Math.round(x*f)/f;};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function fmt(x,d=2){
+  if(!isFinite(x))return '—';
+  const neg=x<0; let s=Math.abs(rnd(x,d)).toFixed(d);
+  if(d>0)s=s.replace(/\.?0+$/,'');
+  let [i,f]=s.split('.');
+  i=i.replace(/\B(?=(\d{3})+(?!\d))/g,' ');
+  return (neg?'−':'')+i+(f?'.'+f:'');
+}
+const fx=(x,d)=>{const s=Math.abs(x).toFixed(d);const [i,f]=s.split('.');return (x<0?'−':'')+i.replace(/\B(?=(\d{3})+(?!\d))/g,' ')+(f?'.'+f:'');};
+const pc=(x,d=2)=>fx(x*100,d)+'%';
+function parseNum(raw){
+  let s=String(raw).trim().replace(/[\s '’]/g,'').replace(/CHF/i,'').replace(/%$/,'').replace(/−/g,'-');
+  if(!s)return NaN;
+  if(s.includes(',')&&s.includes('.'))s=s.replace(/,/g,'');
+  else if(s.includes(','))s=/^-?\d{1,3}(,\d{3})+$/.test(s)?s.replace(/,/g,''):s.replace(',','.');
+  if(!/^-?(\d+\.?\d*|\.\d+)$/.test(s))return NaN;
+  return parseFloat(s);
+}
+const close=(u,v,f)=>Math.abs(u-v)<=Math.max(f.abs||0,(f.rel||0)*Math.abs(v))+1e-9;
+const K=(t,c='')=>`<kbd class="key ${c}">${t}</kbd>`;
+const M=t=>`<kbd class="key menu">${t}</kbd>`;
+const A='<span class="arrow">→</span>';
+const seq=(...parts)=>`<div class="seq">${parts.join(' ')}</div>`;
+function table(heads,rows,opts={}){
+  return `<div class="tbl-wrap"><table class="data"><thead><tr>${heads.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${
+    rows.map((r,i)=>`<tr class="${(opts.hl===i?'hl ':'')+(opts.tot&&i===rows.length-1?'tot':'')}">${r.map((c,j)=>`<td class="${(opts.txt||[0]).includes(j)?'txt':''}">${c}</td>`).join('')}</tr>`).join('')
+  }</tbody></table></div>`;
+}
+const listKeys=`${K('STAT')} ${M('1:Edit…')} type the values into L1, ${K('ENTER')} after each`;
+
+/* =====================================================================
+   topics & generators
+   Each generator returns {title, prompt, fields|mc, steps, keys}.
+   A field: {label, value, tol:{abs,rel}, unit, hint, traps:[{value,msg}]}
+   ===================================================================== */
+const TOPICS=[
+  {id:'basics',week:2,name:'Basics & terminology'},
+  {id:'loc',week:3,name:'Measures of location'},
+  {id:'disp',week:4,name:'Measures of dispersion'},
+  {id:'idx',week:5,name:'Indices'},
+  {id:'corr',week:6,name:'Correlation'},
+  {id:'tool',week:0,name:'Which tool?'}
+];
+const G={};
+function def(id,topic,name,sub,make){G[id]={id,topic,name,sub,make};}
+function keepTraps(field){ // drop traps that happen to equal the answer
+  field.traps=(field.traps||[]).filter(t=>isFinite(t.value)&&!close(t.value,field.value,field.tol));
+  return field;
+}
+
+/* ---------- week 2 ---------- */
+def('sigma','basics','Summation sign','Σ with a small table, like Ex. 2.1',()=>{
+  const x=shuffle([ri(1,4),ri(5,8),ri(9,12),ri(13,16)]);
+  const w=pick([[0.1,0.4,0.3,0.2],[0.25,0.25,0.3,0.2],[0.4,0.1,0.2,0.3],[0.15,0.35,0.3,0.2],[0.2,0.2,0.5,0.1]]);
+  const a=ri(1,5), v=pick(['sum','quarter','sq','wx']);
+  const tbl=table(['i','x<sub>i</sub>','w<sub>i</sub>'],x.map((xi,i)=>[i+1,xi,fx(w[i],2)]));
+  let q,val,steps,keys,traps=[];
+  if(v==='sum'){q='Σ<sub>i=1</sub><sup>4</sup> x<sub>i</sub>';val=sum(x);steps=[`Add all four values: <div class="eq">${x.join(' + ')} = ${val}</div>`];keys=seq(listKeys,A,K('2nd','k2'),K('STAT'),A,M('MATH'),A,M('5:sum('),K('2nd','k2'),K('1'),K(')'),K('ENTER'));}
+  if(v==='quarter'){q='Σ<sub>i=1</sub><sup>4</sup> x<sub>i</sub> / 4';val=sum(x)/4;steps=[`Each term is x<sub>i</sub>/4, so you can pull the 4 out of the sum: <div class="eq">(${x.join(' + ')}) / 4 = ${sum(x)} / 4 = ${fmt(val)}</div>`,'That is the plain mean of the four values.'];keys=seq(M('sum(L1)/4'),'or',M('mean(L1)'));}
+  if(v==='sq'){q=`Σ<sub>i=1</sub><sup>4</sup> (x<sub>i</sub> − ${a})²`;val=sum(x.map(xi=>(xi-a)**2));steps=[`Subtract ${a} from every value, square, then add: <div class="eq">${x.map(xi=>`(${xi}−${a})²`).join(' + ')}</div><div class="eq">= ${x.map(xi=>(xi-a)**2).join(' + ')} = ${val}</div>`,'Square first, then add. (Σx − a)² gives a different number.'];keys=seq(M('sum((L1−'+a+')²)'),'with',K('x²'),'for the square');traps=[{value:(sum(x)-4*a)**2,msg:'You subtracted and added first, then squared the total. The square belongs inside the sum: square every term on its own, then add.'},{value:sum(x.map(xi=>xi-a)),msg:'You forgot to square each difference.'}];}
+  if(v==='wx'){q='Σ<sub>i=1</sub><sup>4</sup> w<sub>i</sub> · x<sub>i</sub>';val=sum(x.map((xi,i)=>w[i]*xi));steps=[`Multiply row by row, then add: <div class="eq">${x.map((xi,i)=>`${fx(w[i],2)}·${xi}`).join(' + ')} = ${fmt(val)}</div>`,'Because the weights add up to 1, this is already the weighted mean. Excel: <code class="x">SUMPRODUCT</code> (German: <code class="x">SUMMENPRODUKT</code>).'];keys=seq('x in L1, w in L2',A,M('sum(L1*L2)'));traps=[{value:mean(x),msg:'That is the unweighted mean. Multiply each x by its weight first.'}];}
+  return {title:'Evaluate the sum',prompt:`<p>Use the table below.</p>${tbl}<p>Compute <span class="mono">${q}</span>.</p>`,
+    fields:[keepTraps({label:'Result',value:val,tol:{abs:0.011},traps})],steps,keys};
+});
+
+def('relfreq','basics','Relative frequency','w = N<sub>i</sub> / N from a frequency table',()=>{
+  const deps=['Technology & Architecture','Business','Social Work','Design & Art','Music'];
+  const N=deps.map(()=>ri(4,19)*100+ri(0,99));
+  const k=ri(0,4), tot=sum(N), val=N[k]/tot*100;
+  return {title:'Relative frequency',prompt:`<p>Students per department (hypothetical year):</p>${table(['Department','Students'],deps.map((d,i)=>[d,fmt(N[i],0)]).concat([['Total','?']]),{tot:true,hl:k})}<p>What share of all students are in <b>${deps[k]}</b>? Answer in % with 2 decimals.</p>`,
+    fields:[keepTraps({label:'Relative frequency',value:val,unit:'%',tol:{abs:0.011},traps:[{value:N[k]/tot,msg:'That is the share as a decimal. The question asks for percent, so multiply by 100.'}]})],
+    steps:[`Total first: <div class="eq">N = ${N.map(n=>fmt(n,0)).join(' + ')} = ${fmt(tot,0)}</div>`,`Then <div class="eq">w = N<sub>i</sub> / N = ${fmt(N[k],0)} / ${fmt(tot,0)} = ${fx(val,2)}%</div>`,'A frequency table should always show the total, so the reader can check the percentages.'],
+    keys:seq(M(`${N[k]}/sum(L1)*100`))};
+});
+
+const SCALES=['Nominal','Ordinal','Interval','Ratio'];
+const SCALE_BANK=[
+  ['Marital status (single, married, widowed, divorced)',0],['Car color',0],['Gender (female, male, diverse)',0],['Postal code of a customer',0],['Blood type',0],['Department at HSLU',0],['Nationality',0],
+  ['Customer satisfaction (satisfied, medium, dissatisfied)',1],['Highest educational attainment (primary, secondary, university)',1],['Price category (cheap … exorbitant)',1],['Hotel star rating',1],['Finishing place in a race (1st, 2nd, 3rd)',1],['Credit rating (AAA, AA, A, BBB)',1],['Job performance (good, satisfactory, poor)',1],
+  ['Temperature in °C',2],['Year of birth',2],['Calendar year of a stock market crash',2],['Temperature in °F',2],
+  ['Revenue in CHF',3],['Age in years',3],['Number of employees',3],['GDP in CHF',3],['Number of children per household',3],['Waiting time at a counter in minutes',3],['Temperature in Kelvin',3],['Number of unemployed persons',3],['Lottery winnings in CHF',3]
+];
+const SCALE_WHY=[
+  'Values are only labels. There is no order, so even if they are coded as numbers, the numbers mean nothing.',
+  'Values have a natural order, but the distances between them are not defined.',
+  'Values are measured in a unit and differences make sense, but the zero point is arbitrary. So ratios ("twice as warm") are meaningless.',
+  'Measured in a unit with an absolute zero. Ratios and percentage changes make sense.'
+];
+def('scale','basics','Scale of an attribute','Nominal, ordinal, interval or ratio?',()=>{
+  const [attr,c]=pick(SCALE_BANK);
+  let extra='';
+  if(attr.includes('Kelvin'))extra=' Kelvin has an absolute zero (no temperature is lower), unlike °C and °F.';
+  if(attr.includes('Year')||attr.includes('Calendar year'))extra=' Year 0 was set by convention, so the zero point is arbitrary.';
+  return {title:'Which scale?',prompt:`<p>On which scale is this attribute measured?</p><p style="font-size:18px;font-weight:600">${attr}</p>`,
+    mc:{options:SCALES,correct:c,explain:`<b>${SCALES[c]}.</b> ${SCALE_WHY[c]}${extra}<br><span class="hint-line">Hierarchy: nominal &lt; ordinal &lt; interval &lt; ratio. Interval and ratio together are called metric (quantitative).</span>`}};
+});
+
+const CHART_BANK=[
+  ['Show how the number of unemployed persons at the end of June developed from 2000 to 2024.','Line chart','Time series belong in a line chart. The points are joined with straight segments because you have no data between them.'],
+  ['Show how the 5 611 HSLU students split across the five departments, as parts of the whole.','Pie chart','A pie chart shows how a total is made up of its parts, so it fits relative frequencies.'],
+  ['Compare the number of students per department for 2015 and 2016, with each department’s two years side by side.','Clustered column chart','Clustered columns let you compare each component directly. The drawback is that the total is not visible.'],
+  ['Show, for each year, how the student total is composed of the departments, so the proportions can be seen.','Stacked column chart','Stacked columns show the proportions. Only changes in the bottom segment are easy to read.'],
+  ['Show the monthly gross salary for seven Swiss regions with long names, split by men and women.','Bar chart','A bar chart is a horizontal column chart. With long category labels it is easier to read. Start the value axis at 0.'],
+  ['You care mainly about relative changes in a stock price over 30 years.','Line chart with a log scale on the y-axis','With a log scale, equal percentage changes look equally large.']
+];
+def('chart','basics','Choosing a chart','Match the data to the chart type',()=>{
+  const [s,c,why]=pick(CHART_BANK);
+  const all=['Line chart','Pie chart','Clustered column chart','Stacked column chart','Bar chart','Line chart with a log scale on the y-axis'];
+  const opts=shuffle([c,...shuffle(all.filter(o=>o!==c)).slice(0,3)]);
+  return {title:'Pick the chart',prompt:`<p>${s}</p>`,mc:{options:opts,correct:opts.indexOf(c),explain:`<b>${c}.</b> ${why}`}};
+});
+
+/* ---------- week 3 ---------- */
+function prices(n){return Array.from({length:n},()=>ri(55,82)/10);}
+def('mean','loc','Arithmetic mean','Raw data, calculator or by hand',()=>{
+  const n=ri(5,7), p=prices(n), val=mean(p);
+  return {title:'Average asking price',prompt:`<p>A survey of ${n} points of sale found these asking prices (CHF per unit):</p><p class="mono" style="font-size:17px">${p.map(v=>fx(v,2)).join(', ')}</p><p>Compute the average asking price. Round to 2 decimals.</p>`,
+    fields:[{label:'x̄',value:val,unit:'CHF',tol:{abs:0.006}}],
+    steps:[`<div class="eq">x̄ = (${p.map(v=>fx(v,2)).join(' + ')}) / ${n} = ${fx(sum(p),2)} / ${n} = ${fx(val,4)}</div>`,`Rounded: <b>CHF ${fx(val,2)}</b>`],
+    keys:seq(listKeys,A,K('2nd','k2'),K('STAT'),A,M('MATH'),A,M('3:mean('),K('2nd','k2'),K('1'),K(')'),K('ENTER'))};
+});
+
+def('wmean','loc','Weighted mean','Average price paid, weighted by units sold',()=>{
+  const p=prices(5), q=p.map(()=>ri(5,40)*10);
+  const val=sum(p.map((v,i)=>v*q[i]))/sum(q);
+  return {title:'Average price paid',prompt:`<p>Five points of sale, with their asking price and the units they sold:</p>${table(['Store','Price (CHF)','Units sold'],p.map((v,i)=>[`Store ${i+1}`,fx(v,2),q[i]]))}<p>What price did consumers pay on average? Round to 2 decimals.</p>`,
+    fields:[keepTraps({label:'Average price paid',value:val,unit:'CHF',tol:{abs:0.006},traps:[{value:mean(p),msg:'That is the average <i>asking</i> price: every store counted once. For the price <i>paid</i>, weight each price by the units sold there.'}]})],
+    steps:[`Weight each price by its units:<div class="eq">x̄ = (${p.map((v,i)=>`${fx(v,2)}·${q[i]}`).join(' + ')}) / ${sum(q)}</div><div class="eq">= ${fx(sum(p.map((v,i)=>v*q[i])),2)} / ${sum(q)} = ${fx(val,4)}</div>`,`So consumers paid <b>CHF ${fx(val,2)}</b> on average. The unweighted mean would be CHF ${fx(mean(p),2)}.`],
+    keys:seq('prices in L1, units in L2',A,M('mean(L1,L2)'),'or',K('STAT'),A,M('CALC'),A,M('1:1-Var Stats'),'List L1, FreqList L2')};
+});
+
+def('median','loc','Median of raw data','Sort first; even n means average',()=>{
+  const n=ri(6,9), x=Array.from({length:n},()=>ri(1,30)), s=x.slice().sort((a,b)=>a-b);
+  const val=n%2?s[(n-1)/2]:(s[n/2-1]+s[n/2])/2;
+  const unsorted=n%2?x[(n-1)/2]:(x[n/2-1]+x[n/2])/2;
+  const pos=(n+1)/2;
+  return {title:'Find the median',prompt:`<p>Number of support tickets closed per day by a team:</p><p class="mono" style="font-size:17px">${x.join(', ')}</p><p>Determine the median.</p>`,
+    fields:[keepTraps({label:'Median',value:val,tol:{abs:0.001},traps:[{value:unsorted,msg:'You took the middle of the <i>unsorted</i> list. Sort the values first.'},{value:mean(x),msg:'That is the mean. The median is the middle value of the sorted data.'},...(n%2?[]:[{value:s[n/2-1],msg:`With n = ${n} (even) there are two middle values. Average them.`},{value:s[n/2],msg:`With n = ${n} (even) there are two middle values. Average them.`}])]})],
+    steps:[`Sort: <div class="eq">${s.join(', ')}</div>`,n%2?`n = ${n} is odd, so the median is value number (n+1)/2 = ${pos}: <b>${fmt(val)}</b>`:`n = ${n} is even, so (n+1)/2 = ${pos} falls between values ${n/2} and ${n/2+1}. Average them: <div class="eq">(${s[n/2-1]} + ${s[n/2]}) / 2 = ${fmt(val)}</div>`],
+    keys:seq(listKeys,A,M('median(L1)'),'from',K('2nd','k2'),K('STAT'),A,M('MATH'),A,M('4:median('))};
+});
+
+def('wmedian','loc','Median with frequencies','Median price paid, from units sold',()=>{
+  let p,q,N;
+  do{p=shuffle([...new Set(prices(7))]).slice(0,5);q=p.map(()=>ri(4,35)*10);N=sum(q);}while(p.length<5);
+  const pairs=p.map((v,i)=>[v,q[i]]).sort((a,b)=>a[0]-b[0]);
+  let c=0; const cum=pairs.map(r=>c+=r[1]);
+  const at=pos=>pairs[cum.findIndex(v=>v>=pos)][0];
+  const val=N%2?at((N+1)/2):(at(N/2)+at(N/2+1))/2;
+  const ps=p.slice().sort((a,b)=>a-b);
+  return {title:'Median price paid',prompt:`<p>Asking prices and units sold at five stores:</p>${table(['Store','Price (CHF)','Units sold'],p.map((v,i)=>[`Store ${i+1}`,fx(v,2),q[i]]))}<p>Determine the <b>median price paid</b> by consumers.</p>`,
+    fields:[keepTraps({label:'Median price paid',value:val,unit:'CHF',tol:{abs:0.006},traps:[{value:ps[2],msg:'That is the median <i>asking</i> price: each store counted once. Each unit sold is one observation, so work with the cumulative units.'},{value:sum(p.map((v,i)=>v*q[i]))/N,msg:'That is the weighted mean, not the median.'}]})],
+    steps:[`Sort by price and add up the units:${table(['Price','Units','Cumulative'],pairs.map((r,i)=>[fx(r[0],2),r[1],cum[i]]))}`,
+      N%2?`N = ${N} is odd, so the median is observation (N+1)/2 = ${(N+1)/2}. The first cumulative count ≥ ${(N+1)/2} belongs to <b>CHF ${fx(val,2)}</b>.`:`N = ${N} is even, so the median lies between observation ${N/2} and ${N/2+1}. They cost CHF ${fx(at(N/2),2)} and CHF ${fx(at(N/2+1),2)}, so the median is <b>CHF ${fx(val,3).replace(/0$/,'')}</b>.`],
+    keys:seq('prices in L1, units in L2',A,M('median(L1,L2)'),'or',M('1-Var Stats L1,L2'),'and read Med')};
+});
+
+/* grouped data contexts */
+const CTX=[
+  {what:'Taxable income',unit:'CHF',b:[0,20000,50000,100000,150000,250000],d:0},
+  {what:'Monthly rent',unit:'CHF',b:[500,1000,1500,2000,3000,5000],d:0},
+  {what:'Commute time',unit:'min',b:[0,10,20,30,45,60,90],d:1},
+  {what:'Customer age',unit:'years',b:[15,25,35,45,65,85],d:1}
+];
+function groupedData(){
+  const c=pick(CTX), k=c.b.length-1;
+  const peak=ri(1,Math.min(2,k-2));
+  const N=c.b.slice(0,-1).map((_,i)=>{const d=Math.abs(i-peak);return ri(4,9)*(d===0?60:d===1?35:d===2?18:8)+ri(0,40);});
+  const tot=sum(N), w=N.map(n=>n/tot); let s=0; const cum=w.map(v=>s+=v);
+  const cls=c.b.slice(0,-1).map((lo,i)=>[lo,c.b[i+1]]);
+  const label=([lo,hi])=>`${fmt(lo,0)} to under ${fmt(hi,0)}`;
+  return {c,N,tot,w,cum,cls,label};
+}
+function quantileOf(g,p){
+  const i=g.cum.findIndex(v=>v>=p-1e-12); const [lo,hi]=g.cls[i]; const before=i?g.cum[i-1]:0;
+  return {i,lo,hi,before,val:lo+(p-before)/g.w[i]*(hi-lo)};
+}
+function makeQuantile(p){
+  let g,q,tries=0;
+  do{g=groupedData();q=quantileOf(g,p);tries++;}while(tries<50&&g.cum.some(v=>Math.abs(v-p)<0.015));
+  const name=p===0.5?'median':p===0.25?'1st quartile':p===0.75?'3rd quartile':p===0.1?'10% quantile (1st decile)':'90% quantile (9th decile)';
+  const d=g.c.d;
+  const rows=g.cls.map((cl,i)=>[g.label(cl),fmt(g.N[i],0),pc(g.w[i]),pc(g.cum[i])]);
+  return {title:`Interpolate the ${name}`,prompt:`<p>${g.c.what} (${g.c.unit}), grouped into classes:</p>${table([`${g.c.what} (${g.c.unit})`,'Absolute frequency'],g.cls.map((cl,i)=>[g.label(cl),fmt(g.N[i],0)]).concat([['Total',fmt(g.tot,0)]]),{tot:true})}<p>Estimate the <b>${name}</b> by linear interpolation. Assume values are spread evenly within each class.</p>`,
+    fields:[keepTraps({label:name[0].toUpperCase()+name.slice(1),value:q.val,unit:g.c.unit,tol:{rel:0.004,abs:d?0.06:1},traps:[{value:(q.lo+q.hi)/2,msg:'That is the midpoint of the right class. Interpolate: lower bound + (p − cumulative share before the class) / (share of the class) · width.'},{value:q.lo,msg:'That is only the lower bound of the class. Add the interpolated fraction of the class width.'},...(p===0.5?[{value:sum(g.cls.map((cl,i)=>(cl[0]+cl[1])/2*g.N[i]))/g.tot,msg:'That is the mean (from class midpoints), not the median.'}]:[])]})],
+    steps:[`Relative and cumulative frequencies:${table(['Class','N<sub>i</sub>','w<sub>i</sub>','Cumulative'],rows,{hl:q.i})}`,
+      `The ${name} is the value not exceeded by ${fx(p*100,0)}% of observations. The first cumulative share ≥ ${fx(p*100,0)}% is in class <b>${g.label(g.cls[q.i])}</b>.`,
+      `Interpolate within that class: <div class="eq">x<sub>${p}</sub> = ${fmt(q.lo,0)} + (${fx(p*100,0)}% − ${pc(q.before)}) / ${pc(g.w[q.i])} · (${fmt(q.hi,0)} − ${fmt(q.lo,0)})</div><div class="eq">= ${fmt(q.val,d)} ${g.c.unit}</div>`,
+      'Small differences in the last digits come from rounding the percentages. That is fine: show your working.'],
+    keys:`<p style="margin:0;font-size:13px">There is no button for this. 1-Var Stats gives the median of <i>raw</i> data only (the week 3 slides flag this). Type the interpolation directly:</p>${seq(M(`${q.lo}+(${p}−${rnd(q.before,4)})/${rnd(g.w[q.i],4)}*${q.hi-q.lo}`))}<p style="margin:6px 0 0;font-size:13px">Excel: <code class="x">=TREND({${q.lo};${q.hi}},{${rnd(q.before,4)};${rnd(g.cum[q.i],4)}},${p})</code></p>`};
+}
+def('gmedian','loc','Median of grouped data','Linear interpolation in the median class',()=>makeQuantile(0.5));
+def('gquant','loc','Quantiles of grouped data','Quartiles and deciles by interpolation',()=>makeQuantile(pick([0.25,0.75,0.1,0.9])));
+
+def('gmean','loc','Mean of grouped data','Class midpoints times frequencies',()=>{
+  const g=groupedData(), mid=g.cls.map(([a,b])=>(a+b)/2), val=sum(mid.map((m,i)=>m*g.N[i]))/g.tot, d=g.c.d;
+  return {title:'Mean from a frequency table',prompt:`<p>${g.c.what} (${g.c.unit}):</p>${table([`${g.c.what} (${g.c.unit})`,'Absolute frequency'],g.cls.map((cl,i)=>[g.label(cl),fmt(g.N[i],0)]).concat([['Total',fmt(g.tot,0)]]),{tot:true})}<p>Estimate the arithmetic mean.</p>`,
+    fields:[keepTraps({label:'x̄',value:val,unit:g.c.unit,tol:{rel:0.003,abs:d?0.06:1},traps:[{value:sum(g.cls.map((c,i)=>c[0]*g.N[i]))/g.tot,msg:'You used the lower class bounds. Use the class midpoints.'},{value:sum(g.cls.map((c,i)=>c[1]*g.N[i]))/g.tot,msg:'You used the upper class bounds. Use the class midpoints.'},{value:mean(mid),msg:'That is the plain average of the midpoints. Weight each midpoint by how many observations are in its class.'}]})],
+    steps:[`Class midpoints: ${mid.map(m=>fmt(m,1)).join(', ')}`,`<div class="eq">x̄ = (${mid.map((m,i)=>`${fmt(m,1)}·${g.N[i]}`).join(' + ')}) / ${g.tot}</div><div class="eq">= ${fmt(val,d)} ${g.c.unit}</div>`,'An open class (like "200 000 and more") has no midpoint. You then need an assumed class average. The notes use 500 000 for Lucerne.'],
+    keys:seq('midpoints in L1, frequencies in L2',A,M('mean(L1,L2)'))};
+});
+
+def('skew','loc','Skewness from mean and median','Right-skewed, left-skewed or symmetric?',()=>{
+  const kind=pick(['right','left','sym']);
+  const med=ri(40,70)*1000; const m=kind==='right'?med+ri(4,20)*1000:kind==='left'?med-ri(4,20)*1000:med;
+  const ctx=pick(['taxable income in a town (CHF)','monthly unemployment figures (persons)','exam points in a large course','daily revenue of a shop (CHF)']);
+  const opts=['Right-skewed','Left-skewed','Symmetric'];
+  const c=kind==='right'?0:kind==='left'?1:2;
+  return {title:'Read the shape',prompt:`<p>For ${ctx}, the arithmetic mean is <b class="mono">${fmt(m,0)}</b> and the median is <b class="mono">${fmt(med,0)}</b>.</p><p>What does this tell you about the distribution?</p>`,
+    mc:{options:opts,correct:c,explain:`<b>${opts[c]}.</b> Right-skewed: mean &gt; median (a long tail of large values pulls the mean up; income is the classic case). Left-skewed: mean &lt; median. Symmetric: mean = median.`}};
+});
+
+/* ---------- week 4 ---------- */
+const VAR_KINDS=[
+  {id:'s',ask:'the <b>empirical standard deviation</b> (the wording used in the week 4 exercise solutions, Excel <code class="x">STDEV.S</code>)',sd:true,div:'n−1'},
+  {id:'s2',ask:'the <b>sample variance</b> (Excel <code class="x">VAR.S</code>, divide by n − 1)',sd:false,div:'n−1'},
+  {id:'sig2',ask:'the <b>variance</b>, treating these values as the whole population (Excel <code class="x">VAR.P</code>, as in the week 4 grades example)',sd:false,div:'n'},
+  {id:'sig',ask:'the <b>population standard deviation</b> σ (Excel <code class="x">STDEV.P</code>)',sd:true,div:'n'}
+];
+def('var','disp','Range, variance, standard deviation','Raw data; watch the divisor',()=>{
+  const n=ri(5,7), x=Array.from({length:n},()=>ri(2,24)); if(new Set(x).size<3)x[0]+=5;
+  const kind=pick(VAR_KINDS), m=mean(x), ss=sum(x.map(v=>(v-m)**2));
+  const vS=ss/(n-1), vP=ss/n;
+  const val=kind.div==='n'?(kind.sd?Math.sqrt(vP):vP):(kind.sd?Math.sqrt(vS):vS);
+  const alt=kind.div==='n'?(kind.sd?Math.sqrt(vS):vS):(kind.sd?Math.sqrt(vP):vP);
+  const rng=Math.max(...x)-Math.min(...x);
+  return {title:'Measure the spread',prompt:`<p>Annual profit of a company over ${n} years (CHF million):</p><p class="mono" style="font-size:17px">${x.join(', ')}</p><p>Compute (a) the range and (b) ${kind.ask}. Round to 2 decimals.</p>`,
+    fields:[{label:'(a) Range',value:rng,tol:{abs:0.001}},keepTraps({label:`(b) ${kind.sd?'Standard deviation':'Variance'}`,value:val,tol:{abs:0.011,rel:0.001},traps:[{value:alt,msg:`You divided by ${kind.div==='n'?'n − 1':'n'}. This question wants ÷ ${kind.div}. On the TI-84, <b>Sx</b> divides by n − 1 and <b>σx</b> by n. The course materials use both, so read the wording (see Traps).`},{value:kind.sd?(kind.div==='n'?vP:vS):Math.sqrt(val),msg:kind.sd?'That is the variance. The standard deviation is its square root.':'That is the standard deviation. The variance is its square.'}]})],
+    steps:[`Range = max − min = ${Math.max(...x)} − ${Math.min(...x)} = <b>${rng}</b>`,`Mean: <div class="eq">x̄ = ${sum(x)} / ${n} = ${fmt(m,4)}</div>`,
+      `Squared deviations: <div class="eq">${x.map(v=>`(${v}−${fmt(m,2)})²`).join(' + ')} = ${fmt(ss,4)}</div>`,
+      `Divide by ${kind.div} = ${kind.div==='n'?n:n-1}: <div class="eq">${kind.div==='n'?'σ²':'s²'} = ${fmt(ss,4)} / ${kind.div==='n'?n:n-1} = ${fmt(kind.div==='n'?vP:vS,4)}</div>`+(kind.sd?`Take the root: <div class="eq">${kind.div==='n'?'σ':'s'} = √${fmt(kind.div==='n'?vP:vS,4)} = ${fmt(val,4)}</div>`:''),
+      `For comparison, dividing by ${kind.div==='n'?'n − 1':'n'} would give ${fmt(alt,2)}.`],
+    keys:seq(listKeys,A,K('STAT'),A,M('CALC'),A,M('1:1-Var Stats'),A,'read',M('Sx'),'(÷ n−1) or',M('σx'),'(÷ n). Square it for the variance with',K('x²'))};
+});
+
+def('gsd','disp','Grouped: mean, SD, CV','Frequency table, like Ex. 3 (municipalities)',()=>{
+  const b=pick([[0,20000,40000,60000,80000,100000,150000],[0,25000,50000,75000,100000,150000]]);
+  const cls=b.slice(0,-1).map((lo,i)=>[lo,b[i+1]]), mid=cls.map(([a,c])=>(a+c)/2);
+  const N=cls.map((_,i)=>ri(2,9)*(i===1||i===2?30:i===3?15:8)+ri(0,20)), tot=sum(N);
+  const m=sum(mid.map((v,i)=>v*N[i]))/tot, v=sum(mid.map((x,i)=>N[i]*(x-m)**2))/tot, s=Math.sqrt(v), cv=s/m;
+  return {title:'Spread of grouped income',prompt:`<p>Taxable income in a municipality:</p>${table(['Income (CHF)','Persons'],cls.map((c,i)=>[`${fmt(c[0],0)} to under ${fmt(c[1],0)}`,N[i]]).concat([['Total',tot]]),{tot:true})}<p>Compute the average income, the standard deviation, and the coefficient of variation. As in the Ex. 3 solution, divide by N (all persons in the table).</p>`,
+    fields:[{label:'Mean x̄',value:m,unit:'CHF',tol:{rel:0.002}},keepTraps({label:'Standard deviation',value:s,unit:'CHF',tol:{rel:0.004},traps:[{value:v,msg:'That is the variance. Take the square root.'}]}),keepTraps({label:'Coefficient of variation',value:cv*100,unit:'%',tol:{abs:0.15},traps:[{value:cv,msg:'Right idea, but the field asks for percent. Multiply by 100.'}]})],
+    steps:[`Midpoints: ${mid.map(x=>fmt(x,0)).join(', ')}`,`<div class="eq">x̄ = Σ N<sub>i</sub>·x<sub>i</sub> / N = ${fmt(sum(mid.map((x,i)=>x*N[i])),0)} / ${tot} = ${fmt(m,0)}</div>`,
+      `<div class="eq">σ² = Σ N<sub>i</sub>·(x<sub>i</sub> − x̄)² / N = ${fmt(v,0)}</div><div class="eq">σ = √σ² = ${fmt(s,0)}</div>`,
+      `<div class="eq">CV = σ / x̄ = ${fmt(s,0)} / ${fmt(m,0)} = ${fx(cv,4)} = ${pc(cv,1)}</div>`,'CV has no unit. Use it to compare spread between data sets with different levels or units.'],
+    keys:seq('midpoints in L1, persons in L2',A,M('1-Var Stats L1,L2'),A,'read',M('x̄'),'and',M('σx'))};
+});
+
+def('transform','disp','Shifting and scaling data','What happens to mean, SD and CV?',()=>{
+  const m=ri(45,75)*1000+ri(0,9)*100, s=ri(12,30)*1000+ri(0,9)*100, add=Math.random()<0.5;
+  const c=ri(1,4)*5000, k=pick([1.05,1.1,1.2]);
+  const nm=add?m+c:m*k, ns=add?s:s*k, ncv=ns/nm*100;
+  const change=add?`everyone’s income increases by <b>CHF ${fmt(c,0)}</b>`:`everyone’s income increases by <b>${fx((k-1)*100,0)}%</b>`;
+  return {title:'Transform the data',prompt:`<p>In a municipality the average taxable income is <b class="mono">CHF ${fmt(m,0)}</b> with a standard deviation of <b class="mono">CHF ${fmt(s,0)}</b>.</p><p>Suppose ${change}. Without the raw data, find the new mean, standard deviation and coefficient of variation.</p>`,
+    fields:[{label:'New mean',value:nm,unit:'CHF',tol:{abs:1}},keepTraps({label:'New SD',value:ns,unit:'CHF',tol:{abs:1},traps:add?[{value:s+c,msg:'Adding a constant moves every value <i>and</i> the mean by the same amount, so the deviations x − x̄ stay the same. The SD does not change.'}]:[{value:s,msg:'Multiplying every value by k also multiplies every deviation by k, so the SD grows by the same factor.'}]}),keepTraps({label:'New CV',value:ncv,unit:'%',tol:{abs:0.06},traps:add?[{value:s/m*100,msg:'The SD stays the same but the mean grows, so the CV falls.'}]:[{value:s*k/m*100*k,msg:'SD and mean are both multiplied by k, so the factor cancels and the CV stays the same.'}]})],
+    steps:add?[`Add ${fmt(c,0)} to every value: the mean shifts by the same amount.<div class="eq">x̄<sub>new</sub> = ${fmt(m,0)} + ${fmt(c,0)} = ${fmt(nm,0)}</div>`,`Deviations x − x̄ do not change, so <b>σ stays ${fmt(s,0)}</b>.`,`<div class="eq">CV = ${fmt(ns,0)} / ${fmt(nm,0)} = ${fx(ncv,2)}%</div> (before: ${fx(s/m*100,2)}%)`,'This is Ex. 3b in the week 4 spreadsheet.']:
+      [`Multiply every value by ${k}: <div class="eq">x̄<sub>new</sub> = ${k} · ${fmt(m,0)} = ${fmt(nm,0)}</div>`,`<div class="eq">σ<sub>new</sub> = ${k} · ${fmt(s,0)} = ${fmt(ns,0)}</div>`,`CV = σ/x̄: the factor ${k} cancels, so it <b>stays ${fx(ncv,2)}%</b>.`,'This is Ex. 3c in the week 4 spreadsheet.']};
+});
+
+def('cv','disp','Comparing risk with CV','Standard deviation vs coefficient of variation',()=>{
+  let a,b;
+  do{a={m:ri(10,120),s:0};b={m:ri(10,120),s:0};a.s=rnd(a.m*ri(8,40)/100,1);b.s=rnd(b.m*ri(8,40)/100,1);}while(Math.abs(a.s/a.m-b.s/b.m)<0.03||(a.s>b.s)===(a.s/a.m>b.s/b.m)&&Math.random()<0.7);
+  const ca=a.s/a.m, cb=b.s/b.m; const c=ca>cb?0:1;
+  return {title:'Which is more variable?',prompt:`<p>Share prices over the last year (CHF):</p>${table(['Stock','Mean price','Standard deviation'],[['A',fx(a.m,2),fx(a.s,2)],['B',fx(b.m,2),fx(b.s,2)]])}<p>Relative to its price level, which stock fluctuates more?</p>`,
+    mc:{options:['Stock A','Stock B'],correct:c,explain:`<b>Stock ${'AB'[c]}.</b> Compare coefficients of variation, not raw SDs: CV<sub>A</sub> = ${fx(a.s,2)} / ${fx(a.m,2)} = ${pc(ca,1)}, CV<sub>B</sub> = ${fx(b.s,2)} / ${fx(b.m,2)} = ${pc(cb,1)}. The SD depends on the level of the data. The CV removes it.`}};
+});
+
+/* ---------- week 5 ---------- */
+function series(start,n,lo,hi){const out=[start];for(let i=1;i<n;i++)out.push(rnd(out[i-1]*(1+ri(lo,hi)/1000),1));return out;}
+def('simple','idx','Simple index','Index = value / base value · 100',()=>{
+  const y0=ri(1995,2012), yrs=[0,1,2,3,4,5].map(i=>y0+i), v=series(ri(380,520)*1000,6,-15,45).map(x=>Math.round(x));
+  const b=ri(0,5); let t; do{t=ri(0,5);}while(t===b);
+  const val=v[t]/v[b]*100;
+  return {title:'Build a simple index',prompt:`<p>Swiss GDP (CHF million, hypothetical):</p>${table(['Year','GDP'],yrs.map((y,i)=>[y,fmt(v[i],0)]))}<p>Compute the index value for <b>${yrs[t]}</b> with base year <b>${yrs[b]} = 100</b>. Round to 2 decimals.</p>`,
+    fields:[keepTraps({label:`Index ${yrs[t]}`,value:val,tol:{abs:0.011},traps:[{value:v[b]/v[t]*100,msg:'You divided the wrong way round. The base year goes in the denominator.'}]})],
+    steps:[`<div class="eq">I<sub>${yrs[t]}</sub> = GDP<sub>${yrs[t]}</sub> / GDP<sub>${yrs[b]}</sub> · 100 = ${fmt(v[t],0)} / ${fmt(v[b],0)} · 100 = ${fx(val,2)}</div>`,`Read it as: GDP in ${yrs[t]} was ${fx(Math.abs(val-100),2)}% ${val>=100?'higher':'lower'} than in ${yrs[b]}.`]};
+});
+
+def('rebase','idx','Change of base','Rebase an index to a new year',()=>{
+  const y0=ri(1997,2008), yrs=[0,1,2,3,4,5,6].map(i=>y0+i), bi=ri(0,2);
+  const raw=series(100,7,-10,40), I=raw.map(x=>rnd(x/raw[bi]*100,1));
+  let nb; do{nb=ri(0,6);}while(nb===bi); let j; do{j=ri(0,6);}while(j===nb);
+  const val=I[j]/I[nb]*100;
+  return {title:'Change the base',prompt:`<p>A price index with base ${yrs[bi]} = 100:</p>${table(['Year','Index'],yrs.map((y,i)=>[y,fx(I[i],1)]))}<p>Rebase the index to <b>${yrs[nb]} = 100</b>. What is the new value for <b>${yrs[j]}</b>? Round to 2 decimals.</p>`,
+    fields:[keepTraps({label:`${yrs[j]} (base ${yrs[nb]})`,value:val,tol:{abs:0.011},traps:[{value:I[j]-I[nb]+100,msg:'You shifted the index by subtracting. Rebasing is a division: the ratios between years must stay the same.'},{value:I[nb]/I[j]*100,msg:'Upside down. Divide the year you want by the new base year.'}]})],
+    steps:[`<div class="eq">I<sub>new</sub>(${yrs[j]}) = I(${yrs[j]}) / I(${yrs[nb]}) · 100 = ${fx(I[j],1)} / ${fx(I[nb],1)} · 100 = ${fx(val,2)}</div>`,'Every year gets divided by the same number, so all ratios between years stay unchanged. Excel: <code class="x">=D5/D$5*100</code>, with the $ holding the base row.']};
+});
+
+def('chain','idx','Chaining indices','Link an old and a new base via the overlap',()=>{
+  const months=['Aug 2010','Sep 2010','Oct 2010','Nov 2010','Dec 2010','Jan 2011','Feb 2011','Mar 2011'];
+  const old=series(ri(1030,1060)/10,5,-4,6), nw=[100,...series(100,4,-5,6).slice(1)];
+  const ovOld=old[4];
+  const back=Math.random()<0.5;
+  let prompt,val,steps,traps;
+  const rows=months.map((mo,i)=>[mo,i<=4?fx(old[i],1):'—',i>=4?fx(nw[i-4],1):'—']);
+  if(back){
+    const i=ri(0,3); val=old[i]*100/ovOld;
+    prompt=`Express <b>${months[i]}</b> on the new base (Dec 2010 = 100).`;
+    steps=[`At the overlap (Dec 2010) the old index is ${fx(ovOld,1)} and the new one is 100. The linking factor is 100 / ${fx(ovOld,1)}.`,`<div class="eq">${fx(old[i],1)} · 100 / ${fx(ovOld,1)} = ${fx(val,2)}</div>`];
+    traps=[{value:old[i]-ovOld+100,msg:'Indices are chained by multiplying with the overlap ratio, not by shifting.'}];
+  }else{
+    const i=ri(5,7); val=nw[i-4]*ovOld/100;
+    prompt=`Express <b>${months[i]}</b> on the old base (Dec 2005 = 100).`;
+    steps=[`At the overlap (Dec 2010) the old index is ${fx(ovOld,1)} and the new one is 100. Scale the new value up by ${fx(ovOld,1)} / 100.`,`<div class="eq">${fx(nw[i-4],1)} · ${fx(ovOld,1)} / 100 = ${fx(val,2)}</div>`];
+    traps=[{value:nw[i-4]+ovOld-100,msg:'Indices are chained by multiplying with the overlap ratio, not by adding the gap.'}];
+  }
+  return {title:'Chain two index series',prompt:`<p>The CPI (LIK) was rebased in December 2010:</p>${table(['Month','Base Dec 2005','Base Dec 2010'],rows,{hl:4})}<p>${prompt} Round to 2 decimals.</p>`,
+    fields:[keepTraps({label:'Chained value',value:val,tol:{abs:0.011},traps})],steps:steps.concat(['This matches the "Chaining" sheet in the week 5 examples.'])};
+});
+
+const GOODS=[['Bread','kg'],['Milk','l'],['Coffee','kg'],['Gasoline','l'],['Haircut','visit'],['Cinema','ticket'],['Apples','kg'],['Bus pass','month']];
+def('lasq','idx','Laspeyres index (quantities)','Base-period basket, current prices',()=>{
+  const g=shuffle(GOODS).slice(0,3), p0=g.map(()=>ri(12,90)/10*(Math.random()<0.3?10:1)), pt=p0.map(p=>rnd(p*(1+ri(-8,25)/100),2)), q0=g.map(()=>ri(2,30));
+  const V0=sum(p0.map((p,i)=>p*q0[i])), Vt=sum(pt.map((p,i)=>p*q0[i])), val=Vt/V0*100;
+  const simple=mean(pt.map((p,i)=>p/p0[i]*100));
+  return {title:'Laspeyres price index',prompt:`<p>A basket of three goods. Base-period quantities q<sub>0</sub>, and prices in the base period and now:</p>${table(['Good','q₀','p₀ (CHF)','p<sub>t</sub> (CHF)'],g.map((x,i)=>[`${x[0]} (per ${x[1]})`,q0[i],fx(p0[i],2),fx(pt[i],2)]))}<p>Compute the Laspeyres price index for period t (base = 100). Round to 2 decimals.</p>`,
+    fields:[keepTraps({label:'Laspeyres index',value:val,tol:{abs:0.011,rel:0.0002},traps:[{value:simple,msg:'That is the unweighted average of the three simple indices. Laspeyres weights each good by its share of the base basket’s value.'},{value:sum(pt)/sum(p0)*100,msg:'You added up prices without quantities. Each price must be multiplied by its base quantity q₀.'}]})],
+    steps:[`Value of the base basket at base prices: <div class="eq">Σ p₀·q₀ = ${p0.map((p,i)=>`${fx(p,2)}·${q0[i]}`).join(' + ')} = ${fx(V0,2)}</div>`,`Same basket at current prices: <div class="eq">Σ p<sub>t</sub>·q₀ = ${pt.map((p,i)=>`${fx(p,2)}·${q0[i]}`).join(' + ')} = ${fx(Vt,2)}</div>`,`<div class="eq">L = ${fx(Vt,2)} / ${fx(V0,2)} · 100 = ${fx(val,2)}</div>`,'The basket is frozen at base-period quantities. Only prices change.'],
+    keys:seq('q₀ in L1, p₀ in L2, p<sub>t</sub> in L3',A,M('sum(L3*L1)/sum(L2*L1)*100'))};
+});
+
+def('lasw','idx','Laspeyres index (weights)','Weighted average of simple indices',()=>{
+  const g=shuffle(GOODS).slice(0,4);
+  let w=g.map(()=>ri(5,40)); const t=sum(w); w=w.map(x=>Math.round(x/t*100)); w[0]+=100-sum(w);
+  const I=g.map(()=>rnd(100+ri(-60,220)/10,1)), val=sum(I.map((x,i)=>x*w[i]/100));
+  return {title:'Laspeyres from weights',prompt:`<p>Base-period expenditure weights and current simple price indices (base = 100):</p>${table(['Good','Weight','Simple index'],g.map((x,i)=>[x[0],w[i]+'%',fx(I[i],1)]))}<p>Compute the overall Laspeyres index. Round to 2 decimals.</p>`,
+    fields:[keepTraps({label:'Laspeyres index',value:val,tol:{abs:0.011},traps:[{value:mean(I),msg:'That is the unweighted mean of the simple indices. Weight each one by its base-period expenditure share.'}]})],
+    steps:[`<div class="eq">L = Σ w<sub>i</sub>·I<sub>i</sub> = ${I.map((x,i)=>`${fx(w[i]/100,2)}·${fx(x,1)}`).join(' + ')} = ${fx(val,2)}</div>`,'The weights are value shares p₀·q₀ / Σ p₀·q₀ of the base period. This is "Version 2" on the Laspeyres sheet, and it gives the same result as Version 1 (quantities).'],
+    keys:seq('weights (decimal) in L1, indices in L2',A,M('sum(L1*L2)'))};
+});
+
+def('pct','idx','Points vs percent','Index changes, the classic trap',()=>{
+  const a=rnd(ri(1010,1300)/10,1), b=rnd(a*(1+ri(-30,60)/1000),1);
+  const pts=b-a, pcv=(b/a-1)*100;
+  return {title:'How much did prices rise?',prompt:`<p>The CPI moved from <b class="mono">${fx(a,1)}</b> to <b class="mono">${fx(b,1)}</b> (base = 100).</p><p>(a) By how many index points did it change? (b) By what percentage? Round (b) to 2 decimals.</p>`,
+    fields:[{label:'(a) Change in points',value:pts,tol:{abs:0.051}},keepTraps({label:'(b) Change in %',value:pcv,unit:'%',tol:{abs:0.011},traps:[{value:pts,msg:'That is the change in <b>points</b>. Percent change is relative: new / old − 1. The two only match when the old value is exactly 100.'}]})],
+    steps:[`<div class="eq">Points: ${fx(b,1)} − ${fx(a,1)} = ${fx(pts,1)}</div>`,`<div class="eq">Percent: ${fx(b,1)} / ${fx(a,1)} − 1 = ${fx(pcv,2)}%</div>`,'Excel, week 5 solution: <code class="x">=C5/C4-1</code>.']};
+});
+
+def('real','idx','Real return','Deflate a nominal return with the CPI',()=>{
+  const n=3, r=Array.from({length:n},()=>ri(2,45)/10), c0=rnd(ri(980,1040)/10,1), c1=rnd(c0*(1+ri(10,90)/1000),1);
+  const nomF=r.reduce((f,x)=>f*(1+x/100),1), infF=c1/c0, val=(nomF/infF-1)*100;
+  return {title:'What did you really earn?',prompt:`<p>You held a savings deposit for ${n} years with annual interest rates of ${r.map(x=>`<b class="mono">${fx(x,1)}%</b>`).join(', ')} (interest compounded yearly). Over the same period, the CPI rose from <b class="mono">${fx(c0,1)}</b> to <b class="mono">${fx(c1,1)}</b>.</p><p>What was your real return over the whole period, in %? Round to 2 decimals.</p>`,
+    fields:[keepTraps({label:'Real return',value:val,unit:'%',tol:{abs:0.021},traps:[{value:(nomF-1)*100-(infF-1)*100,msg:'You subtracted inflation from the nominal return. That is only an approximation. Divide the growth factors instead: (1 + nominal) / (1 + inflation) − 1.'},{value:sum(r)-(infF-1)*100,msg:'Interest compounds: multiply the growth factors, don’t add the rates.'},{value:(nomF-1)*100,msg:'That is the nominal return. Deflate it with the CPI.'}]})],
+    steps:[`Nominal growth factor: <div class="eq">${r.map(x=>fx(1+x/100,3)).join(' · ')} = ${fx(nomF,5)}</div>`,`Price factor: <div class="eq">${fx(c1,1)} / ${fx(c0,1)} = ${fx(infF,5)}</div>`,`<div class="eq">real = ${fx(nomF,5)} / ${fx(infF,5)} − 1 = ${fx(val,2)}%</div>`,'This is how week 5 Ex. 4 compares SNB deposit rates with the CPI: the product of interest factors divided by the CPI ratio.'],
+    keys:seq('factors in L1',A,M(`prod(L1)/(${c1}/${c0})−1`),'with prod( in',K('2nd','k2'),K('STAT'),A,M('MATH'),A,M('6:prod('))};
+});
+
+/* ---------- week 6 ---------- */
+def('corr','corr','Covariance and correlation','Small data set, sample formulas (n − 1)',()=>{
+  let x,y,n=5;
+  do{x=Array.from({length:n},()=>ri(1,12));const b=pick([-1.5,-1,-0.6,0.5,0.8,1.2,2]);const a=ri(2,15);y=x.map(v=>Math.max(0,Math.round(a+b*v+ri(-3,3))));}while(new Set(x).size<3||new Set(y).size<3);
+  const mx=mean(x), my=mean(y), dx=x.map(v=>v-mx), dy=y.map(v=>v-my), sxy=sum(dx.map((d,i)=>d*dy[i]));
+  const cov=sxy/(n-1), sx=Math.sqrt(sum(dx.map(d=>d*d))/(n-1)), sy=Math.sqrt(sum(dy.map(d=>d*d))/(n-1)), r=cov/(sx*sy);
+  return {title:'Covariance and correlation',prompt:`<p>Central bank independence index x and inflation y (%) for five countries:</p>${table(['Country','x','y'],x.map((v,i)=>[['A','B','C','D','E'][i],v,y[i]]))}<p>Compute the (sample) covariance s<sub>xy</sub> and the correlation coefficient r. Round s<sub>xy</sub> to 2 and r to 3 decimals.</p>`,
+    fields:[keepTraps({label:'Covariance s_xy',value:cov,tol:{abs:0.011},traps:[{value:sxy/n,msg:'You divided by n. The week 6 solution uses <code class="x">COVARIANCE.S</code>, dividing by n − 1.'},{value:sxy,msg:'You forgot to divide the sum of products by n − 1.'}]}),{label:'Correlation r',value:r,tol:{abs:0.006}}],
+    steps:[`x̄ = ${fmt(mx,2)}, ȳ = ${fmt(my,2)}`,`${table(['x','y','x − x̄','y − ȳ','(x − x̄)(y − ȳ)'],x.map((v,i)=>[v,y[i],fmt(dx[i],2),fmt(dy[i],2),fmt(dx[i]*dy[i],3)]).concat([['','','','Σ',fmt(sxy,3)]]),{tot:true})}`,
+      `<div class="eq">s<sub>xy</sub> = ${fmt(sxy,3)} / (5 − 1) = ${fx(cov,2)}</div>`,`s<sub>x</sub> = ${fx(sx,4)}, s<sub>y</sub> = ${fx(sy,4)} (both with n − 1)`,`<div class="eq">r = s<sub>xy</sub> / (s<sub>x</sub>·s<sub>y</sub>) = ${fx(cov,4)} / (${fx(sx,4)}·${fx(sy,4)}) = ${fx(r,3)}</div>`,'r is the same whether you use n or n − 1 everywhere, because the divisor cancels. The covariance is not.'],
+    keys:seq('x in L1, y in L2',A,K('STAT'),A,M('CALC'),A,M('4:LinReg(ax+b)'),A,'read',M('r'),'(turn on',M('DiagnosticOn'),'once via',K('2nd','k2'),K('0'),'CATALOG). Covariance:',M('sum((L1−mean(L1))(L2−mean(L2)))/4'))};
+});
+
+const CORR_BANK=[
+  ['Across Swiss districts, the number of storks and the number of births are strongly positively correlated (r = 0.9). What can you conclude?',['Nothing about causation. A third factor, such as rural vs urban districts, can drive both.','Storks increase the birth rate.','Births attract storks.','The correlation must be a calculation error.'],0,'Correlation is not causation. The storks-and-babies sheet in week 6 exists to show exactly this.'],
+  ['The correlation between x and y is r = 0. Which statement is correct?',['There is no <i>linear</i> relationship, but there could be a strong non-linear one.','x and y are completely unrelated.','The covariance is negative.','One of the variables is constant.'],0,'r only measures linear association. A perfect U-shape can give r = 0.'],
+  ['You convert all prices from CHF to EUR (multiply by 0.95). What happens to the correlation with sales volume?',['It stays the same.','It is multiplied by 0.95.','It is divided by 0.95.','It changes sign.'],0,'r has no unit. Multiplying a variable by a positive constant leaves r unchanged. The covariance, however, is multiplied by 0.95.'],
+  ['Which value can a correlation coefficient NOT take?',['1.3','−1','0','−0.02'],0,'r always lies between −1 and +1.'],
+  ['r = −0.85 between central bank independence and inflation means…',['countries with more independent central banks tend to have clearly lower inflation.','independence causes low inflation.','15% of the variation is unexplained.','the relationship is weak because r is negative.'],0,'The sign gives the direction and |r| the strength. −0.85 is a strong negative linear association. It says nothing about cause.'],
+  ['The covariance of x and y is 240. Is the relationship strong?',['You can’t tell. Covariance depends on units, so standardize it into r.','Yes, 240 is large.','No, it should be close to 1.','Yes, because it is positive.'],0,'The size of the covariance depends on the units. Only its sign is directly readable. Divide by s<sub>x</sub>·s<sub>y</sub> to get r.']
+];
+def('corrmc','corr','Interpreting r','Causation, linearity, units',()=>{
+  const [q,opts,c,why]=pick(CORR_BANK); const o=shuffle(opts);
+  return {title:'Interpret the correlation',prompt:`<p>${q}</p>`,mc:{options:o,correct:o.indexOf(opts[c]),explain:why}};
+});
+
+/* ---------- which tool? ---------- */
+const TOOL_BANK=[
+  ['Five shops charge different prices, and you know how many units each sold. What did customers pay on average?','Weighted arithmetic mean','Each unit sold is one purchase, so weight each price by units sold.'],
+  ['A village of 200 people: 199 earn CHF 60 000, one earns CHF 100 million. You want a "typical" income.','Median','One outlier drags the mean to about CHF 560 000. The median ignores it.'],
+  ['Income is only available as classes with frequencies. What value splits taxpayers into two equal halves?','Median by linear interpolation','Find the median class via cumulative shares, then interpolate within it.'],
+  ['What income do 90% of taxpayers not exceed?','90% quantile (9th decile)','A quantile is the value not exceeded by that share of observations.'],
+  ['Two companies have the same average profit. Which one is riskier?','Standard deviation','With equal means, compare the absolute spread directly.'],
+  ['Compare how volatile a CHF 12 stock and a CHF 950 stock are.','Coefficient of variation','Different price levels make raw SDs incomparable. CV = s / x̄ has no unit.'],
+  ['Track the cost of a fixed basket of goods, bought in base-period quantities, over time.','Laspeyres price index','Laspeyres freezes the base-period basket and reprices it.'],
+  ['One index has base 1997, another base 2011. You want to compare them.','Change of base','Divide every value by the value in the common base year, times 100.'],
+  ['The CPI was rebased in December 2010. You need one continuous series from 2008 to 2012.','Chaining','Link the two series with the ratio at the overlap month.'],
+  ['The index rose from 104 to 108. How much did prices increase?','Percentage change (new / old − 1)','108 / 104 − 1 = 3.85%, not 4%. Index points and percent are not the same.'],
+  ['You want to measure the strength of the linear relationship between inflation and central bank independence.','Correlation coefficient r','r is unit-free and lies between −1 and 1.'],
+  ['Customer satisfaction is recorded as satisfied / medium / dissatisfied. What is the typical answer?','Median','The data is ordinal. You can’t add labels, so the mean is not meaningful, but you can sort them.'],
+  ['Your deposit earned 2% while the CPI rose 3%. Did your purchasing power grow?','Real return','(1.02 / 1.03) − 1 ≈ −0.97%. Deflate with the price index.'],
+  ['A frequency table of students per department. What share studies Business?','Relative frequency','w = N<sub>i</sub> / N.']
+];
+const TOOLS=[...new Set(TOOL_BANK.map(t=>t[1]).concat(['Arithmetic mean','Range']))];
+def('triage','tool','Which tool?','Recognize the method before computing',()=>{
+  const [s,c,why]=pick(TOOL_BANK);
+  const tricky={'Median':['Arithmetic mean','Weighted arithmetic mean'],'Coefficient of variation':['Standard deviation','Range'],'Standard deviation':['Coefficient of variation','Range'],'Percentage change (new / old − 1)':['Change of base','Chaining'],'Chaining':['Change of base','Laspeyres price index'],'Change of base':['Chaining','Percentage change (new / old − 1)'],'Weighted arithmetic mean':['Arithmetic mean','Median']};
+  const near=(tricky[c]||[]).slice(0,2); const rest=shuffle(TOOLS.filter(t=>t!==c&&!near.includes(t)));
+  const opts=shuffle([c,...near,...rest].slice(0,4));
+  return {title:'Which tool?',prompt:`<p style="font-size:16.5px">${s}</p>`,mc:{options:opts,correct:opts.indexOf(c),explain:`<b>${c}.</b> ${why}`}};
+});
+
+/* =====================================================================
+   state & sync
+   ===================================================================== */
+const DEFAULTS={stats:{},misses:[],answered:0};
+function loadLocal(){try{return JSON.parse(localStorage.getItem('outlier-progress')||'{}');}catch(e){return {};}}
+function saveLocal(){try{localStorage.setItem('outlier-progress',JSON.stringify(S));}catch(e){}}
+let S=Object.assign({},DEFAULTS,loadLocal());
+let dbRef=null,dbOn=false,saveT=null,saving=false,queued=false;
+function setSync(mode,label){$('#sync-dot').className='sync-dot '+mode;$('#sync-label').textContent=label;}
+function save(){saveLocal();if(dbOn){clearTimeout(saveT);saveT=setTimeout(pushDb,800);}}
+function pushDb(){
+  if(!dbRef)return; if(saving){queued=true;return;}
+  saving=true;
+  dbRef.set(JSON.parse(JSON.stringify(S))).then(()=>{saving=false;setSync('synced','Synced across devices');if(queued){queued=false;pushDb();}})
+    .catch(()=>{saving=false;setSync('local','Saved on this device only');});
+}
+async function initSync(){
+  let db=null;
+  try{if(window.claude&&typeof window.claude.use==='function')db=await window.claude.use('db');}catch(e){db=null;}
+  if(!db){setSync('local','Saved on this device only');return;}
+  try{
+    dbRef=db.doc('progress/state');
+    const snap=await dbRef.get();
+    if(snap.exists&&snap.data()&&Object.keys(snap.data()).length){
+      const remote=snap.data();
+      if((remote.answered||0)>=(S.answered||0)){S=Object.assign({},DEFAULTS,remote);saveLocal();}
+      else await dbRef.set(JSON.parse(JSON.stringify(S)));
+    }else await dbRef.set(JSON.parse(JSON.stringify(S)));
+    dbOn=true;setSync('synced','Synced across devices');
+    if(current.view!=='drill'&&current.view!=='topic')render();
+    renderNav();
+  }catch(e){dbRef=null;setSync('local','Saved on this device only');}
+}
+function record(id,ok,detail){
+  const st=S.stats[id]||(S.stats[id]={n:0,ok:0,streak:0});
+  st.n++; if(ok){st.ok++;st.streak++;}else{st.streak=0;}
+  st.last=Date.now(); S.answered=(S.answered||0)+1;
+  if(!ok&&detail){S.misses.unshift(Object.assign({id,at:Date.now()},detail));S.misses=S.misses.slice(0,40);}
+  save();
+}
+function weight(id){
+  const st=S.stats[id]; if(!st||!st.n)return 3;
+  let w=1+4*(1-st.ok/st.n); if(st.streak>=3)w*=0.5; if(st.streak>=6)w*=0.5;
+  return w;
+}
+function weightedPick(ids){
+  const ws=ids.map(weight), t=sum(ws); let r=Math.random()*t;
+  for(let i=0;i<ids.length;i++){r-=ws[i];if(r<=0)return ids[i];}
+  return ids[ids.length-1];
+}
+
+/* =====================================================================
+   drill engine
+   ===================================================================== */
+const current={view:'drill',topic:'loc',gen:null,q:null,genId:null,answered:false,session:[],sessionSize:10,lastId:null};
+function newQuestion(){
+  let id;
+  if(current.view==='drill'){
+    const ids=Object.keys(G); let tries=0;
+    do{id=weightedPick(ids);tries++;}while(id===current.lastId&&tries<5);
+  }else id=current.gen||weightedPick(Object.keys(G).filter(k=>G[k].topic===current.topic));
+  current.genId=id; current.lastId=id; current.q=G[id].make(); current.answered=false;
+}
+function questionHTML(){
+  const q=current.q, g=G[current.genId], t=TOPICS.find(t=>t.id===g.topic);
+  let body='';
+  if(q.mc){
+    body=`<div class="opts" role="group" aria-label="Answer options">${q.mc.options.map((o,i)=>`<button class="opt" data-opt="${i}"><span class="k">${'ABCD'[i]}</span><span>${o}</span></button>`).join('')}</div><div id="fb"></div>`;
+  }else{
+    body=`<form id="qform" autocomplete="off"><div class="fields">${q.fields.map((f,i)=>`<div class="field" id="f${i}"><label for="in${i}">${f.label}</label><div class="lcd-wrap"><input class="lcd" id="in${i}" inputmode="decimal" placeholder="0"><span class="lcd-unit">${f.unit||''}</span></div><span class="verdict" id="v${i}"></span></div>`).join('')}</div>
+    <div class="actions"><button class="btn btn-primary" type="submit" id="check">Check</button><button class="btn-link" type="button" id="giveup">Show me how</button><span class="kbd-hint">Enter to check. 44'780, 44 780 and 44780 all work.</span></div></form><div id="fb"></div>`;
+  }
+  return `<div class="card" id="qcard"><div class="q-meta"><span class="chip topic">${t.week?'Week '+t.week+' · ':''}${t.name}</span><span class="chip">${g.name}</span></div><h2 class="q-title">${q.title}</h2><div class="q-prompt">${q.prompt}</div>${body}</div>`;
+}
+function solutionHTML(){
+  const q=current.q; if(!q.steps&&!q.keys)return '';
+  return `<div class="solution">${q.steps?`<h4>Worked solution</h4><ol>${q.steps.map(s=>`<li>${s}</li>`).join('')}</ol>`:''}${q.keys?`<div class="keys"><div class="keys-title">On the calculator (TI-84 Plus)</div>${q.keys}</div>`:''}</div>`;
+}
+function bindQuestion(){
+  const q=current.q;
+  if(q.mc){
+    document.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      if(current.answered)return; current.answered=true;
+      const i=+b.dataset.opt, ok=i===q.mc.correct;
+      document.querySelectorAll('.opt').forEach(o=>{o.disabled=true;const j=+o.dataset.opt;if(j===q.mc.correct)o.classList.add('right');else if(j===i)o.classList.add('wrong');});
+      record(current.genId,ok,ok?null:{title:q.title,given:q.mc.options[i].replace(/<[^>]+>/g,''),right:q.mc.options[q.mc.correct].replace(/<[^>]+>/g,'')});
+      finish(ok,`<p style="margin:0">${q.mc.explain}</p>`);
+    });
+    return;
+  }
+  const form=$('#qform');
+  form.onsubmit=e=>{e.preventDefault();if(current.answered){next();return;}check(false);};
+  $('#giveup').onclick=()=>{if(!current.answered)check(true);};
+  setTimeout(()=>{const i=$('#in0');if(i&&current.view!=='map')i.focus({preventScroll:true});},30);
+}
+function check(gaveUp){
+  const q=current.q; let allOk=true, trapMsgs=[], anyEmpty=false;
+  const vals=q.fields.map((f,i)=>parseNum($('#in'+i).value));
+  if(!gaveUp&&vals.some(v=>isNaN(v))){
+    q.fields.forEach((f,i)=>{if(isNaN(vals[i])){$('#v'+i).textContent=$('#in'+i).value.trim()?'Not a number':'Enter a value';$('#f'+i).className='field miss';anyEmpty=true;}});
+    if(anyEmpty)return;
+  }
+  current.answered=true;
+  const missDetail=[];
+  q.fields.forEach((f,i)=>{
+    const u=vals[i], ok=!gaveUp&&close(u,f.value,f.tol);
+    if(!ok)allOk=false;
+    $('#f'+i).className='field '+(ok?'ok':'miss');
+    $('#v'+i).textContent=ok?'✓ Correct':gaveUp?`Answer: ${fmt(f.value,4)}`:`✗ Answer: ${fmt(f.value,4)}`;
+    $('#in'+i).readOnly=true;
+    if(!ok&&!gaveUp){
+      const hit=(f.traps||[]).find(t=>close(u,t.value,f.tol));
+      if(hit)trapMsgs.push(`<div class="trap-hit"><b>${esc(f.label)}: caught by a trap.</b> ${hit.msg}</div>`);
+      missDetail.push(`${f.label}: you ${fmt(u,4)}, answer ${fmt(f.value,4)}${hit?' (trap)':''}`);
+    }
+  });
+  record(current.genId,allOk,allOk?null:{title:q.title,given:gaveUp?'Asked for the method':missDetail.join(' · '),trap:trapMsgs.length>0});
+  finish(allOk,trapMsgs.join(''),gaveUp);
+}
+function finish(ok,extra,gaveUp){
+  if(current.view==='drill')current.session.push(ok);
+  const head=ok?'Correct':gaveUp?'Here’s the method':'Not quite';
+  const sub=ok?'Skim the solution anyway if you guessed.':gaveUp?'It counts as a miss, so this question type will come back more often.':'This question type will now come back more often until you get it.';
+  $('#fb').innerHTML=`<div class="feedback ${ok?'ok':'miss'}"><h4>${head}</h4><div style="font-size:13px;color:var(--muted)">${sub}</div>${extra||''}</div>${solutionHTML()}<div class="actions"><button class="btn btn-primary" id="next">${current.view==='drill'&&current.session.length>=current.sessionSize?'See the set result':'Next question'}</button><span class="kbd-hint">or press Enter</span></div>`;
+  const chk=$('#check'); if(chk)chk.remove(); const gu=$('#giveup'); if(gu)gu.remove();
+  document.querySelectorAll('.kbd-hint').forEach((h,i,a)=>{if(i<a.length-1)h.remove();});
+  $('#next').onclick=next; $('#next').focus({preventScroll:true});
+  renderPips(); renderNav();
+}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&current.answered&&current.q&&current.q.mc&&$('#next')&&document.activeElement.tagName!=='BUTTON'){e.preventDefault();next();}
+});
+function next(){
+  if(current.view==='drill'&&current.session.length>=current.sessionSize){renderSetDone();return;}
+  newQuestion(); renderDrillBody();
+}
+
+/* =====================================================================
+   views
+   ===================================================================== */
+const VIEWS=[
+  ['drill','Mixed drill','nav-practice'],['topic','By topic','nav-practice'],
+  ['traps','Traps','nav-ref'],['calc','Calculator','nav-ref'],['formulas','Formula sheet','nav-ref'],
+  ['map','Course map','nav-you'],['log','Mistake log','nav-you']
+];
+function acc(ids){let n=0,ok=0;ids.forEach(id=>{const s=S.stats[id];if(s){n+=s.n;ok+=s.ok;}});return {n,ok,p:n?ok/n:null};}
+function renderNav(){
+  const groups={'nav-practice':'','nav-ref':'','nav-you':''};
+  VIEWS.forEach(([id,name,g])=>{
+    let meta='';
+    if(id==='drill')meta=S.answered?`${S.answered} done`:'';
+    if(id==='log')meta=S.misses.length?String(S.misses.length):'';
+    if(id==='traps')meta='16';
+    groups[g]+=`<button data-view="${id}" ${current.view===id?'aria-current="page"':''}><span>${name}</span><span class="nav-meta">${meta}</span></button>`;
+  });
+  Object.entries(groups).forEach(([k,v])=>{$('#'+k).innerHTML=v;});
+  document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>go(b.dataset.view));
+  const days=Math.ceil((new Date('2027-01-04T00:00:00')-new Date())/864e5);
+  $('#exam-count').textContent=days>0?`${days} days`:'Exam block is on';
+}
+function go(v){current.view=v;if(v==='drill'){current.session=[];current.q=null;}if(v==='topic'){current.q=null;}try{history.replaceState(null,'','#'+v);}catch(e){}render();window.scrollTo(0,0);}
+function head(eyebrow,title,right=''){return `<div class="view-head"><div><div class="eyebrow">${eyebrow}</div><h1 class="view-title">${title}</h1></div>${right}</div>`;}
+function render(){renderNav();({drill:vDrill,topic:vTopic,traps:vTraps,calc:vCalc,formulas:vFormulas,map:vMap,log:vLog}[current.view]||vDrill)();}
+
+function renderPips(){
+  const el=$('#pips'); if(!el)return;
+  const s=current.session, n=current.sessionSize;
+  el.innerHTML=Array.from({length:n},(_,i)=>`<span class="pip ${i<s.length?(s[i]?'ok':'miss'):i===s.length&&!current.answered?'now':''}"></span>`).join('');
+  $('#score').textContent=s.length?`${s.filter(Boolean).length} of ${s.length} correct`:'';
+}
+function vDrill(){
+  $('#view').innerHTML=head('Practice','Mixed drill')+`<p class="lede">Every question type from weeks 2–6, with fresh numbers each time. Types you miss come back more often. Types you get right three times in a row fade out.</p><div class="session"><span>Set of ${current.sessionSize}</span><span class="pips" id="pips"></span><span id="score"></span></div><div id="drill-body"></div>`;
+  if(!current.q)newQuestion();
+  renderDrillBody();
+}
+function renderDrillBody(){
+  const el=$('#drill-body'); if(!el)return;
+  el.innerHTML=questionHTML(); bindQuestion(); renderPips();
+}
+function renderSetDone(){
+  const s=current.session, ok=s.filter(Boolean).length;
+  const ids=Object.keys(G).filter(id=>S.stats[id]&&S.stats[id].n>=2).sort((a,b)=>(S.stats[a].ok/S.stats[a].n)-(S.stats[b].ok/S.stats[b].n));
+  const weak=ids.slice(0,3).filter(id=>S.stats[id].ok<S.stats[id].n);
+  $('#drill-body').innerHTML=`<div class="card done-card"><div class="eyebrow">Set done</div><div class="big">${ok}/${s.length}</div><p style="margin:10px auto 18px;max-width:46ch;color:var(--muted)">${ok===s.length?'Clean set. The mix now leans toward types you have seen least.':ok>=7?'Solid. Look at the weak spots below before the next set.':'Rough set. That is useful: the next one will lean hard on what you missed.'}</p>${weak.length?`<p style="font-size:13px;color:var(--faint);margin-bottom:6px">Weakest so far</p><div class="topics" style="justify-content:center">${weak.map(id=>`<button data-gen="${id}">${G[id].name} · ${Math.round(S.stats[id].ok/S.stats[id].n*100)}%</button>`).join('')}</div>`:''}<div class="actions" style="justify-content:center"><button class="btn btn-primary" id="again">Start another set</button></div></div>`;
+  $('#again').onclick=()=>{current.session=[];newQuestion();renderDrillBody();};
+  document.querySelectorAll('[data-gen]').forEach(b=>b.onclick=()=>{current.view='topic';current.topic=G[b.dataset.gen].topic;current.gen=b.dataset.gen;current.q=null;render();});
+  renderPips();
+}
+
+function vTopic(){
+  const gens=Object.values(G).filter(g=>g.topic===current.topic);
+  if(current.gen&&G[current.gen].topic!==current.topic)current.gen=null;
+  $('#view').innerHTML=head('Practice','By topic')+`<p class="lede">Pick a week, then one question type to hammer, or "All of this topic" for a mix.</p>
+  <div class="topics" role="group" aria-label="Topic">${TOPICS.map(t=>`<button data-topic="${t.id}" aria-pressed="${t.id===current.topic}">${t.week?'W'+t.week+' · ':''}${t.name}</button>`).join('')}</div>
+  <div class="gen-list"><button class="gen" data-g="" aria-pressed="${!current.gen}"><span class="gen-name">All of this topic</span><span class="gen-sub">Weighted toward your weak spots</span>${meterHTML(acc(gens.map(g=>g.id)))}</button>${gens.map(g=>`<button class="gen" data-g="${g.id}" aria-pressed="${current.gen===g.id}"><span class="gen-name">${g.name}</span><span class="gen-sub">${g.sub}</span>${meterHTML(acc([g.id]))}</button>`).join('')}</div>
+  <div id="drill-body"></div>`;
+  document.querySelectorAll('[data-topic]').forEach(b=>b.onclick=()=>{current.topic=b.dataset.topic;current.gen=null;current.q=null;vTopic();});
+  document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{current.gen=b.dataset.g||null;current.q=null;vTopic();});
+  if(!current.q||G[current.genId].topic!==current.topic||(current.gen&&current.genId!==current.gen))newQuestion();
+  renderDrillBody();
+}
+function meterHTML(a){
+  if(a.p===null)return `<span class="meter"><i style="width:0"></i></span><span class="gen-stat">not tried yet</span>`;
+  const cls=a.p<0.5?'low':a.p<0.8?'mid':'';
+  return `<span class="meter ${cls}"><i style="width:${Math.round(a.p*100)}%"></i></span><span class="gen-stat">${a.ok}/${a.n} correct · ${Math.round(a.p*100)}%</span>`;
+}
+
+const TRAPS=[
+  ['Median with an even number of values','Sort first. If n is even, (n+1)/2 falls between two values, so average them. Example from the slides: 1, 1, 2, 4, 5, 6, 6, 7 has median (4+5)/2 = 4.5.','ok','Week 3 slides, "The Median"'],
+  ['Grouped median: interpolate, don’t take the midpoint','Find the class where the cumulative share first reaches 50%. Then median = lower bound + (50% − cumulative share before the class) / (share of the class) · class width. The class midpoint is not the median.','ok','Notes 3.3, Example 3.4'],
+  ['1-Var Stats can’t do grouped data','The calculator’s Med only works on raw data (with or without a frequency list). For classes you interpolate by hand. The slides say "Careful" about exactly this.','ok','Week 3 slides'],
+  ['Rounded percentages give slightly different answers','The notes get 44 780 with rounded shares and 44 784 unrounded. Both count. What matters is that the method is visible.','ok','Notes 3.3–3.4'],
+  ['Grouped mean uses class midpoints','Weight midpoints by frequencies. An open class ("200 000 and more") has no midpoint, so you need an assumed class average. Lucerne uses 500 000.','ok','Notes 3.2, Example 3.2'],
+  ['Variance: n or n − 1? The materials do both','The week 4 grades example uses VAR.P / STDEV.P (÷ n). The week 4 Ex. 2 solution calls STDEV.S (÷ n − 1) the "empirical standard deviation". Grouped data (Ex. 3) divides by N. Week 6 uses n − 1 for variance and covariance. Until the Chapter 4 notes say otherwise: "empirical" or "sample" means n − 1, and a whole population or frequency table means n. On the TI-84, Sx is n − 1 and σx is n.','warn','week04_examples.xlsx, week04_exercises.xlsx, week06_examples.xlsx. Check again when the Chapter 4 notes arrive'],
+  ['Quartiles of raw data depend on the method','The week 4 solution uses PERCENTILE.EXC for the IQR. The TI-84’s Q1/Q3 uses the median-of-halves method, which can give different numbers. Grouped data is unambiguous (interpolate). For raw data, check which method the Chapter 4 notes use.','warn','week04_examples.xlsx, sheet Solution'],
+  ['Mean only for metric data','Adding up nominal or ordinal codes is meaningless, so you can’t average "satisfied / medium / dissatisfied". Use the median for ordinal data and frequencies for nominal data.','ok','Notes 3.2'],
+  ['Percentage changes need a ratio scale','20 °C is not "twice as warm" as 10 °C, because the zero point is arbitrary. Percent changes only make sense on ratio scales.','ok','Notes 2.2'],
+  ['Adding a constant vs multiplying','+c: mean + c, SD unchanged, CV falls. ×k: mean and SD both × k, CV unchanged.','ok','week04_exercises.xlsx, Ex. 3b and 3c'],
+  ['Index points are not percent','From 104 to 108 is +4 points but +3.85%. Percent change = new / old − 1. The two are equal only when the start value is exactly 100.','ok','week05_solutions.xlsx, Ex. 2'],
+  ['Laspeyres freezes base-period quantities','L = Σ p<sub>t</sub>q₀ / Σ p₀q₀ · 100, or the base-value-weighted average of simple indices. The course materials don’t use Paasche anywhere.','ok','week05_examples.xlsx, Laspeyres sheet'],
+  ['Rebasing divides, chaining multiplies','Change of base: I / I(new base year) · 100. Chaining: scale one series by the ratio of the two series in the overlap month. Never add or subtract to line indices up.','ok','week05_examples.xlsx, Change of Base and Chaining'],
+  ['Real return: divide factors, don’t subtract rates','Real = (1 + nominal) / (1 + inflation) − 1. Multi-period: multiply the interest factors first. Subtracting rates is only an approximation.','ok','week05_solutions.xlsx, Ex. 4'],
+  ['Two ways to split an annual rate','Week 5 Ex. 4 turns an annual deposit rate into a quarterly one as i / 4 (simple). The CAPM group exercise uses (1 + i)<sup>1/12</sup> − 1 (compound). Use whichever the question gives you.','warn','week05_solutions.xlsx vs group_exercises.pdf'],
+  ['Correlation is not causation, and only linear','Storks and babies correlate. r = 0 means no <i>linear</i> relationship, not no relationship. r has no unit, while covariance changes with units.','ok','week06_examples.xlsx, Storks and Babies, Spurious Correlation']
+];
+function vTraps(){
+  $('#view').innerHTML=head('Reference','Traps')+`<div class="callout">Each rule here was taken from this course’s notes, slides or solution spreadsheets. A generic statistics site can’t give you these, and using the "wrong" correct method changes the number. <b>Amber</b> means the materials are inconsistent or silent, so check it when the next notes arrive.</div>
+  <div class="stack">${TRAPS.map(([t,b,s,src])=>`<article class="trap"><div class="trap-head"><h3>${t}</h3><span class="status ${s}">${s==='ok'?'Confirmed in materials':'Unclear: check'}</span></div><p>${b}</p><div class="src">Source: ${src}</div></article>`).join('')}</div>`;
+}
+
+function vCalc(){
+  const R=(t,body,note)=>`<div class="recipe"><h3>${t}</h3>${body}${note?`<p>${note}</p>`:''}</div>`;
+  $('#view').innerHTML=head('Reference','Calculator')+`<p class="lede">Key sequences for the TI-84 Plus, the model the slides use (L1, 2nd → STAT, 1-Var Stats). Blue keys are the ${K('2nd','k2')} layer. Outlined boxes are menu entries.</p>
+  <div class="ref-sec"><h2>Lists</h2><div class="grid2">
+  ${R('Enter data',seq(K('STAT'),A,M('1:Edit…'),A,'type into L1',K('ENTER'),'after each',A,K('2nd','k2'),K('MODE'),'(QUIT)'))}
+  ${R('Clear a list',seq(K('STAT'),A,M('4:ClrList'),K('2nd','k2'),K('1'),K('ENTER')),'Or in the editor: arrow up onto the L1 header, then '+K('CLEAR')+' '+K('ENTER')+'. Clear lists before every new task.')}
+  ${R('Sum and sum of products',seq(K('2nd','k2'),K('STAT'),A,M('MATH'),A,M('5:sum('),K('2nd','k2'),K('1'),K(')')),'Sum of products: '+M('sum(L1*L2)')+'. Only elements 2–5: '+M('sum(L1,2,5)')+'.')}
+  ${R('Product (growth factors)',seq(K('2nd','k2'),K('STAT'),A,M('MATH'),A,M('6:prod('),K('2nd','k2'),K('1'),K(')')),'Use it for compounding: interest factors in L1, then '+M('prod(L1)')+'.')}
+  </div></div>
+  <div class="ref-sec"><h2>Location and spread</h2><div class="grid2">
+  ${R('Mean',seq(K('2nd','k2'),K('STAT'),A,M('MATH'),A,M('3:mean('),K('2nd','k2'),K('1'),K(')')),'Weighted: values in L1, frequencies in L2, then '+M('mean(L1,L2)')+'.')}
+  ${R('Median',seq(K('2nd','k2'),K('STAT'),A,M('MATH'),A,M('4:median('),M('L1,L2')),'Raw data only. For grouped data, interpolate by hand.')}
+  ${R('Everything at once: 1-Var Stats',seq(K('STAT'),A,M('CALC'),A,M('1:1-Var Stats'),A,'List: L1, FreqList: L2',A,M('Calculate')),'Shows x̄, Σx, Σx², <b>Sx (÷ n − 1)</b>, <b>σx (÷ n)</b>, n, minX, Q1, Med, Q3, maxX. Pick the right SD for the question.')}
+  ${R('Variance',seq('run 1-Var Stats, then',K('VARS'),A,M('5:Statistics…'),A,M('Sx'),'or',M('σx'),A,K('x²')),'Or type '+M('stdDev(L1)²')+' from LIST → MATH (this is Sx, ÷ n − 1).')}
+  </div></div>
+  <div class="ref-sec"><h2>Two variables</h2><div class="grid2">
+  ${R('Turn on r (once)',seq(K('2nd','k2'),K('0'),'(CATALOG)',A,M('DiagnosticOn'),K('ENTER'),K('ENTER')),'The setting survives turning the calculator off.')}
+  ${R('Correlation r',seq('x in L1, y in L2',A,K('STAT'),A,M('CALC'),A,M('4:LinReg(ax+b)'),A,M('Calculate')),'Shows a, b, r² and r. You will need a and b again in week 8 (regression).')}
+  ${R('Covariance (no built-in key)',seq(M('sum((L1−mean(L1))(L2−mean(L2)))/(n−1)')),'Replace n − 1 with the actual number. Or use 2-Var Stats and s<sub>xy</sub> = (Σxy − n·x̄·ȳ) / (n − 1).')}
+  ${R('Grouped median or quantile',seq(M('lower+(p−cumBefore)/share*width')),'Type the numbers straight in. Example: '+M('20000+(.5−.2)/.3632*30000')+'.')}
+  </div></div>`;
+}
+
+function vFormulas(){
+  const rows=[
+    ['Relative frequency','w<sub>i</sub> = N<sub>i</sub> / N','—','—'],
+    ['Arithmetic mean','x̄ = (1/n) Σ x<sub>i</sub>','AVERAGE','MITTELWERT'],
+    ['Weighted mean','x̄ = Σ N<sub>i</sub>x<sub>i</sub> / Σ N<sub>i</sub> = Σ w<sub>i</sub>x<sub>i</sub>','SUMPRODUCT / SUM','SUMMENPRODUKT / SUMME'],
+    ['Grouped quantile x<sub>p</sub>','L + (p − F<sub>before</sub>) / w<sub>class</sub> · width','TREND','TREND'],
+    ['Range','max − min','MAX − MIN','MAX − MIN'],
+    ['Variance (population)','σ² = (1/n) Σ (x<sub>i</sub> − x̄)²','VAR.P','VAR.P'],
+    ['Variance (empirical / sample)','s² = 1/(n−1) · Σ (x<sub>i</sub> − x̄)²','VAR.S','VAR.S'],
+    ['Standard deviation','√variance','STDEV.P / STDEV.S','STABW.N / STABW.S'],
+    ['Grouped variance','σ² = Σ N<sub>i</sub>(x<sub>i</sub> − x̄)² / N','SUMPRODUCT','SUMMENPRODUKT'],
+    ['Coefficient of variation','CV = s / x̄','—','—'],
+    ['Simple index','I<sub>t</sub> = x<sub>t</sub> / x<sub>0</sub> · 100','—','—'],
+    ['Laspeyres price index','L = Σ p<sub>t</sub>q₀ / Σ p₀q₀ · 100 = Σ w<sub>i</sub>I<sub>i</sub>','SUMPRODUCT','SUMMENPRODUKT'],
+    ['Change of base','I<sub>new</sub>(t) = I(t) / I(b) · 100','—','—'],
+    ['Chaining','old → new: I<sub>old</sub>(t) · 100 / I<sub>old</sub>(overlap)','—','—'],
+    ['Percent change','x<sub>t</sub> / x<sub>t−1</sub> − 1','—','—'],
+    ['Real return','(1 + nominal) / (1 + inflation) − 1','PRODUCT','PRODUKT'],
+    ['Covariance (sample)','s<sub>xy</sub> = 1/(n−1) · Σ (x<sub>i</sub> − x̄)(y<sub>i</sub> − ȳ)','COVARIANCE.S','KOVARIANZ.S'],
+    ['Correlation','r = s<sub>xy</sub> / (s<sub>x</sub> · s<sub>y</sub>), −1 ≤ r ≤ 1','CORREL','KORREL'],
+    ['Σ rule','Σ (x<sub>i</sub> − a)² = Σ x<sub>i</sub>² − 2aΣ x<sub>i</sub> + na²','SUM','SUMME']
+  ];
+  $('#view').innerHTML=head('Reference','Formula sheet')+`<p class="lede">Weeks 2–6 on one page, with the Excel names in English and German. Regression and probability will be added when those notes are out.</p><div class="tbl-wrap"><table class="ref"><thead><tr><th>What</th><th>Formula</th><th>Excel (EN)</th><th>Excel (DE)</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r[0]}</td><td class="f">${r[1]}</td><td class="f">${r[2]}</td><td class="f">${r[3]}</td></tr>`).join('')}</tbody></table></div>`;
+}
+
+const WEEKS=[
+  [1,'Excel for data analysis','Reference only: SUM, XLOOKUP, IF, pivots',null],
+  [2,'Basics & terminology','Scales, frequency tables, charts, Σ','basics'],
+  [3,'Measures of location','Mean, weighted mean, median, quantiles','loc'],
+  [4,'Measures of dispersion','Range, variance, SD, CV, IQR','disp'],
+  [5,'Indices','Simple, Laspeyres, rebasing, chaining','idx'],
+  [6,'Correlation','Covariance, r, spurious correlation','corr'],
+  [7,'Break / midterm','Not graded. Take a full mixed set as a checkpoint','mid'],
+  [8,'Linear regression','Coming when the notes arrive',null],
+  [9,'Combinatorics & classical probability','Coming when the notes arrive',null],
+  [10,'Axiomatic probability','Coming when the notes arrive',null],
+  [11,'Random variables','Coming when the notes arrive',null],
+  [12,'Simulation & the LLN','Coming when the notes arrive',null],
+  [13,'The binomial distribution','Coming when the notes arrive',null],
+  [14,'Additional exercises','Coming when the notes arrive',null]
+];
+function vMap(){
+  const all=acc(Object.keys(G)), tried=Object.keys(G).filter(id=>S.stats[id]&&S.stats[id].n).length;
+  const mastered=Object.keys(G).filter(id=>S.stats[id]&&S.stats[id].streak>=3).length;
+  $('#view').innerHTML=head('You','Course map')+`<div class="summary"><div class="tile"><div class="v">${all.n}</div><div class="l">questions answered</div></div><div class="tile"><div class="v">${all.p===null?'—':Math.round(all.p*100)+'%'}</div><div class="l">overall accuracy</div></div><div class="tile"><div class="v">${tried}/${Object.keys(G).length}</div><div class="l">question types tried</div></div><div class="tile"><div class="v">${mastered}</div><div class="l">types on a 3+ streak</div></div></div>
+  <div class="weeks">${WEEKS.map(([n,t,s,topic])=>{
+    const live=topic&&topic!=='mid'; const a=live?acc(Object.keys(G).filter(id=>G[id].topic===topic)):null;
+    return `<div class="wk ${topic?'':'locked'}"><span class="wk-n">WEEK ${String(n).padStart(2,'0')}</span><span class="wk-t">${t}</span><span class="wk-s">${s}</span>${live?meterHTML(a)+`<button class="btn btn-ghost" style="padding:6px 10px;font-size:12.5px;align-self:flex-start" data-drill="${topic}">Drill this week</button>`:''}</div>`;}).join('')}</div>`;
+  document.querySelectorAll('[data-drill]').forEach(b=>b.onclick=()=>{current.topic=b.dataset.drill;current.gen=null;current.q=null;go('topic');});
+}
+function vLog(){
+  const rows=S.misses;
+  $('#view').innerHTML=head('You','Mistake log',rows.length?`<button class="btn btn-ghost" id="clear-log">Clear log</button>`:'')+`<p class="lede">Your last ${rows.length?rows.length:''} misses. When a pattern repeats, read the matching card on the Traps page, then drill that type until you get three in a row.</p>
+  <div class="log">${rows.length?rows.map((m,i)=>`<div class="log-row"><div><div class="what">${esc(m.title)} <span class="chip">${G[m.id]?esc(G[m.id].name):''}</span>${m.trap?' <span class="status warn">trap</span>':''}</div><div class="det">${esc(m.given||'')}${m.right?' · correct: '+esc(m.right):''} · ${new Date(m.at).toLocaleDateString('en-US',{month:'short',day:'numeric'})}</div></div>${G[m.id]?`<button class="btn btn-ghost" style="padding:6px 12px;font-size:13px" data-redo="${m.id}">Drill this</button>`:''}</div>`).join(''):`<p class="empty">No misses yet. Go get some. They are how this page learns what to throw at you.</p>`}</div>`;
+  document.querySelectorAll('[data-redo]').forEach(b=>b.onclick=()=>{const id=b.dataset.redo;current.topic=G[id].topic;current.gen=id;current.q=null;go('topic');});
+  const c=$('#clear-log'); if(c)c.onclick=()=>{if(c.dataset.sure){S.misses=[];save();vLog();renderNav();}else{c.dataset.sure='1';c.textContent='Click again to clear';}};
+}
+
+/* boot */
+(function(){
+  let h=''; try{h=(location.hash||'').slice(1);}catch(e){}
+  if(VIEWS.some(v=>v[0]===h))current.view=h;
+  render(); initSync();
+})();
+</script>

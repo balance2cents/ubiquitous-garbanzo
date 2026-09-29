@@ -28,7 +28,9 @@
       "id": "mat12",
       "code": "W.IBA_APMAT12.H26",
       "name": "Data Analysis I",
-      "color": "#E06C98"
+      "color": "#E06C98",
+      "link": "https://claude.ai/artifact/QDDgdogcH3GmwV87vd8bQB",
+      "linkName": "The Outlier"
     },
     {
       "id": "mgt01",

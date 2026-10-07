@@ -226,6 +226,50 @@ table.ref td.f{font-family:var(--f-mono); font-size:12.5px; white-space:nowrap}
 .empty{color:var(--faint); font-style:italic}
 .done-card{text-align:center; padding:30px 20px}
 .done-card .big{font-family:var(--f-display); font-size:48px; font-weight:800; line-height:1}
+/* ---------- learn ---------- */
+.learn-wrap{display:grid; grid-template-columns:minmax(0,1fr) 210px; gap:36px; align-items:start}
+@media (max-width:1100px){.learn-wrap{grid-template-columns:minmax(0,1fr)} .toc{display:none}}
+.prose{max-width:74ch; min-width:0; font-size:15.5px; line-height:1.65}
+.prose h2{font-size:22px; margin:34px 0 10px; scroll-margin-top:16px}
+.prose p{margin:0 0 12px} .prose ul,.prose ol{margin:0 0 12px; padding-left:22px} .prose li{margin-bottom:5px}
+.ch-title{font-size:34px; margin:2px 0 6px}
+.ch-meta{color:var(--muted); font-size:14px}
+.idea{border-left:4px solid var(--accent); background:var(--accent-soft); padding:14px 18px; border-radius:0 10px 10px 0; font-size:16.5px; line-height:1.55; margin:14px 0 6px}
+.idea-k{display:block; font-size:11px; text-transform:uppercase; letter-spacing:.09em; color:var(--accent-strong); font-weight:600; margin-bottom:4px}
+.note{border:1px solid var(--line-strong); border-left:3px solid var(--warn); background:var(--warn-soft); border-radius:0 8px 8px 0; padding:11px 14px; font-size:14.5px; margin:14px 0}
+.example{border:1px solid var(--line-strong); border-radius:10px; overflow:hidden; margin:14px 0; background:var(--surface)}
+.example .lbl{background:var(--ink); color:var(--bg); font-size:11px; text-transform:uppercase; letter-spacing:.08em; padding:5px 13px; font-weight:600}
+.example .body{padding:12px 15px; font-size:14.5px} .example .body p:last-child{margin-bottom:0}
+.ladder{list-style:none; padding:0!important; counter-reset:l; display:flex; flex-direction:column; gap:8px}
+.ladder li{counter-increment:l; display:grid; grid-template-columns:30px 1fr; gap:2px 10px; background:var(--surface); border:1px solid var(--line); border-radius:9px; padding:10px 14px; margin:0!important}
+.ladder li::before{content:counter(l); grid-row:span 2; font-family:var(--f-display); font-weight:800; font-size:20px; color:var(--accent)}
+.lq{font-weight:600} .la{font-size:14.5px; color:var(--muted)}
+.toc{position:sticky; top:calc(env(safe-area-inset-top,0px) + 16px); display:flex; flex-direction:column; gap:2px; font-size:13px; border-left:1px solid var(--line); padding-left:12px}
+.toc-t{font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--faint); font-weight:600; margin-bottom:6px}
+.toc a{color:var(--muted); text-decoration:none; padding:3px 0} .toc a:hover{color:var(--accent)}
+.widget{border:1px solid var(--line-strong); border-radius:12px; background:var(--surface); padding:16px 18px; margin:18px 0; box-shadow:var(--shadow)}
+.widget h3{font-size:17px; margin-bottom:2px} .widget .sub,.prose .sub{font-size:13px; color:var(--muted); margin-bottom:10px}
+.widget .topics{margin-bottom:10px}
+.cw{overflow-x:auto}
+svg.chart{display:block; width:100%; height:auto; min-width:300px}
+svg.chart text{fill:var(--muted); font-family:var(--f-mono); font-size:11px}
+svg.chart .lbl-acc{fill:var(--accent-strong); font-weight:600; font-size:12px} svg.chart .lbl-ink{fill:var(--ink); font-weight:600; font-size:12px}
+.chart .grid{stroke:var(--line); stroke-width:1} .chart .ax{stroke:var(--line-strong); stroke-width:1}
+.chart .mk{fill:var(--accent); stroke:var(--surface); stroke-width:2} .chart .mk-dim{fill:var(--faint); stroke:var(--surface); stroke-width:2} .chart .mk-neg{fill:var(--ink); opacity:.55; stroke:var(--surface); stroke-width:2}
+.chart .ln{stroke:var(--accent); stroke-width:2; fill:none} .chart .guide{stroke:var(--accent); stroke-width:1.5; stroke-dasharray:5 4} .chart .guide2{stroke:var(--ink); stroke-width:1.5}
+.chart .band{fill:var(--accent-soft)} .chart .bar{fill:var(--accent)} .chart .whisk{stroke:var(--ink); stroke-width:1.5}
+.chart .box{fill:var(--accent-soft); stroke:var(--accent); stroke-width:1.5} .chart .medline{stroke:var(--ink); stroke-width:2.5} .chart .outl{fill:var(--surface); stroke:var(--bad); stroke-width:2}
+.chart circle:hover,.chart rect:hover{opacity:.8}
+.sl{display:flex; align-items:center; gap:12px; font-size:13px; color:var(--muted); margin-top:8px} .sl span{white-space:nowrap}
+.slider{flex:1; accent-color:var(--accent); min-width:0}
+.readout{display:flex; gap:10px 22px; flex-wrap:wrap; margin-top:10px; padding-top:10px; border-top:1px dashed var(--line)}
+.ro{display:flex; flex-direction:column; gap:1px} .ro .l{font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--faint)} .ro .v{font-family:var(--f-mono); font-size:15px; font-weight:600; font-variant-numeric:tabular-nums}
+.key-dot{display:inline-block; width:10px; height:10px; border-radius:50%; vertical-align:middle; margin-right:3px} .key-dot.mk{background:var(--accent)} .key-dot.mk-neg{background:var(--ink); opacity:.55}
+.checks{display:flex; flex-direction:column; gap:16px}
+.chk{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:14px 16px}
+.chk-q{font-weight:600; margin:0!important} .chk .opts{margin-top:10px}
+.chk-why{margin-top:10px; padding:10px 12px; border-radius:8px; font-size:14px} .chk-why.ok{background:var(--good-soft)} .chk-why.miss{background:var(--bad-soft)}
+.ch-end{margin-top:26px; padding-top:18px; border-top:1px solid var(--line)}
 </style>
 
 <div class="app">
@@ -235,6 +279,8 @@ table.ref td.f{font-family:var(--f-mono); font-size:12.5px; white-space:nowrap}
       The Outlier
     </div>
     <div class="course-tag">Data Analysis I<span class="code">W.IBA_APMAT12.H26</span></div>
+    <div class="nav-label">Learn</div>
+    <div class="nav" id="nav-learn"></div>
     <div class="nav-label">Practice</div>
     <div class="nav" id="nav-practice"></div>
     <div class="nav-label">Reference</div>
@@ -475,9 +521,9 @@ def('skew','loc','Skewness from mean and median','Right-skewed, left-skewed or s
 
 /* ---------- week 4 ---------- */
 const VAR_KINDS=[
-  {id:'s',ask:'the <b>empirical standard deviation</b> (the wording used in the week 4 exercise solutions, Excel <code class="x">STDEV.S</code>)',sd:true,div:'n−1'},
+  {id:'s',ask:'the <b>empirical standard deviation</b> s (Definition 4.4, Excel <code class="x">STDEV.S</code>)',sd:true,div:'n−1'},
   {id:'s2',ask:'the <b>sample variance</b> (Excel <code class="x">VAR.S</code>, divide by n − 1)',sd:false,div:'n−1'},
-  {id:'sig2',ask:'the <b>variance</b>, treating these values as the whole population (Excel <code class="x">VAR.P</code>, as in the week 4 grades example)',sd:false,div:'n'},
+  {id:'sig2',ask:'the <b>variance σ²</b>, treating these values as the complete population (Definition 4.3, Excel <code class="x">VAR.P</code>)',sd:false,div:'n'},
   {id:'sig',ask:'the <b>population standard deviation</b> σ (Excel <code class="x">STDEV.P</code>)',sd:true,div:'n'}
 ];
 def('var','disp','Range, variance, standard deviation','Raw data; watch the divisor',()=>{
@@ -488,12 +534,12 @@ def('var','disp','Range, variance, standard deviation','Raw data; watch the divi
   const alt=kind.div==='n'?(kind.sd?Math.sqrt(vS):vS):(kind.sd?Math.sqrt(vP):vP);
   const rng=Math.max(...x)-Math.min(...x);
   return {title:'Measure the spread',prompt:`<p>Annual profit of a company over ${n} years (CHF million):</p><p class="mono" style="font-size:17px">${x.join(', ')}</p><p>Compute (a) the range and (b) ${kind.ask}. Round to 2 decimals.</p>`,
-    fields:[{label:'(a) Range',value:rng,tol:{abs:0.001}},keepTraps({label:`(b) ${kind.sd?'Standard deviation':'Variance'}`,value:val,tol:{abs:0.011,rel:0.001},traps:[{value:alt,msg:`You divided by ${kind.div==='n'?'n − 1':'n'}. This question wants ÷ ${kind.div}. On the TI-84, <b>Sx</b> divides by n − 1 and <b>σx</b> by n. The course materials use both, so read the wording (see Traps).`},{value:kind.sd?(kind.div==='n'?vP:vS):Math.sqrt(val),msg:kind.sd?'That is the variance. The standard deviation is its square root.':'That is the standard deviation. The variance is its square.'}]})],
+    fields:[{label:'(a) Range',value:rng,tol:{abs:0.001}},keepTraps({label:`(b) ${kind.sd?'Standard deviation':'Variance'}`,value:val,tol:{abs:0.011,rel:0.001},traps:[{value:alt,msg:`You divided by ${kind.div==='n'?'n − 1':'n'}. This question wants ÷ ${kind.div}. On the TI-84, <b>Sx</b> divides by n − 1 and <b>σx</b> by n. σ is for a complete population, s for a sample or when the question says "empirical".`},{value:kind.sd?(kind.div==='n'?vP:vS):Math.sqrt(val),msg:kind.sd?'That is the variance. The standard deviation is its square root.':'That is the standard deviation. The variance is its square.'}]})],
     steps:[`Range = max − min = ${Math.max(...x)} − ${Math.min(...x)} = <b>${rng}</b>`,`Mean: <div class="eq">x̄ = ${sum(x)} / ${n} = ${fmt(m,4)}</div>`,
       `Squared deviations: <div class="eq">${x.map(v=>`(${v}−${fmt(m,2)})²`).join(' + ')} = ${fmt(ss,4)}</div>`,
       `Divide by ${kind.div} = ${kind.div==='n'?n:n-1}: <div class="eq">${kind.div==='n'?'σ²':'s²'} = ${fmt(ss,4)} / ${kind.div==='n'?n:n-1} = ${fmt(kind.div==='n'?vP:vS,4)}</div>`+(kind.sd?`Take the root: <div class="eq">${kind.div==='n'?'σ':'s'} = √${fmt(kind.div==='n'?vP:vS,4)} = ${fmt(val,4)}</div>`:''),
       `For comparison, dividing by ${kind.div==='n'?'n − 1':'n'} would give ${fmt(alt,2)}.`],
-    keys:seq(listKeys,A,K('STAT'),A,M('CALC'),A,M('1:1-Var Stats'),A,'read',M('Sx'),'(÷ n−1) or',M('σx'),'(÷ n). Square it for the variance with',K('x²'))};
+    keys:seq(listKeys,A,K('STAT'),A,M('CALC'),A,M('1:1-Var Stats'),A,'read',M('Sx'),'(÷ n−1) or',M('σx'),'(÷ n). For s directly:',K('2nd','k2'),K('STAT'),A,M('MATH'),A,M('7:stdDev('),'and',M('8:variance('),'(both ÷ n−1)')};
 });
 
 def('gsd','disp','Grouped: mean, SD, CV','Frequency table, like Ex. 3 (municipalities)',()=>{
@@ -501,7 +547,7 @@ def('gsd','disp','Grouped: mean, SD, CV','Frequency table, like Ex. 3 (municipal
   const cls=b.slice(0,-1).map((lo,i)=>[lo,b[i+1]]), mid=cls.map(([a,c])=>(a+c)/2);
   const N=cls.map((_,i)=>ri(2,9)*(i===1||i===2?30:i===3?15:8)+ri(0,20)), tot=sum(N);
   const m=sum(mid.map((v,i)=>v*N[i]))/tot, v=sum(mid.map((x,i)=>N[i]*(x-m)**2))/tot, s=Math.sqrt(v), cv=s/m;
-  return {title:'Spread of grouped income',prompt:`<p>Taxable income in a municipality:</p>${table(['Income (CHF)','Persons'],cls.map((c,i)=>[`${fmt(c[0],0)} to under ${fmt(c[1],0)}`,N[i]]).concat([['Total',tot]]),{tot:true})}<p>Compute the average income, the standard deviation, and the coefficient of variation. As in the Ex. 3 solution, divide by N (all persons in the table).</p>`,
+  return {title:'Spread of grouped income',prompt:`<p>Taxable income in a municipality:</p>${table(['Income (CHF)','Persons'],cls.map((c,i)=>[`${fmt(c[0],0)} to under ${fmt(c[1],0)}`,N[i]]).concat([['Total',tot]]),{tot:true})}<p>Compute the average income, the standard deviation, and the coefficient of variation. This is a complete survey, so use σ (divide by N), as in Exercise 3a.</p>`,
     fields:[{label:'Mean x̄',value:m,unit:'CHF',tol:{rel:0.002}},keepTraps({label:'Standard deviation',value:s,unit:'CHF',tol:{rel:0.004},traps:[{value:v,msg:'That is the variance. Take the square root.'}]}),keepTraps({label:'Coefficient of variation',value:cv*100,unit:'%',tol:{abs:0.15},traps:[{value:cv,msg:'Right idea, but the field asks for percent. Multiply by 100.'}]})],
     steps:[`Midpoints: ${mid.map(x=>fmt(x,0)).join(', ')}`,`<div class="eq">x̄ = Σ N<sub>i</sub>·x<sub>i</sub> / N = ${fmt(sum(mid.map((x,i)=>x*N[i])),0)} / ${tot} = ${fmt(m,0)}</div>`,
       `<div class="eq">σ² = Σ N<sub>i</sub>·(x<sub>i</sub> − x̄)² / N = ${fmt(v,0)}</div><div class="eq">σ = √σ² = ${fmt(s,0)}</div>`,
@@ -526,6 +572,37 @@ def('cv','disp','Comparing risk with CV','Standard deviation vs coefficient of v
   const ca=a.s/a.m, cb=b.s/b.m; const c=ca>cb?0:1;
   return {title:'Which is more variable?',prompt:`<p>Share prices over the last year (CHF):</p>${table(['Stock','Mean price','Standard deviation'],[['A',fx(a.m,2),fx(a.s,2)],['B',fx(b.m,2),fx(b.s,2)]])}<p>Relative to its price level, which stock fluctuates more?</p>`,
     mc:{options:['Stock A','Stock B'],correct:c,explain:`<b>Stock ${'AB'[c]}.</b> Compare coefficients of variation, not raw SDs: CV<sub>A</sub> = ${fx(a.s,2)} / ${fx(a.m,2)} = ${pc(ca,1)}, CV<sub>B</sub> = ${fx(b.s,2)} / ${fx(b.m,2)} = ${pc(cb,1)}. The SD depends on the level of the data. The CV removes it.`}};
+});
+
+
+def('wsd','disp','SD with frequencies','Empirical s when each value has a count (Ex. 4.5)',()=>{
+  let p; do{p=[...new Set(prices(6))].slice(0,5);}while(p.length<5);
+  const q=p.map(()=>ri(5,40)*10), n=sum(q), m=sum(p.map((v,i)=>v*q[i]))/n, ss=sum(p.map((v,i)=>q[i]*(v-m)**2)), s=Math.sqrt(ss/(n-1));
+  return {title:'Spread of the price paid',prompt:`<p>Prices and units sold at five stores:</p>${table(['Price x<sub>i</sub> (CHF)','Units N<sub>i</sub>'],p.map((v,i)=>[fx(v,2),q[i]]))}<p>Treat the units sold as a sample. Compute the <b>empirical standard deviation</b> of the price paid. Round to 3 decimals.</p>`,
+    fields:[keepTraps({label:'s',value:s,unit:'CHF',tol:{abs:0.0015},traps:[{value:Math.sqrt(ss/4),msg:'You used n = 5 (the number of stores). Every unit sold is an observation, so n = Σ N<sub>i</sub> = '+n+'.'},{value:Math.sqrt(sum(p.map(v=>(v-mean(p))**2))/4),msg:'That is the SD of the five prices, ignoring how many units each store sold.'}]})],
+    steps:[`Mean price paid: <div class="eq">x̄ = Σ N<sub>i</sub>x<sub>i</sub> / n = ${fx(sum(p.map((v,i)=>v*q[i])),2)} / ${n} = ${fx(m,4)}</div>`,`${table(['x<sub>i</sub>','N<sub>i</sub>','N<sub>i</sub>(x<sub>i</sub> − x̄)²'],p.map((v,i)=>[fx(v,2),q[i],fx(q[i]*(v-m)**2,3)]).concat([['Σ',n,fx(ss,3)]]),{tot:true})}`,`n = Σ N<sub>i</sub> = ${n}, so divide by n − 1 = ${n-1}: <div class="eq">s = √(${fx(ss,3)} / ${n-1}) = ${fx(s,4)}</div>`],
+    keys:seq('prices in L1, units in L2',A,K('2nd','k2'),K('STAT'),A,M('MATH'),A,M('7:stdDev('),M('L1,L2)'),'(L2 must be absolute counts)')};
+});
+
+def('iqr','disp','Quartiles from a frequency table','Read Q1, Q3 off cumulative shares (Ex. 4.3)',()=>{
+  const gr=[1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6];
+  let N,cum,tries=0;
+  do{const c=ri(35,50)/10, sd=ri(5,12)/10;const w=gr.map(g=>Math.exp(-((g-c)**2)/(2*sd*sd))*(0.7+Math.random()*0.6));const t=sum(w);N=w.map(v=>Math.round(v/t*100));const d=100-sum(N);N[N.indexOf(Math.max(...N))]+=d;let s=0;cum=N.map(v=>s+=v);tries++;}while(tries<80&&cum.some(v=>v===25||v===75||v===50));
+  const q=p=>gr[cum.findIndex(v=>v>=p)], q1=q(25), q3=q(75), vals=gr.filter((g,i)=>N[i]>0);
+  const prev=p=>{const i=cum.findIndex(v=>v>=p);return i>0?gr[i-1]:gr[0];};
+  return {title:'Interquartile range of grades',prompt:`<p>Grades of 100 students (6 = best):</p>${table(['Grade','Students'],gr.map((g,i)=>[fx(g,1),N[i]]).filter((r,i)=>N[i]>0))}<p>Determine Q1, Q3 and the interquartile range, the way Example 4.3 does.</p>`,
+    fields:[keepTraps({label:'Q1',value:q1,tol:{abs:0.001},traps:[{value:prev(25),msg:'That grade’s cumulative share is still below 25%. Q1 is the first grade whose cumulative share reaches 25%.'}]}),keepTraps({label:'Q3',value:q3,tol:{abs:0.001},traps:[{value:prev(75),msg:'That grade’s cumulative share is still below 75%. Take the first grade that reaches it.'}]}),keepTraps({label:'IQR',value:q3-q1,tol:{abs:0.001},traps:[{value:Math.max(...vals)-Math.min(...vals),msg:'That is the range (max − min). The IQR is Q3 − Q1.'}]})],
+    steps:[`Cumulative shares:${table(['Grade','Students','Cumulative'],gr.map((g,i)=>[fx(g,1),N[i],cum[i]+'%']).filter((r,i)=>N[i]>0))}`,`Q1: first grade where the cumulative share reaches 25% → <b>${fx(q1,1)}</b>. Q3: first to reach 75% → <b>${fx(q3,1)}</b>.`,`<div class="eq">IQR = ${fx(q3,1)} − ${fx(q1,1)} = ${fx(q3-q1,1)}</div>`,'With raw data you could also use 1-Var Stats (Q1, Q3) or Excel PERCENTILE.EXC. For grouped classes, interpolate instead.'],
+    keys:seq('grades in L1, counts in L2',A,M('1-Var Stats L1,L2'),A,'read',M('Q1'),M('Q3'))};
+});
+
+def('fence','disp','Boxplot outlier rule','Which values lie beyond 1.5 × IQR?',()=>{
+  const q1=ri(12,22), q3=q1+ri(4,10), iqr=q3-q1, lo=q1-1.5*iqr, hi=q3+1.5*iqr;
+  const cands=shuffle([rnd(lo-ri(1,6),0),rnd(lo+ri(1,3),0),rnd(hi+ri(1,8),0),rnd(hi-ri(1,3),0),rnd(hi+ri(9,20),0),q3+1]).slice(0,5).filter(v=>v>0&&v!==lo&&v!==hi);
+  const outN=cands.filter(v=>v<lo||v>hi).length;
+  return {title:'Spot the outliers',prompt:`<p>Delivery times (minutes) have Q1 = <b class="mono">${q1}</b> and Q3 = <b class="mono">${q3}</b>. These values are in the data set:</p><p class="mono" style="font-size:17px">${cands.join(', ')}</p><p>Using the boxplot rule, compute the lower and upper fence, and count how many of the listed values are outliers.</p>`,
+    fields:[{label:'Lower fence',value:lo,tol:{abs:0.01}},keepTraps({label:'Upper fence',value:hi,tol:{abs:0.01},traps:[{value:q3+iqr,msg:'Use 1.5 × IQR, not 1 × IQR.'},{value:q3+1.5*q3,msg:'Multiply the IQR (Q3 − Q1) by 1.5, not Q3 itself.'}]}),{label:'Number of outliers',value:outN,tol:{abs:0.001}}],
+    steps:[`<div class="eq">IQR = ${q3} − ${q1} = ${iqr}</div>`,`<div class="eq">lower fence = Q1 − 1.5·IQR = ${q1} − ${fmt(1.5*iqr)} = ${fmt(lo)}</div><div class="eq">upper fence = Q3 + 1.5·IQR = ${q3} + ${fmt(1.5*iqr)} = ${fmt(hi)}</div>`,`Outside the fences: ${cands.filter(v=>v<lo||v>hi).join(', ')||'none'} → <b>${outN}</b>. In a boxplot, these are drawn as separate dots and the whiskers stop at the last value inside.`]};
 });
 
 /* ---------- week 5 ---------- */
@@ -609,6 +686,18 @@ def('real','idx','Real return','Deflate a nominal return with the CPI',()=>{
     keys:seq('factors in L1',A,M(`prod(L1)/(${c1}/${c0})−1`),'with prod( in',K('2nd','k2'),K('STAT'),A,M('MATH'),A,M('6:prod('))};
 });
 
+
+const CPI39={1950:160.8,1960:184.7,1970:262.7,1980:422.4,1990:592.0,2000:704.5,2010:764.9,2018:755.7};
+def('power','idx','Purchasing power','Move money between years with the CPI (Ex. 5.2–5.3)',()=>{
+  const ys=Object.keys(CPI39).map(Number); let a,b; do{a=pick(ys);b=pick(ys);}while(a>=b);
+  const fwd=Math.random()<0.5, amt=fwd?pick([500,1000,2000,5000]):pick([4000,5500,7000,8500]);
+  const val=fwd?amt*CPI39[b]/CPI39[a]:amt*CPI39[a]/CPI39[b];
+  const q=fwd?`CHF ${fmt(amt,0)} in <b>${a}</b> had the purchasing power of how many CHF in <b>${b}</b>?`:`A salary of CHF ${fmt(amt,0)} in <b>${b}</b> has the same purchasing power as how many CHF in <b>${a}</b>?`;
+  return {title:'What is the money worth?',prompt:`<p>Swiss CPI, base 1939 = 100 (December values, BfS):</p>${table(['Year','CPI'],[[a,fx(CPI39[a],1)],[b,fx(CPI39[b],1)]])}<p>${q} Round to whole francs.</p>`,
+    fields:[keepTraps({label:'Amount',value:val,unit:'CHF',tol:{abs:1.01,rel:0.001},traps:[{value:fwd?amt*CPI39[a]/CPI39[b]:amt*CPI39[b]/CPI39[a],msg:'The ratio is upside down. Multiply by CPI of the year you are converting <i>to</i>, divided by CPI of the year you start from.'}]})],
+    steps:[fwd?`Prices rose by the factor ${fx(CPI39[b],1)} / ${fx(CPI39[a],1)} = ${fx(CPI39[b]/CPI39[a],4)}.<div class="eq">${fmt(amt,0)} · ${fx(CPI39[b],1)} / ${fx(CPI39[a],1)} = ${fmt(val,0)}</div>`:`Go back in time: divide by the price factor.<div class="eq">${fmt(amt,0)} · ${fx(CPI39[a],1)} / ${fx(CPI39[b],1)} = ${fmt(val,0)}</div>`,'Sanity check: money in the later year must be a bigger number to buy the same things (prices rose), unless prices fell between the two years, as in 2010–2018.']};
+});
+
 /* ---------- week 6 ---------- */
 def('corr','corr','Covariance and correlation','Small data set, sample formulas (n − 1)',()=>{
   let x,y,n=5;
@@ -664,7 +753,7 @@ def('triage','tool','Which tool?','Recognize the method before computing',()=>{
 /* =====================================================================
    state & sync
    ===================================================================== */
-const DEFAULTS={stats:{},misses:[],answered:0};
+const DEFAULTS={stats:{},misses:[],answered:0,read:{}};
 function loadLocal(){try{return JSON.parse(localStorage.getItem('outlier-progress')||'{}');}catch(e){return {};}}
 function saveLocal(){try{localStorage.setItem('outlier-progress',JSON.stringify(S));}catch(e){}}
 let S=Object.assign({},DEFAULTS,loadLocal());
@@ -690,7 +779,7 @@ async function initSync(){
       else await dbRef.set(JSON.parse(JSON.stringify(S)));
     }else await dbRef.set(JSON.parse(JSON.stringify(S)));
     dbOn=true;setSync('synced','Synced across devices');
-    if(current.view!=='drill'&&current.view!=='topic')render();
+    if(current.view!=='drill'&&current.view!=='topic'&&current.view!=='learn')render();
     renderNav();
   }catch(e){dbRef=null;setSync('local','Saved on this device only');}
 }
@@ -715,7 +804,7 @@ function weightedPick(ids){
 /* =====================================================================
    drill engine
    ===================================================================== */
-const current={view:'drill',topic:'loc',gen:null,q:null,genId:null,answered:false,session:[],sessionSize:10,lastId:null};
+const current={view:'learn',topic:'loc',gen:null,q:null,genId:null,answered:false,session:[],sessionSize:10,lastId:null};
 function newQuestion(){
   let id;
   if(current.view==='drill'){
@@ -802,18 +891,19 @@ function next(){
    views
    ===================================================================== */
 const VIEWS=[
-  ['drill','Mixed drill','nav-practice'],['topic','By topic','nav-practice'],
+  ['learn','Theory','nav-learn'],['drill','Mixed drill','nav-practice'],['topic','By topic','nav-practice'],
   ['traps','Traps','nav-ref'],['calc','Calculator','nav-ref'],['formulas','Formula sheet','nav-ref'],
   ['map','Course map','nav-you'],['log','Mistake log','nav-you']
 ];
 function acc(ids){let n=0,ok=0;ids.forEach(id=>{const s=S.stats[id];if(s){n+=s.n;ok+=s.ok;}});return {n,ok,p:n?ok/n:null};}
 function renderNav(){
-  const groups={'nav-practice':'','nav-ref':'','nav-you':''};
+  const groups={'nav-learn':'','nav-practice':'','nav-ref':'','nav-you':''};
   VIEWS.forEach(([id,name,g])=>{
     let meta='';
     if(id==='drill')meta=S.answered?`${S.answered} done`:'';
     if(id==='log')meta=S.misses.length?String(S.misses.length):'';
-    if(id==='traps')meta='16';
+    if(id==='traps')meta=String(TRAPS.length);
+    if(id==='learn')meta=`${LEARN.filter(l=>(S.read||{})[l.id]).length}/${LEARN.length} read`;
     groups[g]+=`<button data-view="${id}" ${current.view===id?'aria-current="page"':''}><span>${name}</span><span class="nav-meta">${meta}</span></button>`;
   });
   Object.entries(groups).forEach(([k,v])=>{$('#'+k).innerHTML=v;});
@@ -823,7 +913,7 @@ function renderNav(){
 }
 function go(v){current.view=v;if(v==='drill'){current.session=[];current.q=null;}if(v==='topic'){current.q=null;}try{history.replaceState(null,'','#'+v);}catch(e){}render();window.scrollTo(0,0);}
 function head(eyebrow,title,right=''){return `<div class="view-head"><div><div class="eyebrow">${eyebrow}</div><h1 class="view-title">${title}</h1></div>${right}</div>`;}
-function render(){renderNav();({drill:vDrill,topic:vTopic,traps:vTraps,calc:vCalc,formulas:vFormulas,map:vMap,log:vLog}[current.view]||vDrill)();}
+function render(){renderNav();({learn:vLearn,drill:vDrill,topic:vTopic,traps:vTraps,calc:vCalc,formulas:vFormulas,map:vMap,log:vLog}[current.view]||vDrill)();}
 
 function renderPips(){
   const el=$('#pips'); if(!el)return;
@@ -832,7 +922,7 @@ function renderPips(){
   $('#score').textContent=s.length?`${s.filter(Boolean).length} of ${s.length} correct`:'';
 }
 function vDrill(){
-  $('#view').innerHTML=head('Practice','Mixed drill')+`<p class="lede">Every question type from weeks 2–6, with fresh numbers each time. Types you miss come back more often. Types you get right three times in a row fade out.</p><div class="session"><span>Set of ${current.sessionSize}</span><span class="pips" id="pips"></span><span id="score"></span></div><div id="drill-body"></div>`;
+  $('#view').innerHTML=head('Practice','Mixed drill')+`<p class="lede">Every question type from weeks 2–6, with fresh numbers each time. Stuck on a topic? Read its chapter under Theory first. Types you miss come back more often. Types you get right three times in a row fade out.</p><div class="session"><span>Set of ${current.sessionSize}</span><span class="pips" id="pips"></span><span id="score"></span></div><div id="drill-body"></div>`;
   if(!current.q)newQuestion();
   renderDrillBody();
 }
@@ -874,8 +964,10 @@ const TRAPS=[
   ['1-Var Stats can’t do grouped data','The calculator’s Med only works on raw data (with or without a frequency list). For classes you interpolate by hand. The slides say "Careful" about exactly this.','ok','Week 3 slides'],
   ['Rounded percentages give slightly different answers','The notes get 44 780 with rounded shares and 44 784 unrounded. Both count. What matters is that the method is visible.','ok','Notes 3.3–3.4'],
   ['Grouped mean uses class midpoints','Weight midpoints by frequencies. An open class ("200 000 and more") has no midpoint, so you need an assumed class average. Lucerne uses 500 000.','ok','Notes 3.2, Example 3.2'],
-  ['Variance: n or n − 1? The materials do both','The week 4 grades example uses VAR.P / STDEV.P (÷ n). The week 4 Ex. 2 solution calls STDEV.S (÷ n − 1) the "empirical standard deviation". Grouped data (Ex. 3) divides by N. Week 6 uses n − 1 for variance and covariance. Until the Chapter 4 notes say otherwise: "empirical" or "sample" means n − 1, and a whole population or frequency table means n. On the TI-84, Sx is n − 1 and σx is n.','warn','week04_examples.xlsx, week04_exercises.xlsx, week06_examples.xlsx. Check again when the Chapter 4 notes arrive'],
-  ['Quartiles of raw data depend on the method','The week 4 solution uses PERCENTILE.EXC for the IQR. The TI-84’s Q1/Q3 uses the median-of-halves method, which can give different numbers. Grouped data is unambiguous (interpolate). For raw data, check which method the Chapter 4 notes use.','warn','week04_examples.xlsx, sheet Solution'],
+  ['Variance: σ (÷ n) or s (÷ n − 1)','σ² divides by n and is for a complete population (complete survey, e.g. every taxpayer in a city). The empirical/sample s² divides by n − 1 and is for samples. If the question says "empirical", use s. Excel: VAR.P/STDEV.P vs VAR.S/STDEV.S. TI-84: σx vs Sx; stdDev( and variance( are both n − 1. For large n the difference is negligible.','ok','Notes 4.3, Definitions 4.3 and 4.4, Exercise 3a'],
+  ['With frequencies, n is the total count','Five stores that sold 1 000 units give n = 1 000, so s divides by 999, not 4. On the calculator, L2 must hold absolute frequencies, because it sets n = sum of L2. Relative weights make s unusable.','ok','Notes 4.3, Example 4.5 and the calculator box'],
+  ['Quartiles: three situations, three methods','Grouped classes: interpolate (Chapter 3 formula). A frequency table of individual values (grades): the first value whose cumulative share reaches 25% / 75% (Example 4.3). Raw data: Excel PERCENTILE.EXC or 1-Var Stats Q1/Q3, which can differ slightly. Never use 1-Var Stats quartiles on grouped data.','ok','Notes 4.2 and the calculator box; week 4 slides'],
+  ['Boxplot outliers: 1.5 × IQR beyond the box','Fences at Q1 − 1.5·IQR and Q3 + 1.5·IQR. Values outside are drawn as dots, and the whiskers stop at the last value inside. If IQR = 0, the rule flags everything that isn’t at the center.','ok','Notes 4.2; week 4 slides'],
   ['Mean only for metric data','Adding up nominal or ordinal codes is meaningless, so you can’t average "satisfied / medium / dissatisfied". Use the median for ordinal data and frequencies for nominal data.','ok','Notes 3.2'],
   ['Percentage changes need a ratio scale','20 °C is not "twice as warm" as 10 °C, because the zero point is arbitrary. Percent changes only make sense on ratio scales.','ok','Notes 2.2'],
   ['Adding a constant vs multiplying','+c: mean + c, SD unchanged, CV falls. ×k: mean and SD both × k, CV unchanged.','ok','week04_exercises.xlsx, Ex. 3b and 3c'],
@@ -883,11 +975,12 @@ const TRAPS=[
   ['Laspeyres freezes base-period quantities','L = Σ p<sub>t</sub>q₀ / Σ p₀q₀ · 100, or the base-value-weighted average of simple indices. The course materials don’t use Paasche anywhere.','ok','week05_examples.xlsx, Laspeyres sheet'],
   ['Rebasing divides, chaining multiplies','Change of base: I / I(new base year) · 100. Chaining: scale one series by the ratio of the two series in the overlap month. Never add or subtract to line indices up.','ok','week05_examples.xlsx, Change of Base and Chaining'],
   ['Real return: divide factors, don’t subtract rates','Real = (1 + nominal) / (1 + inflation) − 1. Multi-period: multiply the interest factors first. Subtracting rates is only an approximation.','ok','week05_solutions.xlsx, Ex. 4'],
-  ['Two ways to split an annual rate','Week 5 Ex. 4 turns an annual deposit rate into a quarterly one as i / 4 (simple). The CAPM group exercise uses (1 + i)<sup>1/12</sup> − 1 (compound). Use whichever the question gives you.','warn','week05_solutions.xlsx vs group_exercises.pdf'],
-  ['Correlation is not causation, and only linear','Storks and babies correlate. r = 0 means no <i>linear</i> relationship, not no relationship. r has no unit, while covariance changes with units.','ok','week06_examples.xlsx, Storks and Babies, Spurious Correlation']
+  ['Two ways to split an annual rate','Chapter 5 Ex. 4 compounds a 3-month deposit as FV = PV·(1 + r/4) (simple split). The CAPM group exercise uses (1 + i)<sup>1/12</sup> − 1 (compound split). Use whichever the question gives you.','warn','Notes 5.7, Solution 4 vs group_exercises.pdf'],
+  ['Correlation is not causation, and only linear','Storks and babies correlate. r = 0 means no <i>linear</i> relationship, not no relationship. r has no unit, while covariance changes with units.','ok','week06_examples.xlsx, Storks and Babies, Spurious Correlation'],
+  ['Laspeyres from weights: value shares of the base period','When you compute Laspeyres as a weighted average of simple indices, the weights are N·p₀ / Σ N·p₀ (value shares in month 0), not the quantities and not the current values.','ok','Notes 5.3, Example 5.3 and Exercise 6c']
 ];
 function vTraps(){
-  $('#view').innerHTML=head('Reference','Traps')+`<div class="callout">Each rule here was taken from this course’s notes, slides or solution spreadsheets. A generic statistics site can’t give you these, and using the "wrong" correct method changes the number. <b>Amber</b> means the materials are inconsistent or silent, so check it when the next notes arrive.</div>
+  $('#view').innerHTML=head('Reference','Traps')+`<div class="callout">Each rule here was taken from this course’s notes (Chapters 1–5), slides or solution spreadsheets. A generic statistics site can’t give you these, and using the "wrong" correct method changes the number. <b>Amber</b> means the materials are inconsistent or silent, so check it when the next notes arrive.</div>
   <div class="stack">${TRAPS.map(([t,b,s,src])=>`<article class="trap"><div class="trap-head"><h3>${t}</h3><span class="status ${s}">${s==='ok'?'Confirmed in materials':'Unclear: check'}</span></div><p>${b}</p><div class="src">Source: ${src}</div></article>`).join('')}</div>`;
 }
 
@@ -904,7 +997,7 @@ function vCalc(){
   ${R('Mean',seq(K('2nd','k2'),K('STAT'),A,M('MATH'),A,M('3:mean('),K('2nd','k2'),K('1'),K(')')),'Weighted: values in L1, frequencies in L2, then '+M('mean(L1,L2)')+'.')}
   ${R('Median',seq(K('2nd','k2'),K('STAT'),A,M('MATH'),A,M('4:median('),M('L1,L2')),'Raw data only. For grouped data, interpolate by hand.')}
   ${R('Everything at once: 1-Var Stats',seq(K('STAT'),A,M('CALC'),A,M('1:1-Var Stats'),A,'List: L1, FreqList: L2',A,M('Calculate')),'Shows x̄, Σx, Σx², <b>Sx (÷ n − 1)</b>, <b>σx (÷ n)</b>, n, minX, Q1, Med, Q3, maxX. Pick the right SD for the question.')}
-  ${R('Variance',seq('run 1-Var Stats, then',K('VARS'),A,M('5:Statistics…'),A,M('Sx'),'or',M('σx'),A,K('x²')),'Or type '+M('stdDev(L1)²')+' from LIST → MATH (this is Sx, ÷ n − 1).')}
+  ${R('Empirical s and s² directly',seq(K('2nd','k2'),K('STAT'),A,M('MATH'),A,M('7:stdDev('),'or',M('8:variance('),A,M('L1,L2)')),'Both divide by n − 1 (Excel STDEV.S / VAR.S). L2 must hold <b>absolute</b> frequencies: the calculator sets n = sum of L2. For σ² square σx from 1-Var Stats.')}
   </div></div>
   <div class="ref-sec"><h2>Two variables</h2><div class="grid2">
   ${R('Turn on r (once)',seq(K('2nd','k2'),K('0'),'(CATALOG)',A,M('DiagnosticOn'),K('ENTER'),K('ENTER')),'The setting survives turning the calculator off.')}
@@ -940,11 +1033,11 @@ function vFormulas(){
 }
 
 const WEEKS=[
-  [1,'Excel for data analysis','Reference only: SUM, XLOOKUP, IF, pivots',null],
+  [1,'Excel for data analysis','$ references, SUMPRODUCT, pivots',null],
   [2,'Basics & terminology','Scales, frequency tables, charts, Σ','basics'],
   [3,'Measures of location','Mean, weighted mean, median, quantiles','loc'],
-  [4,'Measures of dispersion','Range, variance, SD, CV, IQR','disp'],
-  [5,'Indices','Simple, Laspeyres, rebasing, chaining','idx'],
+  [4,'Measures of dispersion','Range, IQR, boxplot, σ vs s, CV','disp'],
+  [5,'Indices','Simple, Laspeyres, rebasing, chaining, purchasing power','idx'],
   [6,'Correlation','Covariance, r, spurious correlation','corr'],
   [7,'Break / midterm','Not graded. Take a full mixed set as a checkpoint','mid'],
   [8,'Linear regression','Coming when the notes arrive',null],
@@ -961,8 +1054,10 @@ function vMap(){
   $('#view').innerHTML=head('You','Course map')+`<div class="summary"><div class="tile"><div class="v">${all.n}</div><div class="l">questions answered</div></div><div class="tile"><div class="v">${all.p===null?'—':Math.round(all.p*100)+'%'}</div><div class="l">overall accuracy</div></div><div class="tile"><div class="v">${tried}/${Object.keys(G).length}</div><div class="l">question types tried</div></div><div class="tile"><div class="v">${mastered}</div><div class="l">types on a 3+ streak</div></div></div>
   <div class="weeks">${WEEKS.map(([n,t,s,topic])=>{
     const live=topic&&topic!=='mid'; const a=live?acc(Object.keys(G).filter(id=>G[id].topic===topic)):null;
-    return `<div class="wk ${topic?'':'locked'}"><span class="wk-n">WEEK ${String(n).padStart(2,'0')}</span><span class="wk-t">${t}</span><span class="wk-s">${s}</span>${live?meterHTML(a)+`<button class="btn btn-ghost" style="padding:6px 10px;font-size:12.5px;align-self:flex-start" data-drill="${topic}">Drill this week</button>`:''}</div>`;}).join('')}</div>`;
+    const ch=LEARN.find(l=>l.week===n);
+    return `<div class="wk ${topic||ch?'':'locked'}"><span class="wk-n">WEEK ${String(n).padStart(2,'0')}${ch&&(S.read||{})[ch.id]?' · READ ✓':''}</span><span class="wk-t">${t}</span><span class="wk-s">${s}</span>${live?meterHTML(a):''}<span class="actions" style="margin-top:4px;gap:6px">${ch?`<button class="btn btn-ghost" style="padding:6px 10px;font-size:12.5px" data-read="${ch.id}">Theory</button>`:''}${live?`<button class="btn btn-ghost" style="padding:6px 10px;font-size:12.5px" data-drill="${topic}">Drill</button>`:''}</span></div>`;}).join('')}</div>`;
   document.querySelectorAll('[data-drill]').forEach(b=>b.onclick=()=>{current.topic=b.dataset.drill;current.gen=null;current.q=null;go('topic');});
+  document.querySelectorAll('[data-read]').forEach(b=>b.onclick=()=>{current.ch=b.dataset.read;go('learn');});
 }
 function vLog(){
   const rows=S.misses;
@@ -972,10 +1067,435 @@ function vLog(){
   const c=$('#clear-log'); if(c)c.onclick=()=>{if(c.dataset.sure){S.misses=[];save();vLog();renderNav();}else{c.dataset.sure='1';c.textContent='Click again to clear';}};
 }
 
+/* =====================================================================
+   LEARN: theory chapters, interactive figures, self-checks
+   ===================================================================== */
+const ex=(label,body)=>`<div class="example"><div class="lbl">${label}</div><div class="body">${body}</div></div>`;
+const idea=t=>`<div class="idea"><span class="idea-k">The one idea</span>${t}</div>`;
+const note=t=>`<div class="note">${t}</div>`;
+const W=id=>`<div class="widget" data-w="${id}"></div>`;
+
+const LEARN=[
+{id:'ch1',week:1,topic:null,title:'Excel for data analysis',mins:8,
+ idea:'Excel is your lab notebook for the whole semester. You only need a handful of moves, and the most important one is the <b>$ sign</b>.',
+ body:`
+<h2 id="ch1-cells">Values and formulas</h2>
+<p>Every cell holds either a <b>value</b> (text, a date, a number) or a <b>formula</b>, which always starts with <code class="x">=</code>. Columns are letters and rows are numbers, so the top-left cell is <code class="x">A1</code>.</p>
+<h2 id="ch1-refs">Relative and absolute references</h2>
+<p>This is the one Excel idea you can’t skip, because every solution spreadsheet in this course depends on it.</p>
+<ul>
+<li><code class="x">A1</code> is <b>relative</b>. Copy the formula one row down and it becomes <code class="x">A2</code>.</li>
+<li><code class="x">$A$1</code> is <b>absolute</b>. It stays <code class="x">A1</code> wherever you copy it.</li>
+<li><code class="x">A$1</code> locks only the row, and <code class="x">$A1</code> locks only the column.</li>
+</ul>
+${ex('From the week 5 solution sheet',`<p>To index a GDP series to its first year, cell D5 holds <code class="x">=C5/$C$5*100</code>. Drag it down and D6 becomes <code class="x">=C6/$C$5*100</code>: the numerator moves with you and the base stays fixed. That is exactly what an index is.</p>`)}
+<h2 id="ch1-fill">Filling and random numbers</h2>
+<p>Drag the small square at the bottom right of a cell (the fill handle), or select a range and press <b>Ctrl+D</b> (German Excel: Ctrl+U) to fill down. <code class="x">=RAND()</code> (German: <code class="x">ZUFALLSZAHL()</code>) gives a random number between 0 and 1. It changes every time the sheet recalculates (F9). To freeze the numbers, copy them and paste them as values. You will need this in week 12 (simulation).</p>
+<h2 id="ch1-fns">The functions you will actually use</h2>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Job</th><th>English</th><th>German</th></tr></thead><tbody>
+<tr><td>Add up</td><td class="f">SUM</td><td class="f">SUMME</td></tr>
+<tr><td>Multiply row by row, then add</td><td class="f">SUMPRODUCT</td><td class="f">SUMMENPRODUKT</td></tr>
+<tr><td>Look up a value in a table</td><td class="f">XLOOKUP / VLOOKUP</td><td class="f">XVERWEIS / SVERWEIS</td></tr>
+<tr><td>If–then</td><td class="f">IF</td><td class="f">WENN</td></tr>
+<tr><td>Count matching cells</td><td class="f">COUNTIF</td><td class="f">ZÄHLENWENN</td></tr>
+</tbody></table></div>
+<p><b>SUMPRODUCT</b> is the workhorse. A weighted mean is <code class="x">=SUMPRODUCT(values, weights)/SUM(weights)</code>, and the same pattern shows up again for variance, Laspeyres and covariance.</p>
+<h2 id="ch1-pivot">Pivot tables and Solver</h2>
+<p>A <b>pivot table</b> summarizes a long list without formulas: drag "Canton" to Columns, "Revenue" to Values and "Date" to Rows, and you get revenue per canton per month. It never changes the original data. <b>Solver</b> searches for the input value that makes a formula hit a target. Both are covered in the week 1 video. Know what they do; you won’t need to do them by hand in a written exam.</p>`,
+ gloss:[['Formula','Formel','A cell entry starting with =, calculated by Excel.'],['Absolute reference','Absoluter Bezug','A reference with $ that does not move when copied.'],['Pivot table','Pivot-Tabelle','A summary table built by dragging fields, without formulas.']],
+ check:[['In D5 you type <code class="x">=C5/$C$5*100</code> and drag it down to D6. What does D6 contain?',['=C6/$C$5*100','=C6/$C$6*100','=C5/$C$5*100','=D6/$C$5*100'],0,'The relative part (C5) moves down one row. The absolute part ($C$5) stays.']]},
+
+{id:'ch2',week:2,topic:'basics',title:'Basics and terminology',mins:15,
+ idea:'Before you calculate anything, ask <b>what kind of data</b> you have. The scale of the data decides which calculations are even allowed.',
+ body:`
+<h2 id="ch2-words">The vocabulary</h2>
+<p>Lectures move fast through these words, and everything later is built on them.</p>
+<ul>
+<li><b>Statistics</b> is the science of collecting, preparing, analyzing and interpreting numerical data. <b>A statistic</b> is one result of that, such as a table, a chart or a number like the average.</li>
+<li>The <b>population</b> is the set of all elements you care about: all residents of Switzerland, all stock market crashes since 1900.</li>
+<li>An <b>attribute</b> (also called a variable or characteristic) is what you measure on each element, for example body height or gender. Each element has a <b>value</b> of that attribute.</li>
+<li>The <b>frequency distribution</b> says how often each value occurs. <b>Absolute frequency</b> N<sub>i</sub> is a count. <b>Relative frequency</b> w<sub>i</sub> = N<sub>i</sub> / N is a share of the total.</li>
+</ul>
+${ex('Example 2.1',`<p>Fall 2017, HSLU had N = 5 611 students, of which N<sub>2</sub> = 1 768 were in Business. Relative frequency: w<sub>2</sub> = 1 768 / 5 611 = 31.51%.</p>`)}
+<h2 id="ch2-scales">The four scales</h2>
+<p>Run through these three questions in order. Where you stop is the scale.</p>
+<ol class="ladder">
+<li><span class="lq">Can the values be put in a meaningful order?</span><span class="la">No → <b>nominal</b>. Car color, marital status, gender. Numbers used as codes (1 = single, 2 = married) are just labels.</span></li>
+<li><span class="lq">Are the distances between values meaningful?</span><span class="la">No → <b>ordinal</b>. Customer satisfaction, school level, price category. "Good" is better than "satisfactory", but by how much is undefined.</span></li>
+<li><span class="lq">Is there a natural zero, so that "twice as much" makes sense?</span><span class="la">No → <b>interval</b>. Temperature in °C, calendar years. 60 °C is not twice as hot as 30 °C (in °F it’s 140 vs 86).<br>Yes → <b>ratio</b>. Income, age, number of employees. CHF 2 million really is twice CHF 1 million.</span></li>
+</ol>
+<p>The scales form a <b>hierarchy</b>: nominal &lt; ordinal &lt; interval &lt; ratio. A method that works on one level also works on every higher level, never on a lower one. When you combine attributes, the lowest scale involved decides.</p>
+${note('<b>Why you care:</b> the mean is only meaningful for interval and ratio data, and percentage changes only for ratio data. Getting the scale wrong means using a forbidden method.')}
+<h2 id="ch2-more">Metric, discrete, continuous</h2>
+<p><b>Metric</b> (= quantitative) means interval or ratio: measured in a unit. <b>Non-metric</b> (= qualitative) means nominal or ordinal. Metric attributes are either <b>discrete</b> (only specific values, like the number of children: 1.5 children makes no sense) or <b>continuous</b> (any value on a scale, like weight, distance or time).</p>
+<h2 id="ch2-tables">Tables</h2>
+<p>A <b>frequency table</b> lists each value with its absolute and/or relative frequency, plus a total and a source. Continuous data is grouped into classes written as <b>"from … to under …"</b>, for example "20 000 to under 50 000". A <b>contingency table</b> (cross-tab) shows two attributes at once.</p>
+<p>Official statistics use three symbols you may see in a table: <b>.</b> means the number can’t exist (conceptually impossible), <b>–</b> means zero, and <b>0</b> means more than nothing but less than half the counting unit.</p>
+<h2 id="ch2-charts">Which chart for what</h2>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Chart</th><th>Use it for</th><th>Watch out</th></tr></thead><tbody>
+<tr><td>Clustered column</td><td>Comparing components side by side</td><td>Total not visible; messy with many components</td></tr>
+<tr><td>Stacked column</td><td>Proportions within each total</td><td>Only the bottom segment’s changes are easy to read</td></tr>
+<tr><td>Bar (horizontal)</td><td>Long category labels</td><td>Start the axis at 0, or differences look bigger than they are</td></tr>
+<tr><td>Pie</td><td>How a whole splits into parts</td><td>Relative frequencies only</td></tr>
+<tr><td>Line</td><td>Time series</td><td>The y-scale can exaggerate; use a log scale for relative changes</td></tr>
+</tbody></table></div>
+<p>3D effects are discouraged because they make values harder to read.</p>
+<h2 id="ch2-sigma">The summation sign Σ</h2>
+<p>Σ<sub>i=m</sub><sup>n</sup> x<sub>i</sub> means: start with i = m, add x<sub>i</sub>, increase i by 1, and stop after i = n. That’s all. Two rules cover nearly everything:</p>
+<div class="eq">Σ c·x<sub>i</sub> = c · Σ x<sub>i</sub>   (constants come out of the sum)</div>
+<div class="eq">Σ (x<sub>i</sub> − a)² = Σ x<sub>i</sub>² − 2a Σ x<sub>i</sub> + n·a²</div>
+${ex('Exercise 2.1 (x = 3, 5, 9, 13 and w = 0.1, 0.4, 0.3, 0.2)',`<p>Σ x<sub>i</sub> = 30. Σ x<sub>i</sub>/4 = 7.5. Σ (x<sub>i</sub> − 2)² = 1 + 9 + 49 + 121 = 180. Σ w<sub>i</sub>x<sub>i</sub> = 0.3 + 2.0 + 2.7 + 2.6 = 7.6. Since the weights sum to 1, the last one is already a weighted mean.</p>`)}`,
+ gloss:[['Population','Grundgesamtheit','All elements you want to describe.'],['Attribute / variable','Merkmal','What you measure on each element.'],['Value','Merkmalsausprägung','The specific result for one element.'],['Absolute frequency','Absolute Häufigkeit','A count, N<sub>i</sub>.'],['Relative frequency','Relative Häufigkeit','A share, N<sub>i</sub> / N.'],['Nominal / ordinal scale','Nominal- / Ordinalskala','No order / order without distances.'],['Interval / ratio scale','Intervall- / Verhältnisskala','Distances meaningful; ratio also has a true zero.'],['Contingency table','Kontingenztafel','A table of two attributes at once.']],
+ check:[['Year of birth (e.g. 1990) is measured on which scale?',['Interval','Ratio','Ordinal','Nominal'],0,'Differences between years make sense, but year 0 is a convention, so "twice as late" is meaningless.'],
+  ['Which statement is true?',['You can compute a median for ordinal data.','You can compute a mean for ordinal data.','Percentage changes are fine for interval data.','Nominal data has a natural order.'],0,'Ordinal data can be sorted, so it has a middle value. It can’t be added up, so no mean.'],
+  ['Which chart is best for the monthly unemployment count over 10 years?',['Line chart','Pie chart','Stacked column chart','Bar chart'],0,'Development over time is a time series, which belongs in a line chart.']]},
+
+{id:'ch3',week:3,topic:'loc',title:'Measures of location',mins:20,
+ idea:'Summarize "where the data sits" in one number. The <b>mean</b> is the balance point, and the <b>median</b> is the person in the middle. When the two disagree, that disagreement itself tells you something.',
+ body:`
+<h2 id="ch3-mean">The arithmetic mean</h2>
+<p>Add all values and divide by how many there are:</p>
+<div class="eq">x̄ = (1/n) · Σ x<sub>i</sub></div>
+<p>Only for metric data. You can’t add "satisfied" and "dissatisfied".</p>
+${ex('Example 3.1',`<p>Five stores ask 6.60, 6.80, 6.20, 6.50 and 7.20 CHF. Average asking price: x̄ = 33.30 / 5 = <b>6.66</b>.</p>`)}
+<h2 id="ch3-wmean">The weighted mean: who is the observation?</h2>
+<p>This is the idea that trips people up. In the example above, each <b>store</b> counted once. But what if you ask what the average <b>customer</b> paid? Then each <b>unit sold</b> is an observation, and a store that sold 350 units must count 350 times.</p>
+<div class="eq">x̄ = Σ N<sub>i</sub>·x<sub>i</sub> / Σ N<sub>i</sub> = Σ w<sub>i</sub>·x<sub>i</sub></div>
+${ex('Example 3.1 continued',`<p>The stores sold 200, 150, 350, 220 and 80 units. The cheapest store (6.20) sold the most, so the average price paid drops:</p><div class="eq">(6.60·200 + 6.80·150 + 6.20·350 + 6.50·220 + 7.20·80) / 1 000 = 6.52</div><p>Same prices, different question, different answer. Always ask yourself what counts as one observation.</p>`)}
+<p><b>Grouped data:</b> when you only know classes ("20 000 to under 50 000"), use each class <b>midpoint</b> as its value. An open class ("200 000 and more") has no midpoint, so you need an assumption. The notes assume 500 000 and get an average Lucerne income of <b>CHF 62 762</b>.</p>
+<h2 id="ch3-median">The median</h2>
+<p><b>Sort</b> the data, then take the value in the middle: position (n + 1)/2. If n is even, that position falls between two values, so average them.</p>
+${ex('From the slides',`<p>1, 1, 2, 4, 5, 6, 6, 7 has n = 8, so position 4.5. Average the 4th and 5th values: (4 + 5)/2 = <b>4.5</b>.</p>`)}
+${ex('Example 3.3: median price paid',`<p>Sorted by price with units: 6.20 (350), 6.50 (220), 6.60 (200), 6.80 (150), 7.20 (80). There are 1 000 units, so the median is between the 500th and 501st. The first 350 paid 6.20; units 351 to 570 paid 6.50. Both the 500th and 501st paid <b>6.50</b>.</p>`)}
+<h2 id="ch3-outliers">Why have two measures?</h2>
+<p>The mean uses every value, so one extreme value drags it. The median only cares about position, so it doesn’t move. Try it:</p>
+${W('meanmed')}
+<p>The slides’ village example makes the same point: 199 people earn CHF 60 000 and one earns CHF 100 million. The mean is CHF 559 700, which describes nobody. The median is CHF 60 000.</p>
+<h2 id="ch3-grouped">Median of grouped data: interpolation</h2>
+<p>With classes you don’t know the individual values, so you can’t point at "the middle person". Instead you <b>assume the values are spread evenly within each class</b> and walk along the class until you reach 50%.</p>
+<ol>
+<li>Compute the cumulative relative frequencies.</li>
+<li>Find the <b>median class</b>: the first class where the cumulative share reaches 50%.</li>
+<li>Go into that class as far as you still need:</li>
+</ol>
+<div class="eq">median = lower bound + (50% − cumulative share before the class) / (share of the class) · class width</div>
+${ex('Example 3.4: Lucerne incomes',`<p>20% earn under 20 000, and 56.31% earn under 50 000. So the median is in "20 000 to under 50 000". You need 30 more percentage points out of the 36.31 that class contains:</p><div class="eq">20 000 + (50% − 20%) / 36.31% · 30 000 = 44 780</div><p>That’s also what Excel’s <code class="x">TREND</code> does: a straight line between the two class bounds.</p>`)}
+<p>Geometrically, you are reading a value off the cumulative curve. Move the slider:</p>
+${W('ogive')}
+<p>The calculator’s 1-Var Stats median only works for raw data. For classes, use the formula. The week 3 slides warn about exactly this.</p>
+<h2 id="ch3-quantiles">Quantiles</h2>
+<p>The median is the value not exceeded by 50% of observations. Replace 50% by any p and you get the <b>p-quantile</b>. Some have names: 25% = <b>1st quartile</b>, 75% = <b>3rd quartile</b>, 10% = <b>1st decile</b>, and percentiles go in 1% steps. For grouped data, use the same interpolation with p instead of 50%.</p>
+${ex('Example 3.5: Lucerne',`<p>1st quartile = 20 000 + (25 − 20)/36.32 · 30 000 = <b>24 130</b>. 3rd quartile = 50 000 + (75 − 56.31)/33.38 · 50 000 = <b>77 996</b>. 90% quantile = 100 000 + (90 − 89.69)/8.15 · 100 000 = <b>103 804</b>.</p>`)}
+<h2 id="ch3-skew">Skewness: reading mean vs median</h2>
+<ul>
+<li><b>Right-skewed</b>: mean &gt; median. A long tail of large values pulls the mean up. Incomes are the textbook case (Lucerne: mean 62 762, median 44 780).</li>
+<li><b>Left-skewed</b>: mean &lt; median.</li>
+<li><b>Symmetric</b>: mean = median.</li>
+</ul>
+<h2 id="ch3-which">Which measure when?</h2>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Data</th><th>Allowed</th></tr></thead><tbody>
+<tr><td>Nominal</td><td>Frequencies only (which value is most common)</td></tr>
+<tr><td>Ordinal</td><td>Median and quantiles</td></tr>
+<tr><td>Metric</td><td>Mean, median, quantiles. Prefer the median when there are outliers or strong skew.</td></tr>
+</tbody></table></div>`,
+ gloss:[['Arithmetic mean','Arithmetisches Mittel','Sum divided by count.'],['Weighted mean','Gewichtetes Mittel','Each value counted by its frequency.'],['Median','Median / Zentralwert','The middle value of sorted data.'],['Class midpoint','Klassenmitte','(lower + upper bound) / 2.'],['Cumulative frequency','Kumulierte Häufigkeit','Share of observations up to and including a value or class.'],['Quartile / decile','Quartil / Dezil','25% steps / 10% steps.'],['Right-skewed','Rechtsschief','Long tail to the right; mean > median.'],['Linear interpolation','Lineare Interpolation','Reading a value off a straight line between two known points.']],
+ check:[['A shop chain wants the average price its customers actually paid. Which do you use?',['Mean weighted by units sold','Plain mean of the store prices','Median of the store prices','The most common price'],0,'Each unit sold is one purchase, so it must count once. That is the weighted mean.'],
+  ['Mean income in a town is CHF 71 000, the median is CHF 52 000. The distribution is…',['right-skewed','left-skewed','symmetric','impossible to tell'],0,'Mean > median means a long right tail (a few very high incomes).'],
+  ['For grouped income data, the median class is "50 000 to under 80 000". The median is…',['interpolated inside that class','always 65 000, the midpoint','always 50 000, the lower bound','the value 1-Var Stats shows for the midpoints'],0,'Use lower bound + (50% − cum. before) / share · width. The midpoint is only right by coincidence.']]},
+
+{id:'ch4',week:4,topic:'disp',title:'Measures of dispersion',mins:20,
+ idea:'Two data sets can have the <b>same average</b> and tell completely different stories. Dispersion measures how far the values spread around the center, and in finance that spread is called <b>risk</b>.',
+ body:`
+<p>The notes open with a pill factory calibrated to 100 mg. If quality control only checks the average, half the pills could contain 50 mg and half 150 mg, and the average would still be perfect. Dispersion is what catches that.</p>
+<h2 id="ch4-four">Four classes, one average</h2>
+<p>Example 4.1 uses four classes of 100 students. All four have an average grade of 4.5, yet they look nothing alike. Click through them and watch the measures:</p>
+${W('grades')}
+<h2 id="ch4-range">Range</h2>
+<div class="eq">range = maximum − minimum</div>
+<p>Easy, but it only looks at the two extremes. Class B has range 5.0 only because of one student with a 1.0. Without that outlier, A and B look almost the same.</p>
+<h2 id="ch4-iqr">Interquartile range (IQR)</h2>
+<div class="eq">IQR = 3rd quartile − 1st quartile</div>
+<p>The spread of the <b>middle 50%</b>, so outliers don’t affect it. With a frequency table of individual values (like grades), read the quartiles off the cumulative shares: Q1 is the first value where the cumulative share reaches 25%, Q3 the first that reaches 75%.</p>
+${ex('Example 4.3: class A',`<p>Cumulative shares: grade 3.5 → 7%, grade 4.0 → 32%, grade 4.5 → 68%, grade 5.0 → 92%. Q1 = <b>4.0</b> (first to reach 25%) and Q3 = <b>5.0</b> (first to reach 75%), so IQR = 1.0. Class D has IQR = 0 because 55 of 100 students got exactly 4.5. The IQR simply can’t see its spread.</p>`)}
+<p>For raw data in Excel, use <code class="x">PERCENTILE.EXC</code> (German: <code class="x">QUANTIL.EXKL</code>). The calculator’s Q1 and Q3 are for raw data only, never for grouped data.</p>
+<h2 id="ch4-box">The boxplot</h2>
+<p>One picture showing median, IQR and range: the <b>box</b> runs from Q1 to Q3, the line inside is the median, and the <b>whiskers</b> reach to the min and max. Rule of thumb for outliers: a value more than <b>1.5 × IQR</b> beyond the box is drawn as a separate dot. You can see this for class B in the figure above.</p>
+<h2 id="ch4-var">Variance: averaging the deviations, properly</h2>
+<p>Natural idea: compute each value’s deviation from the mean, x<sub>i</sub> − x̄, and average them. Problem: they <b>always add up to zero</b>, because the positives and negatives cancel. That’s the definition of the mean as the balance point. Two ways out:</p>
+<ul>
+<li>Average the <b>absolute</b> deviations. For class A that gives 0.4. Intuitive, but awkward to compute with, so it’s rarely used.</li>
+<li>Average the <b>squared</b> deviations. That is the <b>variance</b>. Its square root brings you back to the original unit: the <b>standard deviation</b>.</li>
+</ul>
+<div class="eq">σ² = (1/n) · Σ (x<sub>i</sub> − x̄)²     σ = √σ²</div>
+${ex('Example 4.4: class A',`<p>Mean 4.5. Weighting each squared deviation by its frequency: Σ N<sub>i</sub>(x<sub>i</sub> − x̄)² = 28.5 over n = 100 students. σ² = 28.5/100 = <b>0.285</b>, σ = <b>0.534</b>.</p>`)}
+<p>Units: the variance has squared units (CHF²), and the standard deviation has the same unit as the data (CHF). That’s why people quote σ.</p>
+<h2 id="ch4-s">σ or s? The course’s rule</h2>
+<p>The formula above is only right if your data is the <b>whole population</b>. Usually you have a <b>sample</b>, and then dividing by n systematically underestimates the true spread. The fix is to divide by n − 1:</p>
+<div class="eq">s² = 1/(n − 1) · Σ (x<sub>i</sub> − x̄)²     s = √s²</div>
+<p>The notes call s the <b>empirical</b> (or sample) standard deviation.</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th></th><th>Population σ</th><th>Empirical / sample s</th></tr></thead><tbody>
+<tr><td>Divide by</td><td>n</td><td>n − 1</td></tr>
+<tr><td>Use when</td><td>Complete survey (e.g. every taxpayer in a city)</td><td>A sample, or the question says "empirical"</td></tr>
+<tr><td>Excel</td><td class="f">VAR.P · STDEV.P (DE: STABW.N)</td><td class="f">VAR.S · STDEV.S (DE: STABW.S)</td></tr>
+<tr><td>TI-84</td><td>σx in 1-Var Stats</td><td>Sx, stdDev(, variance(</td></tr>
+</tbody></table></div>
+${note('<b>With frequencies, n is the total count, not the number of rows.</b> Example 4.5: five stores but 1 000 units sold, so n − 1 = 999, and s = √(85.944/999) = 0.29. On the calculator, L2 must hold <b>absolute</b> frequencies, because it sets n = sum of L2. If you put relative weights there, n = 1 and s is nonsense.')}
+<p>For large n, σ and s are almost equal. For the Lucerne incomes (n = 37 573, a complete survey) the notes use σ = CHF 75 057.</p>
+<h2 id="ch4-cv">Coefficient of variation</h2>
+<div class="eq">v = σ / x̄</div>
+<p>The standard deviation grows with the level of the data. A CHF 0.29 spread is huge for a CHF 1 item and nothing for a CHF 1 000 item. Dividing by the mean removes the level and the unit, so you can compare anything.</p>
+${ex('Prices vs incomes',`<p>Prices: v = 0.29 / 6.52 = <b>4.45%</b>. Lucerne incomes: v = 75 057 / 62 762 = <b>119.59%</b>. Incomes are far more spread out, relative to their level.</p>`)}
+<h2 id="ch4-trans">Shifting and scaling (Exercise 3b–d)</h2>
+<ul>
+<li><b>Everyone gets + CHF 10 000:</b> the mean moves up by 10 000. Every value moves together, so the deviations don’t change and <b>σ stays the same</b>. The CV falls.</li>
+<li><b>Everyone gets + 10%:</b> the mean and σ are both multiplied by 1.1 (the variance by 1.1²). The <b>CV stays the same</b>.</li>
+</ul>`,
+ gloss:[['Dispersion / spread','Streuung','How far values scatter around the center.'],['Range','Spannweite','Max − min.'],['Interquartile range','Interquartilsabstand','Q3 − Q1.'],['Variance','Varianz','Average squared deviation from the mean.'],['Standard deviation','Standardabweichung','Square root of the variance.'],['Empirical / sample SD','Empirische Standardabweichung','Divides by n − 1.'],['Coefficient of variation','Variationskoeffizient','σ / x̄, no unit.'],['Outlier','Ausreisser','Value far from the rest; boxplot rule 1.5 × IQR.']],
+ check:[['You survey 40 customers about waiting times. Which standard deviation do you report?',['The empirical s (÷ n − 1)','The population σ (÷ n)','Either, they are identical','The variance'],0,'40 customers are a sample of all customers, so use s.'],
+  ['On the TI-84 you enter grades in L1 and relative frequencies (0.25, 0.40, …) in L2, then run stdDev(L1,L2). What happens?',['Nonsense: the calculator takes n = sum of L2 = 1','You get σ','You get s','You get the variance'],0,'L2 must contain absolute counts. The notes warn about exactly this.'],
+  ['Everyone’s income rises by CHF 5 000. The standard deviation…',['stays the same','rises by 5 000','rises by 5%','falls'],0,'Every value and the mean move by the same amount, so deviations are unchanged.']]},
+
+{id:'ch5',week:5,topic:'idx',title:'Indices',mins:18,
+ idea:'Rescale a series so that one moment equals <b>100</b>. After that, every number reads as "percent of then", and series with completely different units become comparable.',
+ body:`
+<h2 id="ch5-simple">The simple index</h2>
+<div class="eq">I<sub>t</sub> = X<sub>t</sub> / X<sub>0</sub> · B     (usually B = 100)</div>
+<p>X<sub>0</sub> is the value in the <b>reference period</b> (base year). Every other value is divided by it.</p>
+${ex('Example 5.1: Swiss real GDP',`<p>GDP was 447 604 (CHF million) in 1990 and 661 184 in 2016. With base 1990: I<sub>2016</sub> = 661 184 / 447 604 · 100 = <b>147.72</b>. You can read the growth straight off: +47.72% since 1990.</p>`)}
+<h2 id="ch5-pct">Percent changes from any index</h2>
+<p>The percent change between two periods is new / old − 1. It doesn’t matter which base the index uses, because the base cancels:</p>
+<div class="eq">623 737 / 617 231 − 1 = 139.35 / 137.90 − 1 = 123.64 / 122.35 − 1 = 1.05%</div>
+${note('<b>Points are not percent.</b> An index going from 102.50 to 128.75 rose by 26.25 <b>points</b> but by 128.75 / 102.50 − 1 = <b>25.61%</b>. Points and percent only match when you start from exactly 100.')}
+<p>Here is the same GDP series. Pick any year as the base: the numbers change, but the shape of the line and every ratio between years stays the same.</p>
+${W('rebase')}
+<h2 id="ch5-lasp">The Laspeyres price index</h2>
+<p>To track the price of many goods at once, fix a <b>basket</b>: the quantities N<sup>(i)</sup> people bought in the base period. Then each period, ask what that same basket costs at today’s prices.</p>
+<div class="eq">I<sub>t</sub> = Σ N<sup>(i)</sup>·p<sub>t</sub><sup>(i)</sup> / Σ N<sup>(i)</sup>·p<sub>0</sub><sup>(i)</sup> · 100</div>
+<p>Only the prices change; the quantities are frozen at the base. That’s what makes it Laspeyres. (A Paasche index would update the quantities, but this course doesn’t cover it.)</p>
+${ex('Example 5.2',`<p>Basket: 18 units of good 1, 340 m of good 2, 520 kg of good 3. Prices in month 0: 31, 11, 8.7. In month 2: 55, 20, 9.0.</p><div class="eq">I<sub>2</sub> = (18·55 + 340·20 + 520·9.0) / (18·31 + 340·11 + 520·8.7) · 100 = 141.4</div><p>The basket became 41.4% more expensive.</p>`)}
+<p><b>The same thing, seen differently:</b> the Laspeyres index is a <b>weighted average of the simple price indices</b>, where the weights are each good’s share of the basket’s value in the base period.</p>
+<div class="eq">I<sub>t</sub> = Σ w<sub>0</sub><sup>(i)</sup> · I<sub>t</sub><sup>(i)</sup>     with  w<sub>0</sub><sup>(i)</sup> = N<sup>(i)</sup>p<sub>0</sub><sup>(i)</sup> / Σ N p<sub>0</sub></div>
+${ex('Example 5.3',`<p>Base values: 558, 3 740, 4 524 (total 8 822), so the weights are 6.33%, 42.39% and 51.28%. Simple indices in month 2: 177.4, 181.8, 103.4.</p><div class="eq">0.0633·177.4 + 0.4239·181.8 + 0.5128·103.4 = 141.4</div><p>Good 1 nearly doubled in price, but it barely moves the index because it’s only 6% of the basket. The Swiss CPI (LIK) is built this way.</p>`)}
+<h2 id="ch5-base">Change of base</h2>
+<p>Two indices can only be compared if they share the same base. To move an index to a new base year b, divide every value by the value in year b:</p>
+<div class="eq">I<sub>new</sub>(t) = I(t) / I(b) · 100</div>
+${ex('Example 5.4',`<p>Index 2 has base 1997 and stands at 250 in 2011 and 265 in 2012. Rebased to 2011: 265 / 250 · 100 = <b>106.0</b>.</p>`)}
+<h2 id="ch5-chain">Chaining</h2>
+<p>A Laspeyres basket goes stale: people stop buying some goods and start buying new ones. So every few years the statistics office <b>revises</b> the basket, and the new index restarts at 100. For a while, both indices are published. Chaining links them into one long series, using the ratio in the overlap month.</p>
+${ex('Exercise 7: the December 2015 revision',`<p>In December 2015 the old index (base Dec 2010) stood at 97.3 and the new one at 100.</p><p>Old → new (going back): Sep 2015 = 97.7 / 97.3 · 100 = <b>100.4</b>.</p><p>New → old (going forward): Jan 2016 = 99.6 · 97.3 / 100 = <b>96.9</b>.</p>`)}
+<p>Rebasing and chaining are both <b>multiplication by a constant ratio</b>. Never add or subtract to line two indices up.</p>
+<h2 id="ch5-real">Purchasing power and real returns</h2>
+<p>The CPI tells you what money is worth in different years. To move an amount from year a to year b, multiply by the price ratio:</p>
+<div class="eq">amount in year b = amount in year a · CPI<sub>b</sub> / CPI<sub>a</sub></div>
+${ex('Exercises 2 and 3',`<p>CPI (base 1939): 160.8 in 1950, 755.7 at the end of 2018. CHF 1 000 in 1950 had the purchasing power of 1 000 · 755.7 / 160.8 ≈ <b>CHF 4 700</b> in 2018. A 2018 salary of CHF 7 000 corresponds to 7 000 · 160.8 / 755.7 ≈ <b>CHF 1 490</b> in 1950.</p>`)}
+<p><b>Real return</b> = how much more you can buy. Divide the growth factors, don’t subtract the rates:</p>
+<div class="eq">real return = (1 + nominal) / (1 + inflation) − 1</div>
+${ex('Exercise 4: SNB deposits 1970–2006',`<p>CHF 1 reinvested every 3 months grew to CHF 3.25. Prices grew by a factor of 2.94. Real: 3.25 / 2.94 − 1 = <b>+11%</b> over 36 years.</p>`)}`,
+ gloss:[['Index (pl. indices)','Index (Indizes)','A series rescaled so the base period = 100.'],['Reference period / base','Basisperiode','The period set to 100.'],['Basket of goods','Warenkorb','The fixed quantities a price index reprices.'],['Laspeyres index','Laspeyres-Index','Base-period quantities, current prices.'],['Change of base','Basiswechsel / Umbasierung','Dividing by the new base year’s value.'],['Chaining','Verkettung','Linking an old and a new index at their overlap.'],['Consumer price index','Landesindex der Konsumentenpreise (LIK)','Switzerland’s inflation measure.'],['Purchasing power','Kaufkraft','What an amount of money can buy.']],
+ check:[['An index rises from 104 to 108. Prices rose by…',['3.85%','4%','4 points and 4%','104%'],0,'108 / 104 − 1 = 3.85%. It’s 4 points, not 4%.'],
+  ['What stays fixed in a Laspeyres price index?',['The quantities in the basket','The prices','Both','Neither'],0,'Quantities are frozen at the base period. Only prices are updated.'],
+  ['A good that is 5% of the basket doubles in price. Everything else is unchanged. The Laspeyres index…',['rises by about 5%','doubles','rises by about 100 points','stays at 100'],0,'Weighted average: 0.95·100 + 0.05·200 = 105.']]},
+
+{id:'ch6',week:6,topic:'corr',title:'Correlation',mins:15,preview:true,
+ idea:'Do two variables <b>move together</b>, and how tightly? Covariance gives the direction; the correlation coefficient r gives direction and strength on a fixed scale from −1 to +1.',
+ body:`
+<h2 id="ch6-scatter">Start with a picture</h2>
+<p>Two attributes measured on the same elements (central bank independence and inflation, per country) are <b>pairs</b> (x<sub>i</sub>, y<sub>i</sub>). Plot them as a scatter plot before computing anything. Your eye catches patterns that a single number misses.</p>
+<h2 id="ch6-cov">Covariance</h2>
+<p>For each point, take its deviation from the mean in x and in y, and multiply:</p>
+<ul>
+<li>Both above their means, or both below → product <b>positive</b>.</li>
+<li>One above, one below → product <b>negative</b>.</li>
+</ul>
+<p>Average those products and you get the covariance. Positive means the variables tend to move together, and negative means they move in opposite directions. The week 6 solutions use the sample version (Excel <code class="x">COVARIANCE.S</code>):</p>
+<div class="eq">s<sub>xy</sub> = 1/(n − 1) · Σ (x<sub>i</sub> − x̄)(y<sub>i</sub> − ȳ)</div>
+<p>The problem: the size of the covariance depends on the units. Measure prices in Rappen instead of francs and it grows by a factor of 100. So you can only read its <b>sign</b>.</p>
+<h2 id="ch6-r">The correlation coefficient r</h2>
+<p>Divide by both standard deviations and the units cancel:</p>
+<div class="eq">r = s<sub>xy</sub> / (s<sub>x</sub> · s<sub>y</sub>)     −1 ≤ r ≤ 1</div>
+<ul>
+<li>r = +1: all points on a rising straight line. r = −1: all on a falling line.</li>
+<li>r near 0: no <b>linear</b> relationship.</li>
+<li>Whether you use n or n − 1 doesn’t matter for r, as long as you’re consistent, because it cancels. Excel: <code class="x">CORREL</code>. TI-84: LinReg(ax+b) with DiagnosticOn.</li>
+</ul>
+${W('corr')}
+<h2 id="ch6-traps">What r does not tell you</h2>
+<p><b>Correlation is not causation.</b> The week 6 sheet "Storks and Babies" shows a strong correlation between the number of storks and births across regions. Storks don’t deliver babies: rural regions simply have more of both. A third variable driving both is the usual explanation. The "Spurious Correlation" sheet shows series that correlate by pure coincidence.</p>
+<p><b>r only measures straight-line relationships.</b> Switch the figure above to the U-shape: y is completely determined by x, yet r is close to 0.</p>
+<p><b>One outlier can change everything.</b> Add the outlier in the figure and watch r jump.</p>`,
+ gloss:[['Scatter plot','Streudiagramm','Points (x<sub>i</sub>, y<sub>i</sub>) in a plane.'],['Covariance','Kovarianz','Average product of deviations; sign = direction.'],['Correlation coefficient','Korrelationskoeffizient','Unit-free, between −1 and 1.'],['Spurious correlation','Scheinkorrelation','Correlation without a causal link.']],
+ check:[['r = 0.92 between ice cream sales and drowning accidents. What do you conclude?',['A strong linear association, probably both driven by hot weather','Ice cream causes drowning','The data must be wrong','There is no relationship'],0,'A third variable (temperature) drives both. Correlation is not causation.'],
+  ['You convert x from CHF to Rappen (× 100). r…',['stays the same','is multiplied by 100','is divided by 100','becomes 1'],0,'r has no unit. The covariance, however, is multiplied by 100.'],
+  ['r = 0 means…',['no linear relationship','no relationship of any kind','a negative relationship','the variables are equal'],0,'A perfect U-shape can give r = 0.']]}
+];
+
+/* ---------- small SVG helpers ---------- */
+const svgOpen=(w,h,label)=>`<svg class="chart" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(label)}">`;
+const sc=(d0,d1,r0,r1)=>v=>r0+(v-d0)/(d1-d0)*(r1-r0);
+function niceTicks(lo,hi,n=5){const span=hi-lo, step0=span/n, mag=10**Math.floor(Math.log10(step0)), err=step0/mag, step=(err>=7.5?10:err>=3.5?5:err>=1.5?2:1)*mag;const out=[];for(let v=Math.ceil(lo/step)*step;v<=hi+1e-9;v+=step)out.push(+v.toFixed(10));return out;}
+
+const WIDGETS={
+meanmed(el){
+  const base=[38,42,45,48,52,55,60,66];
+  el.innerHTML=`<h3>Mean vs median: make one person richer</h3><p class="sub">Nine incomes in CHF 1 000. Move the slider to raise the top income.</p><div class="cw" id="mm-c"></div><label class="sl"><span>Top income</span><input type="range" class="slider" id="mm-s" min="0" max="100" value="0"></label><div class="readout" id="mm-r"></div>`;
+  const draw=()=>{
+    const s=+$('#mm-s').value, X=Math.round(70*Math.pow(2000/70,s/100)), d=[...base,X];
+    const m=mean(d), med=52, max=Math.max(100,X*1.06);
+    const W=640,H=150,x=sc(0,max,30,W-20);
+    let g=svgOpen(W,H,'Nine incomes on a line with mean and median marked');
+    niceTicks(0,max,5).forEach(t=>{g+=`<line class="grid" x1="${x(t)}" x2="${x(t)}" y1="30" y2="108"/><text x="${x(t)}" y="126" text-anchor="middle">${fmt(t,0)}</text>`;});
+    g+=`<line class="ax" x1="30" x2="${W-20}" y1="108" y2="108"/>`;
+    d.forEach((v,i)=>{g+=`<circle class="${i===8?'mk':'mk-dim'}" cx="${x(v)}" cy="${80-(i%2)*10}" r="6"><title>Person ${i+1}: CHF ${fmt(v*1000,0)}</title></circle>`;});
+    g+=`<line class="guide2" x1="${x(med)}" x2="${x(med)}" y1="22" y2="108"/><text class="lbl-ink" x="${x(med)+4}" y="20">median ${fmt(med,0)}</text>`;
+    g+=`<line class="guide" x1="${x(m)}" x2="${x(m)}" y1="40" y2="108"/><text class="lbl-acc" x="${x(m)+4}" y="${m-med<max*0.12?146:38}">mean ${fmt(m,1)}</text>`;
+    $('#mm-c').innerHTML=g+'</svg>';
+    $('#mm-r').innerHTML=`<div class="ro"><span class="l">Top income</span><span class="v">CHF ${fmt(X*1000,0)}</span></div><div class="ro"><span class="l">Mean</span><span class="v">CHF ${fmt(m*1000,0)}</span></div><div class="ro"><span class="l">Median</span><span class="v">CHF ${fmt(med*1000,0)}</span></div><div class="ro"><span class="l">Shape</span><span class="v">${m>med+1?'right-skewed':'about symmetric'}</span></div>`;
+  };
+  $('#mm-s').oninput=draw; draw();
+},
+ogive(el){
+  const b=[0,20,50,100,200], cum=[0,20.00,56.31,89.69,97.84];
+  el.innerHTML=`<h3>Interpolating on the cumulative curve</h3><p class="sub">Lucerne taxable income 2006. The curve joins the cumulative shares at each class bound with straight lines: that is the "evenly spread within a class" assumption.</p><div class="cw" id="og-c"></div><label class="sl"><span>Quantile p</span><input type="range" class="slider" id="og-s" min="5" max="95" value="50"></label><div id="og-f"></div>`;
+  const draw=()=>{
+    const p=+$('#og-s').value, i=cum.findIndex((c,k)=>k>0&&c>=p)-1;
+    const v=b[i]+(p-cum[i])/(cum[i+1]-cum[i])*(b[i+1]-b[i]);
+    const W=640,H=300,x=sc(0,200,52,W-16),y=sc(0,100,262,14);
+    let g=svgOpen(W,H,'Cumulative share of taxpayers by income');
+    [0,25,50,75,100].forEach(t=>{g+=`<line class="grid" x1="52" x2="${W-16}" y1="${y(t)}" y2="${y(t)}"/><text x="44" y="${y(t)+4}" text-anchor="end">${t}%</text>`;});
+    b.forEach(t=>{g+=`<text x="${x(t)}" y="282" text-anchor="middle">${t}k</text>`;});
+    g+=`<text x="${(52+W-16)/2}" y="298" text-anchor="middle">Taxable income (CHF)</text>`;
+    g+=`<rect class="band" x="${x(b[i])}" y="14" width="${x(b[i+1])-x(b[i])}" height="248"><title>Quantile class: ${b[i]}k to under ${b[i+1]}k</title></rect>`;
+    g+=`<line class="ax" x1="52" x2="${W-16}" y1="262" y2="262"/><polyline class="ln" points="${b.map((t,k)=>`${x(t)},${y(cum[k])}`).join(' ')}"/>`;
+    b.forEach((t,k)=>{g+=`<circle class="mk-dim" cx="${x(t)}" cy="${y(cum[k])}" r="4"><title>Under ${t}k: ${fx(cum[k],2)}%</title></circle>`;});
+    g+=`<line class="guide" x1="52" x2="${x(v)}" y1="${y(p)}" y2="${y(p)}"/><line class="guide" x1="${x(v)}" x2="${x(v)}" y1="${y(p)}" y2="262"/><circle class="mk" cx="${x(v)}" cy="${y(p)}" r="6"><title>${p}% quantile ≈ CHF ${fmt(v*1000,0)}</title></circle>`;
+    g+=`<text class="lbl-acc" x="${x(v)+8}" y="${y(p)-8}">${p}% → CHF ${fmt(v*1000,0)}</text>`;
+    $('#og-c').innerHTML=g+'</svg>';
+    $('#og-f').innerHTML=`<div class="eq">x<sub>${p}%</sub> = ${fmt(b[i]*1000,0)} + (${p}% − ${fx(cum[i],2)}%) / ${fx(cum[i+1]-cum[i],2)}% · ${fmt((b[i+1]-b[i])*1000,0)} = ${fmt(v*1000,0)}</div>`;
+  };
+  $('#og-s').oninput=draw; draw();
+},
+grades(el){
+  const G=[1,1.5,2,2.5,3,3.5,4,4.5,5,5.5,6];
+  const D={A:[0,0,0,0,1,6,25,36,24,8,0],B:[1,0,0,0,1,5,23,35,28,6,1],C:[3,2,3,5,9,5,10,10,11,22,20],D:[0,0,0,0,0,0,23,55,21,1,0]};
+  let cur='A';
+  el.innerHTML=`<h3>Example 4.1: four classes, each with mean 4.5</h3><p class="sub">Swiss grades, 6 = best. Bars show how many of the 100 students got each grade; the boxplot below uses the 1.5 × IQR outlier rule.</p><div class="topics" role="group" aria-label="Class" id="gr-b">${Object.keys(D).map(k=>`<button data-k="${k}" aria-pressed="${k===cur}">Class ${k}</button>`).join('')}</div><div class="cw" id="gr-c"></div><div class="readout" id="gr-r"></div><p class="sub" id="gr-n"></p>`;
+  const q=(N,p)=>{let c=0;for(let i=0;i<N.length;i++){c+=N[i];if(c>=p)return G[i];}};
+  const draw=()=>{
+    const N=D[cur], n=100, m=sum(N.map((v,i)=>v*G[i]))/n, ss=sum(N.map((v,i)=>v*(G[i]-m)**2));
+    const vals=G.filter((g,i)=>N[i]>0), mn=Math.min(...vals), mx=Math.max(...vals);
+    const q1=q(N,25), md=q(N,50), q3=q(N,75), iqr=q3-q1, lo=q1-1.5*iqr, hi=q3+1.5*iqr;
+    const inV=vals.filter(v=>v>=lo&&v<=hi), out=vals.filter(v=>v<lo||v>hi);
+    const W=640,H=300,x=sc(0.6,6.4,40,W-16),y=sc(0,60,200,16),bw=(x(1.5)-x(1))-6;
+    let g=svgOpen(W,H,`Grade distribution of class ${cur}`);
+    [0,20,40,60].forEach(t=>{g+=`<line class="grid" x1="40" x2="${W-16}" y1="${y(t)}" y2="${y(t)}"/><text x="32" y="${y(t)+4}" text-anchor="end">${t}</text>`;});
+    G.forEach((gr,i)=>{const h=y(0)-y(N[i]);g+=`<rect class="bar" x="${x(gr)-bw/2}" y="${y(N[i])}" width="${bw}" height="${Math.max(0,h)}" rx="${h>4?3:0}"><title>Grade ${fx(gr,1)}: ${N[i]} students</title></rect><text x="${x(gr)}" y="216" text-anchor="middle">${fx(gr,1)}</text>`;});
+    g+=`<line class="ax" x1="40" x2="${W-16}" y1="200" y2="200"/>`;
+    const by=258;
+    g+=`<line class="whisk" x1="${x(Math.min(...inV))}" x2="${x(Math.max(...inV))}" y1="${by}" y2="${by}"/><line class="whisk" x1="${x(Math.min(...inV))}" x2="${x(Math.min(...inV))}" y1="${by-8}" y2="${by+8}"/><line class="whisk" x1="${x(Math.max(...inV))}" x2="${x(Math.max(...inV))}" y1="${by-8}" y2="${by+8}"/>`;
+    g+=`<rect class="box" x="${x(q1)}" y="${by-14}" width="${Math.max(2,x(q3)-x(q1))}" height="28" rx="3"><title>Q1 ${fx(q1,1)}, Q3 ${fx(q3,1)}</title></rect><line class="medline" x1="${x(md)}" x2="${x(md)}" y1="${by-14}" y2="${by+14}"/>`;
+    out.forEach(v=>{g+=`<circle class="outl" cx="${x(v)}" cy="${by}" r="5"><title>Outlier: grade ${fx(v,1)}</title></circle>`;});
+    g+=`<text x="40" y="${by+34}">boxplot</text>`;
+    $('#gr-c').innerHTML=g+'</svg>';
+    $('#gr-r').innerHTML=[['Mean',fx(m,2)],['Range',fx(mx-mn,1)],['IQR',fx(iqr,1)],['σ (÷ n)',fx(Math.sqrt(ss/n),3)],['s (÷ n − 1)',fx(Math.sqrt(ss/(n-1)),3)]].map(([l,v])=>`<div class="ro"><span class="l">${l}</span><span class="v">${v}</span></div>`).join('');
+    $('#gr-n').innerHTML={A:'Bell-shaped in the upper range. The reference case.',B:'Almost class A, plus two outliers (a 1.0 and a 6.0). The range doubles; the IQR doesn’t move. The 1.0 is beyond Q1 − 1.5 × IQR, so it’s drawn as a dot.',C:'Spread evenly across the whole scale: largest IQR and largest σ.',D:'Packed around 4.5: smallest range and σ. IQR = 0, so the IQR can’t measure this spread at all, and the outlier rule flags every grade except 4.5.'}[cur];
+    document.querySelectorAll('#gr-b button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===cur));
+  };
+  document.querySelectorAll('#gr-b button').forEach(b=>b.onclick=()=>{cur=b.dataset.k;draw();});
+  draw();
+},
+rebase(el){
+  const Y=[1990,2000,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016];
+  const V=[447604,504484,542888,565237,588537,601558,588832,605492,617231,623737,635048,647699,652787,661184];
+  let bi=0;
+  el.innerHTML=`<h3>Same data, any base</h3><p class="sub">Swiss real GDP (SECO). Pick the base year.</p><div class="topics" role="group" aria-label="Base year" id="rb-b">${[1990,2000,2009,2016].map(y=>`<button data-y="${Y.indexOf(y)}" aria-pressed="${Y.indexOf(y)===bi}">Base ${y}</button>`).join('')}</div><div class="cw" id="rb-c"></div><div class="readout" id="rb-r"></div>`;
+  const draw=()=>{
+    const I=V.map(v=>v/V[bi]*100), lo=Math.min(...I), hi=Math.max(...I);
+    const t=niceTicks(lo*0.97,hi*1.02,4), W=640,H=260,x=sc(1989,2017,52,W-16),y=sc(t[0],t[t.length-1],224,14);
+    let g=svgOpen(W,H,`Swiss GDP indexed to ${Y[bi]} = 100`);
+    t.forEach(v=>{g+=`<line class="grid" x1="52" x2="${W-16}" y1="${y(v)}" y2="${y(v)}"/><text x="44" y="${y(v)+4}" text-anchor="end">${fmt(v,0)}</text>`;});
+    [1990,1995,2000,2005,2010,2015].forEach(yr=>{g+=`<text x="${x(yr)}" y="244" text-anchor="middle">${yr}</text>`;});
+    g+=`<line class="ax" x1="52" x2="${W-16}" y1="224" y2="224"/><line class="guide" x1="52" x2="${W-16}" y1="${y(100)}" y2="${y(100)}"/><polyline class="ln" points="${Y.map((yr,i)=>`${x(yr)},${y(I[i])}`).join(' ')}"/>`;
+    Y.forEach((yr,i)=>{g+=`<circle class="${i===bi?'mk':'mk-dim'}" cx="${x(yr)}" cy="${y(I[i])}" r="${i===bi?7:4}"><title>${yr}: ${fx(I[i],2)} (GDP ${fmt(V[i],0)} m)</title></circle>`;});
+    g+=`<text class="lbl-acc" x="${x(Y[bi])+(bi===Y.length-1?-10:10)}" y="${y(100)-10}" text-anchor="${bi===Y.length-1?'end':'start'}">${Y[bi]} = 100</text>`;
+    $('#rb-c').innerHTML=g+'</svg>';
+    $('#rb-r').innerHTML=`<div class="ro"><span class="l">Index 1990</span><span class="v">${fx(I[0],2)}</span></div><div class="ro"><span class="l">Index 2016</span><span class="v">${fx(I[13],2)}</span></div><div class="ro"><span class="l">2016 / 1990 − 1</span><span class="v">+${fx((I[13]/I[0]-1)*100,2)}%</span></div><div class="ro"><span class="l">2009 vs 2008</span><span class="v">${fx((I[6]/I[5]-1)*100,2)}%</span></div>`;
+    document.querySelectorAll('#rb-b button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.y===bi));
+  };
+  document.querySelectorAll('#rb-b button').forEach(b=>b.onclick=()=>{bi=+b.dataset.y;draw();});
+  draw();
+},
+corr(el){
+  let seed=11; const rnd01=()=>{seed=(seed*16807)%2147483647;return (seed-1)/2147483646;};
+  const nrm=()=>Math.sqrt(-2*Math.log(rnd01()+1e-12))*Math.cos(2*Math.PI*rnd01());
+  const Z=Array.from({length:40},()=>[nrm(),nrm()]);
+  let mode='line', outlier=false;
+  el.innerHTML=`<h3>What r sees</h3><p class="sub">40 points. Set the strength of the linear relationship, or switch to a U-shape.</p><div class="topics" role="group" aria-label="Pattern" id="co-b"><button data-m="line" aria-pressed="true">Straight-line pattern</button><button data-m="u" aria-pressed="false">U-shape</button><button data-o="1" aria-pressed="false">Add one outlier</button></div><div class="cw" id="co-c"></div><label class="sl" id="co-sl"><span>Relationship</span><input type="range" class="slider" id="co-s" min="-100" max="100" value="70"></label><div class="readout" id="co-r"></div>`;
+  const draw=()=>{
+    const rho=+$('#co-s').value/100;
+    let P=Z.map(([a,b])=>mode==='u'?[a,a*a-1+0.15*b]:[a,rho*a+Math.sqrt(1-rho*rho)*b]);
+    if(outlier)P=P.concat([[3.2,mode==='u'?-3:(rho>=0?-3.2:3.2)]]);
+    const xs=P.map(p=>p[0]),ys=P.map(p=>p[1]),mx=mean(xs),my=mean(ys);
+    const sxy=sum(P.map(p=>(p[0]-mx)*(p[1]-my))),sx=Math.sqrt(sum(xs.map(v=>(v-mx)**2))),sy=Math.sqrt(sum(ys.map(v=>(v-my)**2))),r=sxy/(sx*sy);
+    const W=640,H=300,x=sc(-3.6,3.6,30,W-16),y=sc(-3.6,mode==='u'?8:3.6,272,14);
+    let g=svgOpen(W,H,'Scatter plot of 40 points');
+    g+=`<line class="grid" x1="${x(mx)}" x2="${x(mx)}" y1="14" y2="272"/><line class="grid" x1="30" x2="${W-16}" y1="${y(my)}" y2="${y(my)}"/><text x="${x(mx)+4}" y="26">x̄</text><text x="${W-22}" y="${y(my)-6}" text-anchor="end">ȳ</text>`;
+    g+=`<line class="ax" x1="30" x2="${W-16}" y1="272" y2="272"/><line class="ax" x1="30" x2="30" y1="14" y2="272"/>`;
+    P.forEach((p,i)=>{const pos=(p[0]-mx)*(p[1]-my)>=0;g+=`<circle class="${i===40?'outl':pos?'mk':'mk-neg'}" cx="${x(p[0])}" cy="${y(p[1])}" r="${i===40?7:5}"><title>${i===40?'Outlier':'Point'}: product of deviations ${pos?'positive':'negative'}</title></circle>`;});
+    $('#co-c').innerHTML=g+'</svg>';
+    const a=Math.abs(r), word=a>=0.8?'strong':a>=0.5?'moderate':a>=0.2?'weak':'almost no';
+    $('#co-r').innerHTML=`<div class="ro"><span class="l">r</span><span class="v">${fx(r,3)}</span></div><div class="ro"><span class="l">Reading (rough guide)</span><span class="v">${word} ${a>=0.2?(r>0?'positive':'negative'):''} linear relationship</span></div><div class="ro"><span class="l">Legend</span><span class="v" style="font-size:13px;font-weight:500"><span class="key-dot mk"></span> product &gt; 0  <span class="key-dot mk-neg"></span> product &lt; 0</span></div>`;
+    $('#co-sl').hidden=mode==='u';
+    document.querySelectorAll('#co-b [data-m]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===mode));
+    document.querySelector('#co-b [data-o]').setAttribute('aria-pressed',outlier);
+  };
+  document.querySelectorAll('#co-b [data-m]').forEach(b=>b.onclick=()=>{mode=b.dataset.m;draw();});
+  document.querySelector('#co-b [data-o]').onclick=()=>{outlier=!outlier;draw();};
+  $('#co-s').oninput=draw; draw();
+}
+};
+
+/* ---------- learn view ---------- */
+function vLearn(){
+  if(!current.ch)current.ch=(LEARN.find(l=>l.id!=='ch1'&&!(S.read||{})[l.id])||LEARN[1]).id;
+  const c=LEARN.find(l=>l.id===current.ch)||LEARN[0];
+  S.read=S.read||{};
+  const heads=[...c.body.matchAll(/<h2 id="([^"]+)">([^<]+)<\/h2>/g)];
+  const tp=c.topic?TOPICS.find(t=>t.id===c.topic):null;
+  $('#view').innerHTML=head('Learn','Theory')+`<div class="topics" role="group" aria-label="Chapter">${LEARN.map(l=>`<button data-ch="${l.id}" aria-pressed="${l.id===c.id}">W${l.week} · ${l.title}${S.read[l.id]?' ✓':''}</button>`).join('')}</div>
+  <div class="learn-wrap"><article class="prose">
+    <div class="eyebrow">Week ${c.week} · Chapter ${c.week}${c.preview?' · preview':''}</div>
+    <h1 class="ch-title">${c.title}</h1>
+    <p class="ch-meta">About ${c.mins} minutes. Read it <b>before</b> the week ${c.week} lecture, so the lecture is your second time seeing it.</p>
+    ${c.preview?note('<b>Preview.</b> The Chapter 6 notes aren’t out yet. This is built from the week 6 spreadsheets and standard definitions. I’ll check it against the notes once you upload them.'):''}
+    ${idea(c.idea)}
+    ${c.body}
+    <h2 id="${c.id}-gloss">Words you’ll hear</h2>
+    <p class="sub">With the German term, for BfS tables and the German Excel menus.</p>
+    <div class="tbl-wrap"><table class="ref"><thead><tr><th>English</th><th>German</th><th>Meaning</th></tr></thead><tbody>${c.gloss.map(g=>`<tr><td><b>${g[0]}</b></td><td>${g[1]}</td><td>${g[2]}</td></tr>`).join('')}</tbody></table></div>
+    <h2 id="${c.id}-check">Check yourself</h2>
+    <div class="checks">${c.check.map((q,qi)=>{const o=shuffle(q[1].map((t,i)=>[t,i]));return `<div class="chk" data-q="${qi}"><p class="chk-q">${q[0]}</p><div class="opts">${o.map(([t,i],k)=>`<button class="opt" data-i="${i}"><span class="k">${'ABCD'[k]}</span><span>${t}</span></button>`).join('')}</div><div class="chk-why" hidden>${q[3]}</div></div>`;}).join('')}</div>
+    <div class="actions ch-end">${c.topic?`<button class="btn btn-primary" id="to-drill">Drill ${tp.name.toLowerCase()} →</button>`:''}<button class="btn btn-ghost" id="mark-read">${S.read[c.id]?'Read ✓ (click to undo)':'Mark chapter as read'}</button></div>
+  </article>
+  <nav class="toc" aria-label="On this page"><div class="toc-t">On this page</div>${heads.map(h=>`<a href="#${h[1]}" data-jump="${h[1]}">${h[2]}</a>`).join('')}<a href="#${c.id}-check" data-jump="${c.id}-check">Check yourself</a></nav></div>`;
+  document.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>{current.ch=b.dataset.ch;vLearn();window.scrollTo(0,0);});
+  document.querySelectorAll('[data-jump]').forEach(a=>a.onclick=e=>{e.preventDefault();const t=document.getElementById(a.dataset.jump);if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});
+  document.querySelectorAll('.prose [data-w]').forEach(w=>WIDGETS[w.dataset.w](w));
+  document.querySelectorAll('.chk').forEach(box=>{
+    const q=c.check[+box.dataset.q];
+    box.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      box.querySelectorAll('.opt').forEach(o=>{o.disabled=true;if(+o.dataset.i===q[2])o.classList.add('right');else if(o===b)o.classList.add('wrong');});
+      const w=box.querySelector('.chk-why'); w.hidden=false; w.className='chk-why '+(+b.dataset.i===q[2]?'ok':'miss');
+    });
+  });
+  const mr=$('#mark-read'); mr.onclick=()=>{S.read[c.id]=!S.read[c.id];save();vLearn();renderNav();};
+  const td=$('#to-drill'); if(td)td.onclick=()=>{current.topic=c.topic;current.gen=null;current.q=null;go('topic');};
+}
+
 /* boot */
 (function(){
   let h=''; try{h=(location.hash||'').slice(1);}catch(e){}
   if(VIEWS.some(v=>v[0]===h))current.view=h;
+  if(/^ch[1-6]$/.test(h)){current.view='learn';current.ch=h;}
   render(); initSync();
 })();
 </script>

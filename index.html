@@ -405,11 +405,16 @@ function homework(n){
   S.school.courses.forEach(c=>((w[c.id]||{}).items||[]).forEach(i=>out.push({key:"S"+n,n,c,i})));
   return out;
 }
-function hwRow(x,showWeek){
+function allHomework(){let out=[];for(let k=1;k<=SEM_WEEKS;k++)out=out.concat(homework(k));return out;}
+function pinnedCount(t){return S.tasks.items.filter(i=>i.pin===t&&!i.done).length+allHomework().filter(x=>x.i.pin===t&&!x.i.done).length;}
+function hwRow(x,showWeek,withPin){
+  const pinned=x.i.pin===today();
+  const ref=`data-key="${x.key}" data-id="${x.c.id}" data-item="${x.i.id}"`;
   return `<li class="task ${x.i.done?"is-done":""}" style="--c:${esc(x.c.color||"var(--school)")}">
-    <button class="chk ${x.i.done?"on":""}" data-act="hw-toggle" data-key="${x.key}" data-id="${x.c.id}" data-item="${x.i.id}" aria-label="${x.i.done?"Mark not done":"Mark done"}"></button>
+    <button class="chk ${x.i.done?"on":""}" data-act="hw-toggle" ${ref} aria-label="${x.i.done?"Mark not done":"Mark done"}"></button>
     <span class="dot"></span>
     <span class="t-text">${esc(x.i.text)} <span class="t-meta">· ${esc(x.c.name)}${showWeek?` · S${x.n}`:""}</span></span>
+    ${withPin&&!x.i.done?`<button class="mini ${pinned?"on":""}" data-act="${pinned?"hw-unpin":"hw-pin"}" ${ref}>${pinned?"On today":"Do today"}</button>`:""}
   </li>`;
 }
 const nextStep=pid=>S.tasks.items.find(t=>t.project===pid&&!t.done);
@@ -454,7 +459,10 @@ function tasksCard(lane,title){
 function vToday(){
   const t=today(), wk=mondayOf(t), plan=getPlan(wk);
   const pinned=S.tasks.items.filter(x=>x.pin===t);
-  const openPinned=pinned.filter(x=>!x.done).length;
+  const curN=semWeek(wk), hwAll=allHomework();
+  const hwPinned=hwAll.filter(x=>x.i.pin===t);
+  const openPinned=pinnedCount(t);
+  const hwCands=hwAll.filter(x=>!x.i.done&&x.i.pin!==t&&x.n<=curN).sort((a,b)=>a.n-b.n);
   const rank=x=>x.pin&&x.pin<t?0:x.week===wk?1:x.project&&nextStep(x.project)===x?2:x.due?3:4;
   const cands=S.tasks.items.filter(x=>!x.done&&x.pin!==t&&(!x.project||nextStep(x.project)===x)).sort((a,b)=>{
     const ra=rank(a), rb=rank(b); if(ra!==rb)return ra-rb;
@@ -472,12 +480,12 @@ function vToday(){
   <div class="stack">
     <section class="card">
       <div class="card-h"><h2>Three things today</h2><span class="muted" style="font-size:.8rem">${fmtLong(t)}</span></div>
-      <ul class="tasks">${pinned.map(x=>taskRow(x,true)).join("")||`<li class="empty">Pick up to three. Everything else is optional today.</li>`}</ul>
+      <ul class="tasks">${pinned.map(x=>taskRow(x,true)).join("")}${hwPinned.map(x=>hwRow(x,false,true)).join("")}${!pinned.length&&!hwPinned.length?`<li class="empty">Pick up to three. Everything else is optional today.</li>`:""}</ul>
       ${openPinned<3?`<div class="add">
         <select class="field" id="nt-today-lane" aria-label="Lane">${LANES.map(l=>`<option value="${l.id}">${l.name}</option>`).join("")}</select>
         <input class="field" id="nt-today" data-enter="task-add-today" placeholder="Must-do…" aria-label="New must-do">
         <button class="btn primary" data-act="task-add-today">Add</button></div>`:`<p class="hint" style="margin-top:10px">That's three. Finish one before adding more.</p>`}
-      ${openPinned<3&&cands.length?`<div style="margin-top:16px"><div class="eyebrow" style="margin-bottom:4px">From your lanes</div><ul class="tasks">${cands.map(x=>taskRow(x,true)).join("")}</ul></div>`:""}
+      ${openPinned<3&&(cands.length||hwCands.length)?`<div style="margin-top:16px"><div class="eyebrow" style="margin-bottom:4px">From your lanes</div><ul class="tasks">${hwCands.filter(x=>x.n<curN).map(x=>hwRow(x,true,true)).join("")}${cands.map(x=>taskRow(x,true)).join("")}${hwCands.filter(x=>x.n===curN).map(x=>hwRow(x,false,true)).join("")}</ul></div>`:""}
     </section>
 
     <section class="card">
@@ -805,7 +813,7 @@ function doAct(act,el){
   else ui.armed=null;
   switch(act){
   case "task-toggle":update("tasks",s=>{const x=s.items.find(i=>i.id===d.id);if(x)x.done=!x.done;});break;
-  case "task-pin":{const n=S.tasks.items.filter(i=>i.pin===t&&!i.done).length;if(n>=3){toast("Three is the limit. Finish or unpin one first.");return;}update("tasks",s=>{const x=s.items.find(i=>i.id===d.id);if(x)x.pin=t;});break;}
+  case "task-pin":{const n=pinnedCount(t);if(n>=3){toast("Three is the limit. Finish or unpin one first.");return;}update("tasks",s=>{const x=s.items.find(i=>i.id===d.id);if(x)x.pin=t;});break;}
   case "task-unpin":update("tasks",s=>{const x=s.items.find(i=>i.id===d.id);if(x)x.pin=null;});break;
   case "task-del":update("tasks",s=>{s.items=s.items.filter(i=>i.id!==d.id);});break;
   case "task-add":{const lane=d.lane;if(!addTask(lane,val("nt-"+lane)))return;focusLater("nt-"+lane);break;}
@@ -843,6 +851,8 @@ function doAct(act,el){
     if(act==="school-item-add"){const txt=val("si-"+cid);if(!txt)return;update("school",s=>{const w=s.weeks[key]||(s.weeks[key]={});const c=w[cid]||(w[cid]={});(c.items||(c.items=[])).push({id:uid(),text:txt,done:false});});focusLater("si-"+cid);}
     else update("school",s=>{const c=(s.weeks[key]||{})[cid];if(!c||!c.items)return;if(act==="school-item"){const i=c.items.find(x=>x.id===iid);if(i)i.done=!i.done;}else c.items=c.items.filter(x=>x.id!==iid);});
     break;}
+  case "hw-pin":case "hw-unpin":{if(act==="hw-pin"&&pinnedCount(t)>=3){toast("Three is the limit. Finish or unpin one first.");return;}
+    update("school",s=>{const c=(s.weeks[d.key]||{})[d.id];const i=c&&c.items&&c.items.find(x=>x.id===d.item);if(i)i.pin=act==="hw-pin"?t:null;});break;}
   case "hw-toggle":update("school",s=>{const c=(s.weeks[d.key]||{})[d.id];const i=c&&c.items&&c.items.find(x=>x.id===d.item);if(i)i.done=!i.done;});break;
   case "dl-toggle":update("school",s=>{const x=s.deadlines.find(i=>i.id===d.id);if(x)x.done=!x.done;});break;
   case "dl-del":update("school",s=>{s.deadlines=s.deadlines.filter(i=>i.id!==d.id);});break;

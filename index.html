@@ -400,6 +400,18 @@ function upcoming(){
   if(S.config.book.targetDate)out.push({date:S.config.book.targetDate,title:"First draft done",sub:fmtNum(S.config.book.target)+" words",lane:"book"});
   return out.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
 }
+function homework(n){
+  const w=S.school.weeks["S"+n]||{}, out=[];
+  S.school.courses.forEach(c=>((w[c.id]||{}).items||[]).forEach(i=>out.push({key:"S"+n,n,c,i})));
+  return out;
+}
+function hwRow(x,showWeek){
+  return `<li class="task ${x.i.done?"is-done":""}" style="--c:${esc(x.c.color||"var(--school)")}">
+    <button class="chk ${x.i.done?"on":""}" data-act="hw-toggle" data-key="${x.key}" data-id="${x.c.id}" data-item="${x.i.id}" aria-label="${x.i.done?"Mark not done":"Mark done"}"></button>
+    <span class="dot"></span>
+    <span class="t-text">${esc(x.i.text)} <span class="t-meta">· ${esc(x.c.name)}${showWeek?` · S${x.n}`:""}</span></span>
+  </li>`;
+}
 const nextStep=pid=>S.tasks.items.find(t=>t.project===pid&&!t.done);
 const weekPriority=wk=>((S.reviews.weeks[addDays(wk,-7)]||{}).next||"").trim();
 function bookStats(){
@@ -513,17 +525,22 @@ function vPlan(){
   const wt=S.tasks.items.filter(x=>x.week===wk), wOpen=wt.filter(x=>!x.done), wDone=wt.filter(x=>x.done);
   const dueHere=S.tasks.items.filter(x=>!x.week&&x.due&&x.due>=wk&&x.due<=addDays(wk,6));
   const leftovers=wk>=mondayOf(today())?S.tasks.items.filter(x=>!x.done&&x.week&&x.week<wk):[];
+  const hw=inSem?homework(n):[], hwOpen=hw.filter(x=>!x.i.done), hwDone=hw.filter(x=>x.i.done);
+  let hwOld=[]; if(wk>=mondayOf(today()))for(let k=1;k<Math.min(n,SEM_WEEKS+1);k++)hwOld=hwOld.concat(homework(k).filter(x=>!x.i.done));
   return `<div class="stack">
   <div class="prio" style="margin-bottom:0"><label class="eyebrow" for="prio-in">This week's one priority</label>
     <input class="field" id="prio-in" data-in="rev" data-f="next" data-wk="${prevWk}" value="${esc(prio)}" placeholder="The one thing that makes this week a win"></div>
 
   <section class="card">
-    <div class="card-h"><h2>This week's list</h2><span class="muted" style="font-size:.8rem">${wOpen.length} open${wDone.length?` · ${wDone.length} done`:""}</span></div>
+    <div class="card-h"><h2>This week's list</h2><span class="muted" style="font-size:.8rem">${wOpen.length+hwOpen.length} open${wDone.length+hwDone.length?` · ${wDone.length+hwDone.length} done`:""}</span></div>
     <ul class="tasks">${wOpen.map(x=>taskRow(x,true)).join("")}${wDone.map(x=>taskRow(x,true)).join("")}${!wt.length?`<li class="empty">Everything you need to get done this week, so nothing slips. Pick from here each morning.</li>`:""}</ul>
     <div class="add">
       <select class="field" id="nt-week-lane" aria-label="Lane">${LANES.map(l=>`<option value="${l.id}">${l.name}</option>`).join("")}</select>
       <input class="field" id="nt-week" data-enter="task-add-week" placeholder="Add to this week…" aria-label="New task for this week">
       <button class="btn primary" data-act="task-add-week">Add</button></div>
+    ${hw.length?`<div style="margin-top:16px"><div class="row" style="margin-bottom:4px"><span class="eyebrow">Homework · S${n}</span><span class="spacer"></span><button class="mini" data-tab="school">Add in School</button></div>
+      <ul class="tasks">${hwOpen.map(x=>hwRow(x)).join("")}${hwDone.map(x=>hwRow(x)).join("")}</ul></div>`:""}
+    ${hwOld.length?`<div style="margin-top:16px"><div class="eyebrow" style="margin-bottom:4px">Unfinished homework from earlier weeks</div><ul class="tasks">${hwOld.map(x=>hwRow(x,true)).join("")}</ul></div>`:""}
     ${dueHere.length?`<div style="margin-top:16px"><div class="eyebrow" style="margin-bottom:4px">Also due this week</div><ul class="tasks">${dueHere.map(x=>taskRow(x,true)).join("")}</ul></div>`:""}
     ${leftovers.length?`<div style="margin-top:16px"><div class="row" style="margin-bottom:4px"><span class="eyebrow">Left over from earlier weeks</span><span class="spacer"></span><button class="mini" data-act="task-move-all" data-wk="${wk}">Move all here</button></div>
       <ul class="tasks">${leftovers.map(x=>`<li class="task" style="${laneStyle(x.lane)}"><span class="dot"></span><span class="t-text">${esc(x.text)} <span class="t-meta">· ${weekLabel(x.week).split(" · ")[0]}</span></span><button class="mini" data-act="task-move-week" data-id="${x.id}" data-wk="${wk}">Move here</button>${delBtn("task-del",x.id)}</li>`).join("")}</ul></div>`:""}
@@ -826,6 +843,7 @@ function doAct(act,el){
     if(act==="school-item-add"){const txt=val("si-"+cid);if(!txt)return;update("school",s=>{const w=s.weeks[key]||(s.weeks[key]={});const c=w[cid]||(w[cid]={});(c.items||(c.items=[])).push({id:uid(),text:txt,done:false});});focusLater("si-"+cid);}
     else update("school",s=>{const c=(s.weeks[key]||{})[cid];if(!c||!c.items)return;if(act==="school-item"){const i=c.items.find(x=>x.id===iid);if(i)i.done=!i.done;}else c.items=c.items.filter(x=>x.id!==iid);});
     break;}
+  case "hw-toggle":update("school",s=>{const c=(s.weeks[d.key]||{})[d.id];const i=c&&c.items&&c.items.find(x=>x.id===d.item);if(i)i.done=!i.done;});break;
   case "dl-toggle":update("school",s=>{const x=s.deadlines.find(i=>i.id===d.id);if(x)x.done=!x.done;});break;
   case "dl-del":update("school",s=>{s.deadlines=s.deadlines.filter(i=>i.id!==d.id);});break;
   case "dl-add":{const name=val("dl-name"),date=val("dl-date");if(!name||!date){toast("Add a name and a date.");return;}update("school",s=>s.deadlines.push({id:uid(),course:val("dl-course"),name,date,type:val("dl-type"),done:false}));break;}

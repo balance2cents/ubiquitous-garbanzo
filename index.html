@@ -410,7 +410,7 @@ function pinnedCount(t){return S.tasks.items.filter(i=>i.pin===t&&!i.done).lengt
 function hwRow(x,showWeek,withPin){
   const pinned=x.i.pin===today();
   const ref=`data-key="${x.key}" data-id="${x.c.id}" data-item="${x.i.id}"`;
-  return `<li class="task ${x.i.done?"is-done":""}" style="--c:${esc(x.c.color||"var(--school)")}">
+  return `<li class="task ${x.i.done?"is-done":""}" style="${laneStyle("school")}">
     <button class="chk ${x.i.done?"on":""}" data-act="hw-toggle" ${ref} aria-label="${x.i.done?"Mark not done":"Mark done"}"></button>
     <span class="dot"></span>
     <span class="t-text">${esc(x.i.text)} <span class="t-meta">· ${esc(x.c.name)}${showWeek?` · S${x.n}`:""}</span></span>

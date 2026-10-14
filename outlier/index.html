@@ -226,6 +226,36 @@ table.ref td.f{font-family:var(--f-mono); font-size:12.5px; white-space:nowrap}
 .empty{color:var(--faint); font-style:italic}
 .done-card{text-align:center; padding:30px 20px}
 .done-card .big{font-family:var(--f-display); font-size:48px; font-weight:800; line-height:1}
+/* ---------- part 3: explanations, hints, lab progress ---------- */
+.explain{margin:0 0 16px; border:1px solid var(--line-strong); border-radius:10px; background:var(--bg); padding:0 16px}
+.explain summary{cursor:pointer; font-family:var(--f-display); font-weight:700; font-size:15px; padding:12px 0; list-style-position:inside}
+.explain[open] summary{border-bottom:1px dashed var(--line-strong); margin-bottom:10px}
+.ex-idea{font-size:15px; line-height:1.6; max-width:72ch}
+.explain h5{font-family:var(--f-display); font-size:13px; text-transform:uppercase; letter-spacing:.06em; color:var(--faint); margin:14px 0 6px}
+.ex-steps{margin:0 0 6px; padding-left:22px; display:flex; flex-direction:column; gap:6px; font-size:14px; line-height:1.55; max-width:76ch}
+.ex-watch{margin:12px 0; padding:10px 12px; border-left:3px solid var(--warn); background:var(--warn-soft); border-radius:0 7px 7px 0; font-size:14px}
+.ex-watch b{color:var(--warn)}
+.ex-read{display:block; padding:4px 0 14px; color:var(--accent); font-weight:600; text-decoration:none}
+.ex-read:hover{text-decoration:underline}
+.hint-box{margin-top:14px; padding:12px 14px; border:1px dashed var(--accent); background:var(--accent-soft); border-radius:9px; font-size:14px; line-height:1.55}
+.hint-box b{color:var(--accent-strong)} .hint-box .ex-steps{margin-top:8px}
+.anat{margin:6px 0 4px; padding:10px 14px; border:1px solid var(--line); border-radius:9px; background:var(--bg)}
+.anat ul{margin:0; padding-left:18px; display:flex; flex-direction:column; gap:5px; font-size:13.5px}
+.anat .de{color:var(--faint); font-size:12px}
+.lab-progress{background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:16px 18px; margin-bottom:16px; box-shadow:var(--shadow)}
+.lp-head{display:flex; justify-content:space-between; align-items:flex-end; gap:12px; flex-wrap:wrap; margin-bottom:10px}
+.lp-num{font-family:var(--f-display); font-weight:800; font-size:34px; line-height:1} .lp-num span{font-size:18px; color:var(--faint); font-weight:700}
+.lp-l{font-size:12px; color:var(--muted); margin-top:2px}
+.lp-legend{display:flex; gap:14px; flex-wrap:wrap; font-size:12.5px; color:var(--muted)} .lp-legend span{display:inline-flex; align-items:center; gap:6px}
+.lp-k{width:10px; height:10px; border-radius:3px; display:inline-block}
+.lp-bar{display:flex; gap:3px}
+.lp-seg{flex:1; height:14px; border:0; border-radius:3px; cursor:pointer; padding:0; min-width:0}
+.lp-seg:hover{outline:2px solid var(--accent); outline-offset:1px}
+.lp-seg.cur{box-shadow:0 0 0 2px var(--ink)}
+.lp-k.solved,.lp-seg.solved{background:var(--good)} .lp-k.tried,.lp-seg.tried{background:var(--warn)} .lp-k.new,.lp-seg.new{background:var(--line-strong)}
+.lp-note{font-size:13px; color:var(--muted); margin-top:10px}
+.lab-pill{align-self:flex-start; font-size:11.5px; font-weight:600; padding:2px 9px; border-radius:99px}
+.lab-pill.solved{background:var(--good-soft); color:var(--good)} .lab-pill.tried{background:var(--warn-soft); color:var(--warn)} .lab-pill.new{background:var(--surface-2); color:var(--faint)}
 /* ---------- part 2 figures & lab ---------- */
 .chart .resid{stroke:var(--bad); stroke-width:2; opacity:.7}
 .chart .bar-dim{fill:var(--line-strong)}
@@ -769,7 +799,7 @@ def('triage','tool','Which tool?','Recognize the method before computing',()=>{
 /* =====================================================================
    state & sync
    ===================================================================== */
-const DEFAULTS={stats:{},misses:[],answered:0,read:{}};
+const DEFAULTS={stats:{},misses:[],answered:0,read:{},best:{}};
 function loadLocal(){try{return JSON.parse(localStorage.getItem('outlier-progress')||'{}');}catch(e){return {};}}
 function saveLocal(){try{localStorage.setItem('outlier-progress',JSON.stringify(S));}catch(e){}}
 let S=Object.assign({},DEFAULTS,loadLocal());
@@ -919,7 +949,7 @@ function renderNav(){
   VIEWS.forEach(([id,name,g])=>{
     let meta='';
     if(id==='drill')meta=S.answered?`${S.answered} done`:'';
-    if(id==='lab')meta=String(Object.values(G).filter(g=>g.topic==='excel').length);
+    if(id==='lab'){const xs=Object.values(G).filter(g=>g.topic==='excel');meta=`${xs.filter(g=>S.stats[g.id]&&S.stats[g.id].ok>0).length}/${xs.length}`;}
     if(id==='log')meta=S.misses.length?String(S.misses.length):'';
     if(id==='traps')meta=String(TRAPS.length);
     if(id==='learn')meta=`${LEARN.filter(l=>(S.read||{})[l.id]).length}/${LEARN.length} read`;
@@ -1096,7 +1126,7 @@ const WEEKS=[
 function vMap(){
   const all=acc(Object.keys(G)), tried=Object.keys(G).filter(id=>S.stats[id]&&S.stats[id].n).length;
   const mastered=Object.keys(G).filter(id=>S.stats[id]&&S.stats[id].streak>=3).length;
-  $('#view').innerHTML=head('You','Course map')+`<div class="summary"><div class="tile"><div class="v">${all.n}</div><div class="l">questions answered</div></div><div class="tile"><div class="v">${all.p===null?'—':Math.round(all.p*100)+'%'}</div><div class="l">overall accuracy</div></div><div class="tile"><div class="v">${tried}/${Object.keys(G).length}</div><div class="l">question types tried</div></div><div class="tile"><div class="v">${mastered}</div><div class="l">types on a 3+ streak</div></div></div>
+  $('#view').innerHTML=head('You','Course map')+`<div class="summary"><div class="tile"><div class="v">${all.n}</div><div class="l">questions answered</div></div><div class="tile"><div class="v">${all.p===null?'—':Math.round(all.p*100)+'%'}</div><div class="l">overall accuracy</div></div><div class="tile"><div class="v">${tried}/${Object.keys(G).length}</div><div class="l">question types tried</div></div><div class="tile"><div class="v">${mastered}</div><div class="l">types on a 3+ streak</div></div><div class="tile"><div class="v">${Object.values(G).filter(g=>g.topic==='excel'&&S.stats[g.id]&&S.stats[g.id].ok>0).length}/${Object.values(G).filter(g=>g.topic==='excel').length}</div><div class="l">Excel lab tasks solved</div></div></div>
   <div class="weeks">${WEEKS.map(([n,t,s,topic])=>{
     const live=topic&&topic!=='mid'; const a=live?acc(Object.keys(G).filter(id=>G[id].topic===topic)):null;
     const ch=LEARN.find(l=>l.week===n);
@@ -2022,6 +2052,7 @@ def('rules','prob','Probability rules','Complement, addition rule, independence'
   if(v==='atleast'){q=`Two independent job applications with interview chances ${P1} and ${P2}. P(at least one interview)?`;val=1-(1-P1)*(1-P2);steps=[`Complement of "none": <div class="eq">1 − (1 − ${P1})(1 − ${P2}) = 1 − ${fx(1-P1,2)}·${fx(1-P2,2)} = ${fx(val,4)}</div>`,`Or with the addition rule: ${P1} + ${P2} − ${P1}·${P2}.`];traps=[{value:P1+P2,msg:'Adding double-counts the case where both invite her. Use 1 − P(none).'},{value:P1*P2,msg:'That is P(both). "At least one" is 1 − P(neither).'}];}
   if(v==='exactlyone'){q=`A man survives 25 years with probability ${P1}, his wife with ${P2}, independently. P(exactly one of them is alive after 25 years)?`;val=P1*(1-P2)+(1-P1)*P2;steps=[`Only him + only her (disjoint, so add): <div class="eq">${P1}·${fx(1-P2,2)} + ${fx(1-P1,2)}·${P2} = ${fx(P1*(1-P2),4)} + ${fx((1-P1)*P2,4)} = ${fx(val,4)}</div>`];traps=[{value:P1+P2,msg:'That counts "both alive" too (twice). Exactly one = only him + only her.'},{value:1-(1-P1)*(1-P2),msg:'That is "at least one", which includes both alive.'}];}
   if(v==='repeat'){const n=ri(3,24),p=pick([1/6,1/36,0.01,0.05,0.1]),ps=p===1/6?'1/6':p===1/36?'1/36':String(p);q=`An event has probability ${ps} per independent trial. P(it happens at least once in ${n} trials)?`;val=1-(1-p)**n;steps=[`<div class="eq">1 − P(never) = 1 − (1 − ${ps})<sup>${n}</sup> = ${fx(val,4)}</div>`,'De Méré’s bets: 1 − (5/6)⁴ = 51.77%, 1 − (35/36)²⁴ = 49.14%.'];traps=[{value:n*p,msg:'n·p is not a probability (it can exceed 1). Use 1 − (1 − p)ⁿ.'},{value:p**n,msg:'That is P(it happens every time).'}];}
+  val=rnd(val,10);
   return {title:'Apply the rules',prompt:`<p>${q} Round to 4 decimals.</p>`,fields:[keepTraps({label:'P',value:val,tol:{abs:0.0006},traps})],steps};
 });
 
@@ -2139,7 +2170,7 @@ const XDE={'SUMPRODUCT':'SUMMENPRODUKT','SUMIFS':'SUMMEWENNS','SUMIF':'SUMMEWENN
 const toDE=f=>f.replace(/\b([A-Z][A-Z.]*)(?=\()/g,m=>XDE[m]||m).replace(/,/g,';');
 function dataBlock(head,rows,note){
   const tsv=[head.join('\t'),...rows.map(r=>r.join('\t'))].join('\n'), id='d'+Math.random().toString(36).slice(2,8);
-  return `<div class="xdata"><div class="xdata-bar"><span>${note||'Data: paste into cell <b>A1</b> of an empty sheet'}</span><button class="btn btn-ghost xcopy" data-copy="${id}">Copy data</button></div><textarea class="xtsv" id="${id}" readonly hidden>${esc(tsv)}</textarea>${table(head,rows.map(r=>r.map(c=>typeof c==='number'?String(c):esc(c))))}</div>`;
+  return `<div class="xdata"><div class="xdata-bar"><span>${note||'Data: paste into cell <b>A1</b> of an empty sheet'}</span><button class="btn btn-ghost xcopy" data-copy="${id}">Copy data</button></div><textarea class="xtsv" id="${id}" readonly hidden>${esc(tsv)}</textarea>${table(head,rows.map(r=>r.map(c=>typeof c==='number'?String(c):esc(c))),{txt:head.map((_,j)=>j).filter(j=>rows.some(r=>r[j]!==''&&isNaN(parseFloat(r[j]))))})}</div>`;
 }
 function fTable(rows){return `<div class="tbl-wrap"><table class="ref xf"><thead><tr><th>Cell / step</th><th>English Excel</th><th>German Excel</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r[0]}</td><td class="f">${esc(r[1])}</td><td class="f">${esc(toDE(r[1]))}</td></tr>`).join('')}</tbody></table></div>`;}
 document.addEventListener('click',e=>{
@@ -2289,6 +2320,322 @@ function vLab(){
   if(!current.q||current.genId!==current.gen)newQuestion();
   renderDrillBody();
 }
+
+/* =====================================================================
+   PART 3: explanations for every question type, hints, Excel lab progress
+   ===================================================================== */
+const EXPLAIN={
+/* ----- week 2 ----- */
+sigma:{ch:'ch2',sec:'ch2-sigma',idea:'Σ is shorthand for "add up a list of terms that all look the same". The i = 1 below and the 4 on top say which rows to use. Read it like a loop: plug in row 1, then row 2, and so on, and add the results.',
+ how:['Write out the term once for every row i, using that row’s x (and w).','Inside each term, do what the brackets say first: subtract, square, multiply.','Only then add the terms up.','A constant multiplying every term can be pulled out front: Σ c·x<sub>i</sub> = c·Σ x<sub>i</sub>.'],
+ watch:'Order of operations. In Σ(x<sub>i</sub> − a)² you square each difference before adding. Squaring the total gives a different number.'},
+relfreq:{ch:'ch2',sec:'ch2-words',idea:'A relative frequency answers "what share of everyone is in this group?". It’s a count divided by the grand total, so all the shares add up to 100%.',
+ how:['Add all counts to get the total N.','Divide the group’s count by N.','Multiply by 100 to get percent.'],
+ watch:'Answering with the decimal (0.31) when percent (31.51%) is asked, or dividing by the wrong total.'},
+scale:{ch:'ch2',sec:'ch2-scales',idea:'The scale tells you what you are allowed to do with the numbers. Ask three yes/no questions in order and stop at the first "no".',
+ how:['Can the values be put in a meaningful order? No → <b>nominal</b>.','Are the distances between values meaningful? No → <b>ordinal</b>.','Is zero a real "nothing", so that "twice as much" makes sense? No → <b>interval</b>. Yes → <b>ratio</b>.'],
+ watch:'Codes (1 = single, 2 = married) look like numbers but are still nominal. Years and °C look like ratio data but their zero is a convention, so they’re interval.'},
+chart:{ch:'ch2',sec:'ch2-charts',idea:'Choose the chart from the job the data has to do: change over time, parts of one whole, comparing categories, or composition within groups.',
+ how:['Development over time → line chart.','How one total splits into parts → pie chart.','Compare categories side by side → clustered columns (or bars if labels are long).','Show the composition of each total → stacked columns.'],
+ watch:'Bar and column axes must start at 0, or small differences look huge. Avoid 3D effects.'},
+/* ----- week 3 ----- */
+mean:{ch:'ch3',sec:'ch3-mean',idea:'The mean is the balance point: the value every observation would have if the total were shared out equally.',
+ how:['Add all the values.','Divide by how many values there are (n).'],
+ watch:'Miscounting n, and rounding too early. Keep full precision until the end.'},
+wmean:{ch:'ch3',sec:'ch3-wmean',idea:'When values occur different numbers of times, each value has to count as often as it occurs. That is a weighted mean. The key question is: what is one observation here, a store or a unit sold?',
+ how:['Decide what one observation is. "Price paid by customers" means one unit sold = one observation.','Multiply each value by its weight (its count).','Add those products.','Divide by the sum of the weights.'],
+ watch:'The plain average of the store prices treats a store that sold 50 units the same as one that sold 350. That answers a different question (average <i>asking</i> price).'},
+median:{ch:'ch3',sec:'ch3-median',idea:'The median is the middle of the <b>sorted</b> list: half the values lie below it, half above. Unlike the mean, a few extreme values can’t pull it away.',
+ how:['Sort the values from small to large.','Compute the position (n + 1)/2.','If the position is a whole number, the value there is the median.','If it ends in .5 (n is even), average the two values on either side.'],
+ watch:'Taking the middle of the unsorted list, or picking just one of the two middle values when n is even.'},
+wmedian:{ch:'ch3',sec:'ch3-median',idea:'With frequencies, every unit is one observation. So the median is the value of the middle unit, and you find it by counting through the cumulative frequencies.',
+ how:['Sort by value.','Add up the frequencies from the top to get cumulative counts.','The middle unit is number N/2 (and N/2 + 1 if N is even).','Find the row whose cumulative count first reaches that number. Its value is the median.'],
+ watch:'Taking the median of the distinct prices ignores how many units were sold at each price.'},
+gmedian:{ch:'ch3',sec:'ch3-grouped',idea:'With classes you don’t know the individual values. So you assume they are spread evenly within each class. Then you walk along the cumulative shares until you reach 50%. The median lies exactly as far into its class as the missing percentage points are of the class’s share.',
+ how:['Relative frequency of each class = count / total.','Cumulative share = running total of those.','The median class is the first one whose cumulative share reaches 50%.','Fraction into the class = (50% − cumulative share before the class) / share of the class.','Median = lower bound + fraction × class width.'],
+ watch:'Answering with the class midpoint, or using 1-Var Stats’ Med on midpoints. Both ignore where inside the class the 50% mark falls.'},
+gquant:{ch:'ch3',sec:'ch3-quantiles',idea:'A p-quantile is the value not exceeded by p of the observations. For grouped data it works exactly like the median, with p in place of 50%.',
+ how:['Compute the cumulative shares.','Find the first class whose cumulative share reaches p.','Fraction into the class = (p − cumulative share before) / share of the class.','Quantile = lower bound + fraction × class width.'],
+ watch:'Using the wrong class: it must be the first one where the cumulative share reaches p, not the one where p is "closest".'},
+gmean:{ch:'ch3',sec:'ch3-wmean',idea:'Without individual values, let each class midpoint stand in for all members of that class, then take a weighted mean.',
+ how:['Midpoint of each class = (lower + upper bound)/2.','Multiply each midpoint by its frequency.','Add the products and divide by the total frequency.'],
+ watch:'Using lower or upper bounds instead of midpoints, or averaging the midpoints without weights. An open class needs an assumed value.'},
+skew:{ch:'ch3',sec:'ch3-skew',idea:'Mean and median react differently to a long tail: the mean gets pulled toward the tail, the median doesn’t. So their order tells you on which side the tail is.',
+ how:['Mean &gt; median → long tail on the right → right-skewed (typical for income).','Mean &lt; median → left-skewed.','Mean = median → symmetric.'],
+ watch:'Memory trick: the mean chases the tail.'},
+/* ----- week 4 ----- */
+var:{ch:'ch4',sec:'ch4-var',idea:'Variance measures how far values typically are from the mean: the average squared deviation. Squaring stops positive and negative deviations from cancelling out. The standard deviation is its square root, back in the original unit. Divide by n for a complete population (σ), by n − 1 for a sample or when the question says "empirical" (s).',
+ how:['Range = max − min.','Compute the mean.','Subtract the mean from every value and square the result.','Add the squares.','Divide by n (population σ²) or n − 1 (empirical s²).','Standard deviation = square root of the variance.'],
+ watch:'Using the wrong divisor, or giving the variance when the standard deviation is asked (or the reverse).'},
+gsd:{ch:'ch4',sec:'ch4-var',idea:'Same idea as raw-data variance, but each class midpoint stands in for its members, and each squared deviation counts as often as the class frequency.',
+ how:['Midpoints, then the weighted mean x̄.','For each class: frequency × (midpoint − x̄)².','Add them and divide by N (complete survey).','σ = square root. CV = σ / x̄.'],
+ watch:'Forgetting to weight each squared deviation by its frequency, or reporting the variance instead of σ.'},
+transform:{ch:'ch4',sec:'ch4-trans',idea:'Adding the same amount to everyone slides the whole distribution: the center moves, the spread doesn’t. Multiplying everyone by a factor stretches it: center and spread both scale, so their ratio (the CV) stays the same.',
+ how:['+c: new mean = mean + c; SD unchanged; CV = SD / new mean (smaller).','×k: new mean = k·mean; new SD = k·SD; CV unchanged.'],
+ watch:'Adding c to the standard deviation. Every value and the mean move together, so the distances between them don’t change.'},
+cv:{ch:'ch4',sec:'ch4-cv',idea:'A standard deviation depends on the level of the data: CHF 5 of spread is huge for a CHF 10 share and tiny for a CHF 900 one. The coefficient of variation CV = SD / mean expresses spread as a share of the level, so it can compare anything.',
+ how:['Compute CV = SD / mean for each data set.','The larger CV is the one that fluctuates more, relative to its level.'],
+ watch:'Comparing raw standard deviations across data at different levels.'},
+wsd:{ch:'ch4',sec:'ch4-s',idea:'With a frequency table, every unit is one observation. So n is the total count, and each squared deviation counts as often as its frequency. Because this is a sample, divide by n − 1.',
+ how:['n = sum of all frequencies.','Weighted mean x̄ = Σ N·x / n.','For each row: N × (x − x̄)².','Add them up and divide by n − 1.','s = square root.'],
+ watch:'Using the number of rows (5 stores) as n. On the calculator, L2 must contain the counts, not percentages.'},
+iqr:{ch:'ch4',sec:'ch4-iqr',idea:'Quartiles cut the data into four equal parts. With a table of individual values (like grades), Q1 is the first value whose cumulative share reaches 25%, and Q3 the first that reaches 75%. The IQR (Q3 − Q1) is the spread of the middle half, so outliers don’t affect it.',
+ how:['Compute the cumulative share for each value.','Q1 = first value where the cumulative share is ≥ 25%.','Q3 = first value where it is ≥ 75%.','IQR = Q3 − Q1.'],
+ watch:'Picking the value just before the 25% mark, or giving the range (max − min) instead of the IQR.'},
+fence:{ch:'ch4',sec:'ch4-box',idea:'A boxplot flags values that lie unusually far outside the middle 50%. "Unusually far" is defined as more than 1.5 × IQR below Q1 or above Q3.',
+ how:['IQR = Q3 − Q1.','Lower fence = Q1 − 1.5·IQR. Upper fence = Q3 + 1.5·IQR.','Any value below the lower fence or above the upper fence is an outlier, drawn as a separate dot.'],
+ watch:'Using 1 × IQR, or multiplying Q3 instead of the IQR by 1.5.'},
+/* ----- week 5 ----- */
+simple:{ch:'ch5',sec:'ch5-simple',idea:'An index rescales a series so that the base period equals 100. Every value then reads as "percent of the base period": 112.7 means 12.7% more than in the base year.',
+ how:['Find the value in the base period.','Divide the value you want by it.','Multiply by 100.'],
+ watch:'Dividing the wrong way round. The base period always goes in the denominator.'},
+rebase:{ch:'ch5',sec:'ch5-base',idea:'Two indices can only be compared if they share a base. Moving to a new base year means dividing every value by the value in that year and multiplying by 100. All ratios between years stay the same; only the label "= 100" moves.',
+ how:['Look up the index value in the new base year.','Divide the year you want by it.','Multiply by 100.'],
+ watch:'Shifting by subtraction (I − I<sub>b</sub> + 100). That breaks the ratios between years.'},
+chain:{ch:'ch5',sec:'ch5-chain',idea:'When a price index is revised, the old and the new series are both published for one overlap period. The ratio of the two in that period converts one series into the units of the other.',
+ how:['Find the overlap month (both series have a value).','Old → new base: old value × 100 / old value at overlap.','New → old base: new value × old value at overlap / 100.'],
+ watch:'Adding or subtracting the gap between the series. Chaining is a multiplication, like rebasing.'},
+lasq:{ch:'ch5',sec:'ch5-lasp',idea:'Laspeyres asks: what would the same base-period basket cost today? Freeze the quantities from the base period, price them at today’s prices, and compare with what that basket cost in the base period.',
+ how:['Base cost = Σ base quantity × base price.','Current cost of the same basket = Σ base quantity × current price.','Index = current cost / base cost × 100.'],
+ watch:'Averaging the price changes without quantities. A good that is a tiny part of the basket would count as much as the biggest one.'},
+lasw:{ch:'ch5',sec:'ch5-lasp',idea:'The same Laspeyres index, seen differently: a weighted average of each good’s own price index. Each good’s weight is its share of base-period spending.',
+ how:['Convert the weights to decimals (they sum to 1).','Multiply each simple index by its weight.','Add the products.'],
+ watch:'The plain average of the simple indices ignores how important each good is in the basket.'},
+pct:{ch:'ch5',sec:'ch5-pct',idea:'Index points are an absolute difference. A percentage change is relative to where you started. They only coincide when the start value is exactly 100.',
+ how:['Points = new − old.','Percent = new / old − 1, times 100.'],
+ watch:'Reporting the point change as a percentage.'},
+real:{ch:'ch5',sec:'ch5-real',idea:'The real return answers: how much more can I <b>buy</b>? Your money grew by one factor, prices by another. Dividing the two factors gives the growth in purchasing power.',
+ how:['Nominal growth factor = product of (1 + rate) over all periods.','Price factor = CPI at the end / CPI at the start.','Real return = nominal factor / price factor − 1.'],
+ watch:'Subtracting the inflation rate from the interest rate is only an approximation, and adding rates ignores compounding.'},
+power:{ch:'ch5',sec:'ch5-real',idea:'The CPI ratio between two years tells you how many francs in one year buy what one franc bought in the other.',
+ how:['Identify the year you start from and the year you convert to.','Multiply the amount by CPI(target year) / CPI(start year).'],
+ watch:'Flipping the ratio. Sanity check: if prices rose, the later-year amount must be the bigger number.'},
+/* ----- week 6 ----- */
+corr:{ch:'ch6',sec:'ch6-cov',idea:'For each point, multiply its deviation from x̄ by its deviation from ȳ. If x and y tend to be above (or below) their means together, the products are mostly positive. Averaging them gives the covariance. Dividing by both standard deviations removes the units and gives r, always between −1 and 1.',
+ how:['Compute x̄ and ȳ.','For each pair: (x − x̄)·(y − ȳ).','Add the products and divide by n − 1 → s<sub>xy</sub>.','Compute s<sub>x</sub> and s<sub>y</sub> (also with n − 1).','r = s<sub>xy</sub> / (s<sub>x</sub>·s<sub>y</sub>).'],
+ watch:'Dividing the covariance by n when the sample version is asked. r is the same either way, the covariance isn’t.'},
+corrmc:{ch:'ch6',sec:'ch6-limits',idea:'r measures only straight-line association. It says nothing about cause and effect, and it has no unit.',
+ how:['Strong r → strong linear association, nothing more.','A third variable (confounding) can drive both.','r = 0 can still hide a curved relationship: look at the scatter plot.'],
+ watch:'Reading a high r as proof that one variable causes the other.'},
+triage:{ch:'ch3',sec:'ch3-which',idea:'Before computing, decide what the question is really after: a typical value, a spread, a change over time, a relationship, a count or a probability. The tool follows from that.',
+ how:['"Average / typical" → mean, weighted mean or median (median if outliers or ordinal data).','"How spread out / how risky" → SD, or CV across different levels.','"Over time / relative to a base" → index, percent change, chaining.','"Do they move together" → r. "How much / predict" → regression.','"How many ways" → counting. "How likely" → probability rules or binomial.'],
+ watch:'Reaching for the mean by reflex. Outliers or ordinal data call for the median.'},
+/* ----- week 8 ----- */
+regfit:{ch:'ch8',sec:'ch8-ls',idea:'The least squares line is the straight line with the smallest sum of squared vertical misses (residuals). Its slope is the covariance divided by the variance of x. The line always passes through the centroid (x̄, ȳ), which gives the intercept.',
+ how:['Compute x̄ and ȳ.','Σ(x − x̄)(y − ȳ) and Σ(x − x̄)².','β = first sum / second sum.','b = ȳ − β·x̄.','Prediction: ŷ = β·x + b.'],
+ watch:'Swapping x and y: you get the regression of x on y, a different line. In Excel, y goes first: SLOPE(y, x).'},
+r2:{ch:'ch8',sec:'ch8-r2',idea:'R² is the share of the variance in y that the line explains. In simple regression it’s just r². And since β = r·s<sub>y</sub>/s<sub>x</sub> with positive standard deviations, the slope has the same sign as r.',
+ how:['R² = r², in % multiply by 100.','Unexplained share = 100% − R².','Sign of β = sign of r.'],
+ watch:'Reporting |r| instead of r².'},
+regint:{ch:'ch8',sec:'ch8-interp',idea:'The slope says how much y changes, on average, when x goes up by one unit, and you must say it in the units of both variables. The intercept is needed for predictions but rarely has a sensible meaning. And predictions are only trustworthy inside the range of the data.',
+ how:['Translate the slope with both units (thousands, millions, percentage points).','Treat the intercept as a technical constant.','Check that the x you predict for lies inside the observed range.'],
+ watch:'Ignoring units: 0.071 can mean CHF 71 000 when y is in millions and x in thousands.'},
+/* ----- week 9 ----- */
+count:{ch:'ch9',sec:'ch9-comb',idea:'Ask two questions: am I arranging <b>all</b> items or picking <b>some</b>? And does the <b>order</b> (or the role) matter? Those two answers pick the formula.',
+ how:['All n items in a row → n!.','k of n, order or roles matter → n·(n − 1)·…·(n − k + 1).','k of n, order doesn’t matter (a group) → C(n, k).','Several independent choices → multiply the counts.','A group made of sub-groups → multiply the C’s.'],
+ watch:'Dividing by k! when the positions are different (president vs vice), or forgetting to divide when they aren’t.'},
+laplace:{ch:'ch9',sec:'ch9-laplace',idea:'When every outcome is equally likely, a probability is just counting: favorable outcomes divided by possible outcomes. The work is counting both correctly.',
+ how:['List or count all equally likely outcomes (two dice: 36 ordered pairs).','Count the outcomes that belong to the event.','Make sure no outcome is counted twice.','P = favorable / possible.'],
+ watch:'Double-counting overlaps, like (6,6) in "at least one six", or the ace of hearts in "heart or ace".'},
+/* ----- week 10 ----- */
+rules:{ch:'ch10',sec:'ch10-axioms',idea:'Instead of listing outcomes, use three rules. "Not" → complement. "Or" → addition rule (subtract the overlap). "And" → multiply, but only if the events are independent. "At least one" is easiest as 1 − P(none).',
+ how:['Translate the words: "at least one", "both", "exactly one", "neither".','At least one = 1 − P(none). Neither = 1 − P(A ∪ B).','A or B = P(A) + P(B) − P(A ∩ B).','Both (independent) = P(A)·P(B).','Exactly one = only A + only B.'],
+ watch:'Adding probabilities without subtracting the overlap, or using n·p for "at least once in n tries".'},
+indep:{ch:'ch10',sec:'ch10-indep',idea:'Disjoint and independent are different ideas. Disjoint: the events can’t happen together, so you add. Independent: one happening doesn’t change the chance of the other, so you multiply.',
+ how:['Disjoint (A ∩ B = ∅) → P(A ∪ B) = P(A) + P(B).','Independent → P(A ∩ B) = P(A)·P(B).','Test for independence: compare P(A ∩ B) with P(A)·P(B).'],
+ watch:'Thinking disjoint events are independent. If they can’t happen together, one happening tells you the other didn’t.'},
+/* ----- week 11 ----- */
+ev:{ch:'ch11',sec:'ch11-ev',idea:'The expected value is the probability-weighted average of the values: what you get on average in the long run. The variance is the probability-weighted average of the squared distances from it. It’s the weighted mean and variance from Chapters 3–4, with probabilities as weights.',
+ how:['E[X] = Σ P(x)·x.','For each value: P(x)·(x − E)².','Var = sum of those; σ = square root.','No n − 1: these are probabilities, not a sample.'],
+ watch:'Averaging the values without their probabilities.'},
+evrules:{ch:'ch11',sec:'ch11-var',idea:'Expectation passes straight through sums and constants. Variance ignores added constants, squares multipliers, and for independent variables adds up, even for differences, because subtracting another uncertain quantity adds uncertainty.',
+ how:['E[aX + b] = a·E[X] + b. E[X ± Y] = E[X] ± E[Y].','Var(aX + b) = a²·Var(X).','Independent: Var(X ± Y) = Var(X) + Var(Y).','For an SD: compute the variance first, then take the root.'],
+ watch:'Forgetting to square a, or writing Var(X − Y) = Var(X) − Var(Y).'},
+cdf:{ch:'ch11',sec:'ch11-pmf',idea:'The cdf F(x) = P(X ≤ x) adds up the pmf from the left. Everything else can be built from it.',
+ how:['P(X ≤ k): add the pmf for all values up to and including k.','P(X > k) = 1 − P(X ≤ k).','P(X = k): read the pmf directly.'],
+ watch:'Leaving out k itself in "≤ k", or including it in "> k".'},
+/* ----- week 12 ----- */
+simmc:{ch:'ch12',sec:'ch12-excel',idea:'Simulation turns uniform random numbers into the experiment you want, repeats it many times, and averages. By the law of large numbers, the share of runs where something happened approaches its probability.',
+ how:['RAND() is uniform on [0, 1), so RAND() &lt; p happens with probability p.','RANDBETWEEN(a, b) gives whole numbers, each equally likely.','One row = one run; a 1/0 column marks the event; AVERAGE of that column = estimate.'],
+ watch:'Mixing up &lt; and &gt;: IF(RAND()&gt;0.3, 1, 0) gives 1 with probability 0.7, not 0.3.'},
+/* ----- week 13 ----- */
+binom:{ch:'ch13',sec:'ch13-translate',idea:'X counts successes in n independent yes/no trials with the same p. The tools only give you two things: exactly k (pmf) and at most k (cdf). Every question has to be translated into one of those.',
+ how:['Check it’s binomial: n fixed, independent, same p, counting successes.','Translate: at most k → F(k); fewer than k → F(k − 1); at least k → 1 − F(k − 1); more than k → 1 − F(k); exactly k → f(k).','Evaluate with BINOM.DIST or binomcdf / binompdf.'],
+ watch:'The off-by-one in "at least": P(X ≥ 9) = 1 − F(8), not 1 − F(9).'},
+binmean:{ch:'ch13',sec:'ch13-moments',idea:'Each trial adds p successes on average, so n trials give n·p. The variance is n·p·(1 − p), largest when p = 0.5.',
+ how:['E[X] = n·p.','Var[X] = n·p·(1 − p).','σ = √Var.'],
+ watch:'Reporting the variance as σ, or forgetting the (1 − p).'},
+/* ----- Excel lab: click-by-click walkthroughs ----- */
+xrefs:{ch:'ch1',sec:'ch1-refs',idea:'One formula can fill a whole table if you tell Excel which parts must stay fixed when it’s copied. The $ sign locks the column letter or row number that follows it.',
+ walk:['Copy the data and click cell A1 of an empty sheet, then paste (Ctrl+V). Row 1 now holds the numbers across, column A the numbers down.','Click B2 and type <code class="x">=$A2*B$1</code>, then press Enter.','How to read it: <b>$A2</b> means "always column A, in my own row". <b>B$1</b> means "my own column, always row 1". So every cell multiplies its row header by its column header.','Click B2 again, grab the small square at its bottom-right corner (the fill handle) and drag it to K2. With B2:K2 still selected, drag the fill handle down to row 11.','Spot-check: click any cell, e.g. D5. The formula bar should show =$A5*D$1.','In an empty cell type <code class="x">=SUM(B2:K11)</code> and Enter.'],
+ watch:'Without the $ signs, the references drift when you copy and the table fills with wrong products.'},
+xlookup:{ch:'ch1',sec:'ch1-fns',idea:'Lookups fetch a value from a table by a key (here the employee ID). COUNTIF counts the rows that match a condition. IF picks between two results based on a test.',
+ walk:['Paste the data into A1. Columns: A = ID, B = Name, C = Department, D = Salary, rows 2–13.','(a) In an empty cell type <code class="x">=XLOOKUP(id,A2:A13,D2:D13)</code> with the requested ID. Read it: "find this ID in column A, return the matching cell from column D". Older Excel: <code class="x">=VLOOKUP(id,A2:D13,4,0)</code> = look in the first column of A2:D13, return column 4, exact match.','(b) Type <code class="x">=COUNTIF(C2:C13,"Sales")</code> with the department in quotes.','(c) Click E2 and type <code class="x">=IF(D2&gt;90000,0.1*D2,0.05*D2)</code>: if the salary is above 90 000, 10% of it, otherwise 5%. Fill it down to E13 (double-click the fill handle).','Total: <code class="x">=SUM(E2:E13)</code>.'],
+ watch:'VLOOKUP without the final 0 may return a wrong row without any warning.'},
+xpivot:{ch:'ch1',sec:'ch1-pivot',idea:'A pivot table summarizes a long list by dragging fields into place: no formulas, and the original data stays untouched.',
+ walk:['Paste the data into A1, then click any cell inside it.','Insert → PivotTable → OK (new worksheet).','In the field list on the right: drag <b>Canton</b> to Columns, <b>Revenue</b> to Values (it should say "Sum of Revenue"), and <b>Month</b> to Rows.','(a) Read the Grand Total at the bottom of the canton’s column.','(b) Drag <b>Rep</b> to Filters, open the filter at the top and pick the rep. Add the Apr, May and Jun rows in the canton totals column ("Grand Total").','Optional check with formulas: <code class="x">=SUMIF(B:B,"LU",D:D)</code> adds column D wherever column B says LU.'],
+ watch:'Month names typed as text can’t be grouped into quarters. With real dates you could right-click → Group → Quarters.'},
+xfreq:{ch:'ch2',sec:'ch2-tables',idea:'A frequency table counts how often each category occurs (COUNTIF) and turns the counts into shares by dividing by the total.',
+ walk:['Paste the answers into A1 (they fill A2:A41).','Type the four categories into C2:C5 exactly as they appear in the data.','Click D2, type <code class="x">=COUNTIF($A$2:$A$41,C2)</code>: "count the cells in A2:A41 equal to C2". The $ keeps the data range fixed while C2 becomes C3, C4, C5. Fill down to D5.','Click E2, type <code class="x">=D2/SUM($D$2:$D$5)</code>, fill down, and format column E as % (Home → %).','Chart: select C1:D5 → Insert → Column chart. Keep the natural order of the categories.'],
+ watch:'A typo in a category name in C makes COUNTIF return 0.'},
+xloc:{ch:'ch3',sec:'ch3-wmean',idea:'AVERAGE treats every row equally. For a weighted mean, SUMPRODUCT multiplies each price by its units and adds the products; dividing by the total units gives the average price paid.',
+ walk:['Paste into A1: prices in A2:A9, units in B2:B9.','(a) <code class="x">=AVERAGE(A2:A9)</code>: each store counts once.','(b) <code class="x">=SUMPRODUCT(A2:A9,B2:B9)/SUM(B2:B9)</code>: price × units for every row, added up, divided by all units sold.','(c) <code class="x">=MEDIAN(A2:A9)</code>. With 8 values Excel averages the 4th and 5th sorted values for you.','Format the results to 2 decimals (Home → Decrease/Increase Decimal).'],
+ watch:'Dividing the SUMPRODUCT by 8 (number of stores) instead of the total units.'},
+xtrend:{ch:'ch3',sec:'ch3-grouped',idea:'TREND draws a straight line through two known points and reads a value off it. If the points are (cumulative share, class bound), that is exactly the interpolation formula for grouped quantiles.',
+ walk:['Paste into A1: A = from, B = to under, C = count.','D2: <code class="x">=C2/SUM($C$2:$C$n)</code> (relative frequency), fill down.','E2: <code class="x">=SUM($D$2:D2)</code>, fill down. The first $D$2 is locked, the second end moves, so each row adds everything up to itself: cumulative shares.','Find the median class: the first row where E reaches 0.5. Call its row r.','Type <code class="x">=TREND(B(r−1):B(r),E(r−1):E(r),0.5)</code>. B(r−1) is the upper bound of the class above = the lower bound of the median class, and E(r−1) is the cumulative share there. B(r) and E(r) are the other end of the class.','Same for Q3 with 0.75 and the Q3 class.'],
+ watch:'Taking the bounds of the wrong class, or using A instead of B for the y-values.'},
+xdisp:{ch:'ch4',sec:'ch4-s',idea:'Excel has a "population" (.P) and a "sample" (.S) version of every spread function. .P divides by n, .S by n − 1. PERCENTILE.EXC gives the quantiles the course uses for raw data.',
+ walk:['Paste into A1: values in A2:A13.','(a) <code class="x">=VAR.P(A2:A13)</code>: population variance σ².','(b) <code class="x">=STDEV.S(A2:A13)</code>: empirical standard deviation s. German Excel: STABW.S.','(c) <code class="x">=STDEV.P(A2:A13)/AVERAGE(A2:A13)</code>, then format as %.','(d) <code class="x">=PERCENTILE.EXC(A2:A13,0.75)-PERCENTILE.EXC(A2:A13,0.25)</code>. German: QUANTIL.EXKL.'],
+ watch:'Mixing .P and .S. The question decides which: complete population → .P, sample/empirical → .S.'},
+xindex:{ch:'ch5',sec:'ch5-simple',idea:'An index divides every value by the base-year value. In Excel you lock the base cell with $ so it stays fixed while the formula is filled down.',
+ walk:['Paste into A1: years in A, revenue in B.','Find the row of the base year, say row 3. Click C2 and type <code class="x">=B2/$B$3*100</code>.','Fill C2 down. B2 becomes B3, B4… but $B$3 stays the base. The base year should now show exactly 100.','(b) Percent change: <code class="x">=B6/B5-1</code> (new / old − 1) for the requested years, formatted as %. Using the index column gives the same result.'],
+ watch:'Forgetting the $: the denominator drifts down and every year shows 100.'},
+xlasp:{ch:'ch5',sec:'ch5-lasp',idea:'SUMPRODUCT of quantities and prices is the cost of the basket. Laspeyres keeps the base quantities and base prices fixed (locked with $) and only lets the current prices move.',
+ walk:['Paste into A1: months in A2:A5, prices of 3 goods in B:D, base quantities in row 6 (B6:D6).','Click E2 and type <code class="x">=SUMPRODUCT($B$6:$D$6,B2:D2)/SUMPRODUCT($B$6:$D$6,$B$2:$D$2)*100</code>.','Read it: numerator = cost of the base basket at this row’s prices. Denominator = cost of the base basket at month-0 prices (row 2, locked). × 100 = index.','Fill E2 down to E5. Month 0 shows 100.','Percent change from month 2 to 3: <code class="x">=E5/E4-1</code>, formatted as %.'],
+ watch:'Forgetting $ on row 6 or row 2: after filling down, the quantities or the base prices move and the index becomes nonsense.'},
+xcorr:{ch:'ch6',sec:'ch6-tools',idea:'COVARIANCE.S and COVARIANCE.P are the sample and population covariance. CORREL standardizes and gives r directly.',
+ walk:['Paste into A1: x in A2:A11, y in B2:B11.','(a) <code class="x">=COVARIANCE.S(A2:A11,B2:B11)</code> (German: KOVARIANZ.S).','(b) <code class="x">=COVARIANCE.P(A2:A11,B2:B11)</code>.','(c) <code class="x">=CORREL(A2:A11,B2:B11)</code> (German: KORREL).','Check: (a) should equal (b) × 10/9.','Optional: select A1:B11 → Insert → Scatter, and look at the pattern before trusting r.'],
+ watch:'Using COVARIANCE.P where a sample is meant. CORREL doesn’t care.'},
+xreg:{ch:'ch8',sec:'ch8-tools',idea:'Excel’s regression functions all take the <b>y</b>-list first. FORECAST.LINEAR plugs a new x into the fitted line.',
+ walk:['Paste into A1: contacts (x) in A2:A11, contracts (y) in B2:B11.','(a) <code class="x">=SLOPE(B2:B11,A2:A11)</code>: y first, then x.','(b) <code class="x">=INTERCEPT(B2:B11,A2:A11)</code>.','(c) <code class="x">=RSQ(B2:B11,A2:A11)</code>.','(d) <code class="x">=FORECAST.LINEAR(x0,B2:B11,A2:A11)</code> with the requested x0.','Chart: select A1:B11 → Insert → Scatter. Make sure contacts are on the horizontal axis. Right-click a point → Add Trendline → tick "Display equation" and "Display R-squared". It should match (a)–(c).'],
+ watch:'SLOPE(x, y) silently gives the slope of the wrong regression.'},
+xcomb:{ch:'ch9',sec:'ch9-comb',idea:'FACT(n) gives n!, COMBIN(n, k) gives "n choose k". Decide first whether you are arranging everything (n!) or choosing a group (C).',
+ walk:['(a) Visiting n customers in some order = arranging all of them: <code class="x">=FACT(n)</code>.','(b) A lottery draw is a group, order irrelevant: <code class="x">=COMBIN(N,k)</code>.','(c) A match is a pair of teams: <code class="x">=COMBIN(t,2)</code>.','German: FAKULTÄT, KOMBINATIONEN.'],
+ watch:'Computing C(n, k) as FACT(n)/(FACT(k)*FACT(n−k)) breaks for big n. COMBIN doesn’t.'},
+xev:{ch:'ch11',sec:'ch11-var',idea:'For a probability table, the expected value is SUMPRODUCT(values, probabilities). The variance is SUMPRODUCT(probabilities, squared deviations), and Excel can compute the squared deviations inside SUMPRODUCT.',
+ walk:['Paste into A1: revenue A in A2:A6, P(A) in B2:B6, revenue B in C2:C6, P(B) in D2:D6.','F2: <code class="x">=SUMPRODUCT(A2:A6,B2:B6)</code> → E[A]. F3: <code class="x">=SUMPRODUCT(C2:C6,D2:D6)</code> → E[B].','σ_A: <code class="x">=SQRT(SUMPRODUCT(B2:B6,(A2:A6-F2)^2))</code>. Read it: for each row, (value − E)², times its probability, added up, square root.','σ_B the same with C, D and F3.','If Excel complains about the array: put (A2−$F$2)^2 in a helper column, fill down, and SUMPRODUCT that column with the probabilities.'],
+ watch:'Using STDEV on the five values ignores the probabilities.'},
+xsim:{ch:'ch12',sec:'ch12-excel',idea:'Each row simulates one roll of two dice. A 1/0 column marks whether the event happened. The average of that column is the share of rows where it happened, and by the law of large numbers that share approaches the true probability.',
+ walk:['In an empty sheet, type headers Die 1, Die 2, Event in A1:C1.','A2: <code class="x">=RANDBETWEEN(1,6)</code>. B2: the same.','C2: the event formula shown in the solution, e.g. <code class="x">=IF(A2=B2,1,0)</code> for doubles.','Select A2:C2, then click the Name Box (left of the formula bar), type A2:C1001 and Enter, then press Ctrl+D to fill down.','Estimate: <code class="x">=AVERAGE(C2:C1001)</code>. Press F9 a few times: it jumps around the true value.','To keep one run: copy A2:C1001 and Paste Special → Values.'],
+ watch:'Comparing your estimate with a different event than the one you simulated. The exact value is favorable pairs / 36.'},
+xbinom:{ch:'ch13',sec:'ch13-translate',idea:'BINOM.DIST(x, n, p, 0) gives P(X = x). With 1 instead of 0 it gives P(X ≤ x). Everything else is built from those.',
+ walk:['(a) Exactly k: <code class="x">=BINOM.DIST(k,n,p,0)</code>.','(b) At most k: <code class="x">=BINOM.DIST(k,n,p,1)</code>.','(c) At least k = not at most k − 1: <code class="x">=1-BINOM.DIST(k-1,n,p,1)</code>.','(d) One random draw: <code class="x">=BINOM.INV(n,p,RAND())</code>. Fill it down 1 000 rows and AVERAGE should approach n·p.','German: BINOM.VERT.'],
+ watch:'Using k instead of k − 1 in "at least".'},
+xgrades:{ch:'ch1',sec:'ch1-fns',idea:'A linear grade scale maps 0 points to 1.0 and the maximum to 6.0. ROUND does the rounding, and a doubling trick rounds to halves.',
+ walk:['Paste into A1: names in A, points in B (rows 2–11).','C2: <code class="x">=1+5*B2/40.5</code>. At 0 points that’s 1, at 40.5 it’s 6.','D2: <code class="x">=ROUND(C2,1)</code> rounds to one decimal.','E2: <code class="x">=ROUND(C2*2,0)/2</code>. Doubling turns halves into whole numbers, ROUND rounds those, halving goes back. 4.26 → 8.52 → 9 → 4.5.','F2: <code class="x">=IF(E2&gt;=4,0,1)</code> (0 = passed).','Select C2:F2 and fill down to row 11. Fails: <code class="x">=SUM(F2:F11)</code>.'],
+ watch:'Rounding with ROUND(C2,0.5). ROUND only takes a number of decimals.'}
+};
+
+/* ---------- formula anatomy for Excel solutions ---------- */
+const FN_EXPLAIN={
+'SUM':'adds up all numbers in the range.',
+'SUMPRODUCT':'multiplies the ranges row by row, then adds the products. The workhorse for weighted means, Laspeyres and expected values.',
+'AVERAGE':'arithmetic mean of the range.','MEDIAN':'middle value of the sorted range (averages the two middle ones if needed).',
+'COUNTIF':'counts the cells in the first range that match the condition.','SUMIF':'adds the cells of the last range where the first range matches the condition.',
+'SUMIFS':'adds the first range where all the condition pairs match.','IF':'IF(test, value if true, value if false).','OR':'true if at least one of its conditions is true.',
+'XLOOKUP':'XLOOKUP(what, where to search, what to return).','VLOOKUP':'VLOOKUP(what, table, column number, 0 for exact match). Searches the table’s first column.',
+'VAR.P':'population variance σ² (divides by n).','VAR.S':'sample variance s² (divides by n − 1).','STDEV.P':'population standard deviation σ (n).','STDEV.S':'empirical/sample standard deviation s (n − 1).',
+'PERCENTILE.EXC':'PERCENTILE.EXC(range, p): the p-quantile of raw data, the course’s method.','TREND':'TREND(y-values, x-values, new x): straight line through the known points, read at new x. Used for interpolation.',
+'CORREL':'correlation coefficient r.','COVARIANCE.S':'sample covariance s<sub>xy</sub> (n − 1).','COVARIANCE.P':'population covariance σ<sub>xy</sub> (n).',
+'SLOPE':'SLOPE(y, x): slope β of the least squares line. y first.','INTERCEPT':'INTERCEPT(y, x): intercept b. y first.','RSQ':'RSQ(y, x): coefficient of determination R².','FORECAST.LINEAR':'FORECAST.LINEAR(new x, y, x): the line’s prediction ŷ.',
+'FACT':'n! (factorial).','COMBIN':'C(n, k), "n choose k".','BINOM.DIST':'BINOM.DIST(x, n, p, 0) = P(X = x); with 1 = P(X ≤ x).','BINOM.INV':'BINOM.INV(n, p, u): the smallest x with P(X ≤ x) ≥ u. With u = RAND() it simulates a binomial draw.',
+'RANDBETWEEN':'random whole number between the two bounds, each equally likely.','RAND':'random number in [0, 1), new on every recalculation (F9).','ROUND':'ROUND(number, decimals).','SQRT':'square root.'};
+function anatomy(formulas){
+  const fns=[...new Set(formulas.flatMap(f=>[...f.matchAll(/\b([A-Z][A-Z.]*)\(/g)].map(m=>m[1])))].filter(n=>FN_EXPLAIN[n]);
+  const refs=[...new Set(formulas.flatMap(f=>f.match(/\$?[A-Z]{1,2}\$?\d+/g)||[]).filter(r=>r.includes('$')))];
+  const kind=r=>/^\$[A-Z]+\$\d+$/.test(r)?'fully locked: stays exactly '+r.replace(/\$/g,'')+' wherever you copy the formula':/^\$[A-Z]+\d+$/.test(r)?'column locked: always column '+r.match(/[A-Z]+/)[0]+', the row follows the formula':'row locked: always row '+r.match(/\d+/)[0]+', the column follows the formula';
+  if(!fns.length&&!refs.length)return '';
+  return `<div class="anat"><div class="keys-title">Formula, piece by piece</div><ul>${fns.map(n=>`<li><code class="x">${n}</code> <span class="de">(DE: ${XDE[n]||n})</span> ${FN_EXPLAIN[n]}</li>`).join('')}${refs.slice(0,4).map(r=>`<li><code class="x">${r}</code> is ${kind(r)}.</li>`).join('')}</ul></div>`;
+}
+const _fTable=fTable;
+fTable=function(rows){return _fTable(rows)+anatomy(rows.map(r=>r[1]));};
+
+/* ---------- solution panel: idea, recipe, numbers, pitfall, theory link ---------- */
+function explainHTML(id,open){
+  const e=EXPLAIN[id]; if(!e)return '';
+  const ch=LEARN.find(l=>l.id===e.ch);
+  return `<details class="explain" ${open?'open':''}><summary>Why this works</summary>
+    <p class="ex-idea">${e.idea}</p>
+    ${e.walk?`<h5>In Excel, click by click</h5><ol class="ex-steps">${e.walk.map(s=>`<li>${s}</li>`).join('')}</ol>`:''}
+    ${e.how?`<h5>The method in general</h5><ol class="ex-steps">${e.how.map(s=>`<li>${s}</li>`).join('')}</ol>`:''}
+    ${e.watch?`<div class="ex-watch"><b>Common mistake.</b> ${e.watch}</div>`:''}
+    ${ch?`<button class="btn-link ex-read" data-read-sec="${e.ch}|${e.sec||''}">Read more: ${ch.title}, Week ${ch.week} →</button>`:''}
+  </details>`;
+}
+solutionHTML=function(){
+  const q=current.q, id=current.genId, open=current.lastOutcome!=='ok';
+  return `<div class="solution">${explainHTML(id,open)}${q.steps?`<h4>${G[id].topic==='excel'?'Solution with your data':'Worked solution with your numbers'}</h4><ol>${q.steps.map(s=>`<li>${s}</li>`).join('')}</ol>`:''}${q.keys?`<div class="keys"><div class="keys-title">On the calculator (TI-84 Plus)</div>${q.keys}</div>`:''}</div>`;
+};
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-read-sec]'); if(!b)return;
+  const [ch,sec]=b.dataset.readSec.split('|'); current.ch=ch; go('learn');
+  if(sec)setTimeout(()=>{const t=document.getElementById(sec);if(t)t.scrollIntoView({block:'start'});},60);
+});
+
+/* ---------- hint button (idea + method, no numbers, no penalty) ---------- */
+function hintHTML(id){const e=EXPLAIN[id];if(!e)return '';return `<div class="hint-box"><b>Hint.</b> ${e.idea}${(e.walk||e.how)?`<ol class="ex-steps">${(e.walk||e.how).map(s=>`<li>${s}</li>`).join('')}</ol>`:''}<span class="hint-line">Hints don’t count against you.</span></div>`;}
+const _questionHTML=questionHTML;
+questionHTML=function(){
+  let h=_questionHTML();
+  if(!EXPLAIN[current.genId])return h;
+  const btn=`<button class="btn-link" type="button" id="hint">Hint</button>`;
+  if(current.q.mc)h=h.replace('<div id="fb"></div>',`<div class="actions">${btn}</div><div id="hintbox"></div><div id="fb"></div>`);
+  else h=h.replace('<button class="btn-link" type="button" id="giveup">Show me how</button>',`${btn}<button class="btn-link" type="button" id="giveup">Show me how</button>`).replace('</form><div id="fb"></div>','</form><div id="hintbox"></div><div id="fb"></div>');
+  return h;
+};
+const _bindQuestion=bindQuestion;
+bindQuestion=function(){
+  _bindQuestion();
+  const h=$('#hint'); if(h)h.onclick=()=>{const box=$('#hintbox');if(box.innerHTML){box.innerHTML='';h.textContent='Hint';}else{box.innerHTML=hintHTML(current.genId);h.textContent='Hide hint';}};
+};
+
+/* ---------- best partial score per task, outcome for the panel ---------- */
+const _check=check;
+check=function(gaveUp){
+  const q=current.q;
+  const vals=q.fields.map((f,i)=>parseNum($('#in'+i).value));
+  if(!gaveUp&&vals.some(v=>isNaN(v))){_check(gaveUp);return;}
+  const okN=gaveUp?0:q.fields.filter((f,i)=>close(vals[i],f.value,f.tol)).length;
+  S.best=S.best||{}; const id=current.genId, frac=okN/q.fields.length;
+  if(!(S.best[id]>=frac))S.best[id]=frac;
+  current.lastOutcome=okN===q.fields.length?'ok':'miss';
+  const hb=$('#hintbox'); if(hb)hb.innerHTML=''; const hn=$('#hint'); if(hn)hn.remove();
+  _check(gaveUp);
+};
+const _finish=finish;
+finish=function(ok,extra,gaveUp){
+  if(current.q&&current.q.mc){current.lastOutcome=ok?'ok':'miss';const hb=$('#hintbox');if(hb)hb.innerHTML='';const hn=$('#hint');if(hn)hn.remove();}
+  _finish(ok,extra,gaveUp);
+  if(current.view==='lab'){
+    renderLabProgress();
+    const gens=Object.values(G).filter(g=>g.topic==='excel'), i=gens.findIndex(g=>g.id===current.genId), nx=gens[(i+1)%gens.length];
+    const n=$('#next'); n.textContent='Same task, new numbers';
+    n.insertAdjacentHTML('afterend',`<button class="btn btn-ghost" id="next-task">Next task: ${nx.name} →</button>`);
+    $('#next-task').onclick=()=>{current.gen=nx.id;current.q=null;vLab();const d=$('#drill-body');if(d)d.scrollIntoView({block:'start'});};
+  }
+};
+
+/* ---------- Excel lab progress ---------- */
+function labStatus(id){const st=S.stats[id];if(st&&st.ok>0)return 'solved';if(st&&st.n>0)return 'tried';return 'new';}
+function renderLabProgress(){
+  const gens=Object.values(G).filter(g=>g.topic==='excel'), stat=gens.map(g=>labStatus(g.id));
+  const solved=stat.filter(s=>s==='solved').length, tried=stat.filter(s=>s==='tried').length, n=gens.length;
+  const box=$('#lab-progress');
+  if(box)box.innerHTML=`<div class="lp-head"><div><div class="lp-num">${solved}<span>/${n}</span></div><div class="lp-l">tasks solved</div></div><div class="lp-legend"><span><i class="lp-k solved"></i>Solved ${solved}</span><span><i class="lp-k tried"></i>Tried ${tried}</span><span><i class="lp-k new"></i>Not started ${n-solved-tried}</span></div></div>
+    <div class="lp-bar" role="img" aria-label="${solved} of ${n} solved, ${tried} tried">${gens.map((g,i)=>`<button class="lp-seg ${stat[i]}${g.id===current.gen?' cur':''}" data-g="${g.id}" title="${esc(g.name)}: ${stat[i]==='solved'?'solved':stat[i]==='tried'?'tried, not solved yet':'not started'}"></button>`).join('')}</div>
+    <div class="lp-note">${solved===n?'All tasks solved. Redo the ones that took several tries with new numbers.':solved===0&&tried===0?'Start with week 1 and work down: each task builds on the Excel moves before it.':`Next unsolved: <b>${esc((gens.find((g,i)=>stat[i]!=='solved')||gens[0]).name)}</b>. A task counts as solved when every part is right in one check, without "Show me how".`}</div>`;
+  document.querySelectorAll('#lab-progress [data-g]').forEach(b=>b.onclick=()=>{current.gen=b.dataset.g;current.q=null;vLab();const d=$('#drill-body');if(d)d.scrollIntoView({block:'start'});});
+  gens.forEach((g,i)=>{const c=document.querySelector(`.gen-list [data-g="${g.id}"]`);if(c){const pill=c.querySelector('.lab-pill');if(pill)pill.outerHTML=labPill(g.id);}});
+}
+function labPill(id){
+  const s=labStatus(id), st=S.stats[id], b=(S.best||{})[id];
+  if(s==='solved')return `<span class="lab-pill solved">Solved ✓${st.n>1?` · ${st.n} tries`:''}</span>`;
+  if(s==='tried')return `<span class="lab-pill tried">Tried${b>0?` · best ${Math.round(b*100)}% of parts`:''}</span>`;
+  return `<span class="lab-pill new">Not started</span>`;
+}
+vLab=function(){
+  const gens=Object.values(G).filter(g=>g.topic==='excel');
+  if(!current.gen||!G[current.gen]||G[current.gen].topic!=='excel')current.gen=(gens.find(g=>labStatus(g.id)!=='solved')||gens[0]).id;
+  $('#view').innerHTML=head('Practice','Excel lab')+`<p class="lede">Real Excel practice for every week. Open an empty sheet, click <b>Copy data</b>, paste into A1, follow the steps, then type your results here. Stuck? <b>Hint</b> gives you the idea and the clicks, without the answer. <b>Show me how</b> gives the full solution with explanations, in English and German Excel.</p>
+  <div class="lab-progress" id="lab-progress"></div>
+  <div class="callout">German Excel uses <b>;</b> between arguments (shown in the German column). If your Excel turns pasted numbers like 6.25 into dates or text, it expects decimal commas: switch the separator in Excel’s options, or use Swiss settings.</div>
+  <div class="gen-list">${gens.map(g=>`<button class="gen" data-g="${g.id}" aria-pressed="${current.gen===g.id}"><span class="gen-name">${g.name}</span><span class="gen-sub">${g.sub}</span>${labPill(g.id)}</button>`).join('')}</div>
+  <div id="drill-body"></div>`;
+  document.querySelectorAll('.gen-list [data-g]').forEach(b=>b.onclick=()=>{current.gen=b.dataset.g;current.q=null;vLab();document.getElementById('drill-body').scrollIntoView({behavior:'smooth',block:'start'});});
+  renderLabProgress();
+  if(!current.q||current.genId!==current.gen)newQuestion();
+  renderDrillBody();
+};
 
 /* boot */
 (function(){

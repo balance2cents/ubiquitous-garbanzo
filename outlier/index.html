@@ -226,6 +226,22 @@ table.ref td.f{font-family:var(--f-mono); font-size:12.5px; white-space:nowrap}
 .empty{color:var(--faint); font-style:italic}
 .done-card{text-align:center; padding:30px 20px}
 .done-card .big{font-family:var(--f-display); font-size:48px; font-weight:800; line-height:1}
+/* ---------- part 2 figures & lab ---------- */
+.chart .resid{stroke:var(--bad); stroke-width:2; opacity:.7}
+.chart .bar-dim{fill:var(--line-strong)}
+.chart .vfill{fill:var(--accent-soft)} .chart .vbox{fill:none; stroke:var(--line-strong)} .chart .vline{fill:none; stroke:var(--ink); stroke-width:1.5}
+.chart .face{fill:var(--surface); stroke:var(--line-strong); stroke-width:1.5} .chart .face-on{fill:var(--accent); stroke:var(--accent-strong); stroke-width:1.5}
+svg.chart .face-t{fill:var(--ink); font-size:14px; font-weight:600; pointer-events:none}
+.dice-grid{display:grid; grid-template-columns:repeat(7,minmax(0,44px)); gap:4px; margin:6px 0 4px; font-family:var(--f-mono); font-size:13px}
+.dg-h{display:flex; align-items:center; justify-content:center; color:var(--faint); font-size:12px}
+.dg-c{display:flex; align-items:center; justify-content:center; aspect-ratio:1; border:1px solid var(--line); border-radius:6px; background:var(--bg); color:var(--muted)}
+.dg-c.on{background:var(--accent); border-color:var(--accent); color:#fff; font-weight:600}
+.xdata{border:1px solid var(--line-strong); border-radius:10px; margin:12px 0; overflow:hidden}
+.xdata-bar{display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; padding:8px 12px; background:var(--surface-2); font-size:13px}
+.xdata .tbl-wrap{margin:0; max-height:300px; overflow:auto}
+.xcopy{padding:5px 12px!important; font-size:13px!important}
+.xtsv{width:100%; min-height:90px; font-family:var(--f-mono); font-size:12px}
+table.xf td.f{white-space:normal; word-break:break-all; min-width:140px}
 /* ---------- learn ---------- */
 .learn-wrap{display:grid; grid-template-columns:minmax(0,1fr) 210px; gap:36px; align-items:start}
 @media (max-width:1100px){.learn-wrap{grid-template-columns:minmax(0,1fr)} .toc{display:none}}
@@ -779,7 +795,7 @@ async function initSync(){
       else await dbRef.set(JSON.parse(JSON.stringify(S)));
     }else await dbRef.set(JSON.parse(JSON.stringify(S)));
     dbOn=true;setSync('synced','Synced across devices');
-    if(current.view!=='drill'&&current.view!=='topic'&&current.view!=='learn')render();
+    if(!['drill','topic','learn','lab'].includes(current.view))render();
     renderNav();
   }catch(e){dbRef=null;setSync('local','Saved on this device only');}
 }
@@ -807,8 +823,9 @@ function weightedPick(ids){
 const current={view:'learn',topic:'loc',gen:null,q:null,genId:null,answered:false,session:[],sessionSize:10,lastId:null};
 function newQuestion(){
   let id;
-  if(current.view==='drill'){
-    const ids=Object.keys(G); let tries=0;
+  if(current.view==='lab')id=current.gen;
+  else if(current.view==='drill'){
+    const ids=Object.keys(G).filter(k=>G[k].topic!=='excel'); let tries=0;
     do{id=weightedPick(ids);tries++;}while(id===current.lastId&&tries<5);
   }else id=current.gen||weightedPick(Object.keys(G).filter(k=>G[k].topic===current.topic));
   current.genId=id; current.lastId=id; current.q=G[id].make(); current.answered=false;
@@ -843,8 +860,9 @@ function bindQuestion(){
   const form=$('#qform');
   form.onsubmit=e=>{e.preventDefault();if(current.answered){next();return;}check(false);};
   $('#giveup').onclick=()=>{if(!current.answered)check(true);};
-  setTimeout(()=>{const i=$('#in0');if(i&&current.view!=='map')i.focus({preventScroll:true});},30);
+  setTimeout(()=>{const i=$('#in0'),ae=document.activeElement;if(i&&!(ae&&/^(INPUT|TEXTAREA|SELECT)$/.test(ae.tagName)))i.focus({preventScroll:true});},30);
 }
+const showAns=v=>v!==0&&Math.abs(v)<0.01?String(+v.toPrecision(4)):fmt(v,4);
 function check(gaveUp){
   const q=current.q; let allOk=true, trapMsgs=[], anyEmpty=false;
   const vals=q.fields.map((f,i)=>parseNum($('#in'+i).value));
@@ -858,12 +876,12 @@ function check(gaveUp){
     const u=vals[i], ok=!gaveUp&&close(u,f.value,f.tol);
     if(!ok)allOk=false;
     $('#f'+i).className='field '+(ok?'ok':'miss');
-    $('#v'+i).textContent=ok?'✓ Correct':gaveUp?`Answer: ${fmt(f.value,4)}`:`✗ Answer: ${fmt(f.value,4)}`;
+    $('#v'+i).textContent=ok?'✓ Correct':gaveUp?`Answer: ${showAns(f.value)}`:`✗ Answer: ${showAns(f.value)}`;
     $('#in'+i).readOnly=true;
     if(!ok&&!gaveUp){
       const hit=(f.traps||[]).find(t=>close(u,t.value,f.tol));
       if(hit)trapMsgs.push(`<div class="trap-hit"><b>${esc(f.label)}: caught by a trap.</b> ${hit.msg}</div>`);
-      missDetail.push(`${f.label}: you ${fmt(u,4)}, answer ${fmt(f.value,4)}${hit?' (trap)':''}`);
+      missDetail.push(`${f.label}: you ${showAns(u)}, answer ${showAns(f.value)}${hit?' (trap)':''}`);
     }
   });
   record(current.genId,allOk,allOk?null:{title:q.title,given:gaveUp?'Asked for the method':missDetail.join(' · '),trap:trapMsgs.length>0});
@@ -891,7 +909,7 @@ function next(){
    views
    ===================================================================== */
 const VIEWS=[
-  ['learn','Theory','nav-learn'],['drill','Mixed drill','nav-practice'],['topic','By topic','nav-practice'],
+  ['learn','Theory','nav-learn'],['drill','Mixed drill','nav-practice'],['topic','By topic','nav-practice'],['lab','Excel lab','nav-practice'],
   ['traps','Traps','nav-ref'],['calc','Calculator','nav-ref'],['formulas','Formula sheet','nav-ref'],
   ['map','Course map','nav-you'],['log','Mistake log','nav-you']
 ];
@@ -901,6 +919,7 @@ function renderNav(){
   VIEWS.forEach(([id,name,g])=>{
     let meta='';
     if(id==='drill')meta=S.answered?`${S.answered} done`:'';
+    if(id==='lab')meta=String(Object.values(G).filter(g=>g.topic==='excel').length);
     if(id==='log')meta=S.misses.length?String(S.misses.length):'';
     if(id==='traps')meta=String(TRAPS.length);
     if(id==='learn')meta=`${LEARN.filter(l=>(S.read||{})[l.id]).length}/${LEARN.length} read`;
@@ -913,7 +932,7 @@ function renderNav(){
 }
 function go(v){current.view=v;if(v==='drill'){current.session=[];current.q=null;}if(v==='topic'){current.q=null;}try{history.replaceState(null,'','#'+v);}catch(e){}render();window.scrollTo(0,0);}
 function head(eyebrow,title,right=''){return `<div class="view-head"><div><div class="eyebrow">${eyebrow}</div><h1 class="view-title">${title}</h1></div>${right}</div>`;}
-function render(){renderNav();({learn:vLearn,drill:vDrill,topic:vTopic,traps:vTraps,calc:vCalc,formulas:vFormulas,map:vMap,log:vLog}[current.view]||vDrill)();}
+function render(){renderNav();({learn:vLearn,lab:vLab,drill:vDrill,topic:vTopic,traps:vTraps,calc:vCalc,formulas:vFormulas,map:vMap,log:vLog}[current.view]||vDrill)();}
 
 function renderPips(){
   const el=$('#pips'); if(!el)return;
@@ -922,7 +941,7 @@ function renderPips(){
   $('#score').textContent=s.length?`${s.filter(Boolean).length} of ${s.length} correct`:'';
 }
 function vDrill(){
-  $('#view').innerHTML=head('Practice','Mixed drill')+`<p class="lede">Every question type from weeks 2–6, with fresh numbers each time. Stuck on a topic? Read its chapter under Theory first. Types you miss come back more often. Types you get right three times in a row fade out.</p><div class="session"><span>Set of ${current.sessionSize}</span><span class="pips" id="pips"></span><span id="score"></span></div><div id="drill-body"></div>`;
+  $('#view').innerHTML=head('Practice','Mixed drill')+`<p class="lede">Every question type from weeks 2–13, with fresh numbers each time. Stuck on a topic? Read its chapter under Theory first. Types you miss come back more often. Types you get right three times in a row fade out.</p><div class="session"><span>Set of ${current.sessionSize}</span><span class="pips" id="pips"></span><span id="score"></span></div><div id="drill-body"></div>`;
   if(!current.q)newQuestion();
   renderDrillBody();
 }
@@ -980,7 +999,7 @@ const TRAPS=[
   ['Laspeyres from weights: value shares of the base period','When you compute Laspeyres as a weighted average of simple indices, the weights are N·p₀ / Σ N·p₀ (value shares in month 0), not the quantities and not the current values.','ok','Notes 5.3, Example 5.3 and Exercise 6c']
 ];
 function vTraps(){
-  $('#view').innerHTML=head('Reference','Traps')+`<div class="callout">Each rule here was taken from this course’s notes (Chapters 1–5), slides or solution spreadsheets. A generic statistics site can’t give you these, and using the "wrong" correct method changes the number. <b>Amber</b> means the materials are inconsistent or silent, so check it when the next notes arrive.</div>
+  $('#view').innerHTML=head('Reference','Traps')+`<div class="callout">Each rule here was taken from this course’s notes (Chapters 1–14), slides or solution spreadsheets. A generic statistics site can’t give you these, and using the "wrong" correct method changes the number. <b>Amber</b> means the materials are inconsistent or silent, so check it when the next notes arrive.</div>
   <div class="stack">${TRAPS.map(([t,b,s,src])=>`<article class="trap"><div class="trap-head"><h3>${t}</h3><span class="status ${s}">${s==='ok'?'Confirmed in materials':'Unclear: check'}</span></div><p>${b}</p><div class="src">Source: ${src}</div></article>`).join('')}</div>`;
 }
 
@@ -1003,7 +1022,19 @@ function vCalc(){
   ${R('Turn on r (once)',seq(K('2nd','k2'),K('0'),'(CATALOG)',A,M('DiagnosticOn'),K('ENTER'),K('ENTER')),'The setting survives turning the calculator off.')}
   ${R('Correlation r',seq('x in L1, y in L2',A,K('STAT'),A,M('CALC'),A,M('4:LinReg(ax+b)'),A,M('Calculate')),'Shows a, b, r² and r. You will need a and b again in week 8 (regression).')}
   ${R('Covariance (no built-in key)',seq(M('sum((L1−mean(L1))(L2−mean(L2)))/(n−1)')),'Replace n − 1 with the actual number. Or use 2-Var Stats and s<sub>xy</sub> = (Σxy − n·x̄·ȳ) / (n − 1).')}
+  ${R('TI-84 Plus CE: turn on r',seq(K('MODE'),A,M('STAT DIAGNOSTICS: ON'),K('ENTER')),'On the CE this replaces DiagnosticOn.')}
+  ${R('Covariance from 2-Var Stats',seq(K('STAT'),A,M('CALC'),A,M('2:2-Var Stats'),M('L1,L2')),'Then s<sub>xy</sub> = (Σxy − n·x̄·ȳ)/(n − 1), or r·Sx·Sy.')}
   ${R('Grouped median or quantile',seq(M('lower+(p−cumBefore)/share*width')),'Type the numbers straight in. Example: '+M('20000+(.5−.2)/.3632*30000')+'.')}
+  </div></div>
+  <div class="ref-sec"><h2>Regression</h2><div class="grid2">
+  ${R('Line, r and R²',seq('x in L1, y in L2',A,K('STAT'),A,M('CALC'),A,M('4:LinReg(ax+b)'),A,'Store RegEQ:',K('VARS'),A,M('Y-VARS'),A,M('1:Function'),A,M('Y1')),'a is the slope β, b the intercept, r² is R². x must be in Xlist, y in Ylist.')}
+  ${R('Prediction',seq(K('VARS'),A,M('Y-VARS'),A,M('1:Function'),A,M('Y1'),M('(79)'),K('ENTER')),'Same as FORECAST.LINEAR in Excel.')}
+  </div></div>
+  <div class="ref-sec"><h2>Counting and binomial</h2><div class="grid2">
+  ${R('n! and nCr',seq(M('n'),K('MATH'),A,M('PROB'),A,M('4:!'),'or',M('3:nCr'),M('k')),'Example: 42 nCr 6 = 5 245 786.')}
+  ${R('Binomial pmf: P(X = x)',seq(K('2nd','k2'),K('VARS'),'(DISTR)',A,M('A:binompdf('),M('n,p,x)')),'Excel: BINOM.DIST(x,n,p,0).')}
+  ${R('Binomial cdf: P(X ≤ x)',seq(K('2nd','k2'),K('VARS'),'(DISTR)',A,M('B:binomcdf('),M('n,p,x)')),'At least k: 1 − binomcdf(n,p,k−1). More than k: 1 − binomcdf(n,p,k).')}
+  ${R('Expected value of a table',seq('x in L1, P in L2',A,M('sum(L1*L2)')),'Variance: '+M('sum(L2*(L1−E)²)')+' with E typed in.')}
   </div></div>`;
 }
 
@@ -1027,9 +1058,23 @@ function vFormulas(){
     ['Real return','(1 + nominal) / (1 + inflation) − 1','PRODUCT','PRODUKT'],
     ['Covariance (sample)','s<sub>xy</sub> = 1/(n−1) · Σ (x<sub>i</sub> − x̄)(y<sub>i</sub> − ȳ)','COVARIANCE.S','KOVARIANZ.S'],
     ['Correlation','r = s<sub>xy</sub> / (s<sub>x</sub> · s<sub>y</sub>), −1 ≤ r ≤ 1','CORREL','KORREL'],
-    ['Σ rule','Σ (x<sub>i</sub> − a)² = Σ x<sub>i</sub>² − 2aΣ x<sub>i</sub> + na²','SUM','SUMME']
+    ['Σ rule','Σ (x<sub>i</sub> − a)² = Σ x<sub>i</sub>² − 2aΣ x<sub>i</sub> + na²','SUM','SUMME'],
+    ['Covariance (population)','σ<sub>xy</sub> = (1/n) Σ (x<sub>i</sub> − x̄)(y<sub>i</sub> − ȳ)','COVARIANCE.P','KOVARIANZ.P'],
+    ['Regression slope','β = s<sub>xy</sub> / s<sub>x</sub>² = r·s<sub>y</sub>/s<sub>x</sub>','SLOPE(y, x)','STEIGUNG'],
+    ['Regression intercept','b = ȳ − β·x̄','INTERCEPT(y, x)','ACHSENABSCHNITT'],
+    ['Prediction','ŷ = β·x + b','FORECAST.LINEAR(x, y, x)','PROGNOSE.LINEAR'],
+    ['Coefficient of determination','R² = Σ(ŷ − ȳ)² / Σ(y − ȳ)² = r²','RSQ(y, x)','BESTIMMTHEITSMASS'],
+    ['Factorial / combinations','n! · C(n, k) = n! / (k!(n − k)!)','FACT · COMBIN','FAKULTÄT · KOMBINATIONEN'],
+    ['Laplace probability','favorable / possible','—','—'],
+    ['Complement · addition rule','1 − P(A) · P(A) + P(B) − P(A ∩ B)','—','—'],
+    ['Independence','P(A ∩ B) = P(A)·P(B)','—','—'],
+    ['Expected value','E[X] = Σ f(x)·x','SUMPRODUCT','SUMMENPRODUKT'],
+    ['Variance of a r.v.','Var[X] = Σ f(x)(x − μ)²','SUMPRODUCT','SUMMENPRODUKT'],
+    ['Rules','E[aX + b] = aE[X] + b · Var(aX + b) = a²Var(X) · Var(X ± Y) = Var X + Var Y (indep.)','—','—'],
+    ['Simulation','die · coin p · uniform','RANDBETWEEN(1,6) · IF(RAND()<p,1,0) · a+(b−a)*RAND()','ZUFALLSBEREICH · WENN(ZUFALLSZAHL()<p;1;0)'],
+    ['Binomial','P(X = x) = C(n,x)p<sup>x</sup>(1−p)<sup>n−x</sup>, E = np, Var = np(1−p)','BINOM.DIST(x,n,p,0/1)','BINOM.VERT']
   ];
-  $('#view').innerHTML=head('Reference','Formula sheet')+`<p class="lede">Weeks 2–6 on one page, with the Excel names in English and German. Regression and probability will be added when those notes are out.</p><div class="tbl-wrap"><table class="ref"><thead><tr><th>What</th><th>Formula</th><th>Excel (EN)</th><th>Excel (DE)</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r[0]}</td><td class="f">${r[1]}</td><td class="f">${r[2]}</td><td class="f">${r[3]}</td></tr>`).join('')}</tbody></table></div>`;
+  $('#view').innerHTML=head('Reference','Formula sheet')+`<p class="lede">The whole course on one page, with the Excel names in English and German.</p><div class="tbl-wrap"><table class="ref"><thead><tr><th>What</th><th>Formula</th><th>Excel (EN)</th><th>Excel (DE)</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r[0]}</td><td class="f">${r[1]}</td><td class="f">${r[2]}</td><td class="f">${r[3]}</td></tr>`).join('')}</tbody></table></div>`;
 }
 
 const WEEKS=[
@@ -1038,15 +1083,15 @@ const WEEKS=[
   [3,'Measures of location','Mean, weighted mean, median, quantiles','loc'],
   [4,'Measures of dispersion','Range, IQR, boxplot, σ vs s, CV','disp'],
   [5,'Indices','Simple, Laspeyres, rebasing, chaining, purchasing power','idx'],
-  [6,'Correlation','Covariance, r, spurious correlation','corr'],
-  [7,'Break / midterm','Not graded. Take a full mixed set as a checkpoint','mid'],
-  [8,'Linear regression','Coming when the notes arrive',null],
-  [9,'Combinatorics & classical probability','Coming when the notes arrive',null],
-  [10,'Axiomatic probability','Coming when the notes arrive',null],
-  [11,'Random variables','Coming when the notes arrive',null],
-  [12,'Simulation & the LLN','Coming when the notes arrive',null],
-  [13,'The binomial distribution','Coming when the notes arrive',null],
-  [14,'Additional exercises','Coming when the notes arrive',null]
+  [6,'Correlation','Covariance, r, causation, frequencies','corr'],
+  [7,'Break / midterm','Not graded. Do two full mixed sets as a checkpoint','mid'],
+  [8,'Linear regression','Least squares, interpreting β, R²','reg'],
+  [9,'Combinatorics & classical probability','n!, C(n, k), favorable / possible','comb'],
+  [10,'Axiomatic probability','Complement, addition rule, independence','prob'],
+  [11,'Random variables','pmf, cdf, E[X], Var, the rules','rv'],
+  [12,'Simulation & the LLN','RAND, IF, AVERAGE; frequencies → probabilities','sim'],
+  [13,'The binomial distribution','BINOM.DIST, at least / at most, np','binom'],
+  [14,'Additional exercises','Mixed review; Excel tasks in the Excel lab',null]
 ];
 function vMap(){
   const all=acc(Object.keys(G)), tried=Object.keys(G).filter(id=>S.stats[id]&&S.stats[id].n).length;
@@ -1055,9 +1100,10 @@ function vMap(){
   <div class="weeks">${WEEKS.map(([n,t,s,topic])=>{
     const live=topic&&topic!=='mid'; const a=live?acc(Object.keys(G).filter(id=>G[id].topic===topic)):null;
     const ch=LEARN.find(l=>l.week===n);
-    return `<div class="wk ${topic||ch?'':'locked'}"><span class="wk-n">WEEK ${String(n).padStart(2,'0')}${ch&&(S.read||{})[ch.id]?' · READ ✓':''}</span><span class="wk-t">${t}</span><span class="wk-s">${s}</span>${live?meterHTML(a):''}<span class="actions" style="margin-top:4px;gap:6px">${ch?`<button class="btn btn-ghost" style="padding:6px 10px;font-size:12.5px" data-read="${ch.id}">Theory</button>`:''}${live?`<button class="btn btn-ghost" style="padding:6px 10px;font-size:12.5px" data-drill="${topic}">Drill</button>`:''}</span></div>`;}).join('')}</div>`;
+    return `<div class="wk ${topic||ch||n===14?'':'locked'}"><span class="wk-n">WEEK ${String(n).padStart(2,'0')}${ch&&(S.read||{})[ch.id]?' · READ ✓':''}</span><span class="wk-t">${t}</span><span class="wk-s">${s}</span>${live?meterHTML(a):''}<span class="actions" style="margin-top:4px;gap:6px">${ch?`<button class="btn btn-ghost" style="padding:6px 10px;font-size:12.5px" data-read="${ch.id}">Theory</button>`:''}${live?`<button class="btn btn-ghost" style="padding:6px 10px;font-size:12.5px" data-drill="${topic}">Drill</button>`:''}${n===14||n===1?`<button class="btn btn-ghost" style="padding:6px 10px;font-size:12.5px" data-lab="1">Excel lab</button>`:''}</span></div>`;}).join('')}</div>`;
   document.querySelectorAll('[data-drill]').forEach(b=>b.onclick=()=>{current.topic=b.dataset.drill;current.gen=null;current.q=null;go('topic');});
   document.querySelectorAll('[data-read]').forEach(b=>b.onclick=()=>{current.ch=b.dataset.read;go('learn');});
+  document.querySelectorAll('[data-lab]').forEach(b=>b.onclick=()=>{current.gen=null;current.q=null;go('lab');});
 }
 function vLog(){
   const rows=S.misses;
@@ -1296,37 +1342,6 @@ ${ex('Exercise 4: SNB deposits 1970–2006',`<p>CHF 1 reinvested every 3 months 
   ['What stays fixed in a Laspeyres price index?',['The quantities in the basket','The prices','Both','Neither'],0,'Quantities are frozen at the base period. Only prices are updated.'],
   ['A good that is 5% of the basket doubles in price. Everything else is unchanged. The Laspeyres index…',['rises by about 5%','doubles','rises by about 100 points','stays at 100'],0,'Weighted average: 0.95·100 + 0.05·200 = 105.']]},
 
-{id:'ch6',week:6,topic:'corr',title:'Correlation',mins:15,preview:true,
- idea:'Do two variables <b>move together</b>, and how tightly? Covariance gives the direction; the correlation coefficient r gives direction and strength on a fixed scale from −1 to +1.',
- body:`
-<h2 id="ch6-scatter">Start with a picture</h2>
-<p>Two attributes measured on the same elements (central bank independence and inflation, per country) are <b>pairs</b> (x<sub>i</sub>, y<sub>i</sub>). Plot them as a scatter plot before computing anything. Your eye catches patterns that a single number misses.</p>
-<h2 id="ch6-cov">Covariance</h2>
-<p>For each point, take its deviation from the mean in x and in y, and multiply:</p>
-<ul>
-<li>Both above their means, or both below → product <b>positive</b>.</li>
-<li>One above, one below → product <b>negative</b>.</li>
-</ul>
-<p>Average those products and you get the covariance. Positive means the variables tend to move together, and negative means they move in opposite directions. The week 6 solutions use the sample version (Excel <code class="x">COVARIANCE.S</code>):</p>
-<div class="eq">s<sub>xy</sub> = 1/(n − 1) · Σ (x<sub>i</sub> − x̄)(y<sub>i</sub> − ȳ)</div>
-<p>The problem: the size of the covariance depends on the units. Measure prices in Rappen instead of francs and it grows by a factor of 100. So you can only read its <b>sign</b>.</p>
-<h2 id="ch6-r">The correlation coefficient r</h2>
-<p>Divide by both standard deviations and the units cancel:</p>
-<div class="eq">r = s<sub>xy</sub> / (s<sub>x</sub> · s<sub>y</sub>)     −1 ≤ r ≤ 1</div>
-<ul>
-<li>r = +1: all points on a rising straight line. r = −1: all on a falling line.</li>
-<li>r near 0: no <b>linear</b> relationship.</li>
-<li>Whether you use n or n − 1 doesn’t matter for r, as long as you’re consistent, because it cancels. Excel: <code class="x">CORREL</code>. TI-84: LinReg(ax+b) with DiagnosticOn.</li>
-</ul>
-${W('corr')}
-<h2 id="ch6-traps">What r does not tell you</h2>
-<p><b>Correlation is not causation.</b> The week 6 sheet "Storks and Babies" shows a strong correlation between the number of storks and births across regions. Storks don’t deliver babies: rural regions simply have more of both. A third variable driving both is the usual explanation. The "Spurious Correlation" sheet shows series that correlate by pure coincidence.</p>
-<p><b>r only measures straight-line relationships.</b> Switch the figure above to the U-shape: y is completely determined by x, yet r is close to 0.</p>
-<p><b>One outlier can change everything.</b> Add the outlier in the figure and watch r jump.</p>`,
- gloss:[['Scatter plot','Streudiagramm','Points (x<sub>i</sub>, y<sub>i</sub>) in a plane.'],['Covariance','Kovarianz','Average product of deviations; sign = direction.'],['Correlation coefficient','Korrelationskoeffizient','Unit-free, between −1 and 1.'],['Spurious correlation','Scheinkorrelation','Correlation without a causal link.']],
- check:[['r = 0.92 between ice cream sales and drowning accidents. What do you conclude?',['A strong linear association, probably both driven by hot weather','Ice cream causes drowning','The data must be wrong','There is no relationship'],0,'A third variable (temperature) drives both. Correlation is not causation.'],
-  ['You convert x from CHF to Rappen (× 100). r…',['stays the same','is multiplied by 100','is divided by 100','becomes 1'],0,'r has no unit. The covariance, however, is multiplied by 100.'],
-  ['r = 0 means…',['no linear relationship','no relationship of any kind','a negative relationship','the variables are equal'],0,'A perfect U-shape can give r = 0.']]}
 ];
 
 /* ---------- small SVG helpers ---------- */
@@ -1491,11 +1506,795 @@ function vLearn(){
   const td=$('#to-drill'); if(td)td.onclick=()=>{current.topic=c.topic;current.gen=null;current.q=null;go('topic');};
 }
 
+/* =====================================================================
+   PART 2: chapters 6 (final) and 8-13, new figures, new drills, Excel lab
+   ===================================================================== */
+TOPICS.splice(TOPICS.findIndex(t=>t.id==='tool'),0,
+  {id:'reg',week:8,name:'Linear regression'},
+  {id:'comb',week:9,name:'Counting & classical probability'},
+  {id:'prob',week:10,name:'Probability rules'},
+  {id:'rv',week:11,name:'Random variables'},
+  {id:'sim',week:12,name:'Simulation & LLN'},
+  {id:'binom',week:13,name:'Binomial distribution'});
+TOPICS.push({id:'excel',week:0,name:'Excel lab'});
+
+/* ---------- maths helpers ---------- */
+const lnFact=n=>{let s=0;for(let i=2;i<=n;i++)s+=Math.log(i);return s;};
+const nCr=(n,k)=>k<0||k>n?0:Math.round(Math.exp(lnFact(n)-lnFact(k)-lnFact(n-k)));
+const nCrF=(n,k)=>k<0||k>n?0:Math.exp(lnFact(n)-lnFact(k)-lnFact(n-k));
+const fact=n=>{let f=1;for(let i=2;i<=n;i++)f*=i;return f;};
+const bpmf=(k,n,p)=>k<0||k>n?0:Math.exp(lnFact(n)-lnFact(k)-lnFact(n-k)+k*Math.log(p)+(n-k)*Math.log(1-p));
+const bcdf=(k,n,p)=>{let s=0;for(let i=0;i<=Math.min(k,n);i++)s+=bpmf(i,n,p);return Math.min(1,s);};
+function linreg(x,y){const mx=mean(x),my=mean(y),sxy=sum(x.map((v,i)=>(v-mx)*(y[i]-my))),sxx=sum(x.map(v=>(v-mx)**2)),syy=sum(y.map(v=>(v-my)**2));const b1=sxy/sxx;return {mx,my,sxy,sxx,syy,beta:b1,b:my-b1*mx,r:sxy/Math.sqrt(sxx*syy)};}
+function pctExc(arr,p){const s=arr.slice().sort((a,b)=>a-b),n=s.length,h=p*(n+1);if(h<1)return s[0];if(h>=n)return s[n-1];const lo=Math.floor(h);return s[lo-1]+(h-lo)*(s[lo]-s[lo-1]);}
+const fmtP=x=>fx(x,4);
+
+/* ---------- fractions in answers (11/36) ---------- */
+const _parseNum=parseNum;
+parseNum=function(raw){const s=String(raw).trim().replace(/\s/g,'');const m=s.match(/^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);if(m&&+m[2]!==0)return +m[1]/+m[2];return _parseNum(raw);};
+
+/* ---------- Chapter 6 (from the notes) and chapters 8-13 ---------- */
+const CH6={id:'ch6',week:6,topic:'corr',title:'Correlation',mins:18,
+ idea:'Do two variables <b>move together</b>, and how tightly? Covariance gives the direction; the correlation coefficient r gives direction and strength on a fixed scale from −1 to +1.',
+ body:`
+<h2 id="ch6-scatter">Start with a picture, then center it</h2>
+<p>Two attributes measured on the same elements (central bank independence and inflation, per country) form <b>pairs</b> (x<sub>i</sub>, y<sub>i</sub>). Plot them as a scatter plot first. Then do what the notes do: <b>center</b> the data by subtracting the means, so the cross of (x̄, ȳ) becomes the origin.</p>
+<p>In Example 6.1 most points then sit in the 2nd and 4th quadrant: when independence is above average, inflation tends to be below average. The two deviations have <b>opposite signs</b>, so their product is negative. That observation is the whole idea behind covariance.</p>
+<h2 id="ch6-cov">Covariance</h2>
+<p>Multiply each point’s two deviations and average the products:</p>
+<div class="eq">σ<sub>xy</sub> = (1/n) · Σ (x<sub>i</sub> − x̄)(y<sub>i</sub> − ȳ)        s<sub>xy</sub> = 1/(n − 1) · Σ (x<sub>i</sub> − x̄)(y<sub>i</sub> − ȳ)</div>
+<p>Same rule as for the variance: σ<sub>xy</sub> for a complete population, the empirical s<sub>xy</sub> for a sample (Excel <code class="x">COVARIANCE.P</code> / <code class="x">COVARIANCE.S</code>).</p>
+${ex('Example 6.1: 16 countries',`<p>The products of deviations add up to −16.1, so s<sub>xy</sub> = −16.1 / (16 − 1) = <b>−1.07</b>. Negative: more independence goes with less inflation.</p>`)}
+<p>Apart from its <b>sign</b>, the covariance is hard to read. Its unit is the product of the two units (kg·m for weight and height), and it changes when you change units.</p>
+<h2 id="ch6-r">The correlation coefficient r</h2>
+<p>Divide the covariance by both standard deviations and the units cancel:</p>
+<div class="eq">r = σ<sub>xy</sub> / (σ<sub>x</sub>·σ<sub>y</sub>) = s<sub>xy</sub> / (s<sub>x</sub>·s<sub>y</sub>)     −1 ≤ r ≤ 1</div>
+<p>Use σ’s with σ<sub>xy</sub> or s’s with s<sub>xy</sub>. Either way you get the same r, because the n or n − 1 cancels.</p>
+${ex('Example 6.1 continued',`<p>r = −1.07 / (0.84 · 1.54) = <b>−0.83</b>: a pronounced negative linear relationship.</p>`)}
+<ul>
+<li>r = +1: every point on a rising straight line. r = −1: on a falling line.</li>
+<li>r near 0: no <b>linear</b> relationship.</li>
+</ul>
+${W('corr')}
+<h2 id="ch6-limits">What r does not tell you</h2>
+<p><b>r = 0 does not mean "unrelated".</b> If two variables are independent, r = 0. But the reverse is false: in Exercise 4, construction strength and stability have r = −0.11, yet the scatter plot shows a clear upside-down U. Too much strength hurts stability. Switch the figure above to the U-shape to see it.</p>
+<p><b>Correlation is not causation.</b> A strong r can come from:</p>
+<ul>
+<li>a <b>direct</b> effect (one variable influences the other),</li>
+<li>an <b>indirect</b> link through a common factor (<b>confounding</b>): Nobel prizes and chocolate consumption both follow national wealth,</li>
+<li>pure <b>coincidence</b>: search long enough and you find spurious correlations.</li>
+</ul>
+<p>And even when there is a causal link, r doesn’t tell you the <b>direction</b>. In Exercise 1, police spending and crime correlate at r = 0.948. Police don’t cause crime; cities with more crime spend more on police.</p>
+<p><b>r is sensitive to outliers</b> (add the outlier in the figure). Other correlation measures exist (Spearman), but the course uses Pearson’s r.</p>
+<h2 id="ch6-freq">Correlation from a frequency table</h2>
+<p>Like the weighted mean, r can be computed when each pair (x<sub>i</sub>, y<sub>i</sub>) occurs N<sub>i</sub> times: weight every product and every square by N<sub>i</sub>, and use the weighted means.</p>
+<div class="eq">r = Σ N<sub>i</sub>(x<sub>i</sub> − x̄)(y<sub>i</sub> − ȳ) / √(Σ N<sub>i</sub>(x<sub>i</sub> − x̄)² · Σ N<sub>i</sub>(y<sub>i</sub> − ȳ)²)</div>
+${ex('Example 6.2: storks and births (Neyman)',`<p>Stork density and birth rate in 54 US counties, grouped into 12 value pairs with counts. Weighted means x̄ = 2.06, ȳ = 9.09, and r = 79.13 / √(24.26 · 295.91) = <b>0.93</b>. Storks don’t deliver babies: rural counties have more of both.</p>`)}
+<h2 id="ch6-tools">Excel and calculator</h2>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>What</th><th>Excel (EN / DE)</th><th>TI-84</th></tr></thead><tbody>
+<tr><td>σ<sub>xy</sub></td><td class="f">COVARIANCE.P / KOVARIANZ.P</td><td>2-Var Stats: Σxy/n − x̄·ȳ</td></tr>
+<tr><td>s<sub>xy</sub></td><td class="f">COVARIANCE.S / KOVARIANZ.S</td><td>(Σxy − n·x̄·ȳ)/(n − 1), or r·Sx·Sy</td></tr>
+<tr><td>r</td><td class="f">CORREL / KORREL</td><td>LinReg(ax+b) with diagnostics on</td></tr>
+</tbody></table></div>
+<p>Diagnostics (needed once, or r is not shown): TI-84 Plus CE: <b>MODE</b> → STAT DIAGNOSTICS → ON. Older TI-84: <b>2nd 0</b> (CATALOG) → DiagnosticOn → ENTER ENTER. With frequencies, put them in L3 and give L3 as FreqList.</p>`,
+ gloss:[['Scatter plot','Streudiagramm','Points (x<sub>i</sub>, y<sub>i</sub>) in a plane.'],['Covariance','Kovarianz','Average product of deviations; its sign gives the direction.'],['Correlation coefficient','Korrelationskoeffizient','Unit-free, between −1 and 1.'],['Confounding','Confounding / Störvariable','A third variable driving both.'],['Spurious correlation','Scheinkorrelation','Correlation without a causal link.']],
+ check:[['r = 0.92 between ice cream sales and drowning accidents. What do you conclude?',['A strong linear association, probably both driven by hot weather','Ice cream causes drowning','The data must be wrong','There is no relationship'],0,'A third variable (temperature) drives both: confounding. Correlation is not causation.'],
+  ['You convert x from CHF to Rappen (× 100). What happens to r and s<sub>xy</sub>?',['r stays, s<sub>xy</sub> is multiplied by 100','Both stay the same','Both are multiplied by 100','r is multiplied by 100'],0,'r has no unit. The covariance carries the units, so it grows by the factor 100.'],
+  ['Exercise 4 finds r = −0.11 between construction strength and stability. Which conclusion is safest?',['There is no strong linear relationship; look at the scatter plot','The two are unrelated','Strength reduces stability','r must be wrong'],0,'r only sees straight lines. The scatter plot shows a clear quadratic (∩-shaped) relationship.']]};
+
+const NEWCH=[
+{id:'ch8',week:8,topic:'reg',title:'Linear regression',mins:20,
+ idea:'Correlation says how <b>tightly</b> two variables move together. Regression says <b>how much</b>: by how much y changes when x goes up by one unit, and what y to expect for a given x.',
+ body:`
+<h2 id="ch8-model">The model</h2>
+<p>You pick an <b>independent</b> variable x (the input, e.g. customer contacts per week) and a <b>dependent</b> variable y (the output, new contracts). You assume a straight line, apart from random noise:</p>
+<div class="eq">ŷ = β·x + b</div>
+<p>For each data point, the line makes a <b>prediction</b> ŷ<sub>i</sub> = β·x<sub>i</sub> + b. The gap between reality and prediction is the <b>residual</b> e<sub>i</sub> = y<sub>i</sub> − ŷ<sub>i</sub>.</p>
+<h2 id="ch8-ls">Least squares: the "best" line</h2>
+<p>Choose β and b so that the sum of <b>squared</b> residuals Σ e<sub>i</sub>² is as small as possible. Squaring makes all residuals positive and punishes big misses more than small ones. Try to beat it:</p>
+${W('regfit')}
+<p>The minimum has a closed formula:</p>
+<div class="eq">β = (Σ x<sub>i</sub>y<sub>i</sub> − n·x̄·ȳ) / (Σ x<sub>i</sub>² − n·x̄²) = s<sub>xy</sub> / s<sub>x</sub>² = r · s<sub>y</sub> / s<sub>x</sub>        b = ȳ − β·x̄</div>
+<p>Two facts follow directly. The line always passes through the <b>centroid</b> (x̄, ȳ). And β has the <b>same sign as r</b>.</p>
+${ex('Reference example: 10 insurance agents',`<p>Σx = 825, Σy = 243, Σx² = 71 037, Σxy = 21 767, n = 10.</p><div class="eq">β = (21 767 − 10·82.5·24.3) / (71 037 − 10·82.5²) = 0.5781        b = 24.3 − 0.5781·82.5 = −23.3916</div><p>So ŷ = 0.5781·x − 23.3916. The residuals add up to exactly 0, and they always do.</p>`)}
+<h2 id="ch8-interp">Reading β and b</h2>
+<p><b>The slope is the point.</b> "If customer contacts increase by one unit, contracts increase <b>on average</b> by 0.5781." Always say it with the <b>units</b>.</p>
+${ex('Exercise 1: watch the units',`<p>Advertising in CHF 1 000, revenue in CHF million: ŷ = 0.071·x + 31.6. One more <b>thousand</b> francs of advertising goes with 0.071 <b>million</b> = CHF 71 000 more revenue, on average.</p>`)}
+${ex('Exercise 3: rescale when the unit is huge',`<p>Growth vs change in Gini: R = −0.504·ΔG + 0.029. A full unit of Gini (0 → 1) is absurd, so restate it: if the Gini rises by 0.01, growth falls by about 0.5 percentage points.</p>`)}
+<p><b>The intercept</b> is needed for predictions but is rarely meaningful on its own: at 0 customer contacts the model predicts −23 contracts. That’s nonsense, because the model is only reliable <b>inside the range of the data</b>.</p>
+<h2 id="ch8-predict">Predictions</h2>
+<p>Plug the new x into the equation. Exercise 8.1: 79 contacts → 0.5781·79 − 23.3916 = <b>22.28</b> contracts. Excel: <code class="x">FORECAST.LINEAR(79, y-list, x-list)</code>. Don’t extrapolate far outside the data: the weight-from-height model in the additional exercises predicts a negative weight for someone 60 cm tall.</p>
+<h2 id="ch8-r2">Coefficient of determination R²</h2>
+<p>How good is the fit? Split each y’s deviation from its mean into a part the line explains and a random leftover:</p>
+<div class="eq">Σ (y<sub>i</sub> − ȳ)²  =  Σ (ŷ<sub>i</sub> − ȳ)²  +  Σ (y<sub>i</sub> − ŷ<sub>i</sub>)²     (total = explained + random)</div>
+<div class="eq">R² = Σ (ŷ<sub>i</sub> − ȳ)² / Σ (y<sub>i</sub> − ȳ)²</div>
+<ul>
+<li>R² is between 0 and 1. Close to 1: the line explains y very well. Close to 0: it explains almost nothing.</li>
+<li>1 − R² is the share that stays unexplained (random).</li>
+<li>For simple linear regression, <b>R² = r²</b>.</li>
+</ul>
+${ex('Insurance example',`<p>R² = 994 / 1 174 = <b>0.85</b> = 0.92². "85% of the variance in contracts is explained by customer contacts."</p><p>Exercise 2: r = −0.5 gives a negative slope and R² = 0.25, so x explains 25% of the variance of y.</p>`)}
+<p>Such high values mostly appear in textbook data. In economics R² is often much lower, and in finance even 2.5% can matter.</p>
+<h2 id="ch8-tools">Excel and calculator</h2>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>What</th><th>Excel (EN / DE)</th></tr></thead><tbody>
+<tr><td>Slope β</td><td class="f">SLOPE(y, x) / STEIGUNG</td></tr>
+<tr><td>Intercept b</td><td class="f">INTERCEPT(y, x) / ACHSENABSCHNITT</td></tr>
+<tr><td>Prediction ŷ</td><td class="f">FORECAST.LINEAR(x, y, x) / PROGNOSE.LINEAR</td></tr>
+<tr><td>R²</td><td class="f">RSQ(y, x) / BESTIMMTHEITSMASS</td></tr>
+</tbody></table></div>
+${note('<b>y comes first</b> in every Excel regression function. Swap them and you get the regression of x on y: a different line. The same trap hits charts: if you select both columns and insert a scatter plot, Excel may put the wrong variable on the x-axis.')}
+<p>TI-84: x in L1, y in L2, then <b>STAT → CALC → 4:LinReg(ax+b)</b>. The calculator writes y = ax + b, so its <b>a is the slope β</b> and its b is the intercept. Set "Store RegEQ" to Y1 (VARS → Y-VARS → 1:Function → Y1), then type <code class="x">Y1(79)</code> on the home screen for a prediction.</p>`,
+ gloss:[['Dependent variable','Abhängige Variable','The output y you want to explain.'],['Independent variable','Unabhängige Variable','The input x.'],['Regression line','Regressionsgerade','ŷ = βx + b.'],['Residual','Residuum','y − ŷ, actual minus predicted.'],['Least squares (OLS)','Kleinstquadrate (KQ-Schätzer)','Minimize the sum of squared residuals.'],['Slope / intercept','Steigung / Achsenabschnitt','β and b.'],['Coefficient of determination','Bestimmtheitsmass','R², share of variance explained.']],
+ check:[['For variables A and B, r = −0.5. Before running the regression B = βA + b, what do you know?',['β is negative and R² = 0.25','β = −0.5','R² = −0.25','Nothing yet'],0,'β has the sign of r, and R² = r² = 0.25.'],
+  ['In SLOPE(…), which list comes first?',['The y-list (dependent)','The x-list (independent)','It doesn’t matter','The longer list'],0,'SLOPE(y, x). Swapping gives the regression of x on y, a different line.'],
+  ['ŷ = 0.071·x + 31.6, x in CHF 1 000 of advertising, y in CHF million of revenue. One more CHF 1 000 of advertising goes with…',['about CHF 71 000 more revenue on average','CHF 0.071 more revenue','CHF 71 million more revenue','CHF 31.6 million more revenue'],0,'0.071 million = 71 000. Always translate the slope with both units.']]},
+
+{id:'ch9',week:9,topic:'comb',title:'Combinatorics and classical probability',mins:18,
+ idea:'If every outcome is <b>equally likely</b>, probability is just counting: favorable outcomes divided by possible outcomes. So you need to count well.',
+ body:`
+<p>Probability was born at the gambling table. The Chevalier de Méré bet on at least one six in four rolls of a die, and later on a double six in 24 rolls of two dice. When he started losing, he asked Blaise Pascal why. Chapter 10 answers his question.</p>
+<h2 id="ch9-principle">The counting principle</h2>
+<p>If a choice splits into successive steps, <b>multiply</b> the number of options per step.</p>
+${ex('Example 9.1: the canteen',`<p>3 side dishes × 3 kinds of meat × 2 salads = <b>18</b> different menus. A tree diagram lists them branch by branch.</p>`)}
+<h2 id="ch9-perm">Permutations: arranging everything</h2>
+<p>How many ways to put n different things in a row? n choices for the first place, n − 1 for the second, and so on:</p>
+<div class="eq">n! = n·(n − 1)·…·2·1     (n factorial; 0! = 1)</div>
+${ex('Exercises 9.2 and 9.3',`<p>A salesman visiting 7 customers: 7! = <b>5 040</b> tours. Six people at a table: 6! = <b>720</b> seating plans.</p>`)}
+<h2 id="ch9-comb">Combinations: choosing a group</h2>
+<p>Choose k out of n when <b>order doesn’t matter</b>. Count ordered picks, n·(n − 1)·…·(n − k + 1), then divide by the k! orders that give the same group:</p>
+<div class="eq">C(n, k) = n·(n − 1)·…·(n − k + 1) / k! = n! / (k!·(n − k)!)     ("n choose k")</div>
+${ex('Exercise 9.4: committee of 3 from 5 people',`<p>With posts (president, vice, actuary) order matters: 5·4·3 = 60. Without posts, ABC = ACB = BAC = …, so divide by 3! = 6: C(5, 3) = <b>10</b>.</p>`)}
+${ex('More from the notes',`<p>20 people clink glasses with everyone: C(20, 2) = <b>190</b>. 12 teams all play each other: C(12, 2) = <b>66</b>. Swiss lottery 6 out of 42: C(42, 6) = <b>5 245 786</b> possible draws.</p>`)}
+<p>Useful facts: C(n, 0) = C(n, n) = 1, and C(n, k) = C(n, n − k), so C(10, 4) = C(10, 6).</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Question</th><th>Count</th><th>Excel / TI-84</th></tr></thead><tbody>
+<tr><td>Arrange all n items</td><td class="f">n!</td><td class="f">FACT(n) · MATH → PROB → 4:!</td></tr>
+<tr><td>Pick k of n, order matters</td><td class="f">n·(n−1)·…·(n−k+1)</td><td class="f">FACT(n)/FACT(n−k)</td></tr>
+<tr><td>Pick k of n, order doesn’t matter</td><td class="f">C(n, k)</td><td class="f">COMBIN(n,k) · MATH → PROB → 3:nCr</td></tr>
+<tr><td>Several independent steps</td><td class="f">multiply</td><td>—</td></tr>
+</tbody></table></div>
+<p>Don’t compute C(n, k) through factorials for big n: 42! overflows quickly. Use <code class="x">COMBIN</code> (German: <code class="x">KOMBINATIONEN</code>) or nCr.</p>
+${ex('Exercise 9.7: exactly 3 winning numbers in 6 out of 42',`<p>Choose 3 of the 6 winning numbers <b>and</b> 3 of the 36 losing ones: C(6, 3)·C(36, 3) = 20·7 140 = <b>142 800</b> ways.</p>`)}
+<h2 id="ch9-laplace">Classical (Laplace) probability</h2>
+<div class="eq">P(A) = number of favorable outcomes / number of possible outcomes</div>
+<p>This only works if every outcome is <b>equally likely</b>: a fair die, a fair coin, a well-shuffled deck. Count the outcomes in the grid:</p>
+${W('dice')}
+${ex('Lottery and cards',`<p>Ace from a 36-card Jass deck: 4/36 = 1/9. Six correct numbers: 1 / 5 245 786. Exactly three correct: 142 800 / 5 245 786 = <b>2.72%</b>.</p>`)}`,
+ gloss:[['Counting principle','Allgemeines Zählprinzip','Multiply the options of successive steps.'],['Permutation','Permutation','An arrangement of all elements; order matters.'],['Factorial','Fakultät','n! = n·(n−1)·…·1.'],['Combination','Kombination','A selection of k from n; order doesn’t matter.'],['Binomial coefficient','Binomialkoeffizient','C(n, k), "n choose k".'],['Favorable / possible outcomes','Günstige / mögliche Fälle','Laplace probability = favorable / possible.']],
+ check:[['In a tournament with 10 teams, each team plays every other team once. How many games?',['45','90','100','10!'],0,'A game is a pair of teams, order irrelevant: C(10, 2) = 45.'],
+  ['How many four-digit numbers can be formed from 6, 7, 8, 9, each used once?',['24','256','4','6'],0,'Arranging all 4 digits: 4! = 24.'],
+  ['P(sum of two fair dice = 7)?',['6/36','7/36','1/11','1/6 · 1/6'],0,'Favorable: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1). That’s 6 of 36 equally likely outcomes.']]},
+
+{id:'ch10',week:10,topic:'prob',title:'Axiomatic probability',mins:18,
+ idea:'Drop the "all outcomes equally likely" assumption. Three axioms are enough, and a handful of rules follow that let you compute probabilities <b>without listing every outcome</b>.',
+ body:`
+<h2 id="ch10-sets">Events are sets</h2>
+<ul>
+<li>An <b>elementary event</b> ω is one possible outcome (rolling a 4). Elementary events don’t have to be equally likely.</li>
+<li>The <b>sample space</b> Ω is the set of all of them: {1, 2, 3, 4, 5, 6}.</li>
+<li>An <b>event</b> A is any subset: "even number" = {2, 4, 6}. Ω is the certain event, ∅ the impossible one.</li>
+</ul>
+<p>Combining events is set algebra. Read <b>∪ as "or"</b> and <b>∩ as "and"</b>:</p>
+${W('venn')}
+<h2 id="ch10-axioms">Kolmogorov’s three axioms</h2>
+<ol>
+<li>P(Ω) = 1.</li>
+<li>P(A) ≥ 0 for every event A.</li>
+<li>If A and B are <b>mutually exclusive</b> (A ∩ B = ∅), then P(A ∪ B) = P(A) + P(B).</li>
+</ol>
+<p>Everything else follows. The rules you will actually use:</p>
+<div class="eq">P(Ā) = 1 − P(A)     (complement)</div>
+<div class="eq">P(A ∪ B) = P(A) + P(B) − P(A ∩ B)     (addition rule)</div>
+<p>The addition rule subtracts the overlap because otherwise outcomes in A ∩ B are counted twice. Only for disjoint events does the overlap vanish.</p>
+${ex('Exercise 10.2: doubles or at least one six',`<p>P(doubles) = 6/36, P(at least one six) = 11/36, and 66 belongs to both: 6/36 + 11/36 − 1/36 = <b>16/36</b>.</p>`)}
+<h2 id="ch10-complement">The complement trick: "at least one"</h2>
+<p>"At least one" is usually painful to count directly. Its complement, "none at all", is easy:</p>
+<div class="eq">P(at least one) = 1 − P(none)</div>
+${ex('Exercise 10.1: two coins',`<p>P(at least one head) = 1 − P(TT) = 1 − 1/4 = <b>3/4</b>.</p>`)}
+<h2 id="ch10-indep">Independence</h2>
+<p>A and B are <b>independent</b> if one happening doesn’t change the chance of the other. Then, and only then:</p>
+<div class="eq">P(A ∩ B) = P(A) · P(B)</div>
+${ex('Example 10.2: two job applications',`<p>Interview chances 30% and 60%, independent: both invite her with probability 0.3·0.6 = <b>0.18</b>.</p>`)}
+${ex('Example 10.3: de Méré’s bets',`<p>At least one six in 4 rolls: 1 − (5/6)⁴ = <b>51.77%</b>, a winning bet. At least one double six in 24 rolls of two dice: 1 − (35/36)²⁴ = <b>49.14%</b>, a losing bet. With 25 rolls: 50.55%. The Chevalier was right.</p>`)}
+<p>You can also <b>test</b> for independence: in Exercise 6, P(A) = 0.35 and P(B) = 0.25, so independence would mean P(A ∩ B) = 0.0875. The actual 0.10 is different, so the events are <b>not</b> independent.</p>
+${note('<b>Disjoint is not independent.</b> If A and B can’t happen together, then A happening tells you B didn’t, which is the opposite of independence. Disjoint → add. Independent → multiply.')}
+${ex('Exercise 2: the couple and the annuity',`<p>Man survives 25 years: 0.16, woman: 0.62, independent. Exactly one alive = only him + only her = 0.16·0.38 + 0.84·0.62 = 0.0608 + 0.5208 = <b>0.5816</b>. At least one alive = 1 − both dead = 1 − 0.84·0.38 = <b>0.6808</b>.</p>`)}`,
+ gloss:[['Sample space','Ergebnisraum','Ω, all possible outcomes.'],['Event','Ereignis','A subset of Ω.'],['Complement','Gegenereignis','Ā, "not A".'],['Union / intersection','Vereinigung / Schnittmenge','A ∪ B "or", A ∩ B "and".'],['Mutually exclusive','Disjunkt / unvereinbar','Can’t happen together.'],['Independent','Stochastisch unabhängig','P(A ∩ B) = P(A)·P(B).']],
+ check:[['P(A) = 0.35, P(B) = 0.25, P(A ∩ B) = 0.10. P(A ∪ B)?',['0.50','0.60','0.0875','0.10'],0,'0.35 + 0.25 − 0.10 = 0.50.'],
+  ['Three engines fail independently with probability 0.01 each. P(at least one fails)?',['1 − 0.99³ ≈ 0.0297','0.01³','3·0.01 = 0.03','0.99³'],0,'Complement of "none fails": 1 − 0.99³ = 0.029701. 3·0.01 is close here but wrong in general.'],
+  ['A and B are mutually exclusive with P(A) = 0.3 and P(B) = 0.4. Are they independent?',['No: P(A ∩ B) = 0 ≠ 0.12','Yes, always','Yes, because they don’t overlap','Can’t tell'],0,'Independence needs P(A ∩ B) = 0.3·0.4 = 0.12, but disjoint means P(A ∩ B) = 0.']]},
+
+{id:'ch11',week:11,topic:'rv',title:'Random variables',mins:20,
+ idea:'Attach a <b>number</b> to every outcome. Then the toolkit from Chapters 3–4 (mean, variance) carries over, with <b>probabilities in place of relative frequencies</b>.',
+ body:`
+<h2 id="ch11-def">What a random variable is</h2>
+<p>A <b>random variable</b> (r.v.) X is a numerical quantity whose value depends on a random experiment: points on a die, total points of two dice, winnings after 6 rounds, tomorrow’s bitcoin price. Formally it’s a function from Ω to the real numbers. Coin toss: X = 0 for heads, 1 for tails.</p>
+<p>It’s <b>discrete</b> if it only takes isolated values (dice), <b>continuous</b> if it can take any value in a range (a price). This course sticks to discrete.</p>
+<h2 id="ch11-pmf">pmf and cdf</h2>
+<div class="eq">pmf: f<sub>X</sub>(x) = P(X = x)        cdf: F<sub>X</sub>(x) = P(X ≤ x)</div>
+<p>The cdf adds up the pmf from the left, so it climbs from 0 to 1 in steps. Two named distributions so far:</p>
+<ul>
+<li><b>Discrete uniform</b> on {1, …, n}: every value has probability 1/n (a fair die, n = 6).</li>
+<li><b>Bernoulli</b>: X = 1 ("success") with probability p, X = 0 with probability 1 − p (a possibly loaded coin).</li>
+</ul>
+${W('pmf')}
+<h2 id="ch11-ev">Expected value</h2>
+<div class="eq">E[X] = Σ f<sub>X</sub>(x<sub>i</sub>) · x<sub>i</sub></div>
+<p>Compare with the weighted mean of Chapter 3, x̄ = Σ w<sub>i</sub>·x<sub>i</sub>: same formula, with <b>probabilities</b> instead of relative frequencies. The data version describes what happened; the r.v. version describes what <b>should</b> happen on average in the long run.</p>
+${ex('Die',`<p>E[X] = (1 + 2 + 3 + 4 + 5 + 6)/6 = <b>3.5</b>. You never roll a 3.5. It’s the long-run average.</p>`)}
+<p><b>Rules</b> (they save a lot of work):</p>
+<div class="eq">E[X ± Y] = E[X] ± E[Y]        E[a·X] = a·E[X]        E[a·X + b] = a·E[X] + b</div>
+${ex('Exercise 2: revenue',`<p>X units of A at $20 plus a fixed $150 from B: R = 20X + 150. E[X] = 10·0.6 + 15·0.4 = 12, so E[R] = 20·12 + 150 = <b>$390</b>.</p>`)}
+${note('<b>No such rule for products and ratios.</b> E[X·Y] = E[X]·E[Y] only if X and Y are independent, and E[X/Y] ≠ E[X]/E[Y] in general.')}
+<h2 id="ch11-var">Variance and standard deviation</h2>
+<div class="eq">Var[X] = σ² = Σ f<sub>X</sub>(x<sub>i</sub>) · (x<sub>i</sub> − μ)²     with μ = E[X]        σ = √Var[X]</div>
+<p>Again Chapter 4’s σ² = Σ w<sub>i</sub>(x<sub>i</sub> − x̄)², with probabilities. No n − 1 here: there is no sample.</p>
+${ex('Example 11.5: die',`<p>(6.25 + 2.25 + 0.25 + 0.25 + 2.25 + 6.25)/6 = 17.5/6 = <b>2.9167</b>, σ ≈ <b>1.71</b>.</p>`)}
+<p><b>Rules</b>:</p>
+<div class="eq">Var[a·X] = a²·Var[X]        Var[X + b] = Var[X]</div>
+<div class="eq">if X and Y are independent:   Var[X + Y] = Var[X − Y] = Var[X] + Var[Y]</div>
+${note('<b>Var(X − Y) adds.</b> Subtracting another random quantity adds uncertainty; it doesn’t cancel it (Exercise 11.1: 4 + 9 = 13 both times). And the constant a gets <b>squared</b>: Var[X/1.1] = 25/1.1² = 20.66.')}
+${ex('Exercise 4: a portfolio',`<p>R<sub>P</sub> = 0.6·R<sub>A</sub> + 0.4·R<sub>B</sub>, E = 8% and 12%, σ = 15% and 20%, independent. E[R<sub>P</sub>] = 0.6·0.08 + 0.4·0.12 = <b>9.6%</b>. Var = 0.36·0.0225 + 0.16·0.04 = 0.0145, σ = <b>12.04%</b>: less risky than either stock alone. That’s diversification.</p>`)}
+${ex('Exercise 5: two projects, same mean',`<p>Both have E = 40 000. Project A: σ = 5 477. Project B: σ = 11 402. A risk-averse investor picks A. Switch to the projects in the figure above to see why.</p>`)}
+<p>Excel: <code class="x">SUMPRODUCT(x, p)</code> for E, and <code class="x">SUMPRODUCT(p, (x − E)^2)</code> for the variance. TI-84: values in L1, probabilities in L2, then <code class="x">sum(L1*L2)</code>.</p>`,
+ gloss:[['Random variable','Zufallsvariable','A number determined by a random experiment.'],['Probability mass function','Wahrscheinlichkeitsfunktion','f(x) = P(X = x).'],['Cumulative distribution function','Verteilungsfunktion','F(x) = P(X ≤ x).'],['Expected value','Erwartungswert','Long-run average, Σ f(x)·x.'],['Discrete uniform distribution','Diskrete Gleichverteilung','Every value has probability 1/n.'],['Bernoulli distribution','Bernoulli-Verteilung','1 with probability p, 0 with 1 − p.']],
+ check:[['You roll two dice and get $5 per point. Expected payoff?',['$35','$17.50','$3.50','$60'],0,'E[5(X₁ + X₂)] = 5·(3.5 + 3.5) = 35.'],
+  ['X and Y independent, Var(X) = 4, Var(Y) = 9. Var(X − Y)?',['13','−5','5','36'],0,'Variances of independent variables add, even for a difference.'],
+  ['Var(X) = 25. Var(3X + 10)?',['225','85','75','35'],0,'Var(aX + b) = a²·Var(X) = 9·25. The constant 10 shifts, it doesn’t spread.']]},
+
+{id:'ch12',week:12,topic:'sim',title:'Simulation and the law of large numbers',mins:15,
+ idea:'If a probability or an expected value is too hard to calculate, let the computer <b>play the game thousands of times</b> and count. The law of large numbers guarantees the counts settle on the true values.',
+ body:`
+<h2 id="ch12-lln">The law of large numbers</h2>
+<p>Roll a die 100 times and record the relative frequencies w<sub>i</sub>. They won’t be exactly 1/6, but they’ll be close. Roll more often and they get closer. Formally, for independent, identically distributed repetitions:</p>
+<div class="eq">relative frequency W<sub>i,N</sub> → probability f(x<sub>i</sub>)        sample mean X̄<sub>N</sub> → expected value μ     (as N → ∞)</div>
+<p>This is the bridge between Chapters 3–4 (data) and Chapter 11 (probability): with lots of data, the frequencies <b>are</b> the probabilities, approximately.</p>
+${W('lln')}
+<p>Notice two things. The path is wobbly and doesn’t approach the true value smoothly. And early on it can be far off: 7 heads in 10 tosses says almost nothing about the coin. The law is about the <b>long run</b>.</p>
+<h2 id="ch12-excel">Building blocks in Excel</h2>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>To simulate</th><th>Excel (EN)</th><th>German</th></tr></thead><tbody>
+<tr><td>A fair die</td><td class="f">=RANDBETWEEN(1,6)</td><td class="f">=ZUFALLSBEREICH(1;6)</td></tr>
+<tr><td>A fair coin (0/1)</td><td class="f">=RANDBETWEEN(0,1)</td><td class="f">=ZUFALLSBEREICH(0;1)</td></tr>
+<tr><td>A loaded coin, P(1) = 0.7</td><td class="f">=IF(RAND()&lt;0.7,1,0)</td><td class="f">=WENN(ZUFALLSZAHL()&lt;0,7;1;0)</td></tr>
+<tr><td>Uniform between a and b</td><td class="f">=a+(b-a)*RAND()</td><td class="f">=a+(b-a)*ZUFALLSZAHL()</td></tr>
+<tr><td>Binomial(n, p) (Chapter 13)</td><td class="f">=BINOM.INV(n,p,RAND())</td><td class="f">=BINOM.INV(n;p;ZUFALLSZAHL())</td></tr>
+</tbody></table></div>
+<p>Why does <code class="x">IF(RAND()&lt;0.7,1,0)</code> work? RAND() is uniform on [0, 1), so it lands below 0.7 exactly 70% of the time.</p>
+<p><b>The recipe:</b> one <b>row</b> = one run of the experiment. Columns hold the steps. A last column holds the outcome, as 1/0 for "did the event happen". Fill down 1 000 or 10 000 rows. Then <code class="x">AVERAGE</code> of the 1/0 column estimates the probability, and <code class="x">AVERAGE</code> of a value column estimates an expected value. <code class="x">COUNTIF</code> counts specific outcomes. F9 recalculates (new random numbers). Copy and paste as values to freeze them.</p>
+${ex('Exercise 2: going bankrupt',`<p>Start with CHF 5 in A1, bet CHF 1 on "even" each round. B1: <code class="x">=IF(RAND()&lt;1/2,A1+1,A1-1)</code>, dragged across 10 columns. If the minimum of the row is ≤ 0, you went bankrupt. Average over many rows → about <b>10.9%</b>.</p>`)}
+${ex('Exercise 3: Efron’s dice',`<p>Four fair dice where A beats B, B beats C, C beats D and D beats A, each with probability 2/3. "Stronger than" is not transitive, and simulation shows it in seconds.</p>`)}
+${ex('Births',`<p>About 105 boys are born per 100 girls, so the LLN lets you estimate P(boy) ≈ 105/205 ≈ 51.2% and P(girl) ≈ 0.488.</p>`)}
+${note('<b>Typo in the notes, Exercise 12.4:</b> "500+100·RAND()" does not give a uniform between 500 and 1 500. You need <code class="x">500+1000*RAND()</code> (width b − a = 1 000). Also, Solution 1 says "a family of 5", but the question is about 3 children.')}
+<h2 id="ch12-cont">Optional: the continuous uniform distribution</h2>
+<p>RAND() draws from the continuous uniform on [0, 1): the probability of landing in an interval is its length (P(0.2 ≤ X ≤ 0.3) = 0.1), and any exact value has probability 0. Continuous variables have a cdf but no pmf. Instead they have a density (pdf), whose area gives probabilities.</p>`,
+ gloss:[['Simulation','Simulation','Estimating by repeating a random experiment on a computer.'],['Law of large numbers','Gesetz der grossen Zahlen','Frequencies → probabilities, sample mean → expected value.'],['Pseudo-random number','Pseudozufallszahl','Computer-generated "random" number.'],['Continuous uniform distribution','Stetige Gleichverteilung','Probability proportional to interval length.']],
+ check:[['Which formula simulates a coin that shows 1 with probability 0.3?',['=IF(RAND()<0.3,1,0)','=RANDBETWEEN(0,1)*0.3','=IF(RAND()>0.3,1,0)','=RAND()*0.3'],0,'RAND() < 0.3 happens 30% of the time. The ">" version gives 70%.'],
+  ['A fair coin shows heads 7 times in the first 10 tosses. The LLN says…',['nothing much yet; over many more tosses the share will approach 0.5','the next tosses will favor tails to balance it out','the coin is loaded','the share will be exactly 0.5 after 20 tosses'],0,'The law is about the long run. There is no balancing force; early deviations just get diluted.'],
+  ['You simulated 1 000 rows with a 1/0 column "event happened". The probability estimate is…',['=AVERAGE of that column','=SUM of that column','=MAX of that column','=COUNT of that column'],0,'The average of a 1/0 column is the relative frequency of 1s.']]},
+
+{id:'ch13',week:13,topic:'binom',title:'The binomial distribution',mins:18,
+ idea:'Repeat the same yes/no experiment <b>n times independently</b> and <b>count the successes</b>. That count is binomial, and Excel or the calculator give you any probability you want.',
+ body:`
+<h2 id="ch13-when">When is it binomial?</h2>
+<ul>
+<li>A fixed number <b>n</b> of trials,</li>
+<li>each trial is a yes/no (Bernoulli) experiment with the <b>same</b> success probability <b>p</b>,</li>
+<li>the trials are <b>independent</b>,</li>
+<li>X = the <b>number of successes</b>.</li>
+</ul>
+<p>Then X ~ Binom(n, p). Examples: correct guesses on a 15-question multiple-choice test (n = 15, p = 0.25); iPhones in a class of 20 (p = 0.56); no-shows among 385 bookings (p = 0.04).</p>
+<h2 id="ch13-pmf">The probabilities</h2>
+<div class="eq">P(X = x) = C(n, x) · p<sup>x</sup> · (1 − p)<sup>n − x</sup></div>
+<p>Why: one particular sequence with x successes has probability p<sup>x</sup>(1 − p)<sup>n − x</sup> (independence), and there are C(n, x) ways to place the x successes among the n trials. The slides say you won’t need the formula by hand: use the tools.</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th></th><th>Excel (EN / DE)</th><th>TI-84 (2nd VARS = DISTR)</th></tr></thead><tbody>
+<tr><td>P(X = x)</td><td class="f">BINOM.DIST(x,n,p,0) / BINOM.VERT</td><td class="f">A: binompdf(n,p,x)</td></tr>
+<tr><td>P(X ≤ x)</td><td class="f">BINOM.DIST(x,n,p,1)</td><td class="f">B: binomcdf(n,p,x)</td></tr>
+<tr><td>Simulate one draw</td><td class="f">BINOM.INV(n,p,RAND())</td><td class="f">C: invBinom</td></tr>
+</tbody></table></div>
+<h2 id="ch13-translate">Translating words into the cdf</h2>
+<p>The tools only give you P(X = x) and P(X ≤ x). Everything else must be rewritten. This is where most points are lost:</p>
+<div class="tbl-wrap"><table class="ref"><thead><tr><th>Words</th><th>Math</th><th>Rewrite</th></tr></thead><tbody>
+<tr><td>at most k</td><td>P(X ≤ k)</td><td class="f">F(k)</td></tr>
+<tr><td>fewer than k</td><td>P(X &lt; k)</td><td class="f">F(k − 1)</td></tr>
+<tr><td>at least k</td><td>P(X ≥ k)</td><td class="f">1 − F(k − 1)</td></tr>
+<tr><td>more than k</td><td>P(X &gt; k)</td><td class="f">1 − F(k)</td></tr>
+<tr><td>exactly k</td><td>P(X = k)</td><td class="f">f(k)</td></tr>
+<tr><td>between a and b (inclusive)</td><td>P(a ≤ X ≤ b)</td><td class="f">F(b) − F(a − 1)</td></tr>
+</tbody></table></div>
+${W('binom')}
+${ex('The coin game: 10 tosses, you win if tails comes up more than 6 times',`<p>P(X = 7) = C(10, 7)·0.5⁷·0.5³ = 120/1 024 ≈ 11.7%. But you need P(X &gt; 6) = 1 − P(X ≤ 6) = 1 − 0.828 = <b>17.2%</b>. Excel: <code class="x">=1-BINOM.DIST(6,10,0.5,1)</code>.</p>`)}
+${ex('Exercise 1: guessing a multiple-choice test',`<p>15 questions, 4 options, pass with ≥ 60% = 9 correct. P(X ≥ 9) = 1 − F(8) = 1 − BINOM.DIST(8, 15, 0.25, 1) = <b>0.42%</b>. (The notes’ solution writes "= F<sub>Binom</sub>(8, 15, 0.25)" in the middle of the line, but the value 0.00419 is 1 − F(8). Trust the value.)</p>`)}
+${ex('Exercise 3: overbooking',`<p>385 bookings, 376 seats, 4% no-shows. Nobody needs rebooking if at least 9 don’t show. So P(rebooking) = P(X ≤ 8) with X ~ Binom(385, 0.04) = <b>2.8%</b>.</p>`)}
+<h2 id="ch13-moments">Mean and variance</h2>
+<div class="eq">E[X] = n·p        Var[X] = n·p·(1 − p)</div>
+${ex('Exercise 2: iPhones in a class of 20',`<p>E = 20·0.56 = <b>11.2</b>. σ = √(20·0.56·0.44) = <b>2.21</b>. P(8 or fewer) = F(8) = 0.112. P(15 or more) = 1 − F(14) = 0.066.</p>`)}
+<h2 id="ch13-sim">Simulating it</h2>
+<p><code class="x">=BINOM.INV(n,p,RAND())</code> gives one binomial draw ("inverse transform sampling": push a uniform random number backwards through the cdf). Don’t confuse <b>n</b> (trials inside one draw, e.g. 3 children) with <b>N</b> (number of simulated rows, e.g. 1 000 families).</p>`,
+ gloss:[['Binomial distribution','Binomialverteilung','Number of successes in n independent trials.'],['Trial','Versuch','One repetition of the yes/no experiment.'],['Success probability','Erfolgswahrscheinlichkeit','p, the same in every trial.'],['At least / at most','Mindestens / höchstens','≥ / ≤.'],['More than / fewer than','Mehr als / weniger als','> / <.']],
+ check:[['X ~ Binom(15, 0.25). P(X ≥ 9) is…',['1 − BINOM.DIST(8,15,0.25,1)','1 − BINOM.DIST(9,15,0.25,1)','BINOM.DIST(9,15,0.25,1)','BINOM.DIST(9,15,0.25,0)'],0,'At least 9 = not at most 8.'],
+  ['X ~ Binom(20, 0.56). E[X]?',['11.2','10','0.56','4.93'],0,'n·p = 20·0.56.'],
+  ['Which situation is NOT binomial?',['Drawing 5 cards without replacement and counting aces','Counting heads in 50 coin tosses','Counting defective parts among 100, each defective with 1% independently','Counting correct random guesses on 15 questions'],0,'Without replacement, the probability changes from draw to draw, so the trials aren’t independent with constant p.']]}
+];
+LEARN.push(CH6,...NEWCH);
+
+/* ---------- new figures ---------- */
+Object.assign(WIDGETS,{
+regfit(el){
+  const X=[71,64,100,105,75,59,82,68,111,90], Y=[25,16,37,40,18,10,22,14,42,19], L=linreg(X,Y);
+  const sse=bt=>sum(X.map((x,i)=>(Y[i]-(L.my+bt*(x-L.mx)))**2)), best=sse(L.beta);
+  el.innerHTML=`<h3>Beat least squares, if you can</h3><p class="sub">The 10 insurance agents. The line pivots around the centroid (x̄, ȳ) = (82.5, 24.3). Red bars are the residuals.</p><div class="cw" id="rf-c"></div><label class="sl"><span>Slope β</span><input type="range" class="slider" id="rf-s" min="0" max="120" value="20"></label><div class="actions" style="margin-top:6px"><button class="btn btn-ghost" id="rf-best" style="padding:6px 12px;font-size:13px">Snap to least squares</button></div><div class="readout" id="rf-r"></div>`;
+  const draw=()=>{
+    const bt=+$('#rf-s').value/100, b0=L.my-bt*L.mx, s=sse(bt);
+    const W=640,H=290,x=sc(50,120,46,W-16),y=sc(0,50,250,14);
+    let g=svgOpen(W,H,'Scatter plot of customer contacts and contracts with a candidate line');
+    [0,10,20,30,40,50].forEach(t=>{g+=`<line class="grid" x1="46" x2="${W-16}" y1="${y(t)}" y2="${y(t)}"/><text x="38" y="${y(t)+4}" text-anchor="end">${t}</text>`;});
+    [50,60,70,80,90,100,110,120].forEach(t=>{g+=`<text x="${x(t)}" y="268" text-anchor="middle">${t}</text>`;});
+    g+=`<text x="${(46+W-16)/2}" y="286" text-anchor="middle">Customer contacts per week (x)</text><line class="ax" x1="46" x2="${W-16}" y1="250" y2="250"/>`;
+    X.forEach((xi,i)=>{const yh=b0+bt*xi;g+=`<line class="resid" x1="${x(xi)}" x2="${x(xi)}" y1="${y(Y[i])}" y2="${y(Math.max(0,Math.min(50,yh)))}"/>`;});
+    const yl=v=>Math.max(-5,Math.min(55,b0+bt*v));
+    g+=`<line class="ln" x1="${x(50)}" y1="${y(yl(50))}" x2="${x(120)}" y2="${y(yl(120))}" clip-path="url(#rf-clip)"/><clipPath id="rf-clip"><rect x="46" y="14" width="${W-62}" height="236"/></clipPath>`;
+    X.forEach((xi,i)=>{g+=`<circle class="mk-neg" cx="${x(xi)}" cy="${y(Y[i])}" r="5"><title>Agent ${i+1}: ${xi} contacts, ${Y[i]} contracts, residual ${fx(Y[i]-(b0+bt*xi),2)}</title></circle>`;});
+    g+=`<circle class="mk" cx="${x(L.mx)}" cy="${y(L.my)}" r="6"><title>Centroid (82.5, 24.3)</title></circle>`;
+    $('#rf-c').innerHTML=g+'</svg>';
+    const ratio=s/best;
+    $('#rf-r').innerHTML=`<div class="ro"><span class="l">Your line</span><span class="v">ŷ = ${fx(bt,2)}x ${b0<0?'−':'+'} ${fx(Math.abs(b0),2)}</span></div><div class="ro"><span class="l">Σ e² (yours)</span><span class="v">${fx(s,1)}</span></div><div class="ro"><span class="l">Σ e² (least squares)</span><span class="v">${fx(best,1)}</span></div><div class="ro"><span class="l">Verdict</span><span class="v">${ratio<1.005?'That’s the minimum':`${fx((ratio-1)*100,0)}% worse`}</span></div>`;
+  };
+  $('#rf-s').oninput=draw; $('#rf-best').onclick=()=>{$('#rf-s').value=Math.round(L.beta*100);draw();$('#rf-r').querySelector('.ro:last-child .v').textContent='β = 0.5781, b = −23.39 (exact)';};
+  draw();
+},
+dice(el){
+  const EV={'At least one six':(a,b)=>a===6||b===6,'Doubles':(a,b)=>a===b,'Sum = 7':(a,b)=>a+b===7,'Sum ≥ 10':(a,b)=>a+b>=10,'Doubles or at least one six':(a,b)=>a===b||a===6||b===6};
+  let cur='At least one six';
+  el.innerHTML=`<h3>All 36 outcomes of two dice</h3><p class="sub">Each cell is equally likely. Pick an event; favorable cells light up.</p><div class="topics" role="group" aria-label="Event" id="dc-b">${Object.keys(EV).map(k=>`<button data-k="${k}" aria-pressed="${k===cur}">${k}</button>`).join('')}</div><div class="dice-grid" id="dc-g"></div><div class="readout" id="dc-r"></div>`;
+  const draw=()=>{
+    const f=EV[cur]; let n=0, h='<span class="dg-h"></span>'+[1,2,3,4,5,6].map(b=>`<span class="dg-h">${b}</span>`).join('');
+    for(let a=1;a<=6;a++){h+=`<span class="dg-h">${a}</span>`;for(let b=1;b<=6;b++){const on=f(a,b);if(on)n++;h+=`<span class="dg-c${on?' on':''}" title="Die 1 = ${a}, die 2 = ${b}">${a}${b}</span>`;}}
+    $('#dc-g').innerHTML=h;
+    $('#dc-r').innerHTML=`<div class="ro"><span class="l">Favorable</span><span class="v">${n}</span></div><div class="ro"><span class="l">Possible</span><span class="v">36</span></div><div class="ro"><span class="l">P</span><span class="v">${n}/36 = ${fx(n/36,4)}</span></div>${cur==='Doubles or at least one six'?'<div class="ro"><span class="l">Addition rule</span><span class="v">6/36 + 11/36 − 1/36</span></div>':''}`;
+    document.querySelectorAll('#dc-b button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===cur));
+  };
+  document.querySelectorAll('#dc-b button').forEach(b=>b.onclick=()=>{cur=b.dataset.k;draw();});
+  draw();
+},
+venn(el){
+  const A=[1,3],B=[2,3];
+  const EV={'A':v=>A.includes(v),'Ā (not A)':v=>!A.includes(v),'A ∪ B (A or B)':v=>A.includes(v)||B.includes(v),'A ∩ B (A and B)':v=>A.includes(v)&&B.includes(v),'B':v=>B.includes(v)};
+  const RULE={'A':'2/6','Ā (not A)':'1 − P(A) = 1 − 2/6 = 4/6','A ∪ B (A or B)':'P(A) + P(B) − P(A ∩ B) = 2/6 + 2/6 − 1/6 = 3/6','A ∩ B (A and B)':'1/6','B':'2/6'};
+  let cur='A ∪ B (A or B)';
+  el.innerHTML=`<h3>Rolling a die: A = {1, 3}, B = {2, 3}</h3><p class="sub">The example from Figure 36 in the notes.</p><div class="topics" role="group" aria-label="Event" id="vn-b">${Object.keys(EV).map(k=>`<button data-k="${k}" aria-pressed="${k===cur}">${k}</button>`).join('')}</div><div class="cw" id="vn-c"></div><div class="readout" id="vn-r"></div>`;
+  const pos={1:[205,150],3:[262,150],2:[320,150],4:[70,60],5:[70,250],6:[470,250]};
+  const draw=()=>{
+    const W=540,H=300; let g=svgOpen(W,H,'Venn diagram of events A and B');
+    g+=`<defs><clipPath id="vn-ca"><circle cx="230" cy="150" r="85"/></clipPath></defs>`;
+    if(cur==='A')g+=`<circle class="vfill" cx="230" cy="150" r="85"/>`;
+    if(cur==='B')g+=`<circle class="vfill" cx="295" cy="150" r="85"/>`;
+    if(cur.startsWith('A ∪'))g+=`<circle class="vfill" cx="230" cy="150" r="85"/><circle class="vfill" cx="295" cy="150" r="85"/>`;
+    if(cur.startsWith('A ∩'))g+=`<circle class="vfill" cx="295" cy="150" r="85" clip-path="url(#vn-ca)"/>`;
+    if(cur.startsWith('Ā'))g+=`<path class="vfill" fill-rule="evenodd" d="M12 12 H${W-12} V${H-12} H12 Z M145 150 a85 85 0 1 0 170 0 a85 85 0 1 0 -170 0 Z"/>`;
+    g+=`<rect class="vbox" x="12" y="12" width="${W-24}" height="${H-24}" rx="8"/><circle class="vline" cx="230" cy="150" r="85"/><circle class="vline" cx="295" cy="150" r="85"/>`;
+    g+=`<text class="lbl-ink" x="24" y="34">Ω</text><text class="lbl-ink" x="168" y="74">A</text><text class="lbl-ink" x="350" y="74">B</text>`;
+    Object.entries(pos).forEach(([v,[px,py]])=>{const on=EV[cur](+v);g+=`<circle class="${on?'face-on':'face'}" cx="${px}" cy="${py}" r="17"><title>Face ${v}${on?' (in the event)':''}</title></circle><text class="face-t" x="${px}" y="${py+5}" text-anchor="middle">${v}</text>`;});
+    $('#vn-c').innerHTML=g+'</svg>';
+    $('#vn-r').innerHTML=`<div class="ro"><span class="l">Outcomes</span><span class="v">{${[1,2,3,4,5,6].filter(EV[cur]).join(', ')}}</span></div><div class="ro"><span class="l">Probability</span><span class="v">${RULE[cur]}</span></div>`;
+    document.querySelectorAll('#vn-b button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===cur));
+  };
+  document.querySelectorAll('#vn-b button').forEach(b=>b.onclick=()=>{cur=b.dataset.k;draw();});
+  draw();
+},
+pmf(el){
+  const D={'One die':{x:[1,2,3,4,5,6],p:[1,1,1,1,1,1].map(v=>v/6),u:''},'Sum of two dice':{x:[2,3,4,5,6,7,8,9,10,11,12],p:[1,2,3,4,5,6,5,4,3,2,1].map(v=>v/36),u:''},'Project A':{x:[30,35,40,45,50],p:[.1,.2,.4,.2,.1],u:'k'},'Project B':{x:[20,30,40,50,60],p:[.1,.25,.3,.25,.1],u:'k'}};
+  let cur='One die', view='pmf';
+  el.innerHTML=`<h3>pmf, cdf, expected value and spread</h3><p class="sub">Project revenues are in USD 1 000 (Exercise 11.5).</p><div class="topics" role="group" aria-label="Distribution" id="pm-b">${Object.keys(D).map(k=>`<button data-k="${k}" aria-pressed="${k===cur}">${k}</button>`).join('')}</div><div class="topics" role="group" aria-label="View" id="pm-v"><button data-v="pmf" aria-pressed="true">pmf  P(X = x)</button><button data-v="cdf" aria-pressed="false">cdf  P(X ≤ x)</button></div><div class="cw" id="pm-c"></div><div class="readout" id="pm-r"></div>`;
+  const draw=()=>{
+    const d=D[cur], E=sum(d.x.map((v,i)=>v*d.p[i])), V=sum(d.x.map((v,i)=>d.p[i]*(v-E)**2)), sd=Math.sqrt(V);
+    const lo=d.x[0]-(d.x[1]-d.x[0]), hi=d.x[d.x.length-1]+(d.x[1]-d.x[0]);
+    const W=640,H=260,x=sc(lo,hi,46,W-16), top=view==='pmf'?Math.max(...d.p)*1.25:1.05, y=sc(0,top,222,14), bw=Math.min(44,(x(d.x[1])-x(d.x[0]))*0.6);
+    let g=svgOpen(W,H,`${view} of ${cur}`);
+    niceTicks(0,top,4).forEach(t=>{g+=`<line class="grid" x1="46" x2="${W-16}" y1="${y(t)}" y2="${y(t)}"/><text x="38" y="${y(t)+4}" text-anchor="end">${fx(t,2)}</text>`;});
+    d.x.forEach(v=>{g+=`<text x="${x(v)}" y="240" text-anchor="middle">${v}${d.u}</text>`;});
+    if(view==='pmf'){
+      g+=`<rect class="band" x="${x(E-sd)}" y="14" width="${x(E+sd)-x(E-sd)}" height="208"><title>μ ± σ</title></rect>`;
+      d.x.forEach((v,i)=>{g+=`<rect class="bar" x="${x(v)-bw/2}" y="${y(d.p[i])}" width="${bw}" height="${y(0)-y(d.p[i])}" rx="3"><title>P(X = ${v}) = ${fx(d.p[i],4)}</title></rect>`;});
+      g+=`<line class="guide2" x1="${x(E)}" x2="${x(E)}" y1="14" y2="222"/><text class="lbl-ink" x="${x(E)+4}" y="26">E[X] = ${fx(E,2)}${d.u}</text>`;
+    }else{
+      let c=0, pts=[]; d.x.forEach((v,i)=>{pts.push([x(v),y(c)]);c+=d.p[i];pts.push([x(v),y(c)]);if(i<d.x.length-1)pts.push([x(d.x[i+1]),y(c)]);});
+      g+=`<polyline class="ln" points="${x(lo)},${y(0)} ${pts.map(p=>p.join(',')).join(' ')} ${x(hi)},${y(1)}"/>`;
+      c=0; d.x.forEach((v,i)=>{c+=d.p[i];g+=`<circle class="mk" cx="${x(v)}" cy="${y(c)}" r="5"><title>F(${v}) = P(X ≤ ${v}) = ${fx(c,4)}</title></circle>`;});
+    }
+    g+=`<line class="ax" x1="46" x2="${W-16}" y1="222" y2="222"/>`;
+    $('#pm-c').innerHTML=g+'</svg>';
+    $('#pm-r').innerHTML=`<div class="ro"><span class="l">E[X]</span><span class="v">${fx(E,3)}${d.u}</span></div><div class="ro"><span class="l">Var[X]</span><span class="v">${fx(V,3)}${d.u?' (k²)':''}</span></div><div class="ro"><span class="l">σ</span><span class="v">${fx(sd,3)}${d.u}</span></div>`;
+    document.querySelectorAll('#pm-b button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===cur));
+    document.querySelectorAll('#pm-v button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===view));
+  };
+  document.querySelectorAll('#pm-b button').forEach(b=>b.onclick=()=>{cur=b.dataset.k;draw();});
+  document.querySelectorAll('#pm-v button').forEach(b=>b.onclick=()=>{view=b.dataset.v;draw();});
+  draw();
+},
+lln(el){
+  let runs=[], heads=0;
+  el.innerHTML=`<h3>Toss a coin and watch the share of heads</h3><p class="sub">Set the coin’s true probability, then toss. The dashed line is the true probability.</p><div class="cw" id="ll-c"></div><label class="sl"><span>True P(heads)</span><input type="range" class="slider" id="ll-p" min="10" max="90" value="50"></label><div class="actions" style="margin-top:6px">${[10,100,1000].map(n=>`<button class="btn btn-ghost" data-n="${n}" style="padding:6px 12px;font-size:13px">Toss ${n}</button>`).join('')}<button class="btn-link" id="ll-reset">Start over</button></div><div class="readout" id="ll-r"></div>`;
+  const draw=()=>{
+    const p=+$('#ll-p').value/100, N=runs.length, W=640,H=240, xmax=Math.max(50,N), x=sc(0,xmax,46,W-16), y=sc(0,1,206,14);
+    let g=svgOpen(W,H,'Running share of heads');
+    [0,0.25,0.5,0.75,1].forEach(t=>{g+=`<line class="grid" x1="46" x2="${W-16}" y1="${y(t)}" y2="${y(t)}"/><text x="38" y="${y(t)+4}" text-anchor="end">${fx(t,2)}</text>`;});
+    niceTicks(0,xmax,5).forEach(t=>{g+=`<text x="${x(t)}" y="224" text-anchor="middle">${fmt(t,0)}</text>`;});
+    g+=`<line class="ax" x1="46" x2="${W-16}" y1="206" y2="206"/><line class="guide" x1="46" x2="${W-16}" y1="${y(p)}" y2="${y(p)}"/><text class="lbl-acc" x="${W-20}" y="${y(p)-6}" text-anchor="end">p = ${fx(p,2)}</text>`;
+    if(N){const step=Math.max(1,Math.floor(N/500));let pts=[];for(let i=0;i<N;i+=step)pts.push(`${x(i+1)},${y(runs[i])}`);pts.push(`${x(N)},${y(runs[N-1])}`);g+=`<polyline class="ln" points="${pts.join(' ')}"/><circle class="mk" cx="${x(N)}" cy="${y(runs[N-1])}" r="5"><title>After ${N} tosses: ${fx(runs[N-1],3)}</title></circle>`;}
+    g+=`<text x="${(46+W-16)/2}" y="238" text-anchor="middle">Number of tosses N</text>`;
+    $('#ll-c').innerHTML=g+'</svg>';
+    $('#ll-r').innerHTML=`<div class="ro"><span class="l">Tosses</span><span class="v">${fmt(N,0)}</span></div><div class="ro"><span class="l">Heads</span><span class="v">${fmt(heads,0)}</span></div><div class="ro"><span class="l">Share of heads</span><span class="v">${N?fx(heads/N,3):'—'}</span></div><div class="ro"><span class="l">Gap to p</span><span class="v">${N?fx(Math.abs(heads/N-p),3):'—'}</span></div>`;
+  };
+  const toss=n=>{const p=+$('#ll-p').value/100;for(let i=0;i<n&&runs.length<20000;i++){if(Math.random()<p)heads++;runs.push(heads/(runs.length+1));}draw();};
+  el.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>toss(+b.dataset.n));
+  $('#ll-reset').onclick=()=>{runs=[];heads=0;draw();};
+  $('#ll-p').oninput=()=>{runs=[];heads=0;draw();};
+  toss(30);
+},
+binom(el){
+  const OPS=[['=','exactly','f(k)'],['≤','at most','F(k)'],['<','fewer than','F(k − 1)'],['≥','at least','1 − F(k − 1)'],['>','more than','1 − F(k)']];
+  let op='≥';
+  el.innerHTML=`<h3>Binomial calculator, with the rewrite shown</h3><p class="sub">Defaults: the multiple-choice test (n = 15, p = 0.25, pass with at least 9).</p><div class="topics" role="group" aria-label="Event" id="bn-o">${OPS.map(o=>`<button data-o="${o[0]}" aria-pressed="${o[0]===op}">P(X ${o[0]} k): ${o[1]} k</button>`).join('')}</div><div class="cw" id="bn-c"></div><label class="sl"><span>n</span><input type="range" class="slider" id="bn-n" min="1" max="40" value="15"><span class="mono" id="bn-nv"></span></label><label class="sl"><span>p</span><input type="range" class="slider" id="bn-p" min="1" max="99" value="25"><span class="mono" id="bn-pv"></span></label><label class="sl"><span>k</span><input type="range" class="slider" id="bn-k" min="0" max="15" value="9"><span class="mono" id="bn-kv"></span></label><div class="readout" id="bn-r"></div>`;
+  const draw=()=>{
+    const n=+$('#bn-n').value, p=+$('#bn-p').value/100; const ks=$('#bn-k'); ks.max=n; if(+ks.value>n)ks.value=n; const k=+ks.value;
+    $('#bn-nv').textContent=n; $('#bn-pv').textContent=fx(p,2); $('#bn-kv').textContent=k;
+    const inE=x=>op==='='?x===k:op==='≤'?x<=k:op==='<'?x<k:op==='≥'?x>=k:x>k;
+    const P=sum(Array.from({length:n+1},(_,x)=>inE(x)?bpmf(x,n,p):0)), mx=Math.max(...Array.from({length:n+1},(_,x)=>bpmf(x,n,p)));
+    const W=640,H=230,x=sc(-0.7,n+0.7,40,W-16),y=sc(0,mx*1.15,196,14),bw=Math.max(3,(x(1)-x(0))*0.7);
+    let g=svgOpen(W,H,`Binomial pmf, n = ${n}, p = ${p}`);
+    niceTicks(0,mx*1.15,4).forEach(t=>{g+=`<line class="grid" x1="40" x2="${W-16}" y1="${y(t)}" y2="${y(t)}"/><text x="34" y="${y(t)+4}" text-anchor="end">${fx(t,2)}</text>`;});
+    for(let i=0;i<=n;i++){const v=bpmf(i,n,p);g+=`<rect class="${inE(i)?'bar':'bar-dim'}" x="${x(i)-bw/2}" y="${y(v)}" width="${bw}" height="${Math.max(0,y(0)-y(v))}" rx="${bw>8?3:1}"><title>P(X = ${i}) = ${fx(v,4)}</title></rect>`;if(n<=20||i%5===0)g+=`<text x="${x(i)}" y="212" text-anchor="middle">${i}</text>`;}
+    g+=`<line class="ax" x1="40" x2="${W-16}" y1="196" y2="196"/>`;
+    $('#bn-c').innerHTML=g+'</svg>';
+    const o=OPS.find(z=>z[0]===op), rw=o[2].replace('k − 1',String(k-1)).replace('(k)',`(${k})`);
+    const xl={'=':`=BINOM.DIST(${k},${n},${p},0)`,'≤':`=BINOM.DIST(${k},${n},${p},1)`,'<':`=BINOM.DIST(${k-1},${n},${p},1)`,'≥':`=1-BINOM.DIST(${k-1},${n},${p},1)`,'>':`=1-BINOM.DIST(${k},${n},${p},1)`}[op];
+    $('#bn-r').innerHTML=`<div class="ro"><span class="l">P(X ${op} ${k})</span><span class="v">${fx(P,4)}</span></div><div class="ro"><span class="l">Rewrite</span><span class="v">${rw}</span></div><div class="ro"><span class="l">Excel</span><span class="v" style="font-size:13px">${xl}</span></div><div class="ro"><span class="l">E[X] = np</span><span class="v">${fx(n*p,2)}</span></div><div class="ro"><span class="l">σ</span><span class="v">${fx(Math.sqrt(n*p*(1-p)),3)}</span></div>`;
+    document.querySelectorAll('#bn-o button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.o===op));
+  };
+  ['#bn-n','#bn-p','#bn-k'].forEach(s=>$(s).oninput=draw);
+  document.querySelectorAll('#bn-o button').forEach(b=>b.onclick=()=>{op=b.dataset.o;draw();});
+  draw();
+}
+});
+
+/* ---------- new drills: weeks 8-13 ---------- */
+def('regfit','reg','Regression line','β, b and a prediction from 6 points',()=>{
+  let x,y,L;
+  do{x=shuffle(Array.from({length:12},(_,i)=>i*2+ri(2,4))).slice(0,6);const bt=pick([0.5,0.8,1.2,1.5,-0.7,-1.1,2]);const a=ri(5,30);y=x.map(v=>Math.round(a+bt*v+ri(-4,4)));L=linreg(x,y);}while(Math.abs(L.r)<0.5||new Set(x).size<6);
+  const x0=Math.round(L.mx+ri(-3,3)), yh=L.b+L.beta*x0, swapB=L.sxy/L.syy;
+  return {title:'Fit the regression line',prompt:`<p>Weekly advertising spots x and units sold y (hundreds) at six stores:</p>${table(['Store','x','y'],x.map((v,i)=>[i+1,v,y[i]]))}<p>Estimate the least squares line ŷ = βx + b. Then predict y for x = ${x0}. Round β to 3 and b and ŷ to 2 decimals.</p>`,
+    fields:[keepTraps({label:'Slope β',value:L.beta,tol:{abs:0.0015},traps:[{value:swapB,msg:'That is the slope of x regressed on y. In Excel it’s what you get with SLOPE(x, y): the <b>y-list goes first</b>.'},{value:L.r,msg:'That is the correlation r, not the slope. β = r·s<sub>y</sub>/s<sub>x</sub>.'}]}),keepTraps({label:'Intercept b',value:L.b,tol:{abs:0.015},traps:[{value:L.mx-L.beta*L.my,msg:'You swapped x̄ and ȳ. b = ȳ − β·x̄.'}]}),{label:`ŷ at x = ${x0}`,value:yh,tol:{abs:0.03}}],
+    steps:[`x̄ = ${fx(L.mx,4)}, ȳ = ${fx(L.my,4)}`,`Σ(x − x̄)(y − ȳ) = ${fx(L.sxy,3)}, Σ(x − x̄)² = ${fx(L.sxx,3)}`,`<div class="eq">β = ${fx(L.sxy,3)} / ${fx(L.sxx,3)} = ${fx(L.beta,4)}</div>`,`<div class="eq">b = ȳ − β·x̄ = ${fx(L.my,4)} − ${fx(L.beta,4)}·${fx(L.mx,4)} = ${fx(L.b,4)}</div>`,`<div class="eq">ŷ(${x0}) = ${fx(L.beta,4)}·${x0} ${L.b<0?'−':'+'} ${fx(Math.abs(L.b),4)} = ${fx(yh,2)}</div>`,`Equivalent: β = (Σxy − n·x̄·ȳ)/(Σx² − n·x̄²). Here r = ${fx(L.r,3)}, so R² = ${fx(L.r*L.r,3)}.`],
+    keys:seq('x in L1, y in L2',A,K('STAT'),A,M('CALC'),A,M('4:LinReg(ax+b)'),A,'a = β, b = intercept. Store RegEQ in Y1, then',M(`Y1(${x0})`))};
+});
+
+def('r2','reg','R² and the sign of β','From r to R², explained vs unexplained',()=>{
+  const r=rnd((Math.random()<0.5?-1:1)*ri(15,97)/100,2), R2=r*r*100;
+  return {title:'What does r tell you about the regression?',prompt:`<p>For two variables, r = <b class="mono">${fx(r,2)}</b>. You now regress the second on the first.</p><p>(a) What is R² in %? (b) What percentage of the variance stays unexplained? (c) Is the slope positive (+1) or negative (−1)? Type 1 or −1.</p>`,
+    fields:[keepTraps({label:'(a) R²',value:R2,unit:'%',tol:{abs:0.06},traps:[{value:Math.abs(r)*100,msg:'That is |r|. R² = r².'},{value:r*r,msg:'Right number, but in % please (× 100).'}]}),{label:'(b) Unexplained',value:100-R2,unit:'%',tol:{abs:0.06}},{label:'(c) Sign of β',value:r>0?1:-1,tol:{abs:0.01}}],
+    steps:[`<div class="eq">R² = r² = (${fx(r,2)})² = ${fx(r*r,4)} = ${fx(R2,2)}%</div>`,`1 − R² = ${fx(100-R2,2)}% is random, not explained by the line.`,`β = r·s<sub>y</sub>/s<sub>x</sub> and standard deviations are positive, so β has the sign of r: <b>${r>0?'positive':'negative'}</b>.`]};
+});
+
+const SLOPE_BANK=[
+  ['Advertising x in CHF 1 000, revenue y in CHF million. ŷ = 0.071x + 31.6. What does 0.071 mean?','One more CHF 1 000 of advertising goes with CHF 71 000 more revenue on average.',['One more CHF of advertising gives CHF 0.071 more revenue.','Revenue rises by 7.1% per CHF 1 000.','Without advertising, revenue is CHF 0.071 million.']],
+  ['Customer contacts x per week, new contracts y. ŷ = 0.5781x − 23.39. What does −23.39 mean?','It is needed for predictions, but at x = 0 the model is outside its data range, so it has no sensible meaning.',['Agents without contacts lose 23 contracts.','Each contact costs 23 contracts.','The model is wrong because b is negative.']],
+  ['Change in Gini ΔG, GDP growth R. R̂ = −0.504·ΔG + 0.029. Best reading of the slope?','If the Gini rises by 0.01, growth is about 0.5 percentage points lower on average.',['If the Gini rises by 1, growth falls by 0.504%.','Inequality causes 50% less growth.','Growth falls by 0.504 percentage points per country.']],
+  ['Height x in cm, weight y in kg. ŷ = 0.877x − 78.44. What weight does the model predict at 60 cm, and what does that show?','About −25.8 kg: nonsense, because 60 cm is far outside the data range (165–190 cm).',['About 52.6 kg, a reasonable prediction.','0.877 kg, the slope.','The model shows weight is unrelated to height.']]
+];
+def('regint','reg','Interpreting β and b','Units, intercepts, extrapolation',()=>{
+  const [q,c,w]=pick(SLOPE_BANK), o=shuffle([c,...w]);
+  return {title:'Interpret the regression',prompt:`<p>${q}</p>`,mc:{options:o,correct:o.indexOf(c),explain:`<b>${c}</b> Always say the slope with both units, and trust the model only inside the range of the data.`}};
+});
+
+def('count','comb','Counting','n!, ordered picks, combinations, products',()=>{
+  const v=pick(['perm','ordered','comb','pairs','product','multi']);
+  let q,val,steps,traps=[];
+  if(v==='perm'){const n=ri(4,8),what=pick([['books on a shelf','arrangements'],['customers in one day','tour plans'],['orders to process','processing sequences'],['people at a table','seating plans']]);q=`In how many ways can you arrange ${n} ${what[0]}? (${what[1]})`;val=fact(n);steps=[`All ${n} items, order matters: <div class="eq">${n}! = ${Array.from({length:n},(_,i)=>n-i).join('·')} = ${fmt(val,0)}</div>`];traps=[{value:n*n,msg:'Each place has one fewer option than the last: n·(n−1)·…·1.'}];}
+  if(v==='ordered'){const n=ri(5,12),k=ri(2,4);q=`A club of ${n} members elects a president, a vice president${k>2?', a treasurer':''}${k>3?' and a secretary':''}. How many outcomes are possible?`;val=fact(n)/fact(n-k);steps=[`Different posts, so order matters: <div class="eq">${Array.from({length:k},(_,i)=>n-i).join('·')} = ${fmt(val,0)}</div>`];traps=[{value:nCr(n,k),msg:'That counts groups without posts. Here the posts differ, so order matters: don’t divide by k!.'}];}
+  if(v==='comb'){const n=ri(6,15),k=ri(2,5);q=`A committee of ${k} (all with the same role) is chosen from ${n} people. How many committees are possible?`;val=nCr(n,k);steps=[`Order doesn’t matter: <div class="eq">C(${n}, ${k}) = ${Array.from({length:k},(_,i)=>n-i).join('·')} / ${k}! = ${fmt(fact(n)/fact(n-k),0)} / ${fact(k)} = ${fmt(val,0)}</div>`];traps=[{value:fact(n)/fact(n-k),msg:'That counts ordered picks. Members are interchangeable, so divide by k!.'}];}
+  if(v==='pairs'){const n=ri(8,30),ctx=pick([['people at a party clink glasses with everyone else','times do glasses clink'],['teams play each other once','matches are played']]);q=`${n} ${ctx[0]}. How many ${ctx[1]}?`;val=nCr(n,2);steps=[`Each event is an unordered pair: <div class="eq">C(${n}, 2) = ${n}·${n-1} / 2 = ${fmt(val,0)}</div>`];traps=[{value:n*(n-1),msg:'That counts every pair twice (A–B and B–A). Divide by 2.'}];}
+  if(v==='product'){const a=ri(2,5),b=ri(2,5),c=ri(2,4);q=`A canteen offers ${a} side dishes, ${b} kinds of meat and ${c} salads. How many different menus (one of each)?`;val=a*b*c;steps=[`Counting principle: <div class="eq">${a}·${b}·${c} = ${val}</div>`];traps=[{value:a+b+c,msg:'Successive choices multiply, they don’t add.'}];}
+  if(v==='multi'){const L=ri(30,60),Cn=ri(20,40),a=ri(2,4),b=ri(1,3);q=`A parliament has ${L} liberals and ${Cn} conservatives. How many ways to form a commission with ${a} liberals and ${b} conservatives?`;val=nCr(L,a)*nCr(Cn,b);steps=[`Choose each group, then multiply: <div class="eq">C(${L}, ${a})·C(${Cn}, ${b}) = ${fmt(nCr(L,a),0)}·${fmt(nCr(Cn,b),0)} = ${fmt(val,0)}</div>`];traps=[{value:nCr(L+Cn,a+b),msg:'That allows any mix of parties. The commission must have exactly '+a+' and '+b+'.'},{value:nCr(L,a)+nCr(Cn,b),msg:'Both choices happen together, so multiply.'}];}
+  return {title:'Count the possibilities',prompt:`<p>${q}</p>`,fields:[keepTraps({label:'Number',value:val,tol:{abs:0.5,rel:1e-9},traps})],steps,keys:seq(M('n'),K('MATH'),A,M('PROB'),A,M('3:nCr'),'or',M('4:!'))};
+});
+
+def('laplace','comb','Classical probability','Favorable / possible, dice, cards, lottery',()=>{
+  const v=pick(['sum','sumge','six','double','ace','suitace','lotto']);
+  let q,fav,pos,steps,k=0;
+  if(v==='sum'){const s=ri(3,11);fav=6-Math.abs(7-s);pos=36;q=`Two fair dice are rolled. P(sum = ${s})?`;steps=[`36 equally likely pairs. Pairs with sum ${s}: ${Array.from({length:6},(_,a)=>a+1).filter(a=>s-a>=1&&s-a<=6).map(a=>`(${a},${s-a})`).join(' ')} → ${fav}.`];}
+  if(v==='sumge'){const s=ri(8,11);fav=0;for(let a=1;a<=6;a++)for(let b=1;b<=6;b++)if(a+b>=s)fav++;pos=36;q=`Two fair dice are rolled. P(sum ≥ ${s})?`;steps=[`Count the pairs with sum ${s} or more: ${fav} of 36.`];}
+  if(v==='six'){fav=11;pos=36;q='Two fair dice are rolled. P(at least one six)?';steps=['Row 6 (6 pairs) plus column 6 (6 pairs) minus the double-counted (6,6): 11 of 36. Or 1 − (5/6)² = 11/36.'];}
+  if(v==='double'){fav=6;pos=36;q='Two fair dice are rolled. P(doubles)?';steps=['(1,1), (2,2), …, (6,6): 6 of 36 = 1/6.'];}
+  if(v==='ace'){fav=4;pos=36;q='You draw one card from a 36-card Jass deck (4 suits × 9 cards, one ace per suit). P(ace)?';steps=['4 aces among 36 cards: 4/36 = 1/9.'];}
+  if(v==='suitace'){fav=12;pos=36;q='One card from a 36-card Jass deck (4 suits × 9 cards). P(the card is a heart or an ace)?';steps=['9 hearts + 4 aces − 1 (the heart ace is counted twice) = 12. P = 12/36 = 1/3.'];}
+  if(v==='lotto'){k=ri(2,5);fav=nCr(6,k)*nCr(36,6-k);pos=nCr(42,6);q=`Swiss lottery, 6 out of 42. P(exactly ${k} correct numbers)?`;steps=[`Favorable: choose ${k} of the 6 winning numbers and ${6-k} of the 36 others: C(6, ${k})·C(36, ${6-k}) = ${fmt(nCr(6,k),0)}·${fmt(nCr(36,6-k),0)} = ${fmt(fav,0)}.`,`Possible: C(42, 6) = 5 245 786.`];}
+  const val=fav/pos;
+  steps.push(`<div class="eq">P = ${fmt(fav,0)} / ${fmt(pos,0)} = ${fx(val,v==='lotto'?6:4)}</div>`,'You can type fractions like 11/36 straight into the answer field.');
+  const traps=v==='six'?[{value:12/36,msg:'You counted (6,6) twice. 6 + 6 − 1 = 11 favorable pairs.'},{value:2/6,msg:'Adding 1/6 + 1/6 double-counts the case where both dice show six.'}]:v==='suitace'?[{value:13/36,msg:'The ace of hearts is both a heart and an ace. Subtract it once.'}]:v==='lotto'?[{value:nCr(6,k)/pos,msg:'You also need to choose the '+(6-k)+' wrong numbers from the 36 losing ones.'}]:[];
+  return {title:'Classical probability',prompt:`<p>${q} Give the probability as a decimal (4 decimals) or a fraction.</p>`,fields:[keepTraps({label:'P',value:val,tol:{abs:v==='lotto'?0.000006:0.0006,rel:0.002},traps})],steps};
+});
+
+def('rules','prob','Probability rules','Complement, addition rule, independence',()=>{
+  const v=pick(['union','neither','both','atleast','exactlyone','repeat']);
+  let q,val,steps,traps=[];
+  const P1=ri(15,70)/100,P2=ri(15,70)/100;
+  if(v==='union'||v==='neither'){const pab=rnd(Math.min(P1,P2)*ri(15,80)/100,2);q=`A customer responds to campaign A with probability ${P1}, to campaign B with ${P2}, and to both with ${pab}. ${v==='union'?'P(responds to at least one)?':'P(responds to neither)?'}`;const u=P1+P2-pab;val=v==='union'?u:1-u;steps=[`Addition rule: <div class="eq">P(A ∪ B) = ${P1} + ${P2} − ${pab} = ${fx(u,4)}</div>`].concat(v==='neither'?[`Neither = complement: 1 − ${fx(u,4)} = ${fx(val,4)}`]:[]).concat([`Independent? That would need P(A ∩ B) = ${P1}·${P2} = ${fx(P1*P2,4)}${Math.abs(P1*P2-pab)<1e-9?' – yes.':`, but it is ${pab}, so no.`}`]);traps=[{value:v==='union'?P1+P2:1-P1-P2,msg:'You forgot to subtract the overlap P(A ∩ B), which is counted twice otherwise.'},{value:v==='union'?P1+P2-P1*P2:1-(P1+P2-P1*P2),msg:'You assumed independence. Use the given P(A ∩ B).'}];}
+  if(v==='both'){q=`Two independent events: P(F) = ${P1}, P(C) = ${P2}. P(both happen)?`;val=P1*P2;steps=[`Independent → multiply: <div class="eq">${P1}·${P2} = ${fx(val,4)}</div>`];traps=[{value:P1+P2,msg:'"Both" with independent events means multiply, not add.'}];}
+  if(v==='atleast'){q=`Two independent job applications with interview chances ${P1} and ${P2}. P(at least one interview)?`;val=1-(1-P1)*(1-P2);steps=[`Complement of "none": <div class="eq">1 − (1 − ${P1})(1 − ${P2}) = 1 − ${fx(1-P1,2)}·${fx(1-P2,2)} = ${fx(val,4)}</div>`,`Or with the addition rule: ${P1} + ${P2} − ${P1}·${P2}.`];traps=[{value:P1+P2,msg:'Adding double-counts the case where both invite her. Use 1 − P(none).'},{value:P1*P2,msg:'That is P(both). "At least one" is 1 − P(neither).'}];}
+  if(v==='exactlyone'){q=`A man survives 25 years with probability ${P1}, his wife with ${P2}, independently. P(exactly one of them is alive after 25 years)?`;val=P1*(1-P2)+(1-P1)*P2;steps=[`Only him + only her (disjoint, so add): <div class="eq">${P1}·${fx(1-P2,2)} + ${fx(1-P1,2)}·${P2} = ${fx(P1*(1-P2),4)} + ${fx((1-P1)*P2,4)} = ${fx(val,4)}</div>`];traps=[{value:P1+P2,msg:'That counts "both alive" too (twice). Exactly one = only him + only her.'},{value:1-(1-P1)*(1-P2),msg:'That is "at least one", which includes both alive.'}];}
+  if(v==='repeat'){const n=ri(3,24),p=pick([1/6,1/36,0.01,0.05,0.1]),ps=p===1/6?'1/6':p===1/36?'1/36':String(p);q=`An event has probability ${ps} per independent trial. P(it happens at least once in ${n} trials)?`;val=1-(1-p)**n;steps=[`<div class="eq">1 − P(never) = 1 − (1 − ${ps})<sup>${n}</sup> = ${fx(val,4)}</div>`,'De Méré’s bets: 1 − (5/6)⁴ = 51.77%, 1 − (35/36)²⁴ = 49.14%.'];traps=[{value:n*p,msg:'n·p is not a probability (it can exceed 1). Use 1 − (1 − p)ⁿ.'},{value:p**n,msg:'That is P(it happens every time).'}];}
+  return {title:'Apply the rules',prompt:`<p>${q} Round to 4 decimals.</p>`,fields:[keepTraps({label:'P',value:val,tol:{abs:0.0006},traps})],steps};
+});
+
+const INDEP_BANK=[
+  ['A and B are mutually exclusive, with P(A) = 0.3 and P(B) = 0.4. Which is true?',['They are not independent: P(A ∩ B) = 0 ≠ 0.12','They are independent','P(A ∪ B) = 0.58','P(A ∩ B) = 0.12'],'Disjoint events with positive probabilities are always dependent. P(A ∪ B) = 0.7.'],
+  ['When may you use P(A ∪ B) = P(A) + P(B)?',['Only when A and B cannot happen together','Whenever A and B are independent','Always','Only for equally likely outcomes'],'The third axiom needs A ∩ B = ∅. Otherwise subtract P(A ∩ B).'],
+  ['When may you use P(A ∩ B) = P(A)·P(B)?',['Only when A and B are independent','Always','When A and B are disjoint','When P(A) + P(B) ≤ 1'],'That’s the definition of independence.'],
+  ['Which event is the complement of "at least one six in four rolls"?',['No six in four rolls','Exactly one six','Four sixes','At most one six'],'"At least one" fails only if there is none at all.'],
+  ['P(A) = 0.6. P(Ā)?',['0.4','0.6','1.6','Can’t tell'],'P(Ā) = 1 − P(A).']
+];
+def('indep','prob','Disjoint vs independent','Which rule applies when?',()=>{const [q,o,w]=pick(INDEP_BANK),s=shuffle(o);return {title:'Pick the right rule',prompt:`<p>${q}</p>`,mc:{options:s,correct:s.indexOf(o[0]),explain:`<b>${o[0]}.</b> ${w}`}};});
+
+def('ev','rv','Expected value and σ','From a probability table',()=>{
+  const base=ri(2,6)*10000, step=pick([5000,10000]), xs=[0,1,2,3,4].map(i=>base+i*step);
+  let p; do{p=[ri(1,3),ri(1,3),ri(2,4),ri(1,3),ri(1,3)];}while(sum(p)!==10);p=p.map(v=>v/10);
+  const E=sum(xs.map((v,i)=>v*p[i])), V=sum(xs.map((v,i)=>p[i]*(v-E)**2)), s=Math.sqrt(V);
+  return {title:'Evaluate the project',prompt:`<p>Management’s estimate for the net revenue X of a one-year project (USD):</p>${table(['Net revenue x','P(X = x)'],xs.map((v,i)=>[fmt(v,0),fx(p[i],1)]))}<p>Compute E[X] and the standard deviation σ. Round σ to whole dollars.</p>`,
+    fields:[keepTraps({label:'E[X]',value:E,unit:'USD',tol:{abs:1}, traps:[{value:mean(xs),msg:'That is the plain average of the values. Weight each value by its probability.'}]}),keepTraps({label:'σ',value:s,unit:'USD',tol:{abs:1.5,rel:0.0005},traps:[{value:V,msg:'That is the variance. σ is its square root.'},{value:Math.sqrt(sum(xs.map(v=>(v-E)**2))/5),msg:'You averaged the squared deviations equally. Weight each one by its probability.'}]})],
+    steps:[`<div class="eq">E[X] = ${xs.map((v,i)=>`${fx(p[i],1)}·${fmt(v,0)}`).join(' + ')} = ${fmt(E,0)}</div>`,`<div class="eq">Var[X] = ${xs.map((v,i)=>`${fx(p[i],1)}·(${fmt(v-E,0)})²`).join(' + ')} = ${fmt(V,0)}</div>`,`<div class="eq">σ = √${fmt(V,0)} = ${fmt(s,2)}</div>`,'No n − 1 here: these are probabilities, not a sample.'],
+    keys:seq('x in L1, P in L2',A,M('sum(L1*L2)'),'for E; then',M('√(sum(L2*(L1−E)²))'))};
+});
+
+def('evrules','rv','Rules for E and Var','Linear transformations, sums, differences',()=>{
+  const v=pick(['lin','diff','sum','scale','port']);
+  let q,f;
+  if(v==='lin'){const a=ri(2,30),b=ri(50,300),Ex=ri(5,20),Vx=ri(2,30);q=`Units sold X have E[X] = ${Ex} and Var(X) = ${Vx}. Revenue is R = ${a}X + ${b}. Find E[R] and Var(R).`;f=[keepTraps({label:'E[R]',value:a*Ex+b,tol:{abs:0.01},traps:[{value:a*Ex,msg:'Constants carry over into the expectation: E[aX + b] = a·E[X] + b.'}]}),keepTraps({label:'Var(R)',value:a*a*Vx,tol:{abs:0.01},traps:[{value:a*Vx,msg:'The factor gets squared: Var(aX) = a²·Var(X).'},{value:a*a*Vx+b,msg:'Adding a constant shifts R but doesn’t change its spread.'}]})];}
+  if(v==='diff'||v==='sum'){const Vx=ri(2,20),Vy=ri(2,20),Ex=ri(5,20),Ey=ri(5,20),op=v==='diff'?'−':'+';q=`X and Y are independent with E[X] = ${Ex}, Var(X) = ${Vx}, E[Y] = ${Ey}, Var(Y) = ${Vy}. Let W = X ${op} Y. Find E[W] and Var(W).`;f=[{label:'E[W]',value:v==='diff'?Ex-Ey:Ex+Ey,tol:{abs:0.01}},keepTraps({label:'Var(W)',value:Vx+Vy,tol:{abs:0.01},traps:[{value:Vx-Vy,msg:'Variances of independent variables add, even for a difference.'},{value:Math.abs(Vx-Vy),msg:'Variances of independent variables add, even for a difference.'}]})];}
+  if(v==='scale'){const Vx=ri(10,60),t=pick([1.1,1.08,1.2,1.05]);q=`Daily sales X (including ${fx((t-1)*100,0)}% tax) have Var(X) = ${Vx}. Net sales are R = X / ${t}. Var(R)?`;f=[keepTraps({label:'Var(R)',value:Vx/t/t,tol:{abs:0.01},traps:[{value:Vx/t,msg:'Var(aX) = a²·Var(X), with a = 1/'+t+'. Divide by '+t+'².'}]})];}
+  if(v==='port'){const wa=pick([0.5,0.6,0.7]),ea=ri(4,10)/100,eb=ri(8,14)/100,sa=ri(10,20)/100,sb=ri(15,30)/100;q=`A portfolio holds ${wa*100}% stock A and ${rnd((1-wa)*100,0)}% stock B (independent). E[R<sub>A</sub>] = ${ea}, σ<sub>A</sub> = ${sa}, E[R<sub>B</sub>] = ${eb}, σ<sub>B</sub> = ${sb}. Find E[R<sub>P</sub>] and σ<sub>P</sub> (4 decimals).`;const wb=1-wa,sp=Math.sqrt(wa*wa*sa*sa+wb*wb*sb*sb);f=[{label:'E[R_P]',value:wa*ea+wb*eb,tol:{abs:0.0002}},keepTraps({label:'σ_P',value:sp,tol:{abs:0.0006},traps:[{value:wa*sa+wb*sb,msg:'Standard deviations don’t add linearly. Square the weights, add variances, then take the root.'},{value:wa*wa*sa*sa+wb*wb*sb*sb,msg:'That is the variance. Take the square root.'}]})];}
+  return {title:'Use the rules',prompt:`<p>${q}</p>`,fields:f,steps:['E[aX + b] = a·E[X] + b and E[X ± Y] = E[X] ± E[Y].','Var(aX + b) = a²·Var(X). For independent X, Y: Var(X ± Y) = Var(X) + Var(Y).',v==='port'?'Portfolio: Var(R<sub>P</sub>) = w<sub>A</sub>²σ<sub>A</sub>² + w<sub>B</sub>²σ<sub>B</sub>². It ends up below both σ’s when the weights are balanced: diversification.':''].filter(Boolean)};
+});
+
+def('cdf','rv','pmf and cdf','P(X ≤ x), P(X > x) from a table',()=>{
+  let p; do{p=[ri(1,4),ri(1,4),ri(2,5),ri(1,4),ri(1,3)];}while(sum(p)!==12);
+  const xs=[0,1,2,3,4], pr=p.map(v=>v/12), k=ri(1,3), F=sum(pr.slice(0,k+1));
+  return {title:'Read the distribution',prompt:`<p>X = number of returns per day at a small shop:</p>${table(['x','P(X = x)'],xs.map((v,i)=>[v,`${p[i]}/12`]))}<p>(a) F(${k}) = P(X ≤ ${k})? (b) P(X &gt; ${k})? (c) P(X = ${k})? Fractions are fine.</p>`,
+    fields:[keepTraps({label:`(a) P(X ≤ ${k})`,value:F,tol:{abs:0.0006},traps:[{value:sum(pr.slice(0,k)),msg:'"≤" includes '+k+' itself.'}]}),keepTraps({label:`(b) P(X > ${k})`,value:1-F,tol:{abs:0.0006},traps:[{value:1-sum(pr.slice(0,k)),msg:'"> '+k+'" excludes '+k+': it’s 1 − P(X ≤ '+k+').'}]}),{label:`(c) P(X = ${k})`,value:pr[k],tol:{abs:0.0006}}],
+    steps:[`Add the pmf from the left: F(${k}) = ${p.slice(0,k+1).join(' + ')} over 12 = ${p.slice(0,k+1).reduce((a,b)=>a+b,0)}/12 = ${fx(F,4)}`,`P(X > ${k}) = 1 − F(${k}) = ${fx(1-F,4)}`,`P(X = ${k}) = ${p[k]}/12 = ${fx(pr[k],4)}`]};
+});
+
+const SIM_BANK=[
+  ['Which Excel formula simulates one roll of a fair die?','=RANDBETWEEN(1,6)',['=RAND()*6','=ROUND(RAND()*6,0)','=RANDBETWEEN(0,6)']],
+  ['Which formula simulates a loaded coin that shows 1 with probability 0.7?','=IF(RAND()<0.7,1,0)',['=IF(RAND()>0.7,1,0)','=RANDBETWEEN(0,1)*0.7','=RAND()*0.7']],
+  ['Which formula draws from a uniform distribution between 500 and 1 500?','=500+1000*RAND()',['=500+100*RAND()','=RANDBETWEEN(500,1500)/RAND()','=1500*RAND()']],
+  ['Which formula simulates the number of girls among 3 children, P(girl) = 0.488?','=BINOM.INV(3,0.488,RAND())',['=BINOM.DIST(3,0.488,RAND(),1)','=IF(RAND()<0.488,3,0)','=RANDBETWEEN(0,3)']],
+  ['Column C holds 1 if the event happened in that run, else 0 (1 000 runs). Your probability estimate is…','=AVERAGE(C2:C1001)',['=SUM(C2:C1001)','=COUNT(C2:C1001)','=MAX(C2:C1001)']],
+  ['Your random numbers change every time you edit the sheet. How do you freeze them?','Copy them and paste as values',['Press F9','Wrap them in ROUND()','Sort the column']],
+  ['What does the law of large numbers guarantee?','With more and more repetitions, relative frequencies approach the probabilities',['After 100 runs the estimate is exact','Rare outcomes become more likely over time','Early streaks get balanced out by opposite streaks']]
+];
+def('simmc','sim','Simulation in Excel','Pick the right formula or reading',()=>{const [q,c,w]=pick(SIM_BANK),o=shuffle([c,...w]);return {title:'Simulation',prompt:`<p>${q}</p>`,mc:{options:o.map(esc),correct:o.indexOf(c),explain:`<b>${esc(c)}</b>`}};});
+
+const BIN_CTX=[
+  {t:'A multiple-choice test has {n} questions with 4 options each. A candidate guesses every answer.',p:0.25,s:'correct answers'},
+  {t:'iOS has a 56% market share in Switzerland. Consider a class of {n} students.',p:0.56,s:'iPhones'},
+  {t:'A machine produces defective parts with probability {p}, independently. A batch has {n} parts.',p:null,s:'defective parts'},
+  {t:'A fair coin is tossed {n} times.',p:0.5,s:'tails'},
+  {t:'You bet on a single number in European roulette {n} times (win probability 1/37).',p:1/37,s:'wins'}
+];
+def('binom','binom','Binomial probabilities','at most / at least / more than / exactly',()=>{
+  const c=pick(BIN_CTX), n=ri(8,25), p=c.p===null?pick([0.02,0.05,0.1]):c.p, ops=['=','≤','<','≥','>'], op=pick(ops);
+  const mu=n*p; let k=Math.max(1,Math.min(n-1,Math.round(mu+ri(-2,3))));
+  const words={'=':'exactly','≤':'at most','<':'fewer than','≥':'at least','>':'more than'}[op];
+  const val=op==='='?bpmf(k,n,p):op==='≤'?bcdf(k,n,p):op==='<'?bcdf(k-1,n,p):op==='≥'?1-bcdf(k-1,n,p):1-bcdf(k,n,p);
+  const rw={'=':`f(${k})`,'≤':`F(${k})`,'<':`F(${k-1})`,'≥':`1 − F(${k-1})`,'>':`1 − F(${k})`}[op];
+  const xl={'=':`=BINOM.DIST(${k},${n},${rnd(p,4)},0)`,'≤':`=BINOM.DIST(${k},${n},${rnd(p,4)},1)`,'<':`=BINOM.DIST(${k-1},${n},${rnd(p,4)},1)`,'≥':`=1-BINOM.DIST(${k-1},${n},${rnd(p,4)},1)`,'>':`=1-BINOM.DIST(${k},${n},${rnd(p,4)},1)`}[op];
+  const traps=[];
+  if(op==='≥')traps.push({value:1-bcdf(k,n,p),msg:`Off by one: "at least ${k}" includes ${k}, so subtract F(${k-1}), not F(${k}).`},{value:bcdf(k,n,p),msg:'That is "at most". "At least" is 1 − F(k − 1).'});
+  if(op==='>')traps.push({value:1-bcdf(k-1,n,p),msg:`"More than ${k}" excludes ${k}: 1 − F(${k}).`});
+  if(op==='<')traps.push({value:bcdf(k,n,p),msg:`"Fewer than ${k}" excludes ${k}: F(${k-1}).`});
+  if(op==='≤'||op==='<')traps.push({value:bpmf(op==='≤'?k:k-1,n,p),msg:'That’s a single value of the pmf. "At most" needs the cdf (cumulative = 1).'});
+  if(op==='=')traps.push({value:bcdf(k,n,p),msg:'That’s the cdf P(X ≤ k). "Exactly" needs the pmf (last argument 0).'});
+  const ps=p===1/37?'1/37':String(p);
+  return {title:'Binomial probability',prompt:`<p>${c.t.replace('{n}',n).replace('{p}',ps)} Let X be the number of ${c.s}.</p><p>P(${words} ${k} ${c.s})? Round to 4 decimals.</p>`,
+    fields:[keepTraps({label:`P(X ${op} ${k})`,value:val,tol:{abs:0.0006},traps})],
+    steps:[`X ~ Binom(n = ${n}, p = ${ps}): fixed n, independent trials, same p, counting successes.`,`"${words} ${k}" = P(X ${op} ${k}) = <b>${rw}</b>`,`Excel: <code class="x">${xl}</code> = ${fx(val,4)}`],
+    keys:seq(K('2nd','k2'),K('VARS'),'(DISTR)',A,M(op==='='?'A:binompdf(':'B:binomcdf('),M(`${n},${rnd(p,4)},${op==='<'||op==='≥'?k-1:k})`),op==='≥'||op==='>'?'then 1 − that':'')};
+});
+
+def('binmean','binom','Mean and SD of a binomial','E = np, σ = √(np(1 − p))',()=>{
+  const n=pick([20,40,50,100,250,385]), p=pick([0.04,0.1,0.25,0.56,1/37]), ps=p===1/37?'1/37':String(p);
+  return {title:'Expected count and spread',prompt:`<p>X ~ Binom(n = ${n}, p = ${ps}). Compute E[X] and the standard deviation σ (2 decimals).</p>`,
+    fields:[{label:'E[X]',value:n*p,tol:{abs:0.006}},keepTraps({label:'σ',value:Math.sqrt(n*p*(1-p)),tol:{abs:0.006},traps:[{value:n*p*(1-p),msg:'That is the variance. σ = √(np(1 − p)).'},{value:Math.sqrt(n*p),msg:'Don’t forget the factor (1 − p).'}]})],
+    steps:[`<div class="eq">E[X] = n·p = ${n}·${ps} = ${fx(n*p,4)}</div>`,`<div class="eq">σ = √(n·p·(1 − p)) = √(${fx(n*p*(1-p),4)}) = ${fx(Math.sqrt(n*p*(1-p)),4)}</div>`]};
+});
+
+TOOL_BANK.push(
+  ['You want to predict next year’s revenue from planned advertising spending.','Linear regression','Regression gives the line ŷ = βx + b for predictions. Correlation only measures strength.'],
+  ['What share of the variation in sales does price explain?','Coefficient of determination R²','R² = explained / total variance (= r² in simple regression).'],
+  ['In how many orders can 8 speakers present?','Permutations n!','All elements are arranged and order matters: 8!.'],
+  ['3 of 10 applicants get identical jobs. How many possible outcomes?','Combinations C(n, k)','Order doesn’t matter: C(10, 3) = 120.'],
+  ['P(at least one six in four rolls)?','Complement rule','1 − P(no six) = 1 − (5/6)⁴.'],
+  ['Each part is defective with 2% independently. P(more than 3 defective among 50)?','Binomial distribution','n fixed, independent trials, same p, count successes.'],
+  ['Average payoff of a game whose outcomes and probabilities you know?','Expected value','E[X] = Σ x·P(X = x).'],
+  ['A probability is too complicated to work out by hand.','Simulation (law of large numbers)','Repeat the experiment many times in Excel; frequencies approach probabilities.']);
+['Linear regression','Coefficient of determination R²','Permutations n!','Combinations C(n, k)','Complement rule','Binomial distribution','Expected value','Simulation (law of large numbers)','Correlation coefficient r'].forEach(t=>{if(!TOOLS.includes(t))TOOLS.push(t);});
+
+TRAPS.push(
+  ['Covariance: σ<sub>xy</sub> (÷ n) or s<sub>xy</sub> (÷ n − 1)','Same rule as the variance: COVARIANCE.P for a complete population, COVARIANCE.S for a sample. r is the same either way. The calculator has no covariance key: use 2-Var Stats and (Σxy − n·x̄·ȳ)/(n − 1), or r·Sx·Sy.','ok','Notes 6.2 and the calculator box'],
+  ['TI-84 Plus CE: r is switched on in MODE','On the CE: MODE → STAT DIAGNOSTICS → ON. On older TI-84: CATALOG → DiagnosticOn. Without it, LinReg shows no r or r².','ok','Notes 6.4, calculator box'],
+  ['Regression: y comes first','SLOPE(y, x), INTERCEPT(y, x), RSQ(y, x), FORECAST.LINEAR(x0, y, x). Swapping gives the regression of x on y, a different line. Charts can swap axes too.','ok','Notes 8.2 and Solution 8.3'],
+  ['Calculator names: a is the slope','LinReg(ax+b) writes y = ax + b. Its a is the slope β; its b is the intercept. r² is R².','ok','Notes 8.4, calculator box'],
+  ['Interpret β with units, and don’t interpret b','"One more unit of x goes with β more units of y on average", in the data’s units (thousands, millions, percentage points). The intercept is usually outside the data range and meaningless. Don’t extrapolate.','ok','Notes 8.2, Solutions 8.1 and 8.3'],
+  ['Order matters? Then don’t divide by k!','Posts (president, vice…) or sequences: n·(n−1)·…·(n−k+1). Interchangeable members: C(n, k). Arranging everything: n!.','ok','Notes 9.3, Exercise 9.4'],
+  ['Disjoint means add, independent means multiply','P(A ∪ B) = P(A) + P(B) only if A ∩ B = ∅, otherwise subtract P(A ∩ B). P(A ∩ B) = P(A)·P(B) only if independent. Disjoint events with positive probabilities are never independent.','ok','Notes 10.3–10.4'],
+  ['"At least one" → 1 − P(none)','Use the complement. n·p is not a probability: for n = 24 and p = 1/36 it would say 0.67, the true value is 0.49.','ok','Notes 10.4, Example 10.3'],
+  ['Var(X − Y) = Var(X) + Var(Y) and Var(aX) = a²·Var(X)','For independent X and Y, variances add for sums and differences. Constants factor out squared, and added constants vanish.','ok','Notes 11.5, Definition 11.9, Exercises 11.1–11.2'],
+  ['Random variables: no n − 1','Var[X] = Σ f(x)(x − μ)² with probabilities. The n − 1 correction is only for samples of data.','ok','Notes 11.5'],
+  ['Binomial: rewrite in terms of F(k) = P(X ≤ k)','At least k → 1 − F(k − 1). More than k → 1 − F(k). Fewer than k → F(k − 1). Exactly k → BINOM.DIST(…, 0). The off-by-one is the most common mistake.','ok','Notes 13.2, week 13 slides'],
+  ['Simulation: N runs vs n trials','In BINOM.INV(n, p, RAND()), n is the trials inside one draw (3 children). N is how many rows you simulate (1 000 families).','ok','Notes 13.3'],
+  ['Typos in the notes (Chapters 12–13)','Ex. 12.4: uniform between 500 and 1 500 is 500 + 1000·RAND(), not 500 + 100·RAND(). Sol. 12.1 says "family of 5" (it’s 3 children). Sol. 13.1(b) writes "= F(8, 15, 0.25)", but the value 0.00419 is 1 − F(8).','warn','Notes 12.4/12.5 and 13.5. Checked by recomputing']
+);
+
+/* ---------- Excel lab ---------- */
+const XDE={'SUMPRODUCT':'SUMMENPRODUKT','SUMIFS':'SUMMEWENNS','SUMIF':'SUMMEWENN','COUNTIF':'ZÄHLENWENN','AVERAGE':'MITTELWERT','SUM':'SUMME','IF':'WENN','OR':'ODER','XLOOKUP':'XVERWEIS','VLOOKUP':'SVERWEIS','STDEV.P':'STABW.N','STDEV.S':'STABW.S','PERCENTILE.EXC':'QUANTIL.EXKL','CORREL':'KORREL','COVARIANCE.S':'KOVARIANZ.S','COVARIANCE.P':'KOVARIANZ.P','SLOPE':'STEIGUNG','INTERCEPT':'ACHSENABSCHNITT','RSQ':'BESTIMMTHEITSMASS','FORECAST.LINEAR':'PROGNOSE.LINEAR','FACT':'FAKULTÄT','COMBIN':'KOMBINATIONEN','BINOM.DIST':'BINOM.VERT','RANDBETWEEN':'ZUFALLSBEREICH','RAND':'ZUFALLSZAHL','ROUND':'RUNDEN','SQRT':'WURZEL','MEDIAN':'MEDIAN','TREND':'TREND','MAX':'MAX','MIN':'MIN','VAR.P':'VAR.P','VAR.S':'VAR.S','BINOM.INV':'BINOM.INV'};
+const toDE=f=>f.replace(/\b([A-Z][A-Z.]*)(?=\()/g,m=>XDE[m]||m).replace(/,/g,';');
+function dataBlock(head,rows,note){
+  const tsv=[head.join('\t'),...rows.map(r=>r.join('\t'))].join('\n'), id='d'+Math.random().toString(36).slice(2,8);
+  return `<div class="xdata"><div class="xdata-bar"><span>${note||'Data: paste into cell <b>A1</b> of an empty sheet'}</span><button class="btn btn-ghost xcopy" data-copy="${id}">Copy data</button></div><textarea class="xtsv" id="${id}" readonly hidden>${esc(tsv)}</textarea>${table(head,rows.map(r=>r.map(c=>typeof c==='number'?String(c):esc(c))))}</div>`;
+}
+function fTable(rows){return `<div class="tbl-wrap"><table class="ref xf"><thead><tr><th>Cell / step</th><th>English Excel</th><th>German Excel</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r[0]}</td><td class="f">${esc(r[1])}</td><td class="f">${esc(toDE(r[1]))}</td></tr>`).join('')}</tbody></table></div>`;}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-copy]'); if(!b)return;
+  const ta=document.getElementById(b.dataset.copy); if(!ta)return;
+  const done=()=>{b.textContent='Copied ✓';setTimeout(()=>{b.textContent='Copy data';},1800);};
+  try{navigator.clipboard.writeText(ta.value).then(done,()=>{ta.hidden=false;ta.select();b.textContent='Press Ctrl+C';});}catch(err){ta.hidden=false;ta.select();b.textContent='Press Ctrl+C';}
+});
+const xdef=(id,week,name,sub,make)=>def(id,'excel',name,`W${week} · ${sub}`,make);
+
+xdef('xrefs',1,'Multiplication table with $','One formula, filled right and down',()=>{
+  const a=ri(1,11), nums=Array.from({length:10},(_,i)=>a+i), S=sum(nums)**2;
+  return {title:'One formula, a hundred cells',prompt:`<p>Build a 10 × 10 multiplication table for the numbers ${a} to ${a+9} with a <b>single</b> formula, then add up all 100 products (Exercises 1.1 and 1.2).</p>${dataBlock(['', ...nums],nums.map(n=>[n,...Array(10).fill('')]),'Headers: paste into <b>A1</b>. Row 1 and column A hold the numbers')}<ol><li>In B2, write one formula that multiplies the column A number by the row 1 number.</li><li>Fill it right to K2 and down to K11 without editing it.</li><li>Sum the table.</li></ol>`,
+    fields:[{label:'Sum of all 100 products',value:S,tol:{abs:0.5}}],
+    steps:[fTable([['B2, then fill to K11','=$A2*B$1'],['Sum','=SUM(B2:K11)']]),'$A2 locks the column (always column A) but lets the row move. B$1 locks the row (always row 1) but lets the column move.',`Check by math: the table sum is (Σ numbers)² = ${sum(nums)}² = ${fmt(S,0)}.`]};
+});
+
+xdef('xlookup',1,'Lookups, IF and COUNTIF','Employee table',()=>{
+  const names=['Müller','Keller','Huber','Meier','Weber','Schmid','Fischer','Brunner','Baumann','Frei','Gerber','Moser'],deps=['Sales','Finance','IT'];
+  const rows=names.map((n,i)=>[101+i,n,pick(deps),ri(62,128)*1000]);
+  const q=pick(rows), d=pick(deps), cnt=rows.filter(r=>r[2]===d).length, bonus=sum(rows.map(r=>r[3]>90000?0.1*r[3]:0.05*r[3]));
+  return {title:'Employee lookups',prompt:`${dataBlock(['ID','Name','Department','Salary'],rows)}<p>(a) Look up the salary of employee <b>${q[0]}</b> with a formula. (b) Count the employees in <b>${d}</b>. (c) In column E, compute each bonus: 10% of salary if the salary is above 90 000, otherwise 5%. What is the total bonus?</p>`,
+    fields:[{label:`(a) Salary of ${q[0]}`,value:q[3],tol:{abs:0.5}},{label:`(b) Employees in ${d}`,value:cnt,tol:{abs:0.01}},{label:'(c) Total bonus',value:bonus,tol:{abs:0.5}}],
+    steps:[fTable([['(a)',`=XLOOKUP(${q[0]},A2:A13,D2:D13)`],['(a) older Excel',`=VLOOKUP(${q[0]},A2:D13,4,0)`],['(b)',`=COUNTIF(C2:C13,"${d}")`],['(c) E2, fill down','=IF(D2>90000,0.1*D2,0.05*D2)'],['(c) total','=SUM(E2:E13)']]),'VLOOKUP’s last argument 0 (FALSE) forces an exact match. Without it you can get a wrong row silently.']};
+});
+
+xdef('xpivot',1,'Pivot table','Revenue by canton and rep',()=>{
+  const months=['Jan','Feb','Mar','Apr','May','Jun'],cant=['LU','ZG','BE'],reps=['Müller','Keller','Huber'];
+  const rows=[];months.forEach(m=>cant.forEach(c=>{if(Math.random()<0.75)rows.push([m,c,pick(reps),ri(8,60)*100]);}));
+  const c=pick(cant), r=pick(reps), q2=['Apr','May','Jun'];
+  const totC=sum(rows.filter(x=>x[1]===c).map(x=>x[3])), repQ2=sum(rows.filter(x=>x[2]===r&&q2.includes(x[0])).map(x=>x[3]));
+  return {title:'Summarize with a pivot table',prompt:`${dataBlock(['Month','Canton','Rep','Revenue'],rows)}<p>Insert a pivot table (Insert → PivotTable). (a) Total revenue in canton <b>${c}</b>? (b) Revenue of <b>${r}</b> in Q2 (Apr–Jun)?</p>`,
+    fields:[{label:`(a) Total ${c}`,value:totC,tol:{abs:0.5}},{label:`(b) ${r}, Q2`,value:repQ2,tol:{abs:0.5}}],
+    steps:['Pivot: drag <b>Canton</b> to Columns, <b>Revenue</b> to Values (Sum), <b>Month</b> to Rows. Read the column total for '+c+'.','For (b): drag <b>Rep</b> to Filters, choose '+r+', and add the Apr, May and Jun rows. (Months typed as text can’t be grouped into quarters; with real dates, right-click → Group → Quarters.)','Check with formulas:',fTable([['(a)',`=SUMIF(B2:B${rows.length+1},"${c}",D2:D${rows.length+1})`],['(b)',`=SUMIFS(D2:D${rows.length+1},C2:C${rows.length+1},"${r}",A2:A${rows.length+1},"Apr")+SUMIFS(D2:D${rows.length+1},C2:C${rows.length+1},"${r}",A2:A${rows.length+1},"May")+SUMIFS(D2:D${rows.length+1},C2:C${rows.length+1},"${r}",A2:A${rows.length+1},"Jun")`]]),'A pivot table never changes the original data.']};
+});
+
+xdef('xfreq',2,'Frequency table','COUNTIF on survey answers',()=>{
+  const cats=['very satisfied','satisfied','neutral','dissatisfied'], w=[3,5,2,1];
+  const ans=Array.from({length:40},()=>{let r=Math.random()*11,i=0;while(r>w[i]){r-=w[i];i++;}return cats[i];});
+  const c1=pick(cats), c2=pick(cats), n1=ans.filter(a=>a===c1).length, n2=ans.filter(a=>a===c2).length;
+  return {title:'Count and share',prompt:`${dataBlock(['Answer'],ans.map(a=>[a]))}<p>Build a frequency table next to the data (categories in C2:C5). (a) How many answered "<b>${c1}</b>"? (b) What share answered "<b>${c2}</b>", in %? (c) Which chart fits this ordinal data best?</p>`,
+    fields:[{label:`(a) N "${c1}"`,value:n1,tol:{abs:0.01}},{label:`(b) Share "${c2}"`,value:n2/40*100,unit:'%',tol:{abs:0.06}}],
+    steps:[fTable([['D2 (count), fill down','=COUNTIF($A$2:$A$41,C2)'],['E2 (share), fill down','=D2/SUM($D$2:$D$5)']]),'Format E as %. The $ keeps the data range fixed while C2 moves to C3, C4, C5.','(c) A <b>column chart</b> in the natural order (very satisfied → dissatisfied). Keep the order: the data is ordinal. A pie also works for shares, but loses the order.']};
+});
+
+xdef('xloc',3,'Means and median','AVERAGE, SUMPRODUCT, MEDIAN',()=>{
+  const p=prices(8), q=p.map(()=>ri(5,40)*10);
+  return {title:'Average asking price vs price paid',prompt:`${dataBlock(['Price','Units'],p.map((v,i)=>[fx(v,2),q[i]]))}<p>(a) Average asking price. (b) Average price paid (weighted by units). (c) Median asking price. Round to 2 decimals.</p>`,
+    fields:[{label:'(a) Asking',value:mean(p),tol:{abs:0.006}},{label:'(b) Paid',value:sum(p.map((v,i)=>v*q[i]))/sum(q),tol:{abs:0.006}},{label:'(c) Median',value:(()=>{const s=p.slice().sort((a,b)=>a-b);return (s[3]+s[4])/2;})(),tol:{abs:0.006}}],
+    steps:[fTable([['(a)','=AVERAGE(A2:A9)'],['(b)','=SUMPRODUCT(A2:A9,B2:B9)/SUM(B2:B9)'],['(c)','=MEDIAN(A2:A9)']]),'With 8 values the median averages the 4th and 5th sorted values. MEDIAN does that for you.']};
+});
+
+xdef('xtrend',3,'Grouped median with TREND','Cumulative shares and interpolation',()=>{
+  let g,q5,q75,t=0; do{g=groupedData();q5=quantileOf(g,0.5);q75=quantileOf(g,0.75);t++;}while(t<60&&(q5.i===0||q75.i===0));
+  const rows=g.cls.map((c,i)=>[c[0],c[1],g.N[i]]), n=rows.length, r5=q5.i+2, r75=q75.i+2;
+  return {title:'Interpolate in Excel',prompt:`<p>${g.c.what} (${g.c.unit}):</p>${dataBlock(['From','To under','Count'],rows)}<p>In D add relative frequencies, in E cumulative shares. Then compute the median and the 3rd quartile with <code class="x">TREND</code>, the way the week 3 example sheet does.</p>`,
+    fields:[{label:'Median',value:q5.val,tol:{rel:0.003,abs:0.05}},{label:'3rd quartile',value:q75.val,tol:{rel:0.003,abs:0.05}}],
+    steps:[fTable([['D2, fill down',`=C2/SUM($C$2:$C$${n+1})`],['E2, fill down','=SUM($D$2:D2)'],[`Median (class in row ${r5})`,`=TREND(B${r5-1}:B${r5},E${r5-1}:E${r5},0.5)`],[`3rd quartile (class in row ${r75})`,`=TREND(B${r75-1}:B${r75},E${r75-1}:E${r75},0.75)`]]),`Median ≈ ${fmt(q5.val,2)}, Q3 ≈ ${fmt(q75.val,2)}.`,`Why B${r5-1}:B${r5}? Column B holds the upper bounds. The upper bound of the row above is the lower bound of the quantile class, and E holds the cumulative shares at those two bounds. TREND draws the straight line through both points and reads it off at 0.5: exactly the interpolation formula.`]};
+});
+
+xdef('xdisp',4,'Spread with Excel functions','VAR.P vs VAR.S, CV, PERCENTILE.EXC',()=>{
+  const x=Array.from({length:12},()=>ri(20,80)/10), m=mean(x), ss=sum(x.map(v=>(v-m)**2));
+  return {title:'All the spread measures',prompt:`<p>Profit (CHF million) of 12 branches, treated as a <b>sample</b> for (b) and as the complete population for (a) and (c).</p>${dataBlock(['Profit'],x.map(v=>[fx(v,1)]))}<p>(a) Variance σ². (b) Empirical standard deviation s. (c) Coefficient of variation σ/x̄ in %. (d) IQR with PERCENTILE.EXC. Round to 4 decimals (CV: 2).</p>`,
+    fields:[keepTraps({label:'(a) σ²',value:ss/12,tol:{abs:0.0002},traps:[{value:ss/11,msg:'That’s VAR.S. σ² for the population is VAR.P.'}]}),keepTraps({label:'(b) s',value:Math.sqrt(ss/11),tol:{abs:0.0002},traps:[{value:Math.sqrt(ss/12),msg:'That’s STDEV.P. The empirical s is STDEV.S.'}]}),{label:'(c) CV',value:Math.sqrt(ss/12)/m*100,unit:'%',tol:{abs:0.006}},{label:'(d) IQR',value:pctExc(x,0.75)-pctExc(x,0.25),tol:{abs:0.0002}}],
+    steps:[fTable([['(a)','=VAR.P(A2:A13)'],['(b)','=STDEV.S(A2:A13)'],['(c)','=STDEV.P(A2:A13)/AVERAGE(A2:A13)'],['(d)','=PERCENTILE.EXC(A2:A13,0.75)-PERCENTILE.EXC(A2:A13,0.25)']]),'German Excel calls the SDs STABW.N and STABW.S, and the quantile QUANTIL.EXKL. Format (c) as %.']};
+});
+
+xdef('xindex',5,'Index series and percent change','$ for the base year',()=>{
+  const y0=ri(2010,2016), v=series(ri(600,900),6,-20,60).map(z=>Math.round(z)), b=ri(0,2), t=ri(3,5);
+  return {title:'Index a revenue series',prompt:`${dataBlock(['Year','Revenue'],v.map((z,i)=>[y0+i,z]))}<p>(a) In column C, index the series with base <b>${y0+b} = 100</b> using one formula filled down. What is the index for ${y0+t}? (b) Percent change from ${y0+t-1} to ${y0+t} (2 decimals)?</p>`,
+    fields:[{label:`(a) Index ${y0+t}`,value:v[t]/v[b]*100,tol:{abs:0.006}},keepTraps({label:'(b) Change',value:(v[t]/v[t-1]-1)*100,unit:'%',tol:{abs:0.006},traps:[{value:(v[t]-v[t-1])/v[b]*100,msg:'That’s the change in index points. Percent change is new / old − 1.'}]})],
+    steps:[fTable([['C2, fill down',`=B2/$B$${b+2}*100`],['(b)',`=B${t+2}/B${t+1}-1`]]),'The $ before the row number keeps the base year fixed. Format (b) as %. The same result comes from C'+(t+2)+'/C'+(t+1)+'−1.']};
+});
+
+xdef('xlasp',5,'Laspeyres with SUMPRODUCT','Basket fixed in month 0',()=>{
+  const g=shuffle(GOODS).slice(0,3), p0=g.map(()=>ri(20,300)/10), P=[p0];for(let m=1;m<=3;m++)P.push(P[m-1].map(v=>rnd(v*(1+ri(-6,12)/100),2)));const q=g.map(()=>ri(5,120));
+  const L=m=>sum(P[m].map((v,i)=>v*q[i]))/sum(P[0].map((v,i)=>v*q[i]))*100;
+  const rows=P.map((r,m)=>[m,...r.map(v=>fx(v,2))]).concat([['Qty',...q]]);
+  return {title:'Laspeyres price index',prompt:`${dataBlock(['Month',...g.map(x=>x[0])],rows,'Prices in rows 2–5, base quantities in row 6. Paste into <b>A1</b>')}<p>Compute the Laspeyres index for months 2 and 3 (month 0 = 100) with one formula filled down column E. Then the percent change from month 2 to 3. Round to 2 decimals.</p>`,
+    fields:[{label:'Index month 2',value:L(2),tol:{abs:0.006}},{label:'Index month 3',value:L(3),tol:{abs:0.006}},keepTraps({label:'Change 2 → 3',value:(L(3)/L(2)-1)*100,unit:'%',tol:{abs:0.006},traps:[{value:L(3)-L(2),msg:'That’s index points. Percent change is I₃/I₂ − 1.'}]})],
+    steps:[fTable([['E2, fill down to E5','=SUMPRODUCT($B$6:$D$6,B2:D2)/SUMPRODUCT($B$6:$D$6,$B$2:$D$2)*100'],['Change','=E5/E4-1']]),'Both sums use the base quantities in row 6 (locked with $). The denominator is always month 0 (row 2, locked). Only the current prices move.']};
+});
+
+xdef('xcorr',6,'Covariance and correlation','COVARIANCE.S, COVARIANCE.P, CORREL',()=>{
+  let x,y,L;do{x=Array.from({length:10},()=>ri(50,120));const bt=pick([0.4,-0.3,0.6]);y=x.map(v=>Math.round(bt*v+ri(-12,12)+40));L=linreg(x,y);}while(Math.abs(L.r)<0.3);
+  return {title:'Measure the relationship',prompt:`${dataBlock(['x','y'],x.map((v,i)=>[v,y[i]]))}<p>(a) Sample covariance s<sub>xy</sub>. (b) Population covariance σ<sub>xy</sub>. (c) Correlation r. Round to 3 decimals.</p>`,
+    fields:[keepTraps({label:'(a) s_xy',value:L.sxy/9,tol:{abs:0.002},traps:[{value:L.sxy/10,msg:'That’s COVARIANCE.P. The sample version is COVARIANCE.S.'}]}),{label:'(b) σ_xy',value:L.sxy/10,tol:{abs:0.002}},{label:'(c) r',value:L.r,tol:{abs:0.0015}}],
+    steps:[fTable([['(a)','=COVARIANCE.S(A2:A11,B2:B11)'],['(b)','=COVARIANCE.P(A2:A11,B2:B11)'],['(c)','=CORREL(A2:A11,B2:B11)']]),'Check: (a) = (b)·10/9. r is the same whichever covariance you standardize, as long as you use the matching standard deviations.']};
+});
+
+xdef('xreg',8,'Regression functions','SLOPE, INTERCEPT, RSQ, FORECAST.LINEAR',()=>{
+  let x,y,L;do{x=Array.from({length:10},()=>ri(55,115));y=x.map(v=>Math.round(0.6*v-24+ri(-6,6)));L=linreg(x,y);}while(L.r<0.6);
+  const x0=ri(65,105);
+  return {title:'Contacts and contracts',prompt:`<p>Customer contacts x and contracts y for 10 agents:</p>${dataBlock(['Contacts','Contracts'],x.map((v,i)=>[v,y[i]]))}<p>(a) Slope β (4 decimals). (b) Intercept b (4 decimals). (c) R² (4 decimals). (d) Predicted contracts for ${x0} contacts (2 decimals).</p>`,
+    fields:[keepTraps({label:'(a) β',value:L.beta,tol:{abs:0.0002},traps:[{value:L.sxy/L.syy,msg:'Arguments swapped: SLOPE(<b>y</b>, x). You computed SLOPE(x, y).'}]}),{label:'(b) b',value:L.b,tol:{abs:0.002}},{label:'(c) R²',value:L.r*L.r,tol:{abs:0.0002}},{label:`(d) ŷ(${x0})`,value:L.b+L.beta*x0,tol:{abs:0.006}}],
+    steps:[fTable([['(a)','=SLOPE(B2:B11,A2:A11)'],['(b)','=INTERCEPT(B2:B11,A2:A11)'],['(c)','=RSQ(B2:B11,A2:A11)'],['(d)',`=FORECAST.LINEAR(${x0},B2:B11,A2:A11)`]]),'y (column B) always comes first. For the chart: insert a scatter plot, right-click a point → Add Trendline → Display equation and R². Check the axes: contacts must be horizontal.']};
+});
+
+xdef('xcomb',9,'FACT and COMBIN','Counting in Excel',()=>{
+  const n=ri(5,9), N=ri(30,49), k=ri(5,7), t=ri(8,20);
+  return {title:'Let Excel count',prompt:`<p>(a) In how many orders can ${n} customers be visited? (b) How many possible draws in a lottery "${k} out of ${N}"? (c) ${t} teams, everyone plays everyone once: how many matches?</p><p>Use FACT and COMBIN, no data needed.</p>`,
+    fields:[{label:'(a) Tours',value:fact(n),tol:{abs:0.5}},{label:'(b) Draws',value:nCr(N,k),tol:{abs:0.5,rel:1e-9}},{label:'(c) Matches',value:nCr(t,2),tol:{abs:0.5}}],
+    steps:[fTable([['(a)',`=FACT(${n})`],['(b)',`=COMBIN(${N},${k})`],['(c)',`=COMBIN(${t},2)`]]),'German: FAKULTÄT, KOMBINATIONEN. Avoid FACT(N)/(FACT(k)*FACT(N-k)) for big numbers. COMBIN is exact.']};
+});
+
+xdef('xev',11,'Expected value with SUMPRODUCT','Two projects, mean and risk',()=>{
+  const A=[30,35,40,45,50].map(v=>v*1000), pA=[.1,.2,.4,.2,.1];
+  const sh=ri(-3,3)*1000, B=[20,30,40,50,60].map(v=>v*1000+sh); let pB; do{pB=[ri(1,3),ri(1,3),ri(2,4),ri(1,3),ri(1,3)];}while(sum(pB)!==10);pB=pB.map(v=>v/10);
+  const E=(x,p)=>sum(x.map((v,i)=>v*p[i])), S=(x,p)=>Math.sqrt(sum(x.map((v,i)=>p[i]*(v-E(x,p))**2)));
+  return {title:'Which project?',prompt:`${dataBlock(['Revenue A','P(A)','Revenue B','P(B)'],A.map((v,i)=>[v,pA[i],B[i],pB[i]]))}<p>(a) E for project B. (b) σ for project A. (c) σ for project B. Round to whole dollars.</p>`,
+    fields:[{label:'(a) E[B]',value:E(B,pB),tol:{abs:0.5}},{label:'(b) σ_A',value:S(A,pA),tol:{abs:1}},{label:'(c) σ_B',value:S(B,pB),tol:{abs:1}}],
+    steps:[fTable([['E[A] in F2','=SUMPRODUCT(A2:A6,B2:B6)'],['E[B] in F3','=SUMPRODUCT(C2:C6,D2:D6)'],['σ_A','=SQRT(SUMPRODUCT(B2:B6,(A2:A6-F2)^2))'],['σ_B','=SQRT(SUMPRODUCT(D2:D6,(C2:C6-F3)^2))']]),`E[A] = ${fmt(E(A,pA),0)}. SUMPRODUCT accepts the array expression (A2:A6−F2)^2 directly. If your Excel complains, add a helper column with (x − E)² first. Lower σ = lower risk.`]};
+});
+
+xdef('xsim',12,'Simulate two dice','RANDBETWEEN, IF, AVERAGE, 1 000 rows',()=>{
+  const E=pick([['doubles','=IF(A2=B2,1,0)',6],['a sum of at least 10','=IF(A2+B2>=10,1,0)',6],['at least one six','=IF(OR(A2=6,B2=6),1,0)',11],['a sum of exactly 7','=IF(A2+B2=7,1,0)',6]]);
+  return {title:'Estimate by simulation',prompt:`<p>Estimate P(${E[0]}) with two simulated dice and 1 000 rows. Then compare with the exact value.</p><ol><li>A2 and B2: one die each. C2: 1 if the event happened, else 0.</li><li>Fill A2:C2 down to row 1001.</li><li>Your estimate = average of column C. Press F9 a few times and watch it move.</li></ol>`,
+    fields:[{label:'Your estimate',value:E[2]/36,tol:{abs:0.045},hint:'any value from a correct simulation is accepted'},{label:'Exact probability',value:E[2]/36,tol:{abs:0.0006}}],
+    steps:[fTable([['A2 and B2','=RANDBETWEEN(1,6)'],['C2',E[1]],['Estimate','=AVERAGE(C2:C1001)']]),`Exact: ${E[2]}/36 = ${fx(E[2]/36,4)}. With 1 000 rows your estimate typically lands within about ±0.03 of that. The law of large numbers: more rows, closer estimate. Paste as values to freeze a run.`]};
+});
+
+xdef('xbinom',13,'BINOM.DIST and BINOM.INV','pmf, cdf, complement',()=>{
+  const n=ri(12,30), p=pick([0.2,0.25,0.3,0.56]), k=Math.round(n*p)+ri(-1,2);
+  return {title:'Binomial in Excel',prompt:`<p>X ~ Binom(n = ${n}, p = ${p}). Compute (a) P(X = ${k}), (b) P(X ≤ ${k}), (c) P(X ≥ ${k}). 4 decimals. (d) Which formula simulates one draw of X?</p>`,
+    fields:[{label:`(a) P(X = ${k})`,value:bpmf(k,n,p),tol:{abs:0.0002}},{label:`(b) P(X ≤ ${k})`,value:bcdf(k,n,p),tol:{abs:0.0002}},keepTraps({label:`(c) P(X ≥ ${k})`,value:1-bcdf(k-1,n,p),tol:{abs:0.0002},traps:[{value:1-bcdf(k,n,p),msg:`Off by one: P(X ≥ ${k}) = 1 − P(X ≤ ${k-1}).`}]})],
+    steps:[fTable([['(a)',`=BINOM.DIST(${k},${n},${p},0)`],['(b)',`=BINOM.DIST(${k},${n},${p},1)`],['(c)',`=1-BINOM.DIST(${k-1},${n},${p},1)`],['(d) simulate',`=BINOM.INV(${n},${p},RAND())`]]),'Last argument: 0 = pmf (exactly), 1 = cdf (at most). German: BINOM.VERT.']};
+});
+
+xdef('xgrades',14,'Grades from points','Linear scale, ROUND, half grades, IF dummy',()=>{
+  const pts=Array.from({length:10},()=>ri(8,40)+(Math.random()<0.5?0.5:0)), names=['Anna','Ben','Carla','David','Elif','Felix','Gina','Hugo','Ines','Jonas'];
+  const gr=v=>1+5*v/40.5, r1=v=>Math.round(gr(v)*10)/10, half=v=>Math.round(gr(v)*2)/2;
+  const s=ri(0,9), fails=pts.filter(v=>half(v)<4).length;
+  return {title:'Additional exercise 1, in miniature',prompt:`${dataBlock(['Name','Points'],names.map((n,i)=>[n,pts[i]]))}<p>Linear scale: 0 points = grade 1.0, 40.5 points = 6.0. In C compute the unrounded grade, in D round to one decimal, in E round to half grades, in F a dummy (0 = passed with a half grade ≥ 4, 1 = failed).</p><p>(a) ${names[s]}’s grade rounded to one decimal. (b) ${names[s]}’s half grade. (c) Number of fails.</p>`,
+    fields:[{label:'(a) 0.1 grade',value:r1(pts[s]),tol:{abs:0.001}},{label:'(b) Half grade',value:half(pts[s]),tol:{abs:0.001}},{label:'(c) Fails',value:fails,tol:{abs:0.01}}],
+    steps:[fTable([['C2','=1+5*B2/40.5'],['D2','=ROUND(C2,1)'],['E2','=ROUND(C2*2,0)/2'],['F2','=IF(E2>=4,0,1)'],['Fails','=SUM(F2:F11)']]),'Fill C2:F2 down to row 11. Rounding to halves: double, round to a whole number, halve.']};
+});
+
+/* ---------- Excel lab view ---------- */
+function vLab(){
+  const gens=Object.values(G).filter(g=>g.topic==='excel');
+  if(!current.gen||G[current.gen].topic!=='excel')current.gen=gens[0].id;
+  $('#view').innerHTML=head('Practice','Excel lab')+`<p class="lede">Real Excel practice for every week. Open an empty sheet, click <b>Copy data</b>, paste into A1, follow the steps, then type your results here. After checking, the solution shows the formulas in English and German Excel. Each task gets new numbers when you start it again.</p>
+  <div class="callout">German Excel uses <b>;</b> between arguments (shown in the German column). If your Excel turns pasted numbers like 6.25 into dates or text, it expects decimal commas: switch the separator in Excel’s options, or use Swiss settings.</div>
+  <div class="gen-list">${gens.map(g=>`<button class="gen" data-g="${g.id}" aria-pressed="${current.gen===g.id}"><span class="gen-name">${g.name}</span><span class="gen-sub">${g.sub}</span>${meterHTML(acc([g.id]))}</button>`).join('')}</div>
+  <div id="drill-body"></div>`;
+  document.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{current.gen=b.dataset.g;current.q=null;vLab();document.getElementById('drill-body').scrollIntoView({behavior:'smooth',block:'start'});});
+  if(!current.q||current.genId!==current.gen)newQuestion();
+  renderDrillBody();
+}
+
 /* boot */
 (function(){
   let h=''; try{h=(location.hash||'').slice(1);}catch(e){}
   if(VIEWS.some(v=>v[0]===h))current.view=h;
-  if(/^ch[1-6]$/.test(h)){current.view='learn';current.ch=h;}
+  if(/^ch(1[0-3]|[1-689])$/.test(h)){current.view='learn';current.ch=h;}
   render(); initSync();
 })();
 </script>

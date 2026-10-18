@@ -2691,6 +2691,7 @@ function addNote(text){
   S.notes=(S.notes||'').trim()?S.notes.replace(/\s+$/,'')+'\n\n'+block:block;
   S.notesAt=Date.now(); save(); renderNav();
   const ta=document.getElementById('notes-area'); if(ta&&current.view==='notes')ta.value=S.notes;
+  return 'Added to My notes ✓';
 }
 window.TUTOR_CONFIG={
   app:'The Outlier', subject:'Data Analysis I', course:'W.IBA_APMAT12.H26',
@@ -2717,6 +2718,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-ask]');if(
      contextLabel: () => string,      // short label of that, e.g. "Chapter 4"
      addNote: (text) => void,         // append an explanation to the app's notes
      colors: {accent, onAccent, surface, surface2, ink, muted, line, bg}
+     exam?: string, extraRules?: string  // optional prompt tweaks
    } */
 (function(){
   const C=window.TUTOR_CONFIG; if(!C)return;
@@ -2762,8 +2764,8 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-ask]');if(
   .tt-send[disabled]{opacity:.5;cursor:default}
   .tt-foot{font-size:11.5px;color:var(--tt-muted);padding:0 14px 10px}
   `;
-  const style=document.createElement('style'); style.textContent=css; document.head.appendChild(style);
-  const root=document.createElement('div'); root.className='tt-root';
+  const style=document.createElement('style'); style.setAttribute('data-export-skip',''); style.textContent=css; document.head.appendChild(style);
+  const root=document.createElement('div'); root.className='tt-root'; root.setAttribute('data-export-skip','');
   root.innerHTML=`<button class="tt-fab" type="button" hidden aria-haspopup="dialog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.3 2.4c-.5.2-.8.6-.8 1.1v.5"/><path d="M12 16.5h.01"/></svg>Ask</button>
   <section class="tt-panel" hidden role="dialog" aria-label="Tutor">
     <div class="tt-head"><div class="tt-grow"><div class="tt-title">Tutor</div><div class="tt-sub">${esc(C.subject)} · ask anything, in your own words</div></div><button class="tt-ibtn" type="button" data-act="new">New chat</button><button class="tt-ibtn" type="button" data-act="close" aria-label="Close tutor">Close</button></div>
@@ -2795,7 +2797,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-ask]');if(
   let turns=[]; try{turns=JSON.parse(localStorage.getItem(KEY)||'[]');if(!Array.isArray(turns))turns=[];}catch(e){turns=[];}
   const saveTurns=()=>{try{localStorage.setItem(KEY,JSON.stringify(turns.slice(-30)));}catch(e){}};
   let sample=null, busy=false, ctl=null, dead=false;
-  const RULES=()=>`You are a patient, sharp tutor inside "${C.app}", a study app for the course "${C.subject}" (${C.course}) at the Lucerne University of Applied Sciences and Arts (HSLU), Bachelor in International Business Administration. The student is preparing for the written exam in January.
+  const RULES=()=>`You are a patient, sharp tutor inside "${C.app}", a study app for the course "${C.subject}" (${C.course}) at the Lucerne University of Applied Sciences and Arts (HSLU), Bachelor in International Business Administration. The student is preparing for ${C.exam||'the written exam in January'}.${C.extraRules?'\n'+C.extraRules:''}
 How to answer:
 - Explain in plain American English, step by step, like a smart friend. Short sentences. Define any technical term the first time you use it.
 - Use the course's own conventions and examples when the screen content below shows them; if your general knowledge differs from the course material, follow the course and say so.
@@ -2815,7 +2817,7 @@ How to answer:
     const acts=document.createElement('div'); acts.className='tt-acts';
     acts.innerHTML=`<button type="button">Add to my notes</button><button type="button">Copy</button>`;
     const [nb,cb]=acts.querySelectorAll('button');
-    nb.onclick=()=>{try{C.addNote(`Q: ${q.trim()}\n${plain(a).trim()}`);nb.textContent='Added to notes ✓';nb.disabled=true;}catch(e){nb.textContent='Could not add';}};
+    nb.onclick=()=>{try{const r=C.addNote(`Q: ${q.trim()}\n${plain(a).trim()}`);nb.textContent=typeof r==='string'&&r?r:'Added to notes ✓';nb.disabled=true;}catch(e){nb.textContent='Could not add';}};
     cb.onclick=()=>{try{navigator.clipboard.writeText(plain(a)).then(()=>{cb.textContent='Copied';},()=>{cb.textContent='Copy failed';});}catch(e){cb.textContent='Copy failed';}};
     d.appendChild(acts);
   }
@@ -2875,5 +2877,4 @@ How to answer:
     if(sample){fab.hidden=!panel.hidden;document.dispatchEvent(new CustomEvent('tutor-ready'));}
   })();
 })();
-
 </script>

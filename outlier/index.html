@@ -802,7 +802,30 @@ def('triage','tool','Which tool?','Recognize the method before computing',()=>{
 const DEFAULTS={stats:{},misses:[],answered:0,read:{},best:{}};
 function loadLocal(){try{return JSON.parse(localStorage.getItem('outlier-progress')||'{}');}catch(e){return {};}}
 function saveLocal(){try{localStorage.setItem('outlier-progress',JSON.stringify(S));}catch(e){}}
-let S=Object.assign({},DEFAULTS,loadLocal());
+// Always work on a private, writable copy: db snapshots are frozen, and DEFAULTS must never be shared.
+function normalizeState(o){
+  const base=JSON.parse(JSON.stringify(DEFAULTS)), src=JSON.parse(JSON.stringify(o||{}));
+  const out=Object.assign(base,src);
+  ['stats','read','best'].forEach(k=>{if(!out[k]||typeof out[k]!=='object'||Array.isArray(out[k]))out[k]={};});
+  if(!Array.isArray(out.misses))out.misses=[];
+  out.answered=+out.answered||0;
+  return out;
+}
+// Combine two saved states without losing work from either device.
+function mergeState(a,b){
+  a=normalizeState(a); b=normalizeState(b);
+  const out=normalizeState({});
+  new Set([...Object.keys(a.stats),...Object.keys(b.stats)]).forEach(id=>{
+    const x=a.stats[id], y=b.stats[id];
+    out.stats[id]=!x?y:!y?x:(y.n>x.n||(y.n===x.n&&(y.last||0)>(x.last||0)))?y:x;
+  });
+  new Set([...Object.keys(a.read),...Object.keys(b.read)]).forEach(k=>{if(a.read[k]||b.read[k])out.read[k]=true;});
+  new Set([...Object.keys(a.best),...Object.keys(b.best)]).forEach(k=>{out.best[k]=Math.max(a.best[k]||0,b.best[k]||0);});
+  const seen=new Set(); out.misses=[...a.misses,...b.misses].filter(m=>{const key=(m.id||'')+'|'+(m.at||'');if(seen.has(key))return false;seen.add(key);return true;}).sort((x,y)=>(y.at||0)-(x.at||0)).slice(0,40);
+  out.answered=Math.max(a.answered,b.answered,Object.values(out.stats).reduce((t,s)=>t+(s.n||0),0));
+  return out;
+}
+let S=normalizeState(loadLocal());
 let dbRef=null,dbOn=false,saveT=null,saving=false,queued=false;
 function setSync(mode,label){$('#sync-dot').className='sync-dot '+mode;$('#sync-label').textContent=label;}
 function save(){saveLocal();if(dbOn){clearTimeout(saveT);saveT=setTimeout(pushDb,800);}}
@@ -820,12 +843,13 @@ async function initSync(){
     dbRef=db.doc('progress/state');
     const snap=await dbRef.get();
     if(snap.exists&&snap.data()&&Object.keys(snap.data()).length){
-      const remote=snap.data();
-      if((remote.answered||0)>=(S.answered||0)){S=Object.assign({},DEFAULTS,remote);saveLocal();}
-      else await dbRef.set(JSON.parse(JSON.stringify(S)));
-    }else await dbRef.set(JSON.parse(JSON.stringify(S)));
+      S=mergeState(S,snap.data());
+    }
+    saveLocal();
+    await dbRef.set(JSON.parse(JSON.stringify(S)));
     dbOn=true;setSync('synced','Synced across devices');
-    if(!['drill','topic','learn','lab'].includes(current.view))render();
+    if(current.view==='lab'){if(typeof renderLabProgress==='function')renderLabProgress();}
+    else if(!['drill','topic'].includes(current.view)||!current.q)render();
     renderNav();
   }catch(e){dbRef=null;setSync('local','Saved on this device only');}
 }

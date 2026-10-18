@@ -585,20 +585,22 @@ function vSchool(){
   const t=today(), cur=Math.min(SEM_WEEKS,Math.max(1,semWeek(mondayOf(t))));
   const sel=ui.schoolWeek||cur, key="S"+sel, wkData=S.school.weeks[key]||{};
   const ws=addDays(SEM_START,(sel-1)*7);
-  let done=0,tot=0; S.school.courses.forEach(c=>{const d=wkData[c.id]||{};tot+=3+(d.items||[]).length;done+=(d.c?1:0)+(d.r?1:0)+(d.h?1:0)+(d.items||[]).filter(i=>i.done).length;});
+  let done=0,tot=0; S.school.courses.forEach(c=>{const d=wkData[c.id]||{};tot+=3+(d.items||[]).length;if(sel===cur)for(let k=1;k<cur;k++)tot+=((((S.school.weeks["S"+k]||{})[c.id]||{}).items)||[]).filter(i=>!i.done).length;done+=(d.c?1:0)+(d.r?1:0)+(d.h?1:0)+(d.items||[]).filter(i=>i.done).length;});
   const dls=[...S.school.deadlines].sort((a,b)=>a.date<b.date?-1:1);
   return `<div class="stack">
   <section>
     <div class="chips">${Array.from({length:SEM_WEEKS},(_,i)=>{const n=i+1,s=addDays(SEM_START,i*7);return `<button class="chip ${n===sel?"on":""} ${n===cur?"now":""}" data-act="school-week" data-n="${n}"><b>S${n}</b>${fmt(s)}</button>`;}).join("")}</div>
     <div class="row" style="margin-bottom:12px"><h2>S${sel} · ${fmt(ws)} – ${fmt(addDays(ws,6))}</h2><span class="pill">${done}/${tot} done</span></div>
     <div class="grid g-3">
-    ${S.school.courses.map(c=>{const d=wkData[c.id]||{}, items=d.items||[], n=(d.c?1:0)+(d.r?1:0)+(d.h?1:0)+items.filter(i=>i.done).length;
+    ${S.school.courses.map(c=>{const d=wkData[c.id]||{}, items=d.items||[];
+      const carried=[]; if(sel===cur)for(let k=1;k<cur;k++)(((S.school.weeks["S"+k]||{})[c.id]||{}).items||[]).forEach(i=>{if(!i.done)carried.push({k,i});});
+      const n=(d.c?1:0)+(d.r?1:0)+(d.h?1:0)+items.filter(i=>i.done).length;
       return `<article class="card course lane-top" style="--c:${esc(c.color||"var(--school)")}">
-        <div class="card-h" style="margin-bottom:0"><span class="code">${esc(c.code)}</span><span class="num muted" style="font-size:.8rem">${n}/${3+items.length}</span></div>
+        <div class="card-h" style="margin-bottom:0"><span class="code">${esc(c.code)}</span><span class="num muted" style="font-size:.8rem">${n}/${3+items.length+carried.length}</span></div>
         <h3>${esc(c.name)}</h3>
         ${c.link?`<a class="study-link" href="${esc(c.link)}" target="_blank" rel="noopener">Open ${esc(c.linkName||"study platform")} <span aria-hidden="true">↗</span></a>`:""}
         <div class="checks">${[["c","Class"],["r","Review"],["h","Homework"]].map(([f,lab])=>`<button data-act="school-check" data-id="${c.id}" data-f="${f}" aria-pressed="${!!d[f]}"><span class="chk ${d[f]?"on":""}"></span>${lab}</button>`).join("")}</div>
-        <ul class="tasks">${items.map(i=>`<li class="task ${i.done?"is-done":""}"><button class="chk ${i.done?"on":""}" data-act="school-item" data-id="${c.id}" data-item="${i.id}" aria-label="Toggle"></button><span class="t-text">${esc(i.text)}</span>${delBtn("school-item-del",c.id+"|"+i.id)}</li>`).join("")}</ul>
+        <ul class="tasks">${carried.map(({k,i})=>`<li class="task"><button class="chk" data-act="hw-toggle" data-key="S${k}" data-id="${c.id}" data-item="${i.id}" aria-label="Mark done"></button><span class="t-text">${esc(i.text)} <span class="t-meta">· from S${k}</span></span>${delBtn("hw-del",`S${k}|${c.id}|${i.id}`)}</li>`).join("")}${items.map(i=>`<li class="task ${i.done?"is-done":""}"><button class="chk ${i.done?"on":""}" data-act="school-item" data-id="${c.id}" data-item="${i.id}" aria-label="Toggle"></button><span class="t-text">${esc(i.text)}</span>${delBtn("school-item-del",c.id+"|"+i.id)}</li>`).join("")}</ul>
         <div class="add"><input class="field" id="si-${c.id}" data-enter="school-item-add" data-id="${c.id}" placeholder="Add homework or topic…" aria-label="Add item to ${esc(c.name)}"><button class="btn" data-act="school-item-add" data-id="${c.id}">+</button></div>
       </article>`;}).join("")||`<p class="empty">No courses loaded yet.</p>`}
     </div>
@@ -853,6 +855,7 @@ function doAct(act,el){
     break;}
   case "hw-pin":case "hw-unpin":{if(act==="hw-pin"&&pinnedCount(t)>=3){toast("Three is the limit. Finish or unpin one first.");return;}
     update("school",s=>{const c=(s.weeks[d.key]||{})[d.id];const i=c&&c.items&&c.items.find(x=>x.id===d.item);if(i)i.pin=act==="hw-pin"?t:null;});break;}
+  case "hw-del":{const [key,cid,iid]=d.id.split("|");update("school",s=>{const c=(s.weeks[key]||{})[cid];if(c&&c.items)c.items=c.items.filter(x=>x.id!==iid);});break;}
   case "hw-toggle":update("school",s=>{const c=(s.weeks[d.key]||{})[d.id];const i=c&&c.items&&c.items.find(x=>x.id===d.item);if(i)i.done=!i.done;});break;
   case "dl-toggle":update("school",s=>{const x=s.deadlines.find(i=>i.id===d.id);if(x)x.done=!x.done;});break;
   case "dl-del":update("school",s=>{s.deadlines=s.deadlines.filter(i=>i.id!==d.id);});break;

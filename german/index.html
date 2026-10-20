@@ -276,6 +276,8 @@ details.rulebox[open] summary{margin-bottom:8px}
   .lesson{padding:18px 16px}
   .lx-title{font-size:1.5rem}
 }
+.spin{min-height:96px; font-size:1.1rem; line-height:1.5}
+.steps{margin:0; padding-left:20px; display:flex; flex-direction:column; gap:4px}
 .tw{cursor:pointer; border-radius:4px; transition:background .12s}
 .tw:hover{background:var(--accent-soft)}
 .tw.mine{text-decoration:underline dotted var(--accent); text-decoration-thickness:2px; text-underline-offset:4px}
@@ -4516,6 +4518,133 @@ async function chatFeedback(){
   }catch(e){c.err=errCopy(e);}
   c.busy=false;render();
 }
+/* ---------- Sprechen: spoken drill (tutor talks, learner answers by keyboard dictation) ---------- */
+const SPK_LS="roterfaden.speak";
+let spkCfg={tts:true,auto:true,delay:3000,rate:0.95};
+try{Object.assign(spkCfg,JSON.parse(localStorage.getItem(SPK_LS)||"{}"));}catch(e){}
+function saveSpkCfg(){try{localStorage.setItem(SPK_LS,JSON.stringify(spkCfg));}catch(e){}}
+const ttsOk="speechSynthesis" in window&&"SpeechSynthesisUtterance" in window;
+let deVoice=null;
+function pickVoice(){try{const vs=speechSynthesis.getVoices();deVoice=vs.find(v=>/^de[-_]DE/i.test(v.lang))||vs.find(v=>/^de/i.test(v.lang))||null;}catch(e){}}
+if(ttsOk){pickVoice();try{speechSynthesis.addEventListener("voiceschanged",pickVoice);}catch(e){}}
+function sayDe(text){
+  if(!ttsOk||!spkCfg.tts||!text)return;
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.lang="de-DE";if(deVoice)u.voice=deVoice;u.rate=spkCfg.rate;speechSynthesis.speak(u);}catch(e){}
+}
+const stripTags=h=>String(h).replace(/<[^>]+>/g," ").replace(/\s+/g," ").trim();
+function lessonBrief(l){
+  const topics=l.topics.map(t=>ALLTOPICS[t]).filter(Boolean);
+  const words=lessonWords(l).map(id=>{const c=CARDS[id];return c.t==="v"?c.inf:c.de;}).slice(0,30);
+  const weak=weakTopics().map(w=>ALLTOPICS[w.id].title);
+  const mist=S.mistakes.items.filter(m=>!m.fixed).slice(0,8).map(m=>m.tid==="writing"?`${m.item.wrong} → ${m.item.right}`:`${ALLTOPICS[m.tid]?.title||""}: ${m.item.q||(m.item.w||[]).join(" ")}`);
+  return {topics,words,weak,mist,
+    text:`Learner: A2 German, studying Begegnungen A2+ chapter ${l.ch<9?l.ch:8} (lesson ${l.id}: "${l.title}"). Lives in Switzerland, learns standard German.
+Lesson goals: ${l.goals.join("; ")}.
+Grammar to drill: ${topics.map(t=>`${t.title}: ${stripTags(t.rule).slice(0,420)}`).join(" | ")}
+Vocabulary from this lesson to work in: ${words.join(", ")}.
+${weak.length?`Weak topics: ${weak.join(", ")}.`:""}
+${mist.length?`Recent mistakes to recycle: ${mist.join("; ")}.`:""}`};
+}
+const EXAM_RULES=`Run a mock Goethe-Zertifikat A2 / Start Deutsch 2 speaking exam, one step at a time. Part 1: give a topic word (e.g. "Wohnort", "Hobby") and ask the learner to form a question about it, then answer it briefly and ask them one back. Do 3 rounds. Part 2: ask them to talk about themselves on a topic (e.g. "Was machst du am Wochenende?"), with 2-3 follow-up questions. Part 3: plan something together (e.g. meeting for coffee next week): propose times, react to theirs, agree. Announce each part briefly in German.`;
+function speakRules(l){
+  const b=lessonBrief(l);
+  return `You are a spoken German tutor running an oral drill. ${b.text}
+The learner answers by voice dictation, so IGNORE capitalization, punctuation and obvious speech-recognition slips; judge grammar, word order, endings and word choice only.
+${l.id==="9.1"?EXAM_RULES:`Drill the lesson's grammar through speaking: ask ONE short question or task at a time (max 2 short sentences, simple A2 German) that forces the target grammar. Mix personal questions, "say it differently" tasks (e.g. "Sag es mit weil", "Jetzt im Perfekt"), and quick situations. Use the lesson vocabulary. Recycle the recent mistakes when they fit. Switch angle every 3-4 turns.`}
+If the learner's last answer had a mistake, give the corrected full sentence. If the mistake was in the target grammar, ask them to say the corrected sentence again before moving on.
+Reply with ONLY one JSON object: {"fix": "corrected version of their last answer, or null if it was correct", "why": "one short English sentence explaining the fix, or null", "say": "what you say out loud next, in German: a very short reaction, then the next question"}`;
+}
+function voiceBriefing(l){
+  return `Bitte sei mein Deutsch-Sprechtrainer. Sprich nur Deutsch, einfach, auf A2-Niveau.
+${lessonBrief(l).text}
+${l.id==="9.1"?EXAM_RULES:"Drill this lesson's grammar by voice: one short question or task at a time that forces the target grammar; mix personal questions and 'say it differently' tasks; use the lesson vocabulary."}
+After each answer: if I made a mistake, say "Besser:" and the correct sentence, and let me repeat it if the mistake was in the target grammar. Then ask the next question. Keep your turns short.
+When I say "Fertig", list all my mistakes, one per line, as: wrong → right (short reason in English).`;
+}
+function parseJ(t){try{return JSON.parse(t);}catch(e){}const a=t.indexOf("{"),b=t.lastIndexOf("}");if(a>=0&&b>a){try{return JSON.parse(t.slice(a,b+1));}catch(e){}}return null;}
+let spkTimer=null;
+function spkNew(id){return {lesson:id,started:false,turns:[],log:[],busy:false,err:"",feedback:null,draft:"",imp:"",impBusy:false,impMsg:""};}
+function spk(){const l=LESSON[ui.lesson];if(!ui.speak||ui.speak.lesson!==l.id)ui.speak=spkNew(l.id);return ui.speak;}
+async function spkAsk(){
+  const sp=ui.speak,l=LESSON[sp.lesson];if(!sample||sp.busy)return;
+  sp.busy=true;sp.err="";render();scrollSpk();
+  const turns=[{role:"user",content:speakRules(l)+"\n\nStart now: greet briefly and ask the first question."},...sp.turns.slice(-24)];
+  try{
+    const {text}=await sample(turns,{cache:false,modelTier:"quick"});
+    const j=parseJ(text)||{fix:null,why:null,say:text.trim()};
+    sp.turns.push({role:"assistant",content:JSON.stringify(j)});
+    if(j.fix&&sp.log.length&&sp.log[sp.log.length-1].who==="me"){sp.log[sp.log.length-1].fix=j.fix;sp.log[sp.log.length-1].why=j.why||"";}
+    sp.log.push({who:"tutor",text:String(j.say||"")});
+    sayDe((j.fix?"Besser: "+j.fix+" … ":"")+String(j.say||""));
+  }catch(e){sp.err=errCopy(e);}
+  sp.busy=false;if(ui.tab==="kurs"&&ui.lmode==="speak")render();scrollSpk();focusSpk();
+}
+function spkSend(){
+  clearTimeout(spkTimer);const sp=ui.speak;if(!sp||sp.busy)return;
+  const el=$("#spin");const t=((el&&el.value)||sp.draft||"").trim();if(!t)return;
+  sp.draft="";sp.turns.push({role:"user",content:t});sp.log.push({who:"me",text:t});spkAsk();
+}
+async function spkFeedback(){
+  const sp=ui.speak,l=LESSON[sp.lesson];if(!sample||sp.busy)return;
+  const mine=sp.log.filter(x=>x.who==="me");if(!mine.length)return;
+  clearTimeout(spkTimer);sp.busy=true;sp.feedback=null;sp.err="";render();
+  const convo=sp.log.map(x=>(x.who==="me"?"Learner: ":"Tutor: ")+x.text).join("\n");
+  try{
+    const r=await sample.json(`An A2 German learner did a spoken drill for lesson ${l.id} ("${l.title}"). Their answers were dictated by voice, so ignore capitalization, punctuation and obvious speech-recognition slips.\n\n${convo.slice(-9000)}\n\nEvaluate ONLY the learner's answers. Reply with ONLY one JSON object:\n{"grade": Swiss grade 1–6 in half steps (6 best, 4 pass) for an A2 speaker on this lesson's grammar,\n "verdict": "one or two blunt, specific sentences in English",\n "errors": [{"wrong": "fragment", "right": "correction", "type": "article|case|ending|word order|verb form|tense|preposition|vocabulary|other", "why": "one short English sentence"}],\n "good": ["up to 3 specific things done well"],\n "phrases": ["3 useful German sentences for this lesson they could practice saying, with English in parentheses"]}\nAt most 8 errors, most important first.`,{modelTier:"default"});
+    sp.feedback=r;logClaudeErrors(r.errors,"voice");setLp(l.id,{speak:Math.max(lp(l.id).speak||0,Number(r.grade)||0)});
+  }catch(e){sp.err=errCopy(e);}
+  sp.busy=false;render();
+}
+async function spkImport(){
+  const sp=ui.speak;if(!sample)return;const t=(($("#spimp")||{}).value||sp.imp).trim();if(!t)return;
+  sp.imp=t;sp.impBusy=true;sp.impMsg="";render();
+  try{
+    const r=await sample.json(`Below is a summary of a German learner's mistakes from a spoken practice session (copied from a chat). Extract the mistakes. Reply with ONLY a JSON array of {"wrong","right","type","why"} objects (type: article|case|ending|word order|verb form|tense|preposition|vocabulary|other; why: one short English sentence). Max 10. If there are none, reply [].\n\n${t.slice(0,6000)}`,{modelTier:"quick"});
+    const errs=Array.isArray(r)?r:(r&&r.errors)||[];logClaudeErrors(errs,"voice");sp.impMsg=`${errs.length} mistake${errs.length===1?"":"s"} added to Fehler.`;sp.imp="";
+  }catch(e){sp.impMsg=errCopy(e);}
+  sp.impBusy=false;render();
+}
+function scrollSpk(){requestAnimationFrame(()=>{const b=$("#spklog");if(b)b.scrollTop=b.scrollHeight;});}
+function focusSpk(){requestAnimationFrame(()=>{const i=$("#spin");if(i&&!i.disabled)i.focus({preventScroll:true});});}
+function vSpeak(l){
+  const sp=spk();
+  const noClaude=!sample?`<div class="note">The speaking tutor needs this page open in Claude.</div>`:"";
+  const voiceNote=!ttsOk?"This browser can't speak aloud, so the tutor's lines will be text only.":(!deVoice?"No German voice found on this device yet, so it may use a default voice. On iPhone: Settings → Accessibility → Spoken Content → Voices → German.":"");
+  const settings=`<div class="row" style="gap:14px">
+    <label class="row" style="gap:6px"><input type="checkbox" id="sp-tts" ${spkCfg.tts?"checked":""} ${ttsOk?"":"disabled"}> Tutor speaks aloud</label>
+    <label class="row" style="gap:6px"><input type="checkbox" id="sp-auto" ${spkCfg.auto?"checked":""}> Send when I stop talking</label>
+    <span class="seg" role="group" aria-label="Pause before sending">${[2000,3000,4500].map(d=>`<button aria-pressed="${spkCfg.delay===d}" data-act="sp-delay" data-d="${d}">${d/1000}s</button>`).join("")}</span>
+    <span class="seg" role="group" aria-label="Speech speed">${[[0.8,"slow"],[0.95,"normal"]].map(([r,lab])=>`<button aria-pressed="${spkCfg.rate===r}" data-act="sp-rate" data-r="${r}">${lab}</button>`).join("")}</span></div>`;
+  if(!sp.started){
+    return `${noClaude}<section class="lx-card stack" style="gap:12px"><h3>${l.id==="9.1"?"Mock speaking exam":"Spoken drill for this lesson"}</h3>
+    <p>${l.id==="9.1"?"The tutor runs the three parts of the A2 speaking exam: question cards, talking about yourself, planning something together.":`The tutor asks short questions that force this lesson's grammar (${esc(l.topics.map(t=>ALLTOPICS[t].title).join(", "))}), uses the lesson's words, and brings back your recent mistakes.`}</p>
+    <ol class="steps"><li>Tap <b>Start</b>. The tutor says the first question out loud.</li><li>Tap the <b>🎤 microphone on your keyboard</b> and answer out loud.</li><li>Stop talking. After a short pause your answer sends itself.</li><li>Wrong? It says the correct sentence. Repeat it, then the next question comes.</li></ol>
+    ${settings}${voiceNote?`<p class="hint">${voiceNote}</p>`:""}
+    <div class="row"><button class="btn primary big" data-act="sp-start" ${sample?"":"disabled"}>Start speaking</button></div></section>
+    ${spkVoiceCard(l)}`;
+  }
+  const bubble=x=>x.who==="me"?`<div class="msg me">${esc(x.text)}${x.fix?`<span class="fix" style="color:var(--accent-ink);opacity:.9">✎ ${esc(x.fix)}${x.why?` · ${esc(x.why)}`:""}</span>`:""}</div>`
+    :`<div class="msg them">${esc(x.text)}${ttsOk?` <button class="mini" data-act="sp-replay" data-t="${esc(x.text)}" aria-label="Say it again">🔊</button>`:""}</div>`;
+  return `${noClaude}<section class="lx-card stack" style="gap:12px">
+    <div class="row" style="justify-content:space-between"><h3>${l.id==="9.1"?"Mock speaking exam":"Spoken drill"} · ${(n=>n+(n===1?" answer":" answers"))(sp.log.filter(x=>x.who==="me").length)}</h3><button class="mini" data-act="sp-reset">Restart</button></div>
+    <div class="chat" id="spklog" aria-live="polite">${sp.log.map(bubble).join("")}${sp.busy&&!sp.feedback?`<div class="msg them">…</div>`:""}</div>
+    <textarea class="field spin" id="spin" placeholder="Tap 🎤 on your keyboard and answer out loud …" lang="de" spellcheck="false" autocapitalize="sentences" ${sp.busy||!sample?"disabled":""}>${esc(sp.draft)}</textarea>
+    <div class="row" style="justify-content:space-between"><span class="hint" id="sp-status">${spkCfg.auto?`Sends ${spkCfg.delay/1000}s after you stop`:"Tap Send when you're done"}</span>
+    <div class="row"><button class="btn primary" data-act="sp-send" ${sp.busy?"disabled":""}>Send</button><button class="btn" data-act="sp-feedback" ${sp.busy||!sp.log.some(x=>x.who==="me")?"disabled":""}>Finish and get feedback</button></div></div>
+    ${settings}
+    ${sp.err?`<p class="pill bad">${esc(sp.err)}</p>`:""}
+  </section>${sp.feedback?`<section class="lx-card">${resultBlock(sp.feedback,true)}</section>`:""}${spkVoiceCard(l)}`;
+}
+function spkVoiceCard(l){
+  const sp=spk();
+  return `<details class="lx-card"><summary style="cursor:pointer;font-weight:700">Prefer Claude's voice mode? (fully hands-free, outside this page)</summary>
+    <div class="stack" style="gap:10px;margin-top:10px"><p class="hint">Copy this briefing, open the Claude app, start voice mode and paste it. It knows this lesson, its words and your recent mistakes. Say "Fertig" at the end, copy Claude's mistake list and import it below.</p>
+    <textarea class="field" id="spbrief" readonly style="min-height:120px;font-size:.8rem">${esc(voiceBriefing(l))}</textarea>
+    <div class="row"><button class="btn" data-act="sp-copy">Copy briefing</button><span class="hint" id="sp-copied"></span></div>
+    <h3 style="margin-top:6px">Import the mistakes from a voice session</h3>
+    <textarea class="field" id="spimp" placeholder="Paste Claude's mistake list here" style="min-height:90px">${esc(sp.imp)}</textarea>
+    <div class="row"><button class="btn" data-act="sp-import" ${sp.impBusy||!sample?"disabled":""}>${sp.impBusy?"Reading…":"Add to Fehler"}</button>${sp.impMsg?`<span class="hint">${esc(sp.impMsg)}</span>`:""}</div></div></details>`;
+}
 function scrollChat(){requestAnimationFrame(()=>{const b=$("#chatlog");if(b)b.scrollTop=b.scrollHeight;});}
 
 /* ---------- views ---------- */
@@ -4583,7 +4712,7 @@ function vKurs(){
     <button class="rail-toggle" data-act="rail-toggle" aria-expanded="${ui.railOpen}">Lektion ${esc(l.id)} · ${done}/${LESSONS.length} done <span aria-hidden="true">${ui.railOpen?"▴":"▾"}</span></button>
     <div class="rail-body"><div class="bar" style="margin:4px 0 12px"><i style="width:${done/LESSONS.length*100}%"></i></div>
     ${groups.map(g=>`<div class="rail-g"><div class="eyebrow">${g.n<9?"Kapitel "+g.n+" · ":""}${esc(g.title)}</div>${chapterLessons(g.n).map(x=>`<button class="rail-i" aria-current="${x.id===l.id}" data-act="lesson-open" data-l="${x.id}"><i class="ld" data-s="${lessonState(x.id)}"></i><span class="mono">${x.id}</span><span class="rt">${esc(x.title)}</span></button>`).join("")}</div>`).join("")}</div></nav>`;
-  const modes=[["theory","Theorie",p.theory],["practice","Übungen",p.practice!=null],["read","Lesen",!!p.read],["test","Test",!!p.passed],["notes","Notizen",!!(S.notes.by[l.id]||"").trim()]];
+  const modes=[["theory","Theorie",p.theory],["practice","Übungen",p.practice!=null],["read","Lesen",!!p.read],["test","Test",!!p.passed],["speak","Sprechen",p.speak!=null],["notes","Notizen",!!(S.notes.by[l.id]||"").trim()]];
   let body="";
   if(ui.lmode==="theory"){
     const w=lessonWords(l);
@@ -4610,6 +4739,8 @@ function vKurs(){
     ${p.test!=null?`<p>Best: <b>${p.test}%</b> ${p.passed?`<span class="pill ok">bestanden</span>`:`<span class="pill bad">not passed yet</span>`}</p>`:""}
     <div class="row"><button class="btn primary" data-act="lesson-test" data-l="${l.id}">${p.test!=null?"Retake the test":"Start the test"}</button></div></section>
     ${l.out?`<section class="lx-card stack" style="gap:10px"><h3>Then use it</h3>${l.out.w!=null?`<p><b>Writing:</b> ${esc(WRITING[l.out.w].title)}. ${esc(WRITING[l.out.w].task)}</p><div class="row"><button class="btn" data-act="write-open" data-p="${l.out.w}">Write it, Claude grades it</button></div>`:""}${l.out.s!=null?`<p><b>Role-play:</b> ${esc(SCENES[l.out.s].title)}. Claude plays the other person and corrects you as you go.</p><div class="row"><button class="btn" data-act="scene-open" data-k="${l.out.s}">Start the role-play</button></div>`:""}</section>`:""}`;
+  }else if(ui.lmode==="speak"){
+    body=vSpeak(l);
   }else{
     body=`<section class="lx-card stack" style="gap:10px"><h3>My notes for ${esc(l.id)}</h3><p class="hint">What your teacher added, examples that stuck, exceptions you keep forgetting. Saved to your account.</p>
     <textarea class="field" id="lnotes" data-l="${l.id}" placeholder="Notizen …" spellcheck="false">${esc(S.notes.by[l.id]||"")}</textarea></section>`;
@@ -4750,7 +4881,7 @@ function vFehler(){
   <p class="hint">Every wrong grammar answer lands here. Get it right on a redo and it's cleared. Writing and role-play errors are listed below for review.</p></section>
   ${Object.keys(by).length?Object.entries(by).sort((a,b)=>b[1].length-a[1].length).map(([tid,ms])=>`<section class="card"><div class="card-h"><h3>${esc(ALLTOPICS[tid]?.title||tid)} <span class="pill bad">${ms.length}</span></h3><button class="mini" data-act="topic" data-t="${tid}">Practice topic</button></div>
     ${ms.map(m=>{const x=m.item;const right=x.t==="c"?x.o[x.a]:x.t==="o"?x.w.join(" "):fillAnswer(x);return `<div class="mist"><div><div>${esc(x.q||x.en||"")}</div><div class="hint">You: <s style="color:var(--bad)">${esc(m.given||"–")}</s> · Right: <b style="color:var(--ok)">${esc(right)}</b>${m.n>1?` · missed ${m.n}×`:""}</div></div><button class="mini" data-act="mist-del" data-key="${esc(m.key)}" aria-label="Remove">✕</button></div>`;}).join("")}</section>`).join(""):`<section class="card"><p class="empty">No open grammar mistakes. Suspicious. Go drill something.</p></section>`}
-  ${wr.length?`<section class="card"><div class="card-h"><h3>From your writing and role-plays</h3><button class="mini" data-act="wr-clear">Mark all reviewed</button></div>${wr.slice(0,40).map(m=>`<div class="mist"><div><s style="color:var(--bad)">${esc(m.item.wrong)}</s> → <b style="color:var(--ok)">${esc(m.item.right)}</b><div class="hint">${esc(m.item.type)} · ${esc(m.item.why)}</div></div><button class="mini" data-act="mist-del" data-key="${esc(m.key)}" aria-label="Remove">✕</button></div>`).join("")}</section>`:""}
+  ${wr.length?`<section class="card"><div class="card-h"><h3>From your writing, role-plays and speaking</h3><button class="mini" data-act="wr-clear">Mark all reviewed</button></div>${wr.slice(0,40).map(m=>`<div class="mist"><div><s style="color:var(--bad)">${esc(m.item.wrong)}</s> → <b style="color:var(--ok)">${esc(m.item.right)}</b><div class="hint">${esc(m.item.type)} · ${esc(m.item.why)}</div></div><button class="mini" data-act="mist-del" data-key="${esc(m.key)}" aria-label="Remove">✕</button></div>`).join("")}</section>`:""}
   </div>`;
 }
 
@@ -4823,20 +4954,39 @@ document.addEventListener("click",e=>{
     case "scene-back":ui.chat.scene=null;render();break;
     case "chat-send":sendChat();break;
     case "chat-feedback":chatFeedback();break;
+    case "sp-start":{const sp=spk();sp.started=true;sayDe("Okay, los geht's.");spkAsk();break;}
+    case "sp-send":spkSend();break;
+    case "sp-feedback":spkFeedback();break;
+    case "sp-reset":clearTimeout(spkTimer);if(ttsOk)try{speechSynthesis.cancel();}catch(_){}ui.speak=spkNew(ui.lesson);render();break;
+    case "sp-replay":sayDe(d.t);break;
+    case "sp-delay":spkCfg.delay=+d.d;saveSpkCfg();render();break;
+    case "sp-rate":spkCfg.rate=+d.r;saveSpkCfg();render();break;
+    case "sp-import":spkImport();break;
+    case "sp-copy":{const ta=$("#spbrief"),msg=$("#sp-copied");const ok=()=>{if(msg)msg.textContent="Copied. Paste it into Claude's voice mode.";};
+      try{navigator.clipboard.writeText(ta.value).then(ok,()=>{ta.focus();ta.select();if(msg)msg.textContent="Selected. Copy it with your device's copy command.";});}catch(_){ta.focus();ta.select();}break;}
     case "chat-reset":ui.chat={scene:ui.chat.scene,turns:[],busy:false,feedback:null,err:""};render();break;
     case "mist-del":S.mistakes.items=S.mistakes.items.filter(m=>m.key!==d.key);touch("mistakes");render();break;
     case "wr-clear":S.mistakes.items.forEach(m=>{if(m.tid==="writing")m.fixed=true;});touch("mistakes");render();break;
   }
 });
 document.addEventListener("toggle",e=>{const d=e.target;if(d.dataset&&d.dataset.cd)ui.cOpen[d.dataset.cd]=d.open;},true);
+document.addEventListener("change",e=>{
+  if(e.target.id==="sp-tts"){spkCfg.tts=e.target.checked;saveSpkCfg();if(!spkCfg.tts&&ttsOk)try{speechSynthesis.cancel();}catch(_){}}
+  if(e.target.id==="sp-auto"){spkCfg.auto=e.target.checked;saveSpkCfg();clearTimeout(spkTimer);render();}
+});
 document.addEventListener("input",e=>{
   if(e.target.id==="lnotes"){S.notes.by[e.target.dataset.l]=e.target.value;touch("notes");return;}
+  if(e.target.id==="spimp"&&ui.speak){ui.speak.imp=e.target.value;return;}
+  if(e.target.id==="spin"&&ui.speak){ui.speak.draft=e.target.value;clearTimeout(spkTimer);
+    if(spkCfg.auto&&e.target.value.trim()){spkTimer=setTimeout(spkSend,spkCfg.delay);const st=$("#sp-status");if(st)st.textContent="Listening… sends when you pause";}
+    return;}
   if(e.target.id==="wtext"){ui.write.text=e.target.value;const wc=$("#wc");if(wc)wc.textContent=wordCount(e.target.value)+" words";}
   if(e.target.id==="wsearch"){ui.search=e.target.value;const pos=e.target.selectionStart;render();const el=$("#wsearch");if(el){el.focus();el.setSelectionRange(pos,pos);}}
 });
 document.addEventListener("keydown",e=>{
   if(e.key!=="Enter"||e.shiftKey)return;
   if(e.target.id==="chatin"){e.preventDefault();sendChat();return;}
+  if(e.target.id==="spin"){e.preventDefault();spkSend();return;}
   if(ui.tab!=="drill"||!ui.sess)return;
   if(e.target.tagName==="TEXTAREA")return;
   const it=curItem();if(!it)return;

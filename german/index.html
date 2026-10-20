@@ -276,6 +276,16 @@ details.rulebox[open] summary{margin-bottom:8px}
   .lesson{padding:18px 16px}
   .lx-title{font-size:1.5rem}
 }
+.tw{cursor:pointer; border-radius:4px; transition:background .12s}
+.tw:hover{background:var(--accent-soft)}
+.tw.mine{text-decoration:underline dotted var(--accent); text-decoration-thickness:2px; text-underline-offset:4px}
+.wpop[hidden]{display:none}
+.wpop{position:fixed; z-index:30; width:max-content; max-width:min(300px, calc(100vw - 16px)); background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:12px 14px; box-shadow:0 12px 32px rgba(0,0,0,.18); display:flex; flex-direction:column; gap:3px}
+.wp-w{font-size:.74rem; color:var(--muted); font-weight:600}
+.wp-l{font-family:var(--display); font-weight:700; font-size:1.08rem; line-height:1.25}
+.wp-en{font-size:.9rem}
+.wp-st{font-size:.78rem; color:var(--ok); font-weight:700; margin-top:4px}
+.wp-add{margin-top:8px; padding:6px 12px; font-size:.85rem; align-self:flex-start}
 .toast{position:fixed; left:50%; transform:translateX(-50%); bottom:calc(20px + env(safe-area-inset-bottom,0px)); background:var(--text); color:var(--bg); padding:9px 16px; border-radius:99px; font-size:.86rem; font-weight:600; z-index:20}
 @media (prefers-reduced-motion:no-preference){
   .q{animation:rise .18s ease-out}
@@ -2253,6 +2263,1504 @@ Carla Rossi, 3. Stock`,
  ],out:{w:16}}
 ];
 
+/* Extra reading texts: two per lesson, mixed genres (exam-style). */
+const MORE={
+"1.1":[
+{title:"Stellenanzeige",text:`Wir suchen ab dem 1. Januar eine Kauffrau oder einen Kaufmann (80–100 %) für unser Büro in Winterthur.
+Ihre Aufgaben: Sie schreiben Rechnungen, beantworten E-Mails und vereinbaren Termine mit Kunden.
+Sie haben eine kaufmännische Ausbildung abgeschlossen und schon zwei Jahre in einem Büro gearbeitet. Sie sprechen gut Deutsch und Englisch.
+Wir bieten ein junges Team, flexible Arbeitszeiten und einen Arbeitsplatz direkt am Bahnhof.
+Bitte schicken Sie Ihre Bewerbung mit Lebenslauf und Zeugnissen bis zum 30. November an jobs@treuhand-meier.ch.`,
+qs:[RF("Die Stelle beginnt im Januar.",true),{t:"c",q:"Was muss man schon gemacht haben?",o:["ein Studium an der Universität","eine kaufmännische Ausbildung","ein Praktikum im Ausland"],a:1},{t:"c",q:"Was soll man bis zum 30. November schicken?",o:["eine Bewerbung mit Lebenslauf und Zeugnissen","eine Rechnung","ein Foto vom Team"],a:0}]},
+{title:"Ein Lebenslauf",text:`Persönliche Daten: Marco Rossi, geboren am 3. April 1998 in Bellinzona, ledig
+Schule: 2005–2011 Primarschule in Bellinzona, 2011–2017 Gymnasium in Lugano
+Studium: 2017–2021 Wirtschaft an der Universität St. Gallen, Abschluss: Bachelor
+Berufserfahrung: 2021–2022 Praktikum bei einer Bank in Zürich, seit 2022 Assistent im Marketing bei einer Versicherung in Bern
+Sprachen: Italienisch (Muttersprache), Deutsch (sehr gut), Englisch (gut), Französisch (Grundkenntnisse)
+Hobbys: Fußball, Kochen, Reisen`,
+qs:[RF("Marco hat in St. Gallen studiert.",true),RF("Marco ist verheiratet.",false,"ledig"),{t:"c",q:"Wo arbeitet Marco seit 2022?",o:["bei einer Bank in Zürich","bei einer Versicherung in Bern","an der Universität"],a:1}]}],
+"1.2":[
+{title:"Nachricht von Mama",text:`Hallo Lea! Hast du dein Zimmer schon aufgeräumt? Ich habe heute Mittag eingekauft, aber ich habe die Milch vergessen. Kannst du bitte nach der Schule Milch und Brot mitbringen? Das Geld liegt auf dem Küchentisch. Papa kommt heute erst um acht nach Hause, er hat eine lange Besprechung. Ich fange um sechs mit dem Kochen an. Und vergiss nicht: Oma hat heute Geburtstag! Ruf sie bitte an. Liebe Grüße, Mama`,
+qs:[RF("Mama hat die Milch vergessen.",true),{t:"c",q:"Wann kommt Papa nach Hause?",o:["um sechs","um acht","am Mittag"],a:1},{t:"c",q:"Was soll Lea noch machen?",o:["Oma anrufen","kochen","Papa abholen"],a:0}]},
+{title:"Forum: Wie lernt ihr Vokabeln?",text:`Nina_92: Ich lerne seit einem Jahr Deutsch. Am Anfang habe ich die Wörter nur gelesen, aber ich habe sie schnell vergessen. Jetzt schreibe ich jeden Tag zehn neue Wörter auf Karten.
+Tomasz: Ich habe viele Apps ausprobiert. Am besten hat mir eine App mit Wiederholungen gefallen. Sie zeigt die schwierigen Wörter öfter.
+Ayla: Ich höre jeden Morgen im Zug einen deutschen Podcast. Neue Wörter schreibe ich auf und übe sie am Abend. So habe ich in drei Monaten viel gelernt.`,
+qs:[RF("Nina hat am Anfang die Wörter schnell vergessen.",true),{t:"c",q:"Was gefällt Tomasz an seiner App?",o:["Sie ist gratis.","Sie zeigt schwierige Wörter öfter.","Sie hat viele Spiele."],a:1},{t:"c",q:"Wann hört Ayla den Podcast?",o:["am Abend","im Zug am Morgen","in der Mittagspause"],a:1}]}],
+"1.3":[
+{title:"Mein Wochenende",text:`Am Samstag schlafe ich lange, meistens bis neun Uhr. Dann dusche ich mich und frühstücke in Ruhe. Am Vormittag treffe ich mich oft mit meiner Freundin Julia. Wir gehen auf den Markt oder trinken einen Kaffee in der Altstadt. Am Nachmittag erhole ich mich und lese ein Buch. Am Abend ziehe ich mich schön an, denn wir gehen oft tanzen. Am Sonntag ist es ruhiger: Ich besuche meine Eltern und wir essen zusammen. Danach bereite ich mich auf die neue Woche vor.`,
+qs:[RF("Am Samstag steht die Person früh auf.",false,"bis neun Uhr"),{t:"c",q:"Mit wem trifft sie sich am Samstag?",o:["mit ihren Eltern","mit ihrer Freundin Julia","mit Kollegen"],a:1},{t:"c",q:"Was macht sie am Sonntag?",o:["Sie geht tanzen.","Sie besucht ihre Eltern.","Sie geht auf den Markt."],a:1}]},
+{title:"Hausordnung im Studentenwohnheim",text:`Liebe Bewohnerinnen und Bewohner,
+bitte beachtet die folgenden Regeln:
+Die Küche ist für alle da. Bitte räumt nach dem Kochen auf und wascht euer Geschirr sofort ab.
+Von 22 bis 7 Uhr ist Nachtruhe. Bitte seid in dieser Zeit leise.
+Der Müll wird am Dienstag und am Freitag abgeholt. Bringt ihn bitte am Abend vorher nach unten.
+Besuch ist willkommen, aber Gäste dürfen höchstens drei Nächte bleiben.
+Bei Problemen meldet euch beim Hausmeister, Herrn Brändli, Zimmer 001.`,
+qs:[RF("Nach 22 Uhr soll man leise sein.",true),{t:"c",q:"Wann wird der Müll abgeholt?",o:["am Montag","am Dienstag und Freitag","jeden Tag"],a:1},{t:"c",q:"Wie lange dürfen Gäste bleiben?",o:["eine Nacht","höchstens drei Nächte","eine Woche"],a:1}]}],
+"2.1":[
+{title:"Kursangebot der Volkshochschule",text:`Fotografie für Anfänger: Sie lernen, wie Sie mit Ihrem Handy oder Fotoapparat schöne Bilder machen. Dienstag, 18–20 Uhr, 6 Abende, 180 Franken.
+Malen und Zeichnen: Für alle, die kreativ sein möchten. Material bitte selbst mitbringen. Donnerstag, 9–11 Uhr, 8 Vormittage, 220 Franken.
+Gitarre für Erwachsene: Sie haben noch nie ein Instrument gespielt? Kein Problem! Eine Gitarre können Sie bei uns leihen. Montag, 19–20.30 Uhr, 10 Abende, 260 Franken.
+Anmeldung online oder am Schalter, Montag bis Freitag 8–12 Uhr.`,
+qs:[{t:"c",q:"Welcher Kurs findet am Vormittag statt?",o:["Fotografie","Malen und Zeichnen","Gitarre"],a:1},RF("Für den Gitarrenkurs braucht man eine eigene Gitarre.",false,"Man kann eine leihen."),{t:"c",q:"Wie kann man sich anmelden?",o:["nur online","online oder am Schalter","nur am Telefon"],a:1}]},
+{title:"Kein Fernseher, kein Problem?",text:`Familie Huber hat seit zwei Jahren keinen Fernseher mehr. „Am Anfang waren die Kinder nicht glücklich“, erzählt die Mutter. „Aber jetzt spielen wir am Abend zusammen Karten oder lesen.“ Der Vater ist nicht so begeistert: „Ich vermisse die Fußballspiele. Die schaue ich jetzt bei meinem Bruder.“ Die Tochter Mia (12) findet es gut: „Ich habe mehr Zeit für meine Hobbys. Ich spiele Klavier und bin in einem Theaterverein.“ Nur Handys gibt es noch – aber nicht beim Essen.`,
+qs:[RF("Die Familie hat seit zwei Jahren keinen Fernseher.",true),{t:"c",q:"Wo schaut der Vater Fußball?",o:["im Stadion","bei seinem Bruder","auf dem Handy"],a:1},RF("Beim Essen benutzt die Familie Handys.",false)]}],
+"2.2":[
+{title:"Regeln im Schwimmbad",text:`Willkommen im Hallenbad Geiselweid!
+Kinder unter 8 Jahren dürfen nur mit einer erwachsenen Person ins Bad.
+Vor dem Schwimmen muss man duschen.
+Im Bad darf man nicht essen. Für Essen und Getränke gibt es unser Café im Eingangsbereich.
+Fotografieren und Filmen ist nicht erlaubt.
+Ins Sportbecken darf man nur, wenn man gut schwimmen kann.
+Öffnungszeiten: Montag bis Freitag 6–21 Uhr, Samstag und Sonntag 8–18 Uhr.`,
+qs:[RF("Ein siebenjähriges Kind darf allein ins Bad.",false),{t:"c",q:"Was muss man vor dem Schwimmen machen?",o:["essen","duschen","fotografieren"],a:1},{t:"c",q:"Wann schließt das Bad am Sonntag?",o:["um 18 Uhr","um 21 Uhr","um 8 Uhr"],a:0}]},
+{title:"Absage",text:`Liebe Sara,
+leider kann ich am Samstag nicht mit dir ins Konzert gehen. Ich muss am Wochenende arbeiten, weil eine Kollegin krank ist. Ich wollte so gern mitkommen! Kannst du meine Karte vielleicht verkaufen oder einer Freundin geben? Letztes Mal konnte ich auch nicht kommen, das tut mir wirklich leid. Darf ich dich nächste Woche zum Essen einladen? Am Mittwoch oder Donnerstag habe ich Zeit.
+Liebe Grüße
+Katja`,
+qs:[RF("Katja muss am Samstag arbeiten.",true),{t:"c",q:"Was soll Sara mit der Karte machen?",o:["sie wegwerfen","sie verkaufen oder verschenken","sie Katja zurückgeben"],a:1},{t:"c",q:"Wann möchte Katja Sara zum Essen einladen?",o:["am Samstag","am Mittwoch oder Donnerstag","am Sonntag"],a:1}]}],
+"2.3":[
+{title:"Albert Einstein in der Schweiz",text:`Albert Einstein wurde 1879 in Ulm geboren. Mit 16 Jahren kam er in die Schweiz und besuchte die Kantonsschule in Aarau. Danach studierte er in Zürich. Er fand zuerst keine Stelle an einer Universität und arbeitete deshalb ab 1902 im Patentamt in Bern. Dort hatte er neben der Arbeit Zeit für seine Ideen. 1905 schrieb er mehrere berühmte Artikel, auch über die Relativitätstheorie. Später lebte er in Berlin und ab 1933 in den USA. 1921 bekam er den Nobelpreis für Physik. Er starb 1955 in Princeton.`,
+qs:[RF("Einstein wurde in der Schweiz geboren.",false,"in Ulm"),{t:"c",q:"Wo arbeitete er ab 1902?",o:["an der Universität Zürich","im Patentamt in Bern","in einer Schule in Aarau"],a:1},{t:"c",q:"Wann bekam er den Nobelpreis?",o:["1905","1921","1955"],a:1}]},
+{title:"Filmkritik: Der letzte Zug",text:`Der neue Krimi von Regisseurin Anna Keller spielt in einem Nachtzug von Zürich nach Wien. Ein reicher Mann verschwindet in der Nacht, und eine junge Polizistin muss den Fall lösen. Die Schauspieler sind sehr gut, besonders Lena Graf als Polizistin. Die Landschaft ist wunderschön fotografiert. Leider ist der Film mit 2 Stunden und 40 Minuten zu lang. In der Mitte wird es ein bisschen langweilig. Aber das Ende ist spannend und überraschend. Unser Urteil: Vier von fünf Sternen.`,
+qs:[RF("Der Film spielt in einem Zug.",true),{t:"c",q:"Was findet die Kritik nicht gut?",o:["die Schauspieler","die Länge des Films","das Ende"],a:1},{t:"c",q:"Wie viele Sterne bekommt der Film?",o:["drei","vier","fünf"],a:1}]}],
+"3.1":[
+{title:"Werbung: Großer Ausverkauf",text:`Nur diese Woche: Alles muss raus! Weil wir umbauen, gibt es bei Möbel Hofer bis zu 50 % Rabatt auf Sofas, Tische und Betten. Wenn Sie mehr als 1000 Franken ausgeben, liefern wir gratis. Wenn Sie mit Karte bezahlen, bekommen Sie zusätzlich 5 % Rabatt. Achtung: Reduzierte Ware kann man nicht umtauschen. Geöffnet Montag bis Samstag 9–19 Uhr, Donnerstag bis 21 Uhr.`,
+qs:[RF("Es gibt Rabatt, weil das Geschäft umbaut.",true),{t:"c",q:"Wann ist die Lieferung gratis?",o:["immer","wenn man mehr als 1000 Franken ausgibt","wenn man mit Karte bezahlt"],a:1},RF("Reduzierte Ware kann man umtauschen.",false)]},
+{title:"Wo bleibt das Geld?",text:`Studentin Elif (22) hat jeden Monat etwa 1800 Franken. Davon bezahlt sie 750 Franken für ihr Zimmer in einer WG. Für Essen gibt sie ungefähr 350 Franken aus. Krankenkasse und Handy kosten zusammen 300 Franken. „Wenn dann noch etwas übrig ist, gehe ich mit Freunden aus“, sagt sie. Kleidung kauft sie meistens im Secondhand-Laden, weil sie dort günstiger ist. „Ich spare jeden Monat 100 Franken, weil ich im Sommer nach Mexiko reisen will.“`,
+qs:[{t:"c",q:"Wie viel kostet Elifs Zimmer?",o:["350 Franken","750 Franken","1800 Franken"],a:1},RF("Elif kauft Kleidung oft im Secondhand-Laden.",true),{t:"c",q:"Warum spart Elif?",o:["für ein neues Handy","für eine Reise nach Mexiko","für die Krankenkasse"],a:1}]}],
+"3.2":[
+{title:"Im Kleidergeschäft",text:`– Guten Tag. Kann ich Ihnen helfen?
+– Ja, ich suche eine Jacke für meinen Mann. Er hat Größe L.
+– Gefällt Ihnen diese hier? Sie ist warm und wasserdicht.
+– Die Farbe gefällt mir nicht so. Haben Sie die auch in Blau?
+– Ja, einen Moment … Hier, bitte.
+– Schön. Und wenn sie ihm nicht passt, kann ich sie umtauschen?
+– Natürlich, innerhalb von 30 Tagen mit dem Kassenzettel.
+– Gut, dann nehme ich sie. Kann ich mit Karte bezahlen?
+– Ja, gern.`,
+qs:[RF("Die Kundin sucht eine Jacke für sich selbst.",false,"für ihren Mann"),{t:"c",q:"Welche Farbe möchte sie?",o:["Schwarz","Blau","Rot"],a:1},{t:"c",q:"Was braucht man zum Umtauschen?",o:["den Kassenzettel","die Kreditkarte","den Ausweis"],a:0}]},
+{title:"Geschenkideen",text:`Sie wissen nicht, was Sie Ihren Liebsten schenken sollen? Hier ein paar Tipps:
+Ihrer Mutter schenken Sie vielleicht einen Gutschein für ein Wellness-Hotel. Dann kann sie sich einen Tag lang erholen.
+Ihrem Vater können Sie ein Kochbuch kaufen und ihm dann beim Kochen helfen.
+Kindern gefallen Spiele besser als Kleidung. Wenn Sie ihnen ein Buch geben, lesen Sie es zusammen.
+Und Ihren Freunden? Schenken Sie ihnen Zeit: ein gemeinsames Abendessen oder einen Ausflug.`,
+qs:[{t:"c",q:"Was empfiehlt der Text für die Mutter?",o:["ein Kochbuch","einen Wellness-Gutschein","Kleidung"],a:1},RF("Kinder mögen Kleidung lieber als Spiele.",false),{t:"c",q:"Was soll man Freunden schenken?",o:["Zeit","Geld","Bücher"],a:0}]}],
+"3.3":[
+{title:"Umfrage: Ihr Traum",text:`Wir haben gefragt: Was würden Sie machen, wenn Sie nicht mehr arbeiten müssten?
+Ruth (64): „Ich würde mit meinem Mann ein Jahr lang mit dem Wohnmobil durch Europa fahren.“
+Samuel (29): „Ich würde ein kleines Café eröffnen. Dann wäre ich mein eigener Chef.“
+Nadia (35): „Ich hätte endlich Zeit für meine Kinder. Wir würden jeden Tag zusammen kochen und spielen.“
+Jan (41): „Ehrlich gesagt? Ich würde wahrscheinlich trotzdem arbeiten. Ohne Arbeit wäre mir langweilig.“`,
+qs:[{t:"c",q:"Wer würde ein Café eröffnen?",o:["Ruth","Samuel","Jan"],a:1},RF("Nadia hätte gern mehr Zeit für ihre Kinder.",true),{t:"c",q:"Was sagt Jan?",o:["Er würde reisen.","Er würde weiter arbeiten.","Er würde ein Haus kaufen."],a:1}]},
+{title:"Leserbrief: Lotto ist Geldverschwendung",text:`Ich verstehe nicht, warum so viele Leute jede Woche Lotto spielen. Mein Nachbar gibt jeden Monat 80 Franken für Lottoscheine aus. Das sind fast 1000 Franken im Jahr! Gewonnen hat er in zehn Jahren nur zweimal kleine Beträge. Wenn er das Geld gespart hätte, könnte er jetzt eine schöne Reise machen. Natürlich ist es schön zu träumen. Aber man sollte nicht mehr Geld ausgeben, als man verlieren kann.
+Beat S., Schaffhausen`,
+qs:[RF("Beat findet Lotto eine gute Idee.",false),{t:"c",q:"Wie viel gibt der Nachbar pro Monat aus?",o:["8 Franken","80 Franken","1000 Franken"],a:1},{t:"c",q:"Wie oft hat der Nachbar gewonnen?",o:["nie","zweimal kleine Beträge","einmal viel Geld"],a:1}]}],
+"4.1":[
+{title:"Öffnungszeiten über die Feiertage",text:`Liebe Kundinnen und Kunden,
+über die Feiertage gelten bei uns besondere Öffnungszeiten:
+24. Dezember: von 8 bis 12 Uhr
+25. und 26. Dezember: geschlossen
+27. bis 30. Dezember: normale Öffnungszeiten, 8 bis 18 Uhr
+31. Dezember: von 8 bis 14 Uhr
+1. und 2. Januar: geschlossen
+Ab dem 3. Januar sind wir wieder wie gewohnt für Sie da. Bestellungen, die nach dem 20. Dezember bei uns ankommen, liefern wir erst im neuen Jahr.
+Wir wünschen Ihnen schöne Feiertage!`,
+qs:[{t:"c",q:"Wann ist das Geschäft am 31. Dezember geöffnet?",o:["8 bis 12 Uhr","8 bis 14 Uhr","8 bis 18 Uhr"],a:1},RF("Am 2. Januar ist das Geschäft geschlossen.",true),{t:"c",q:"Was passiert mit Bestellungen nach dem 20. Dezember?",o:["Sie kommen sofort.","Sie kommen im neuen Jahr.","Man kann sie nicht bestellen."],a:1}]},
+{title:"Mein Arbeitstag als Pflegefachfrau",text:`Ich arbeite seit vier Jahren als Pflegefachfrau im Spital. Meine Arbeitszeiten sind jede Woche anders. Diese Woche habe ich Frühdienst: Ich beginne um 6.30 Uhr und arbeite bis 15 Uhr. Nächste Woche habe ich Nachtdienst, von 22 bis 7 Uhr. Am Wochenende arbeite ich jeden zweiten Samstag und Sonntag. Das ist manchmal anstrengend, vor allem für meine Familie. Aber ich liebe meinen Beruf. Im Februar habe ich drei Wochen Ferien. Dann fliegen wir nach Portugal.`,
+qs:[RF("Sie arbeitet seit vier Jahren im Spital.",true),{t:"c",q:"Wann beginnt der Frühdienst?",o:["um 6.30 Uhr","um 15 Uhr","um 22 Uhr"],a:0},{t:"c",q:"Wann hat sie Ferien?",o:["im Januar","im Februar","im Sommer"],a:1}]}],
+"4.2":[
+{title:"Nachricht auf dem Anrufbeantworter",text:`Guten Tag, hier spricht Laura Schmid von der Praxis Dr. Huber. Sie haben für morgen, Mittwoch, um 10 Uhr einen Termin bei uns. Leider ist Dr. Huber krank. Könnten Sie vielleicht am Freitag um 14 Uhr kommen? Wenn das nicht geht, rufen Sie uns bitte zurück, damit wir einen anderen Termin finden. Unsere Nummer ist 052 213 45 67. Wir sind von 8 bis 12 und von 14 bis 17 Uhr erreichbar. Vielen Dank und auf Wiederhören.`,
+qs:[RF("Der Termin am Mittwoch findet statt.",false),{t:"c",q:"Welchen neuen Termin schlägt die Praxis vor?",o:["Mittwoch, 10 Uhr","Freitag, 14 Uhr","Freitag, 10 Uhr"],a:1},{t:"c",q:"Wann ist die Praxis telefonisch erreichbar?",o:["den ganzen Tag","8–12 und 14–17 Uhr","nur am Nachmittag"],a:1}]},
+{title:"Höflich fragen im Büro",text:`Neue Kollegen fragen oft: Wie sage ich das höflich? Hier ein paar Tipps. Sagen Sie nicht: „Drucken Sie das!“, sondern: „Könnten Sie das bitte für mich drucken?“ Wenn Sie etwas nicht wissen, fragen Sie: „Wissen Sie vielleicht, wo die Kopien sind?“ oder „Können Sie mir sagen, wann die Sitzung beginnt?“ Und wenn Sie Hilfe brauchen: „Hätten Sie kurz Zeit? Ich hätte eine Frage.“ Mit „bitte“ und „danke“ machen Sie nie etwas falsch.`,
+qs:[{t:"c",q:"Welcher Satz ist höflich?",o:["Drucken Sie das!","Könnten Sie das bitte für mich drucken?","Das drucken!"],a:1},RF("Man soll fragen: „Wissen Sie vielleicht, wo die Kopien sind?“",true),{t:"c",q:"Was sagt man, wenn man Hilfe braucht?",o:["Hätten Sie kurz Zeit?","Helfen Sie mir sofort!","Ich will eine Antwort."],a:0}]}],
+"4.3":[
+{title:"Antwort vom Kundenservice",text:`Sehr geehrte Frau Horvat,
+vielen Dank für Ihre E-Mail vom 2. November. Wir entschuldigen uns für die lange Wartezeit. Leider hatten wir Probleme mit unserem Lager. Ihr Drucker wurde gestern verschickt und kommt bis Donnerstag bei Ihnen an. Als Entschuldigung schenken wir Ihnen einen Gutschein über 30 Franken für Ihre nächste Bestellung. Wenn Sie noch Fragen haben, können Sie sich jederzeit an uns wenden.
+Mit freundlichen Grüßen
+Thomas Berger, Kundenservice`,
+qs:[RF("Der Drucker wurde schon verschickt.",true),{t:"c",q:"Warum hat es so lange gedauert?",o:["Probleme mit dem Lager","Frau Horvat hat falsch bestellt","Der Drucker war kaputt"],a:0},{t:"c",q:"Was bekommt Frau Horvat als Entschuldigung?",o:["einen neuen Drucker","einen Gutschein über 30 Franken","ihr Geld zurück"],a:1}]},
+{title:"Worüber ärgern Sie sich im Büro?",text:`Wir haben Angestellte gefragt, worüber sie sich am meisten ärgern.
+Platz 1: Kollegen, die laut telefonieren. Viele Leute können sich dann nicht auf ihre Arbeit konzentrieren.
+Platz 2: Sitzungen ohne Ergebnis. „Wir sprechen eine Stunde über ein Problem, und am Ende hat niemand eine Lösung“, sagt eine Mitarbeiterin.
+Platz 3: die schmutzige Küche. Jeder wartet darauf, dass ein anderer aufräumt.
+Und worüber freuen sich die Leute? Über ein Lob vom Chef und über Kuchen am Freitag.`,
+qs:[{t:"c",q:"Was ärgert die Leute am meisten?",o:["die schmutzige Küche","laut telefonierende Kollegen","lange Sitzungen"],a:1},RF("In der Küche räumt jeder sofort auf.",false),{t:"c",q:"Worüber freuen sich die Angestellten?",o:["über Lob und Kuchen","über lange Sitzungen","über neue Computer"],a:0}]}],
+"5.1":[
+{title:"Durchsage am Bahnhof",text:`Achtung, eine Durchsage: Der Intercity nach Genf über Bern und Lausanne, Abfahrt 14.32 Uhr, fährt heute nicht auf Gleis 7, sondern auf Gleis 9. Wegen Bauarbeiten hat der Zug etwa 15 Minuten Verspätung. Reisende nach Basel steigen bitte in Olten um. Der Regionalzug nach Winterthur fährt wie geplant um 14.40 Uhr auf Gleis 3. Wir danken für Ihr Verständnis.`,
+qs:[{t:"c",q:"Auf welchem Gleis fährt der Zug nach Genf?",o:["Gleis 3","Gleis 7","Gleis 9"],a:2},RF("Der Zug nach Genf ist pünktlich.",false,"15 Minuten Verspätung"),{t:"c",q:"Wo müssen Reisende nach Basel umsteigen?",o:["in Bern","in Olten","in Lausanne"],a:1}]},
+{title:"Woher kommst du?",text:`In unserem Deutschkurs sind zwölf Personen aus neun Ländern. Pedro kommt aus Brasilien und arbeitet in einem Restaurant. Mei kommt aus China; sie ist mit einem Schweizer verheiratet. Ahmed kommt aus dem Iran und studiert an der ETH in Zürich. Anna und ihr Bruder kommen aus der Ukraine. Sie wohnen seit einem Jahr in der Schweiz. Lucy kommt aus den USA und fliegt jeden Sommer nach Hause zu ihrer Familie. Und unsere Lehrerin? Sie kommt aus Österreich und lebt seit zehn Jahren in Winterthur.`,
+qs:[RF("Ahmed kommt aus dem Iran.",true),{t:"c",q:"Wohin fliegt Lucy jeden Sommer?",o:["nach Österreich","in die USA","nach Brasilien"],a:1},{t:"c",q:"Woher kommt die Lehrerin?",o:["aus der Schweiz","aus Deutschland","aus Österreich"],a:2}]}],
+"5.2":[
+{title:"Bewertung: Hotel Alpenrose",text:`★★★★☆ Schöner Urlaub, kleine Probleme
+Wir waren eine Woche im Hotel Alpenrose in Grindelwald. Das Hotel liegt ruhig und hat einen herrlichen Blick auf die hohen Berge. Unser Zimmer war groß und sauber, aber das Bad war ziemlich alt. Das Frühstück war super: frisches Brot, guter Käse und leckere Konfitüre. Das Personal war sehr freundlich und hilfsbereit. Nur das WLAN war schlecht – im Zimmer hatten wir fast kein Internet. Für einen Urlaub ohne Handy ist das aber vielleicht gar nicht so schlecht!
+Nicole, Basel`,
+qs:[RF("Das Bad war neu.",false,"ziemlich alt"),{t:"c",q:"Was war nicht gut?",o:["das Frühstück","das WLAN","das Personal"],a:1},{t:"c",q:"Wie viele Sterne gibt Nicole?",o:["drei","vier","fünf"],a:1}]},
+{title:"Ferienwohnung zu vermieten",text:`Gemütliche Ferienwohnung im Tessin, direkt am Lago Maggiore
+Die helle 3-Zimmer-Wohnung hat einen großen Balkon mit tollem Seeblick. Es gibt eine moderne Küche, ein kleines Bad und zwei Schlafzimmer für maximal vier Personen. Zum Strand sind es nur fünf Minuten zu Fuß. Ein kleiner Supermarkt ist gleich um die Ecke. Haustiere sind leider nicht erlaubt.
+Preis: 140 Franken pro Nacht, mindestens drei Nächte. Bettwäsche und Handtücher sind inklusive.`,
+qs:[{t:"c",q:"Wie viele Personen können in der Wohnung schlafen?",o:["zwei","drei","vier"],a:2},RF("Man darf einen Hund mitbringen.",false),{t:"c",q:"Wie lange muss man mindestens bleiben?",o:["eine Nacht","drei Nächte","eine Woche"],a:1}]}],
+"5.3":[
+{title:"Wetterbericht",text:`Und nun das Wetter für morgen: Im Norden der Schweiz ist es am Vormittag noch bewölkt und neblig. Am Nachmittag scheint dann oft die Sonne. Die Temperaturen liegen bei 14 Grad. In den Alpen gibt es am Abend Gewitter, deshalb sollten Wanderer früh zurück sein. Im Tessin ist es sonnig und warm, bis 22 Grad. Am Wochenende wird es kälter: Am Sonntag regnet es im ganzen Land, und in den Bergen kann es schon schneien.`,
+qs:[RF("Im Norden ist es morgen den ganzen Tag neblig.",false,"am Nachmittag Sonne"),{t:"c",q:"Wo ist es morgen am wärmsten?",o:["im Norden","in den Alpen","im Tessin"],a:2},{t:"c",q:"Wie wird das Wetter am Sonntag?",o:["sonnig und warm","Regen und vielleicht Schnee in den Bergen","Gewitter im Tessin"],a:1}]},
+{title:"Was machen wir heute?",text:`– Es regnet schon wieder. Was machen wir heute?
+– Wie wäre es mit dem Verkehrshaus? Da ist man drinnen.
+– Gute Idee, aber da waren wir letztes Jahr schon.
+– Hm. Wir könnten doch ins Kunstmuseum gehen. Es gibt eine neue Ausstellung.
+– Ich weiß nicht. Ich habe keine Lust auf Kunst.
+– Dann schlage ich vor, dass wir ins Hallenbad gehen und danach Fondue essen.
+– Das klingt super! Obwohl es regnet, wird das ein schöner Tag.`,
+qs:[RF("Sie waren schon einmal im Verkehrshaus.",true),{t:"c",q:"Warum gehen sie nicht ins Museum?",o:["Es ist geschlossen.","Eine Person hat keine Lust auf Kunst.","Es ist zu teuer."],a:1},{t:"c",q:"Was machen sie am Ende?",o:["Hallenbad und Fondue","Verkehrshaus","eine Wanderung"],a:0}]}],
+"6.1":[
+{title:"Katze oder Hund?",text:`Sind Katzen bessere Haustiere als Hunde? Das kommt darauf an. Katzen sind selbstständiger: Sie können länger allein bleiben und brauchen keinen Spaziergang. Außerdem sind sie meistens kleiner und ruhiger. Hunde sind dafür treuer und lernen schneller. Wer gern draußen ist, hat mit einem Hund den besten Freund. Hunde kosten aber mehr Geld und brauchen mehr Zeit. In der Schweiz leben übrigens mehr Katzen als Hunde: etwa 1,8 Millionen Katzen und eine halbe Million Hunde.`,
+qs:[RF("Katzen brauchen mehr Spaziergänge als Hunde.",false),{t:"c",q:"Was ist ein Vorteil von Hunden?",o:["Sie sind billiger.","Sie lernen schneller.","Sie bleiben länger allein."],a:1},{t:"c",q:"Welches Tier gibt es in der Schweiz öfter?",o:["Katzen","Hunde","gleich viele"],a:0}]},
+{title:"Im Zoo Zürich",text:`Der Zoo Zürich ist einer der größten Zoos der Schweiz. Besonders beliebt ist die Halle mit dem Regenwald: Dort ist es wärmer und feuchter als draußen, und man sieht Vögel, Affen und Schlangen. Die Elefanten leben in einer modernen Anlage mit einem großen Wasserbecken. Am interessantesten finden viele Kinder die Pinguine: Im Winter machen sie einen Spaziergang durch den Zoo. Tipp: Kommen Sie am Morgen, dann ist es ruhiger als am Nachmittag.`,
+qs:[RF("In der Regenwaldhalle ist es kälter als draußen.",false),{t:"c",q:"Was machen die Pinguine im Winter?",o:["Sie schwimmen im See.","Sie machen einen Spaziergang.","Sie schlafen."],a:1},{t:"c",q:"Wann ist es im Zoo ruhiger?",o:["am Morgen","am Nachmittag","am Wochenende"],a:0}]}],
+"6.2":[
+{title:"Kontaktanzeige",text:`Ich (34, Lehrer) suche eine Partnerin, die gern lacht und die Natur liebt. Ich bin groß, sportlich und habe kurze, braune Haare und einen Bart. Meine Freunde sagen, ich bin geduldig, ehrlich und ein bisschen chaotisch. Am Wochenende bin ich oft in den Bergen oder auf dem Velo. Ich koche gern und lese viel. Eine Frau, die Tiere mag, wäre perfekt – ich habe nämlich einen alten Hund, der mich überallhin begleitet. Melde dich unter Chiffre 4711!`,
+qs:[{t:"c",q:"Was ist der Mann von Beruf?",o:["Koch","Lehrer","Arzt"],a:1},RF("Er hat lange Haare.",false,"kurze, braune Haare"),{t:"c",q:"Warum sollte die Partnerin Tiere mögen?",o:["Er hat einen Hund.","Er arbeitet im Zoo.","Er möchte eine Katze kaufen."],a:0}]},
+{title:"Der neue Nachbar",text:`Seit einer Woche haben wir einen neuen Nachbarn. Er heißt Herr Moser und ist etwa 70 Jahre alt. Er ist klein, hat weiße Haare und trägt immer einen Hut. Am ersten Tag hat er uns einen Kuchen gebracht, den er selbst gebacken hat. Er ist sehr freundlich, aber auch ein bisschen neugierig: Er fragt immer, wer uns besucht. Die Frau, die vorher in der Wohnung gewohnt hat, war ganz anders: Sie hat nie gegrüßt. Herr Moser ist mir viel lieber.`,
+qs:[RF("Herr Moser trägt immer einen Hut.",true),{t:"c",q:"Was hat Herr Moser am ersten Tag gemacht?",o:["Er hat sich beschwert.","Er hat einen Kuchen gebracht.","Er hat eine Party gemacht."],a:1},{t:"c",q:"Wie war die Nachbarin vorher?",o:["sehr freundlich","unfreundlich, sie hat nie gegrüßt","neugierig"],a:1}]}],
+"6.3":[
+{title:"Tipps gegen Stress",text:`Fühlen Sie sich oft gestresst? Dann sollten Sie diese Tipps ausprobieren:
+Sie sollten jeden Tag mindestens 30 Minuten an die frische Luft gehen, am besten ohne Handy.
+Sie sollten nicht zu viel Kaffee trinken, vor allem nicht am Nachmittag.
+Planen Sie Pausen! Wer ohne Pause arbeitet, macht mehr Fehler.
+Und: Haustiere helfen gegen Stress. Schon zehn Minuten mit einem Hund oder einer Katze machen ruhiger.
+Wenn der Stress trotzdem nicht weggeht, sollten Sie mit Ihrem Arzt sprechen.`,
+qs:[RF("Man soll am Nachmittag viel Kaffee trinken.",false),{t:"c",q:"Wie lange soll man jeden Tag an die frische Luft?",o:["10 Minuten","30 Minuten","eine Stunde"],a:1},{t:"c",q:"Was soll man tun, wenn der Stress bleibt?",o:["mehr arbeiten","mit dem Arzt sprechen","ein Haustier kaufen"],a:1}]},
+{title:"Feedback vom Chef",text:`Liebe Frau Brunner,
+vielen Dank für Ihre Präsentation gestern. Die Folien waren sehr klar und die Zahlen gut erklärt – das haben Sie prima gemacht! Auch die Kunden waren begeistert. Ein kleiner Tipp für das nächste Mal: Vielleicht sollten Sie etwas langsamer sprechen. Am Ende hatten wir leider keine Zeit mehr für Fragen. Könnten Sie mir bitte die Präsentation bis Freitag schicken? Ich möchte sie an das ganze Team weiterleiten.
+Machen Sie weiter so!
+Daniel Keller`,
+qs:[RF("Die Kunden fanden die Präsentation gut.",true),{t:"c",q:"Was soll Frau Brunner nächstes Mal anders machen?",o:["mehr Folien zeigen","langsamer sprechen","mehr Zahlen erklären"],a:1},{t:"c",q:"Was soll sie bis Freitag machen?",o:["die Präsentation schicken","eine neue Präsentation halten","mit den Kunden sprechen"],a:0}]}],
+"7.1":[
+{title:"Wohnungsanzeige",text:`Zu vermieten ab 1. Februar: helle 2,5-Zimmer-Wohnung in Winterthur-Seen
+Die Wohnung liegt im dritten Stock (mit Lift) und hat einen Balkon nach Süden. Die Küche ist neu, im Bad gibt es eine Badewanne. Im Keller steht eine Waschmaschine für alle Mieter. Bushaltestelle und Supermarkt sind in der Nähe, zum Bahnhof fährt man zehn Minuten mit dem Bus.
+Miete: 1650 Franken plus 180 Franken Nebenkosten pro Monat. Haustiere nach Absprache.
+Besichtigung am Samstag, 10–12 Uhr. Kontakt: Frau Senn, Tel. 052 222 18 90.`,
+qs:[RF("Die Wohnung hat keinen Lift.",false),{t:"c",q:"Wo steht die Waschmaschine?",o:["im Bad","in der Küche","im Keller"],a:2},{t:"c",q:"Wie viel kostet die Wohnung insgesamt pro Monat?",o:["1650 Franken","1830 Franken","180 Franken"],a:1}]},
+{title:"Hilfe, wo ist mein Schlüssel?",text:`Jeden Morgen dasselbe: Ich suche meinen Schlüssel. Gestern lag er im Badezimmer neben dem Waschbecken. Vorgestern hing er an der Jacke im Flur – in der falschen Jacke. Und heute? Auf dem Tisch liegt er nicht, im Regal auch nicht. Endlich finde ich ihn unter dem Sofa. Meine Mitbewohnerin lacht: „Warum hängst du ihn nicht an den Haken neben der Tür? Dafür haben wir ihn doch!“ Sie hat recht. Ab morgen hängt mein Schlüssel immer am Haken. Hoffentlich.`,
+qs:[{t:"c",q:"Wo lag der Schlüssel gestern?",o:["unter dem Sofa","neben dem Waschbecken","auf dem Tisch"],a:1},{t:"c",q:"Wo findet die Person den Schlüssel heute?",o:["im Regal","unter dem Sofa","an der Jacke"],a:1},RF("Neben der Tür gibt es einen Haken für Schlüssel.",true)]}],
+"7.2":[
+{title:"Früher war alles anders",text:`Als meine Großmutter jung war, hatte ihre Familie keinen Kühlschrank. Das Essen stand im kühlen Keller. Immer wenn sie Milch brauchten, ging sie zum Bauern im Dorf. Als sie zwölf Jahre alt war, kaufte ihr Vater das erste Radio. Die ganze Familie saß jeden Abend davor und hörte Nachrichten. Fernsehen gab es erst, als sie schon verheiratet war. Heute hat sie ein Handy und schreibt mir Nachrichten. „Es macht mir Spaß, neue Dinge zu lernen“, sagt sie. Sie ist 89.`,
+qs:[RF("Die Familie hatte früher einen Kühlschrank.",false),{t:"c",q:"Was kaufte der Vater, als sie zwölf war?",o:["einen Fernseher","ein Radio","ein Handy"],a:1},{t:"c",q:"Wie alt ist die Großmutter heute?",o:["79","89","98"],a:1}]},
+{title:"Gute Vorsätze",text:`Jedes Jahr im Januar habe ich gute Vorsätze. Dieses Jahr habe ich vor, mehr Sport zu machen und weniger Zucker zu essen. Außerdem versuche ich, früher ins Bett zu gehen. Letztes Jahr wollte ich auch jeden Tag joggen. Als es im Februar kalt wurde, habe ich aufgehört zu laufen. Dieses Mal mache ich es anders: Ich habe angefangen, mit einer Freundin zu trainieren. Es ist leichter, motiviert zu bleiben, wenn man nicht allein ist.`,
+qs:[{t:"c",q:"Was hat die Person dieses Jahr vor?",o:["mehr Sport und weniger Zucker","mehr Zucker essen","später ins Bett gehen"],a:0},RF("Letztes Jahr ist sie das ganze Jahr gejoggt.",false,"Im Februar hat sie aufgehört."),{t:"c",q:"Was ist dieses Mal anders?",o:["Sie trainiert mit einer Freundin.","Sie joggt im Fitnessstudio.","Sie macht keinen Sport."],a:0}]}],
+"7.3":[
+{title:"Rezept: Rösti",text:`Rösti für 4 Personen
+Zutaten: 1 kg Kartoffeln, 2 EL Butter, Salz, Pfeffer
+Die Kartoffeln am Vortag in Wasser kochen, bis sie fast weich sind. Über Nacht im Kühlschrank lassen, deshalb kann man sie am nächsten Tag besser schneiden.
+Die Kartoffeln schälen und grob reiben. Mit Salz und Pfeffer würzen.
+Butter in einer Pfanne heiß machen. Die Kartoffeln in die Pfanne geben und flach drücken. Etwa 10 Minuten braten, bis sie unten goldbraun sind. Dann mit Hilfe eines Tellers wenden und die andere Seite 10 Minuten braten.
+Tipp: Mit einem Spiegelei oder Käse servieren.`,
+qs:[RF("Man kocht die Kartoffeln am selben Tag.",false,"am Vortag"),{t:"c",q:"Wie lange brät man jede Seite?",o:["etwa 5 Minuten","etwa 10 Minuten","etwa 20 Minuten"],a:1},{t:"c",q:"Womit kann man Rösti servieren?",o:["mit einem Spiegelei oder Käse","mit Schokolade","mit Reis"],a:0}]},
+{title:"Restaurantkritik: Zum goldenen Löwen",text:`Das Restaurant in der Altstadt ist gemütlich und das Personal freundlich. Die Speisekarte ist klein, aber alles ist frisch. Als Vorspeise hatten wir eine Kürbissuppe – sehr lecker! Das Hauptgericht war leider eine Enttäuschung: Das Fleisch war zu trocken, und mein Gemüse war kalt. Die Kellnerin hat sich entschuldigt und uns das Dessert geschenkt. Der Schokoladenkuchen war fantastisch. Das Restaurant ist nicht billig, trotzdem kommen wir wieder – wegen der Suppe und des Kuchens.`,
+qs:[{t:"c",q:"Was war nicht gut?",o:["die Suppe","das Hauptgericht","der Kuchen"],a:1},RF("Die Kellnerin hat ihnen das Dessert geschenkt.",true),{t:"c",q:"Warum kommen sie wieder?",o:["weil es billig ist","wegen der Suppe und des Kuchens","wegen des Fleisches"],a:1}]}],
+"8.1":[
+{title:"Polizeimeldung",text:`Winterthur: Am Montagabend wurde in einem Kiosk am Bahnhof eingebrochen. Die Täter kamen gegen 23 Uhr durch ein Fenster. Es wurden Zigaretten und etwa 800 Franken gestohlen. Niemand wurde verletzt. Eine Frau hat zwei junge Männer gesehen, die mit dem Velo weggefahren sind. Die Polizei sucht Zeugen. Wer etwas gesehen hat, wird gebeten, sich unter der Nummer 052 267 51 51 zu melden.`,
+qs:[RF("Bei dem Einbruch wurde eine Person verletzt.",false),{t:"c",q:"Wie kamen die Täter in den Kiosk?",o:["durch die Tür","durch ein Fenster","durch den Keller"],a:1},{t:"c",q:"Was möchte die Polizei?",o:["dass Zeugen sich melden","dass der Kiosk schließt","dass niemand Velo fährt"],a:0}]},
+{title:"So wird Schokolade gemacht",text:`Schokolade wird aus Kakaobohnen gemacht. Die Bohnen wachsen in warmen Ländern, zum Beispiel in Ghana oder Ecuador. Nach der Ernte werden sie getrocknet und in die Schweiz transportiert. In der Fabrik werden die Bohnen geröstet. Dann werden sie gemahlen, und Zucker und Milchpulver werden dazugegeben. Die Masse wird lange gerührt – manchmal bis zu drei Tage. So wird die Schokolade besonders fein. Diese Methode wurde 1879 von Rodolphe Lindt in Bern erfunden.`,
+qs:[RF("Kakaobohnen wachsen in der Schweiz.",false),{t:"c",q:"Was passiert in der Fabrik zuerst?",o:["Die Bohnen werden geröstet.","Zucker wird dazugegeben.","Die Masse wird gerührt."],a:0},{t:"c",q:"Wer hat die Methode erfunden?",o:["Rodolphe Lindt","ein Bauer in Ghana","eine Fabrik in Ecuador"],a:0}]}],
+"8.2":[
+{title:"Müll trennen in der Schweiz",text:`Wer neu in die Schweiz kommt, ist oft überrascht: Hier wird Müll sehr genau getrennt. Glas, Papier, Karton, Alu und PET-Flaschen bringt man zu Sammelstellen oder in den Supermarkt. Für den normalen Müll braucht man spezielle Säcke, die man im Geschäft kauft. Ein Sack mit 35 Litern kostet etwa zwei Franken. Deshalb trennen die meisten Leute ihren Müll sehr sorgfältig, um Geld zu sparen. Wer seinen Müll falsch entsorgt, muss eine Strafe zahlen.`,
+qs:[RF("Für normalen Müll braucht man spezielle Säcke.",true),{t:"c",q:"Wohin bringt man PET-Flaschen?",o:["in den normalen Müll","zu Sammelstellen oder in den Supermarkt","zur Post"],a:1},{t:"c",q:"Warum trennen viele Leute ihren Müll so genau?",o:["um Geld zu sparen","weil es Spaß macht","weil der Nachbar kontrolliert"],a:0}]},
+{title:"Diskussion: Sollte Fliegen teurer werden?",text:`Lara (23): „Ich bin dafür. Fliegen ist viel zu billig. Ein Flug nach London kostet weniger als ein Zugticket nach Genf! Wenn Fliegen teurer wird, nehmen mehr Leute den Zug.“
+Reto (45): „Ich bin dagegen. Dann können nur noch reiche Leute reisen. Meine Familie wohnt in Spanien, und ich möchte sie besuchen können.“
+Mira (31): „Einerseits verstehe ich Reto. Andererseits müssen wir etwas für das Klima tun. Vielleicht sollte nur der dritte oder vierte Flug im Jahr teurer werden, damit Familienbesuche möglich bleiben.“`,
+qs:[{t:"c",q:"Wer ist gegen teurere Flüge?",o:["Lara","Reto","Mira"],a:1},RF("Laut Lara ist ein Flug nach London billiger als ein Zugticket nach Genf.",true),{t:"c",q:"Was schlägt Mira vor?",o:["Alle Flüge sollen teurer werden.","Nur weitere Flüge im Jahr sollen teurer werden.","Fliegen soll billiger werden."],a:1}]}],
+"8.3":[
+{title:"Gebrauchsanweisung: Kaffeemaschine",text:`1. Den Wassertank mit frischem Wasser füllen.
+2. Das Gerät mit dem Kabel an die Steckdose anschließen und mit dem Schalter auf der Rückseite einschalten.
+3. Warten, bis die grüne Lampe leuchtet (ca. 30 Sekunden).
+4. Eine Kapsel einlegen und eine Tasse unter die Maschine stellen.
+5. Die Taste drücken: kleine Tasse = 1x drücken, große Tasse = 2x drücken.
+Wichtig: Die Maschine nie mit Wasser abspülen! Nach dem Gebrauch ausschalten. Die Maschine schaltet sich nach 9 Minuten automatisch aus.`,
+qs:[{t:"c",q:"Was macht man zuerst?",o:["eine Kapsel einlegen","den Wassertank füllen","die Taste drücken"],a:1},RF("Für eine große Tasse drückt man die Taste zweimal.",true),{t:"c",q:"Was darf man nicht machen?",o:["die Maschine mit Wasser abspülen","die Maschine ausschalten","eine Tasse unter die Maschine stellen"],a:0}]},
+{title:"Ohne Handy leben?",text:`Simon (19) hat ein Experiment gemacht: Er hat einen Monat lang kein Smartphone benutzt. „Am Anfang war es schwer“, erzählt er. „Ich wusste nicht, wann mein Bus kommt, und ich habe mich zweimal verlaufen.“ Mit seinen Freunden hat er über ein altes Handy ohne Internet telefoniert. Nach zwei Wochen fühlte er sich aber ruhiger und schlief besser. Er hat sogar zwei Bücher gelesen. Jetzt benutzt er sein Smartphone wieder, aber nicht mehr nach 21 Uhr.`,
+qs:[RF("Simon hat ein Jahr ohne Smartphone gelebt.",false,"einen Monat"),{t:"c",q:"Was war am Anfang schwierig?",o:["Er wusste nicht, wann der Bus kommt.","Er konnte nicht schlafen.","Er hatte keine Freunde."],a:0},{t:"c",q:"Was macht Simon jetzt anders?",o:["Er benutzt nach 21 Uhr kein Smartphone.","Er hat kein Handy mehr.","Er liest keine Bücher mehr."],a:0}]}],
+"9.1":[
+{title:"Schilder und kurze Texte",text:`A: Bäckerei Frei – Montag Ruhetag. Dienstag bis Samstag 6–18.30 Uhr, Sonntag 7–12 Uhr.
+B: Achtung! Wegen Renovierung ist das Hallenbad vom 1. bis 15. März geschlossen. Das Freibad öffnet am 15. Mai.
+C: Suche Nachhilfe in Mathematik für meinen Sohn (14), zweimal pro Woche am Nachmittag. Tel. 079 456 12 34.
+D: Fundbüro im Bahnhof: Verlorene Gegenstände können Sie montags bis freitags von 9 bis 17 Uhr abholen. Bitte Ausweis mitbringen.`,
+qs:[{t:"c",q:"Sie möchten am Montag Brot kaufen. Ist die Bäckerei offen?",o:["ja","nein"],a:1},{t:"c",q:"Sie haben Ihren Schirm im Zug vergessen. Was müssen Sie ins Fundbüro mitbringen?",o:["einen Ausweis","ein Foto vom Schirm","eine Fahrkarte"],a:0},RF("Am 10. März kann man im Hallenbad schwimmen.",false)]},
+{title:"E-Mail an die Sprachschule",text:`Sehr geehrte Damen und Herren,
+ich interessiere mich für Ihren Deutschkurs auf Niveau B1, der im Januar beginnt. Ich habe einige Fragen: Wie viele Personen sind in einem Kurs? Findet der Kurs am Abend statt? Ich arbeite tagsüber und habe nur ab 18 Uhr Zeit. Außerdem möchte ich wissen, ob ich vor dem Kurs einen Einstufungstest machen muss. Ich habe gerade die A2-Prüfung bestanden.
+Vielen Dank für Ihre Antwort.
+Mit freundlichen Grüßen
+Elena Costa`,
+qs:[RF("Elena möchte einen A2-Kurs besuchen.",false,"B1"),{t:"c",q:"Wann hat Elena Zeit?",o:["am Vormittag","ab 18 Uhr","am Wochenende"],a:1},{t:"c",q:"Was fragt sie NICHT?",o:["wie viele Personen im Kurs sind","wie viel der Kurs kostet","ob es einen Einstufungstest gibt"],a:1}]}]
+};
+
+/* Reading glossary: "forms|lemma|plural|English". Generated forms from the vocab and verb lists fill the rest. */
+const GLOSS_TXT=`der|der||the (masculine); also: who/that (relative)
+die|die||the (feminine / plural); also: who/that (relative)
+das|das||the (neuter); also: that, this
+den|der||the (masc. accusative / dative plural)
+dem|der||the (masc./neuter dative)
+des|der||of the (genitive)
+ein|ein||a, an; also a separable prefix (e.g. kauft … ein)
+eine,einen,einem,einer,eines|ein||a, an; one
+kein,keine,keinen|kein||no, not a
+mein,meine,meinem,meinen,meiner|mein||my
+dein,deine,deiner|dein||your (informal)
+sein,seine,seinen,seiner|sein||his, its; also: to be
+ihr,ihre,ihrem,ihren,ihrer|ihr||her, their; Ihr = your (formal); also: you (plural)
+unser,unsere,unserem,unserer|unser||our
+euer,eure|euer||your (plural, informal)
+ich|ich||I
+du|du||you (informal)
+er|er||he, it
+es|es||it
+sie|sie||she, they; Sie = you (formal)
+wir|wir||we
+mich|ich||me (accusative)
+mir|ich||me, to me (dative)
+dich|du||you (accusative)
+dir|du||you, to you (dative)
+ihn|er||him, it (accusative)
+ihm|er||him, to him (dative)
+ihnen|sie||them, to them; Ihnen = you (formal)
+uns|wir||us, to us
+euch|ihr||you, to you (plural)
+sich|sich||oneself, himself, herself, themselves (reflexive)
+man|man||one, you, people (in general)
+und|und||and
+oder|oder||or
+aber|aber||but
+denn|denn||because; (in questions) then, just
+sondern|sondern||but rather
+weil|weil||because (verb to the end)
+wenn|wenn||if, whenever, when
+dass|dass||that (conjunction)
+ob|ob||whether, if
+obwohl|obwohl||although
+als|als||than; as; when (one time in the past)
+wie|wie||how; like, as
+damit|damit||so that; with it
+deshalb|deshalb||that's why, so
+trotzdem|trotzdem||nevertheless, anyway
+also|also||so, therefore
+dann|dann||then
+danach|danach||afterwards, after that
+zuerst|zuerst||first, at first
+nicht|nicht||not
+nichts|nichts||nothing
+nie|nie||never
+niemand|niemand||nobody
+auch|auch||also, too
+noch|noch||still, yet; another
+schon|schon||already
+erst|erst||only, not until; first
+nur|nur||only
+sehr|sehr||very
+so|so||so, like this
+ganz|ganz||quite, completely, whole
+ganze,ganzen|ganz||whole, entire
+gar|gar||at all (gar nicht = not at all)
+fast|fast||almost
+etwa|etwa||about, approximately
+ungefähr|ungefähr||about, approximately
+ca|circa||approximately (abbreviation)
+viel|viel||much, a lot
+viele,vielen|viel||many
+mehr|viel||more
+meisten|viel||most (am meisten, die meisten)
+wenig|wenig||little, not much
+weniger|wenig||less, fewer
+genug|genug||enough
+alle|all||all, everyone
+alles|alles||everything
+allem|alles||all (vor allem = above all)
+etwas|etwas||something; somewhat
+andere,anderen,anderer|ander||other
+anders|anders||differently, different
+selbst|selbst||oneself (I myself …); even
+zusammen|zusammen||together
+allein|allein||alone
+immer|immer||always
+oft|oft||often
+öfter|oft||more often
+manchmal|manchmal||sometimes
+meistens|meistens||mostly, usually
+wieder|wieder||again
+jetzt|jetzt||now
+nun|nun||now, well
+heute|heute||today
+gestern|gestern||yesterday
+morgen|morgen||tomorrow
+vorgestern|vorgestern||the day before yesterday
+früh|früh||early
+früher|früher||earlier; in the past
+später|später||later
+bald|bald||soon
+gleich|gleich||right away; same
+sofort|sofort||immediately
+endlich|endlich||finally
+vorher|vorher||before, beforehand
+lange|lange||(for) a long time
+hier|hier||here
+da|da||there; then
+dort|dort||there
+draußen|draußen||outside
+drinnen|drinnen||inside
+unten|unten||downstairs, at the bottom
+überallhin|überallhin||everywhere (direction)
+zurück|zurück||back
+weiter|weiter||further, on (weiter so = keep going)
+raus|heraus||out
+ja|ja||yes; (particle) after all
+nein|nein||no
+doch|doch||(particle) after all, really; yes (contradicting)
+bitte|bitte||please; you're welcome
+danke|danke||thank you
+vielleicht|vielleicht||maybe, perhaps
+wahrscheinlich|wahrscheinlich||probably
+hoffentlich|hoffentlich||hopefully
+natürlich|natürlich||of course, naturally
+leider|leider||unfortunately
+wirklich|wirklich||really
+besonders|besonders||especially
+ziemlich|ziemlich||rather, quite
+sogar|sogar||even
+übrigens|übrigens||by the way
+außerdem|außerdem||besides, also
+nämlich|nämlich||namely, you see (giving a reason)
+einerseits|einerseits||on the one hand
+andererseits|andererseits||on the other hand
+ehrlich|ehrlich||honest(ly)
+genau|genau||exact(ly)
+direkt|direkt||directly, right (next to)
+plus|plus||plus
+pro|pro||per; pro (for)
+x|mal||times (1x = once)
+statt|statt||instead of
+wann|wann||when (question)
+was|was||what
+wer|wer||who
+wo|wo||where
+woher|woher||where from
+warum|warum||why
+welches|welcher||which
+worüber|worüber||about what
+worum|worum||what … about
+darauf|darauf||on it; for it (warten darauf = wait for it)
+darüber|darüber||about it
+dafür|dafür||for it; in return
+dagegen|dagegen||against it
+davon|davon||of it, from it
+davor|davor||in front of it
+dazugegeben|dazugeben||added (dazugeben = to add)
+in|in||in, into
+im|in dem||in the
+ins|in das||into the
+an|an||at, on, to; also a separable prefix (e.g. ruft … an = anrufen)
+am|an dem||at the, on the (am Montag = on Monday)
+ans|an das||to the (ans Meer)
+auf|auf||on, onto; also a separable prefix (e.g. steht … auf = aufstehen)
+aus|aus||from, out of; also a separable prefix (e.g. füllt … aus)
+bei|bei||at, near, with (at someone's place)
+beim|bei dem||at the
+mit|mit||with; by (mit dem Zug); also a separable prefix
+nach|nach||after; to (cities, countries); also a separable prefix
+von|von||from, of, by
+vom|von dem||from the
+zu|zu||to; too; closed
+zum|zu dem||to the
+zur|zu der||to the
+für|für||for
+gegen|gegen||against; around (time)
+ohne|ohne||without
+um|um||at (time); around; also a separable prefix (e.g. zieht … um)
+durch|durch||through
+über|über||over, above; about
+unter|unter||under
+vor|vor||in front of; before; ago
+neben|neben||next to
+bis|bis||until, by
+seit|seit||since, for (ongoing)
+ab|ab||from (on); also a separable prefix (e.g. fährt … ab)
+wegen|wegen||because of
+innerhalb|innerhalb||within
+außer|außer||except; außer Betrieb = out of order
+bin|sein||am (ich bin)
+sind|sein||are
+seid|sein||are (ihr seid)
+wäre|sein||would be
+hast|haben||have (du hast)
+hätte|haben||would have; hätte gern = would like
+hätten|haben||would have
+würde,würden|werden||would
+soll|sollen||should, is supposed to
+sollen|sollen||should, to be supposed to
+sollte,sollten|sollen||should (advice)
+möchte,möchten|mögen||would like
+kannst|können||can (du kannst)
+lassen|lassen||to let, leave
+gebeten|bitten||asked (bitten = to ask, request)
+gemacht|machen||made, done
+mache,machen,machst,macht|machen||to make, do
+arbeite,arbeiten,arbeitet,arbeitete,gearbeitet|arbeiten||to work
+wohne,wohnen,wohnt,gewohnt|wohnen||to live (reside)
+lerne,lernen,lernt,gelernt|lernen||to learn
+spiele,spielen,spielt,spielte,gespielt|spielen||to play
+koche,kochen|kochen||to cook
+kaufen,kauft,kaufte,gekauft|kaufen||to buy
+kosten,kostet|kosten||to cost
+suche,suchen,sucht|suchen||to look for
+brauche,brauchen,braucht,brauchten|brauchen||to need
+fragen,fragt,gefragt|fragen||to ask
+frag|fragen||ask! (imperative)
+sagen,gesagt|sagen||to say
+zeigt,gezeigt|zeigen||to show
+höre,hörte|hören||to hear, listen
+lebt,leben,lebte|leben||to live
+liebe,liebt|lieben||to love
+lacht|lachen||to laugh
+glauben|glauben||to believe
+schicken,schickt,verschickt|schicken||to send (verschickt = sent out)
+bezahlen,bezahlt|bezahlen||to pay
+bestelle,bestellt|bestellen||to order
+liefern|liefern||to deliver
+schenken,schenkt,geschenkt|schenken||to give (as a gift)
+danken|danken||to thank
+warte,warten,wartet,wartete|warten||to wait
+trainieren|trainieren||to train, practice
+tanzen|tanzen||to dance
+telefonieren,telefoniert|telefonieren||to make a phone call
+studiert,studierte|studieren||to study (at university)
+diskutiert|diskutieren||discussed
+erklärt|erklären||explained
+erlaubt|erlauben||allowed
+beendet|beenden||ended, finished
+eröffnet|eröffnen||opened (officially)
+erwartet|erwarten||expected
+erreicht|erreichen||reaches, reached
+erfüllt|erfüllen||fulfilled
+gerade|gerade||just, right now; straight
+geplant|planen||planned
+plant|planen||plans
+planen|planen||to plan
+geregnet|regnen||rained
+regnet|regnen||it rains
+schneien|schneien||to snow
+geklingelt|klingeln||rang (klingeln = to ring)
+aufgewacht|aufwachen||woke up
+eingeschlafen|einschlafen||fell asleep
+ferngesehen|fernsehen||watched TV
+angesehen|ansehen||looked at
+eingekauft|einkaufen||shopped
+einzukaufen|einkaufen||to shop (zu-infinitive)
+abgeholt|abholen||picked up
+abholen,holt|abholen||to pick up
+abgefahren|abfahren||departed
+aufgehört|aufhören||stopped
+ankam|ankommen||arrived
+ankommen|ankommen||to arrive
+ausprobieren,ausprobiert|ausprobieren||to try out
+anzupflanzen|anpflanzen||to plant (zu-infinitive)
+abspülen|abspülen||to rinse
+zurückschicken|zurückschicken||to send back
+mitbringen|mitbringen||to bring along
+mitkommen|mitkommen||to come along
+weggefahren|wegfahren||drove/rode away
+weggeht|weggehen||goes away
+einlegen|einlegen||to put in, insert
+einfrieren|einfrieren||to freeze
+eingebrochen|einbrechen||broken into (einbrechen = to break in)
+gekümmert|sich kümmern||taken care of
+gegrüßt|grüßen||greeted (grüßen = to say hello)
+gestellt|stellen||put (upright)
+hängst,hängt|hängen||hang(s)
+hing|hängen||hung (was hanging)
+gezogen|ziehen||pulled; moved
+geerntet|ernten||harvested
+gieße|gießen||I water (plants)
+geröstet|rösten||roasted
+gemahlen|mahlen||ground (mahlen = to grind)
+gerührt|rühren||stirred
+getrocknet|trocknen||dried
+transportiert|transportieren||transported
+gezählt|zählen||counted
+gesperrt|sperren||closed off, blocked
+gestohlen|stehlen||stolen
+verletzt|verletzen||injured
+verlaufen|sich verlaufen||to get lost (walking)
+verbracht|verbringen||spent (time)
+vermisse,vermisst|vermissen||to miss (someone)
+versuche|versuchen||I try
+vergiss|vergessen||forget! (imperative)
+verkaufen|verkaufen||to sell
+leihen|leihen||to borrow, lend
+lösen|lösen||to solve
+melden,meldet,melde|sich melden||to get in touch, report
+reinigen|reinigen||to clean
+schälen|schälen||to peel
+reiben|reiben||to grate
+servieren|servieren||to serve
+wenden|wenden||to turn over
+drücken|drücken||to press
+drucken|drucken||to print
+parken|parken||to park
+umbauen|umbauen||to renovate, rebuild
+joggen|joggen||to jog
+feiern|feiern||to celebrate
+träumen|träumen||to dream
+teilen|teilen||to share, divide
+enthalten|enthalten||to contain
+gelten|gelten||to apply, be valid
+wachsen|wachsen||to grow
+wünschen|wünschen||to wish
+dusche,duschen,duscht|duschen||to shower
+frühstücke|frühstücken||I have breakfast
+fühle,fühlte|sich fühlen||to feel
+fühlen|sich fühlen||to feel
+fotografiere,fotografiert|fotografieren||to take photos
+konzentrieren|sich konzentrieren||to concentrate
+adoptieren|adoptieren||to adopt
+schaue,schaut|schauen||to look, watch
+bereite|vorbereiten||(ich bereite mich vor) I prepare
+unterhält|sich unterhalten||talks, chats
+begleitet|begleiten||accompanies
+beachtet|beachten||observe, follow (rules)
+entsorgt|entsorgen||disposed of
+leuchtet|leuchten||lights up
+nervt|nerven||annoys
+klingt|klingen||sounds
+kämpften|kämpfen||fought
+reiste|reisen||traveled
+spazieren|spazieren gehen||(spazieren gehen) to go for a walk
+tötet|töten||kills
+überträgt|übertragen||transmits
+verschwindet|verschwinden||disappears
+sieht|sehen||sees, looks
+gesehen|sehen||seen
+heißt|heißen||is called
+bestanden|bestehen||passed (an exam)
+geboren|geboren||born
+gesund|gesund||healthy
+gesundes|gesund||something healthy
+gut,gute,guter|gut||good, well
+besser|gut||better
+bessere|gut||better (adj.)
+beste,besten|gut||best
+schlecht|schlecht||bad
+schön,schöne,schönen|schön||beautiful, nice
+schöner|schön||nicer
+groß,große,großen,großer|groß||big, large, tall
+größer|groß||bigger, taller
+größte,größten|groß||biggest
+klein,kleine,kleinen,kleiner,kleines|klein||small, little
+alt,alte,alten,altes|alt||old
+neu,neue,neuen,neues|neu||new
+jung,junge,junges|jung||young
+lang,langen|lang||long
+länger|lang||longer
+kurz,kurze|kurz||short
+schnell|schnell||fast, quickly
+schneller|schnell||faster
+schnellsten|schnell||fastest
+langsamer|langsam||slower
+warm,warmen|warm||warm
+wärmer|warm||warmer
+kalt|kalt||cold
+kälter|kalt||colder
+kühlen|kühl||cool
+heiß|heiß||hot
+heiße|heißen||(ich heiße …) my name is …; also: hot (heiße Schokolade)
+teuer,teuren|teuer||expensive
+teurer|teuer||more expensive
+billig|billig||cheap
+billiger|billig||cheaper
+gratis|gratis||free (of charge)
+inklusive|inklusive||included
+schwer|schwer||difficult; heavy
+leicht|leicht||easy; light; slightly
+leichter|leicht||easier
+wichtig|wichtig||important
+richtig|richtig||right, correct
+richtigen|richtig||right, correct
+falsch|falsch||wrong
+falschen|falsch||wrong
+krank|krank||sick, ill
+nett|nett||nice, kind
+freundlich|freundlich||friendly
+freundlichen|freundlich||friendly (Mit freundlichen Grüßen = kind regards)
+glücklich|glücklich||happy
+lustigste|lustig||funniest
+ruhig|ruhig||quiet, calm
+ruhiger|ruhig||quieter, calmer
+laut|laut||loud
+leise|leise||quiet(ly)
+sauber|sauber||clean
+schmutzige|schmutzig||dirty
+frisch,frische,frischem,frisches|frisch||fresh
+trocken,trockenen|trocken||dry
+weich|weich||soft
+flach|flach||flat
+fein|fein||fine, delicate
+grob|grob||coarse(ly)
+lecker,leckere|lecker||tasty, delicious
+super|super||great
+prima|prima||great
+perfekt,perfekte|perfekt||perfect
+fantastisch|fantastisch||fantastic
+wunderschön|wunderschön||beautiful
+herrlichem,herrlichen|herrlich||wonderful, magnificent
+toll,tollem|toll||great
+begeistert|begeistert||thrilled, enthusiastic
+berühmt,berühmte|berühmt||famous
+beliebt|beliebt||popular
+bekannt|bekannt||well-known
+anstrengend|anstrengend||tiring, exhausting
+angenehm|angenehm||pleasant
+einsam|einsam||lonely
+gestresst|gestresst||stressed
+motiviert|motiviert||motivated
+zufrieden|zufrieden||satisfied, happy (with)
+überrascht|überrascht||surprised
+überraschend|überraschend||surprising
+sicher|sicher||safe; sure
+möglich|möglich||possible
+erreichbar|erreichbar||reachable
+willkommen|willkommen||welcome
+eigene,eigenen,eigener|eigen||own
+besondere|besonders||special
+moderne,modernen|modern||modern
+normale,normalen,normales|normal||normal
+spezielle|speziell||special
+flexible|flexibel||flexible
+technisches|technisch||technical
+traditionelle|traditionell||traditional
+regionalem|regional||regional
+familiäres|familiär||family-run, homey
+hausgemachter|hausgemacht||homemade
+kaufmännische|kaufmännisch||commercial, business
+reduzierte|reduziert||reduced (in price)
+verlorene|verloren||lost
+persönliche|persönlich||personal
+folgenden|folgend||following
+gemeinsames|gemeinsam||joint, shared
+reiche,reicher,reiches|reich||rich
+riesigen|riesig||huge
+hohen|hoch||high
+goldbraun|goldbraun||golden brown
+goldenen|golden||golden
+feuchter|feucht||more humid
+neblig|neblig||foggy
+chaotisch,chaotischer|chaotisch||chaotic
+kreativ|kreativ||creative
+sportlich|sportlich||sporty, athletic
+wasserdicht|wasserdicht||waterproof
+automatisch|automatisch||automatic(ally)
+sorgfältig|sorgfältig||careful(ly)
+online|online||online
+einig|einig||in agreement
+einige|einige||some, a few
+mehrere|mehrere||several
+paar|ein paar||a few (ein paar)
+halb|halb||half (halb acht = 7:30)
+halbe|halb||half
+klar|klar||clear; of course
+lieber|gern||rather, prefer
+liebsten|gern||most of all (am liebsten)
+gern|gern||gladly (gern + verb = like to)
+recht|recht||right (recht haben = to be right)
+leid|leid||(es tut mir leid) I'm sorry
+interessantesten|interessant||most interesting
+gefährlichsten|gefährlich||most dangerous
+maximal|maximal||at most
+mindestens|mindestens||at least
+höchstens|höchstens||at most
+zusätzlich|zusätzlich||additional(ly)
+übrig|übrig||left over
+jede,jeden,jeder,jedes|jeder||every, each
+jederzeit|jederzeit||at any time
+diese,dieser,dieses|dieser||this, these
+dasselbe|dasselbe||the same thing
+eins|eins||one
+zwei|zwei||two
+drei|drei||three
+vier|vier||four
+fünf|fünf||five
+sechs|sechs||six
+sieben|sieben||seven
+acht|acht||eight
+neun|neun||nine
+zehn|zehn||ten
+zwölf|zwölf||twelve
+zwanzig|zwanzig||twenty
+erste,ersten,erstes|erst||first
+zweiten|zweit||second
+dritte,dritten|dritt||third
+vierte|viert||fourth
+zweimal|zweimal||twice
+einmal|einmal||once
+Million|die Million|Millionen|million
+Millionen|die Million|Millionen|millions
+Hälfte|die Hälfte|Hälften|half
+Teil|der Teil|Teile|part
+Art|die Art|Arten|kind, type
+Mal|das Mal|Male|time (das nächste Mal = next time)
+Uhr|die Uhr|Uhren|o'clock; clock
+Minuten|die Minute|Minuten|minutes
+Sekunden|die Sekunde|Sekunden|seconds
+Stunde|die Stunde|Stunden|hour
+Stunden|die Stunde|Stunden|hours
+Tag,Tage,Tagen|der Tag|Tage|day
+Woche|die Woche|Wochen|week
+Wochen|die Woche|Wochen|weeks
+Wochenende|das Wochenende|Wochenenden|weekend
+Monat,Monaten,Monats|der Monat|Monate|month
+Jahr,Jahre,Jahren|das Jahr|Jahre|year
+Zeit|die Zeit|Zeiten|time
+Moment|der Moment|Momente|moment
+Anfang|der Anfang|Anfänge|beginning
+Ende|das Ende|Enden|end
+Mitte|die Mitte||middle
+Morgen|der Morgen|Morgen|morning (lowercase morgen = tomorrow)
+morgens|morgens||in the morning(s)
+Vormittag|der Vormittag|Vormittage|morning (before noon)
+Vormittage|der Vormittag|Vormittage|mornings
+Mittag|der Mittag|Mittage|noon, midday
+Nachmittag|der Nachmittag|Nachmittage|afternoon
+Abend|der Abend|Abende|evening
+Abende|der Abend|Abende|evenings
+abends|abends||in the evening(s)
+Nacht|die Nacht|Nächte|night
+Nächte|die Nacht|Nächte|nights
+Montagabend|der Montagabend|Montagabende|Monday evening
+Vortag|der Vortag|Vortage|the day before
+Montag|der Montag|Montage|Monday
+montags|montags||on Mondays
+Dienstag|der Dienstag|Dienstage|Tuesday
+Mittwoch|der Mittwoch|Mittwoche|Wednesday
+Donnerstag|der Donnerstag|Donnerstage|Thursday
+Freitag|der Freitag|Freitage|Friday
+freitags|freitags||on Fridays
+Samstag|der Samstag|Samstage|Saturday
+Sonntag|der Sonntag|Sonntage|Sunday
+tagsüber|tagsüber||during the day
+Januar|der Januar||January
+Februar|der Februar||February
+März|der März||March
+April|der April||April
+Mai|der Mai||May
+Oktober|der Oktober||October
+November|der November||November
+Dezember|der Dezember||December
+Winter|der Winter|Winter|winter
+Sommer|der Sommer|Sommer|summer
+Frühling|der Frühling|Frühlinge|spring
+Mann|der Mann|Männer|man; husband
+Männer|der Mann|Männer|men
+Frau|die Frau|Frauen|woman; wife; Mrs./Ms.
+Herr,Herrn|der Herr|Herren|Mr.; gentleman
+Herren|der Herr|Herren|gentlemen
+Damen|die Dame|Damen|ladies
+Leute|die Leute||people
+Menschen|der Mensch|Menschen|people, humans
+Person|die Person|Personen|person
+Personen|die Person|Personen|people, persons
+Kind|das Kind|Kinder|child
+Kinder|das Kind|Kinder|children
+Kindern|das Kind|Kinder|children (dative)
+Familie|die Familie|Familien|family
+Eltern|die Eltern||parents
+Mutter|die Mutter|Mütter|mother
+Vater|der Vater|Väter|father
+Mama|die Mama|Mamas|mom
+Papa|der Papa|Papas|dad
+Oma|die Oma|Omas|grandma
+Omas|die Oma|Omas|grandma's
+Großmutter|die Großmutter|Großmütter|grandmother
+Bruder|der Bruder|Brüder|brother
+Tochter|die Tochter|Töchter|daughter
+Sohn|der Sohn|Söhne|son
+Tante|die Tante|Tanten|aunt
+Paar|das Paar|Paare|couple
+Freund|der Freund|Freunde|friend; boyfriend
+Freunde,Freunden|der Freund|Freunde|friends
+Freundin|die Freundin|Freundinnen|(female) friend; girlfriend
+Freundinnen|die Freundin|Freundinnen|(female) friends
+Partnerin|die Partnerin|Partnerinnen|(female) partner
+Nachbar|der Nachbar|Nachbarn|neighbor
+Nachbarn|der Nachbar|Nachbarn|neighbors; neighbor (acc./dat.)
+Nachbarinnen|die Nachbarin|Nachbarinnen|(female) neighbors
+Mitbewohnerin|die Mitbewohnerin|Mitbewohnerinnen|(female) roommate
+Bewohner|der Bewohner|Bewohner|resident(s)
+Bewohnerinnen|die Bewohnerin|Bewohnerinnen|(female) residents
+Einwohner|der Einwohner|Einwohner|inhabitant(s)
+Anwohnerin|die Anwohnerin|Anwohnerinnen|(female) local resident
+Mieter|der Mieter|Mieter|tenant(s)
+Gäste|der Gast|Gäste|guests
+Besuch|der Besuch|Besuche|visit; visitors
+Besucher|der Besucher|Besucher|visitors
+Erwachsene|der/die Erwachsene|Erwachsenen|adults
+erwachsenen|erwachsen||adult
+Angestellte|der/die Angestellte|Angestellten|employees
+Mitarbeiterin|die Mitarbeiterin|Mitarbeiterinnen|(female) employee
+Team|das Team|Teams|team
+Lehrer|der Lehrer|Lehrer|teacher
+Lehrerin|die Lehrerin|Lehrerinnen|(female) teacher
+Klavierlehrer|der Klavierlehrer|Klavierlehrer|piano teacher
+Arzt|der Arzt|Ärzte|doctor
+Ärztin|die Ärztin|Ärztinnen|(female) doctor
+Assistent|der Assistent|Assistenten|assistant
+Bäcker|der Bäcker|Bäcker|baker
+Busfahrer|der Busfahrer|Busfahrer|bus driver
+Kauffrau|die Kauffrau|Kauffrauen|(female) business administrator
+Kaufmann|der Kaufmann|Kaufleute|business administrator, merchant
+Kellnerin|die Kellnerin|Kellnerinnen|waitress
+Verkäuferin|die Verkäuferin|Verkäuferinnen|saleswoman
+Pflegefachfrau|die Pflegefachfrau|Pflegefachfrauen|(registered) nurse
+Pianistin|die Pianistin|Pianistinnen|(female) pianist
+Programmiererin|die Programmiererin|Programmiererinnen|(female) programmer
+Polizistin|die Polizistin|Polizistinnen|policewoman
+Regisseurin|die Regisseurin|Regisseurinnen|(female) film director
+Komponisten|der Komponist|Komponisten|composer
+Lieblingsmaler|der Lieblingsmaler|Lieblingsmaler|favorite painter
+Hausmeister|der Hausmeister|Hausmeister|caretaker, janitor
+Ladenbesitzer|der Ladenbesitzer|Ladenbesitzer|shop owner
+Anfänger|der Anfänger|Anfänger|beginners
+Studentin|die Studentin|Studentinnen|(female) student
+Experten|der Experte|Experten|experts
+Wanderer|der Wanderer|Wanderer|hikers
+Reisende|der/die Reisende|Reisenden|travelers
+Velofahrern|der Velofahrer|Velofahrer|cyclists (dative; Swiss)
+Täter|der Täter|Täter|perpetrator(s)
+Zeugen|der Zeuge|Zeugen|witnesses
+Kundinnen|die Kundin|Kundinnen|(female) customers
+Polizei|die Polizei||police
+Name|der Name|Namen|name
+Namen|der Name|Namen|name (acc./dat.); names
+Geburtstag|der Geburtstag|Geburtstage|birthday
+Muttersprache|die Muttersprache|Muttersprachen|native language
+Deutsch|das Deutsch||German (language)
+deutschen|deutsch||German
+Englisch|das Englisch||English
+Französisch|das Französisch||French
+Italienisch|das Italienisch||Italian
+Schweizer|der Schweizer|Schweizer|Swiss (person); Swiss
+Schweizerinnen|die Schweizerin|Schweizerinnen|Swiss women
+Arbeit|die Arbeit|Arbeiten|work, job
+Arbeitstag|der Arbeitstag|Arbeitstage|workday
+Arbeitszeiten|die Arbeitszeit|Arbeitszeiten|working hours
+Arbeitsplatz|der Arbeitsplatz|Arbeitsplätze|workplace, job
+Aufgaben|die Aufgabe|Aufgaben|tasks
+Berufserfahrung|die Berufserfahrung||work experience
+Job|der Job|Jobs|job
+Frühdienst|der Frühdienst|Frühdienste|early shift
+Nachtdienst|der Nachtdienst|Nachtdienste|night shift
+Team|das Team|Teams|team
+Teamsitzung|die Teamsitzung|Teamsitzungen|team meeting
+Präsentation|die Präsentation|Präsentationen|presentation
+Folien|die Folie|Folien|slides
+Kopien|die Kopie|Kopien|copies
+Feedback|das Feedback||feedback
+Marketing|das Marketing||marketing
+Versicherung|die Versicherung|Versicherungen|insurance (company)
+Patentamt|das Patentamt|Patentämter|patent office
+Praxis|die Praxis|Praxen|(doctor's) practice
+Lager|das Lager|Lager|warehouse, stock
+Fabrik|die Fabrik|Fabriken|factory
+Kundenservice|der Kundenservice||customer service
+Kundenservice-Chat|der Kundenservice-Chat||customer service chat
+Wartezeit|die Wartezeit|Wartezeiten|waiting time
+Garantie|die Garantie|Garantien|warranty, guarantee
+Gutschein|der Gutschein|Gutscheine|voucher, gift card
+Rabatt|der Rabatt|Rabatte|discount
+Ausverkauf|der Ausverkauf|Ausverkäufe|clearance sale
+Werbung|die Werbung||advertising, ad
+Daten|die Daten||data, details
+Fehler|der Fehler|Fehler|mistake(s)
+Problem|das Problem|Probleme|problem
+Probleme,Problemen|das Problem|Probleme|problems
+Lösung|die Lösung|Lösungen|solution
+Ergebnis|das Ergebnis|Ergebnisse|result
+Frage|die Frage|Fragen|question
+Fragen|die Frage|Fragen|questions
+Antwort|die Antwort|Antworten|answer
+Idee|die Idee|Ideen|idea
+Ideen|die Idee|Ideen|ideas
+Tipp|der Tipp|Tipps|tip
+Tipps|der Tipp|Tipps|tips
+Regeln|die Regel|Regeln|rules
+Hilfe|die Hilfe||help
+Dank|der Dank||thanks (Vielen Dank = many thanks)
+Grüße,Grüßen|der Gruß|Grüße|greetings, regards
+Bescheid|der Bescheid|Bescheide|(Bescheid sagen) to let someone know
+Entschuldigung|die Entschuldigung|Entschuldigungen|apology; excuse me
+Beschwerde|die Beschwerde|Beschwerden|complaint
+Verständnis|das Verständnis||understanding
+Absprache|die Absprache|Absprachen|agreement (nach Absprache = by arrangement)
+Kontakt|der Kontakt|Kontakte|contact
+Nummer|die Nummer|Nummern|number
+Tel|das Telefon||tel. (phone)
+Telefon|das Telefon|Telefone|telephone
+Anrufbeantworter|der Anrufbeantworter|Anrufbeantworter|answering machine
+Wiederhören|das Wiederhören||(auf Wiederhören) goodbye (on the phone)
+Handy|das Handy|Handys|cell phone
+Handys|das Handy|Handys|cell phones
+Smartphone|das Smartphone|Smartphones|smartphone
+Internet|das Internet||internet
+WLAN|das WLAN||Wi-Fi
+App|die App|Apps|app
+Apps|die App|Apps|apps
+E-Mail|die E-Mail|E-Mails|email
+E-Mails|die E-Mail|E-Mails|emails
+Forum|das Forum|Foren|forum
+Podcast|der Podcast|Podcasts|podcast
+Radio|das Radio|Radios|radio
+Fernsehen|das Fernsehen||television (TV in general)
+Fernseher|der Fernseher|Fernseher|TV set
+Experiment|das Experiment|Experimente|experiment
+Kabel|das Kabel|Kabel|cable
+Rückseite|die Rückseite|Rückseiten|back (side)
+Maschine|die Maschine|Maschinen|machine
+Kaffeemaschine|die Kaffeemaschine|Kaffeemaschinen|coffee machine
+Wassertank|der Wassertank|Wassertanks|water tank
+Kapsel|die Kapsel|Kapseln|capsule
+Lampe|die Lampe|Lampen|lamp, light
+Gebrauch|der Gebrauch||use
+Roboter|der Roboter|Roboter|robot
+Staubsauger-Roboter|der Staubsauger-Roboter|Staubsauger-Roboter|robot vacuum
+Räder|das Rad|Räder|wheels
+Ladestation|die Ladestation|Ladestationen|charging station
+Tuch|das Tuch|Tücher|cloth
+Kreis|der Kreis|Kreise|circle
+Methode|die Methode|Methoden|method
+Masse|die Masse|Massen|mass, mixture
+Material|das Material|Materialien|material(s)
+Physik|die Physik||physics
+Mathematik|die Mathematik||mathematics
+Informatik|die Informatik||computer science
+Medizin|die Medizin||medicine
+Relativitätstheorie|die Relativitätstheorie||theory of relativity
+Nobelpreis|der Nobelpreis|Nobelpreise|Nobel Prize
+Artikel|der Artikel|Artikel|article(s)
+Texte|der Text|Texte|texts
+Wörter|das Wort|Wörter|words
+Vokabeln|die Vokabel|Vokabeln|vocabulary words
+Wiederholungen|die Wiederholung|Wiederholungen|repetitions, reviews
+Lernen|das Lernen||learning
+Kurs|der Kurs|Kurse|course
+Deutschkurs|der Deutschkurs|Deutschkurse|German course
+Kursangebot|das Kursangebot|Kursangebote|course offerings
+Niveau|das Niveau|Niveaus|level
+Einstufungstest|der Einstufungstest|Einstufungstests|placement test
+Prüfung|die Prüfung|Prüfungen|exam
+Nachhilfe|die Nachhilfe||tutoring
+Unterricht|der Unterricht||lessons, teaching
+Schule|die Schule|Schulen|school
+Primarschule|die Primarschule|Primarschulen|primary school (Swiss)
+Kantonsschule|die Kantonsschule|Kantonsschulen|cantonal high school (Swiss)
+Universität|die Universität|Universitäten|university
+Bachelor|der Bachelor|Bachelors|bachelor's degree
+Volkshochschule|die Volkshochschule|Volkshochschulen|adult education center
+Sprachschule|die Sprachschule|Sprachschulen|language school
+Grundkenntnisse|die Grundkenntnisse||basic knowledge
+Hilfe|die Hilfe||help
+Geld|das Geld||money
+Geldverschwendung|die Geldverschwendung||waste of money
+Franken|der Franken|Franken|(Swiss) franc(s)
+Mark-Schein|der Mark-Schein|Mark-Scheine|(Deutsche) Mark banknote
+Bank|die Bank|Banken|bank; bench
+Lotto|das Lotto||lottery
+Lottogewinner|der Lottogewinner|Lottogewinner|lottery winner
+Lottoscheine|der Lottoschein|Lottoscheine|lottery tickets
+Krankenkasse|die Krankenkasse|Krankenkassen|health insurance (fund)
+Traum|der Traum|Träume|dream
+Wunsch|der Wunsch|Wünsche|wish
+Urlaubswünsche|der Urlaubswunsch|Urlaubswünsche|vacation requests
+Vorsätze|der Vorsatz|Vorsätze|resolutions
+Spaß|der Spaß||fun
+Lust|die Lust||desire (Lust haben = to feel like)
+Stress|der Stress||stress
+Ruhe|die Ruhe||peace, quiet (in Ruhe = calmly)
+Nachtruhe|die Nachtruhe||quiet hours (at night)
+Chaos|das Chaos||chaos
+Pause|die Pause|Pausen|break
+Pausen|die Pause|Pausen|breaks
+Ferien|die Ferien||vacation, holidays
+Sommerferien|die Sommerferien||summer vacation
+Feiertage|der Feiertag|Feiertage|public holidays
+Ruhetag|der Ruhetag|Ruhetage|closing day (of a shop)
+Urlaubspläne|der Urlaubsplan|Urlaubspläne|vacation plans
+Ausflug|der Ausflug|Ausflüge|excursion, day trip
+Radtour|die Radtour|Radtouren|bike tour
+Spaziergang|der Spaziergang|Spaziergänge|walk
+Wandertag|der Wandertag|Wandertage|day of hiking
+Hinfahrt|die Hinfahrt|Hinfahrten|outward journey
+Flug|der Flug|Flüge|flight
+Zugticket|das Zugticket|Zugtickets|train ticket
+Familienbesuche|der Familienbesuch|Familienbesuche|family visits
+Postkarte|die Postkarte|Postkarten|postcard
+Hotel|das Hotel|Hotels|hotel
+Doppelzimmer|das Doppelzimmer|Doppelzimmer|double room
+Ferienwohnung|die Ferienwohnung|Ferienwohnungen|vacation apartment
+Wellness-Hotel|das Wellness-Hotel|Wellness-Hotels|spa hotel
+Sauna|die Sauna|Saunas|sauna
+Frühstücksbuffet|das Frühstücksbuffet|Frühstücksbuffets|breakfast buffet
+Bettwäsche|die Bettwäsche||bed linen
+Handtücher|das Handtuch|Handtücher|towels
+Bewertung|die Bewertung|Bewertungen|review, rating
+Blick|der Blick|Blicke|view, look
+Seeblick|der Seeblick||lake view
+Wetter|das Wetter||weather
+Wetterbericht|der Wetterbericht|Wetterberichte|weather report
+Sonne|die Sonne||sun
+Grad|das Grad|Grad|degree(s)
+Norden|der Norden||north
+Süden|der Süden||south
+Luft|die Luft||air
+Natur|die Natur||nature
+Welt|die Welt|Welten|world
+Land|das Land|Länder|country; countryside
+Ländern|das Land|Länder|countries (dative)
+Stadt|die Stadt|Städte|city, town
+Altstadt|die Altstadt|Altstädte|old town
+Innenstadt|die Innenstadt|Innenstädte|city center
+Zentrum|das Zentrum|Zentren|center
+Dorf|das Dorf|Dörfer|village
+Straße|die Straße|Straßen|street
+Ecke|die Ecke|Ecken|corner
+Nähe|die Nähe||vicinity (in der Nähe = nearby)
+Platz|der Platz|Plätze|room, space; square; place
+Berge,Bergen|der Berg|Berge|mountains
+Alpen|die Alpen||the Alps
+Regenwald|der Regenwald|Regenwälder|rainforest
+Garten|der Garten|Gärten|garden
+Obstbäumen|der Obstbaum|Obstbäume|fruit trees (dative)
+Pflanze|die Pflanze|Pflanzen|plant
+Unkraut|das Unkraut||weeds
+Ernte|die Ernte|Ernten|harvest
+Bauern|der Bauer|Bauern|farmer
+Bauernhof|der Bauernhof|Bauernhöfe|farm
+Tier|das Tier|Tiere|animal
+Tiere|das Tier|Tiere|animals
+Tieren|das Tier|Tiere|animals (dative)
+Tierheim|das Tierheim|Tierheime|animal shelter
+Tierreich|das Tierreich||animal kingdom
+Zoo|der Zoo|Zoos|zoo
+Zoos|der Zoo|Zoos|zoos
+Halle|die Halle|Hallen|hall
+Anlage|die Anlage|Anlagen|enclosure, facility
+Wasserbecken|das Wasserbecken|Wasserbecken|pool, water basin
+Affen|der Affe|Affen|monkeys
+Vögel|der Vogel|Vögel|birds
+Elefanten|der Elefant|Elefanten|elephants
+Pinguine|der Pinguin|Pinguine|penguins
+Gepard|der Gepard|Geparde|cheetah
+Wanderfalke|der Wanderfalke|Wanderfalken|peregrine falcon
+Blauwal|der Blauwal|Blauwale|blue whale
+Dinosaurier|der Dinosaurier|Dinosaurier|dinosaur(s)
+Hai|der Hai|Haie|shark
+Mücke|die Mücke|Mücken|mosquito
+Krankheiten|die Krankheit|Krankheiten|diseases
+Malaria|die Malaria||malaria
+Meter|der Meter|Meter|meter(s)
+Kilometer|der Kilometer|Kilometer|kilometer(s)
+Litern|der Liter|Liter|liters (dative)
+kg|das Kilogramm||kg (kilogram)
+EL|der Esslöffel||tbsp (tablespoon)
+Rekorde|der Rekord|Rekorde|records
+Besucherrekord|der Besucherrekord|Besucherrekorde|attendance record
+Wohnung|die Wohnung|Wohnungen|apartment
+Zimmer|das Zimmer|Zimmer|room(s)
+Zimmer-Wohnung|die Zimmer-Wohnung||-room apartment (2,5-Zimmer-Wohnung)
+Wohnzimmer|das Wohnzimmer|Wohnzimmer|living room
+Schlafzimmer|das Schlafzimmer|Schlafzimmer|bedroom
+Badezimmer|das Badezimmer|Badezimmer|bathroom
+Bad|das Bad|Bäder|bathroom; bath
+Badewanne|die Badewanne|Badewannen|bathtub
+Waschbecken|das Waschbecken|Waschbecken|sink
+Küche|die Küche|Küchen|kitchen; cuisine
+Flur|der Flur|Flure|hallway
+Treppe|die Treppe|Treppen|stairs
+Treppenhaus|das Treppenhaus|Treppenhäuser|stairwell
+Stock|der Stock|Stockwerke|floor, story
+Lift|der Lift|Lifte|elevator
+Hof|der Hof|Höfe|courtyard
+Wand|die Wand|Wände|wall
+Fenster|das Fenster|Fenster|window(s)
+Tür|die Tür|Türen|door
+Haken|der Haken|Haken|hook
+Tisch|der Tisch|Tische|table
+Tische|der Tisch|Tische|tables
+Küchentisch|der Küchentisch|Küchentische|kitchen table
+Bett|das Bett|Betten|bed
+Betten|das Bett|Betten|beds
+Sofa|das Sofa|Sofas|sofa
+Sofas|das Sofa|Sofas|sofas
+Möbel|die Möbel||furniture
+Kühlschrank|der Kühlschrank|Kühlschränke|fridge
+Waschmaschine|die Waschmaschine|Waschmaschinen|washing machine
+Wohnmobil|das Wohnmobil|Wohnmobile|camper van, RV
+WG|die WG|WGs|shared apartment
+Studentenwohnheim|das Studentenwohnheim|Studentenwohnheime|student dormitory
+Hausordnung|die Hausordnung|Hausordnungen|house rules
+Aushang|der Aushang|Aushänge|notice (on a board)
+Renovierung|die Renovierung|Renovierungen|renovation
+Bauarbeiten|die Bauarbeiten||construction work
+Betrieb|der Betrieb|Betriebe|operation (außer Betrieb = out of order)
+Wohnungsanzeige|die Wohnungsanzeige|Wohnungsanzeigen|apartment ad
+Besichtigung|die Besichtigung|Besichtigungen|viewing, visit
+Schlüssel|der Schlüssel|Schlüssel|key(s)
+Wecker|der Wecker|Wecker|alarm clock
+Bild|das Bild|Bilder|picture
+Bilder|das Bild|Bilder|pictures
+Buch|das Buch|Bücher|book
+Bücher|das Buch|Bücher|books
+Büchern|das Buch|Bücher|books (dative)
+Kochbuch|das Kochbuch|Kochbücher|cookbook
+Geschenk|das Geschenk|Geschenke|present, gift
+Geschenkideen|die Geschenkidee|Geschenkideen|gift ideas
+Dinge|das Ding|Dinge|things
+Gegenstände|der Gegenstand|Gegenstände|objects
+Spiele|das Spiel|Spiele|games
+Karte|die Karte|Karten|card; ticket; map
+Karten|die Karte|Karten|cards; tickets
+Konzertkarten|die Konzertkarte|Konzertkarten|concert tickets
+Ausweis|der Ausweis|Ausweise|ID card
+Kassenzettel|der Kassenzettel|Kassenzettel|receipt
+Sack|der Sack|Säcke|bag, sack
+Säcke|der Sack|Säcke|bags
+Glas|das Glas|Gläser|glass
+Papier|das Papier||paper
+Karton|der Karton|Kartons|cardboard
+Alu|das Alu||aluminum
+PET-Flaschen|die PET-Flasche|PET-Flaschen|plastic (PET) bottles
+Sammelstellen|die Sammelstelle|Sammelstellen|collection points
+Strafe|die Strafe|Strafen|fine, penalty
+Becher|der Becher|Becher|cups
+Tasse|die Tasse|Tassen|cup
+Tellers|der Teller|Teller|plate (genitive)
+Pfanne|die Pfanne|Pfannen|pan
+Kleidung|die Kleidung||clothing
+Jacke|die Jacke|Jacken|jacket
+Schal|der Schal|Schals|scarf
+Hut|der Hut|Hüte|hat
+Brille|die Brille|Brillen|glasses
+Parfüm|das Parfüm|Parfüms|perfume
+Kleidergeschäft|das Kleidergeschäft|Kleidergeschäfte|clothing store
+Kaufhaus|das Kaufhaus|Kaufhäuser|department store
+Einkaufszentrum|das Einkaufszentrum|Einkaufszentren|shopping mall
+Supermarkt|der Supermarkt|Supermärkte|supermarket
+Markt|der Markt|Märkte|market
+Buchhandlung|die Buchhandlung|Buchhandlungen|bookstore
+Bäckerei|die Bäckerei|Bäckereien|bakery
+Kiosk|der Kiosk|Kioske|kiosk, newsstand
+Secondhand-Laden|der Secondhand-Laden|Secondhand-Läden|thrift store
+Restaurant|das Restaurant|Restaurants|restaurant
+Restaurantkritik|die Restaurantkritik|Restaurantkritiken|restaurant review
+Café|das Café|Cafés|café
+Kaffeehaus|das Kaffeehaus|Kaffeehäuser|coffee house (Vienna)
+Personal|das Personal||staff
+Service|der Service||service
+Essen|das Essen|Essen|food; meal
+Abendessen|das Abendessen|Abendessen|dinner
+Mittagessen|das Mittagessen|Mittagessen|lunch
+Frühstück|das Frühstück|Frühstücke|breakfast
+Getränke|das Getränk|Getränke|drinks
+Kaffee|der Kaffee||coffee
+Milch|die Milch||milk
+Milchpulver|das Milchpulver||milk powder
+Wasser|das Wasser||water
+Glühwein|der Glühwein||mulled wine
+Punsch|der Punsch||punch
+Brot|das Brot|Brote|bread
+Butter|die Butter||butter
+Käse|der Käse||cheese
+Konfitüre|die Konfitüre|Konfitüren|jam
+Gipfeli|das Gipfeli|Gipfeli|croissant(s) (Swiss)
+Kuchen,Kuchens|der Kuchen|Kuchen|cake
+Apfelkuchen|der Apfelkuchen|Apfelkuchen|apple pie
+Schokoladenkuchen|der Schokoladenkuchen|Schokoladenkuchen|chocolate cake
+Sachertorte|die Sachertorte|Sachertorten|Sacher cake (Viennese chocolate cake)
+Dessert|das Dessert|Desserts|dessert
+Schokolade|die Schokolade|Schokoladen|chocolate
+Zucker|der Zucker||sugar
+Salz|das Salz||salt
+Pfeffer|der Pfeffer||pepper
+Fett|das Fett|Fette|fat
+Fleisch|das Fleisch||meat
+Suppe|die Suppe|Suppen|soup
+Gemüsesuppe|die Gemüsesuppe|Gemüsesuppen|vegetable soup
+Kürbissuppe|die Kürbissuppe|Kürbissuppen|pumpkin soup
+Salat|der Salat|Salate|salad; lettuce
+Apfel|der Apfel|Äpfel|apple
+Tomaten|die Tomate|Tomaten|tomatoes
+Bohnen|die Bohne|Bohnen|beans
+Kakaobohnen|die Kakaobohne|Kakaobohnen|cocoa beans
+Kartoffeln|die Kartoffel|Kartoffeln|potatoes
+Rösti|die Rösti|Rösti|rösti (Swiss fried grated potatoes)
+Fondue|das Fondue|Fondues|fondue
+Spiegelei|das Spiegelei|Spiegeleier|fried egg
+Portion|die Portion|Portionen|portion
+Portionen|die Portion|Portionen|portions
+Fertigprodukte|das Fertigprodukt|Fertigprodukte|ready-made meals
+Alltag|der Alltag||everyday life
+Fahrrad|das Fahrrad|Fahrräder|bicycle
+Velo|das Velo|Velos|bicycle (Swiss)
+Velotunnel|der Velotunnel|Velotunnel|bike tunnel
+Auto|das Auto|Autos|car
+Autos|das Auto|Autos|cars
+autofreie|autofrei||car-free
+Bus|der Bus|Busse|bus
+Bushaltestelle|die Bushaltestelle|Bushaltestellen|bus stop
+Zug|der Zug|Züge|train
+Nachtzug|der Nachtzug|Nachtzüge|night train
+Intercity|der Intercity|Intercitys|intercity train
+Regionalzug|der Regionalzug|Regionalzüge|regional train
+Bahnhof|der Bahnhof|Bahnhöfe|train station
+Hauptbahnhof|der Hauptbahnhof|Hauptbahnhöfe|main train station
+Gleis|das Gleis|Gleise|platform, track
+Abfahrt|die Abfahrt|Abfahrten|departure
+Autobahn|die Autobahn|Autobahnen|highway
+Unfall|der Unfall|Unfälle|accident
+Fundbüro|das Fundbüro|Fundbüros|lost and found office
+Schilder|das Schild|Schilder|signs
+Stellenanzeige|die Stellenanzeige|Stellenanzeigen|job ad
+Kontaktanzeige|die Kontaktanzeige|Kontaktanzeigen|personal ad
+Chiffre|die Chiffre|Chiffren|box number (in a newspaper ad)
+Leserbrief|der Leserbrief|Leserbriefe|letter to the editor
+Polizeimeldung|die Polizeimeldung|Polizeimeldungen|police report
+Kurznachrichten|die Kurznachricht|Kurznachrichten|news in brief
+Filmkritik|die Filmkritik|Filmkritiken|film review
+Urteil|das Urteil|Urteile|verdict
+Sternen|der Stern|Sterne|stars (dative)
+Fall|der Fall|Fälle|case
+Gericht|das Gericht|Gerichte|court; dish
+Tod|der Tod||death
+Film|der Film|Filme|film, movie
+Filmen|das Filmen||filming
+Fotografie|die Fotografie|Fotografien|photography
+Fotografieren|das Fotografieren||taking photos
+Kunst|die Kunst|Künste|art
+Kunstmuseum|das Kunstmuseum|Kunstmuseen|art museum
+Kunstmesse|die Kunstmesse|Kunstmessen|art fair
+Verkehrshaus|das Verkehrshaus||Swiss Museum of Transport (Lucerne)
+Theaterverein|der Theaterverein|Theatervereine|amateur theater group
+Gitarre|die Gitarre|Gitarren|guitar
+Fußball|der Fußball||soccer
+Fußballspiele|das Fußballspiel|Fußballspiele|soccer games
+Fußballverein|der Fußballverein|Fußballvereine|soccer club
+Fitnessstudio|das Fitnessstudio|Fitnessstudios|gym
+Sport|der Sport||sport(s)
+Sportbecken|das Sportbecken|Sportbecken|lap pool
+Schwimmbad|das Schwimmbad|Schwimmbäder|swimming pool
+Hallenbad|das Hallenbad|Hallenbäder|indoor pool
+Freibad|das Freibad|Freibäder|outdoor pool
+Eingangsbereich|der Eingangsbereich|Eingangsbereiche|entrance area
+Winterfest|das Winterfest|Winterfeste|winter party
+Spital|das Spital|Spitäler|hospital (Swiss)
+Kinderspital|das Kinderspital|Kinderspitäler|children's hospital
+Kindergarten|der Kindergarten|Kindergärten|kindergarten
+Bundeshaus|das Bundeshaus||Federal Palace (Swiss parliament)
+Energiegesetz|das Energiegesetz|Energiegesetze|energy law
+Umfrage|die Umfrage|Umfragen|survey
+Diskussion|die Diskussion|Diskussionen|discussion
+Pro|das Pro||pro (Pro und Contra)
+Contra|das Contra||con (against)
+Änderungen|die Änderung|Änderungen|changes
+Anmeldung|die Anmeldung|Anmeldungen|registration
+Wiederholungen|die Wiederholung|Wiederholungen|repetitions
+Assistent|der Assistent|Assistenten|assistant
+Traum|der Traum|Träume|dream
+Gesund|gesund||healthy
+lerne|lernen||I learn
+sammle|sammeln||I collect
+Okay|okay||okay
+Hm|hm||hmm
+Hallo|hallo||hello
+Achtung|die Achtung||attention! watch out!
+Willkommen|willkommen||welcome
+Liebe,Lieber|lieb||Dear (in letters); dear
+liebe|lieb||dear (also: I love)
+Herzliche|herzlich||warm, heartfelt (Herzliche Grüße = warm regards)
+geehrte|geehrt||Dear (Sehr geehrte … = formal greeting)
+Guten|gut||good (Guten Tag = hello)
+Dr|Doktor||Dr.
+St|Sankt||St. (Saint)
+ch|||(part of the web/email address)
+A2|||A2 (level)
+Sofia|||(name)
+Marco|||(name)
+Rossi|||(name)
+Lea|||(name)
+Nina|||(name)
+Tomasz|||(name)
+Ayla|||(name)
+Julia|||(name)
+Brändli|||(name)
+Lukas|||(name)
+Mira|||(name)
+Jonas|||(name)
+Mia|||(name)
+Huber|||(name)
+Anna|||(name)
+Sara|||(name)
+Katja|||(name)
+Clara|||(name)
+Wieck|||(name)
+Robert,Roberts|||(name) Robert('s)
+Schumann|||(name)
+Albert|||(name)
+Einstein|||(name)
+Lena|||(name)
+Graf|||(name)
+Keller|||(name)
+Elif|||(name)
+Tim,Tims|||(name) Tim('s)
+Baumann|||(name)
+Ruth|||(name)
+Samuel|||(name)
+Nadia|||(name)
+Jan|||(name)
+Beat|||(name)
+S|||(initial of a name)
+Egli|||(name)
+Daniel|||(name)
+Laura|||(name)
+Schmid|||(name)
+Novak|||(name)
+Frei|||(name); also: free
+Wyss|||(name)
+Horvat|||(name)
+Jana|||(name)
+Thomas|||(name)
+Berger|||(name)
+Meier|||(name)
+Pedro|||(name)
+Mei|||(name)
+Ahmed|||(name)
+Lucy|||(name)
+Nicole|||(name)
+Ilona|||(name)
+Moser|||(name)
+Brunner|||(name)
+Lina|||(name)
+Senn|||(name)
+Sandra|||(name)
+Peter|||(name)
+Reto|||(name)
+Lara|||(name)
+Simon|||(name)
+Emma|||(name)
+Nora|||(name)
+Carla|||(name)
+Elena|||(name)
+Costa|||(name)
+Tobias|||(name)
+Hofer|||(name)
+Rodolphe|||(name)
+Lindt|||(name)
+Otto|||(name)
+Anton|||(name)
+Viktor|||(name)
+Nordpol|der Nordpol||North Pole (used in the spelling alphabet)
+Novatec|||(company name)
+Alpenrose|||(hotel name; "alpine rose")
+Löwen|der Löwe|Löwen|lion (Zum goldenen Löwen = restaurant name)
+Geiselweid|||(place) pool in Winterthur
+Schweiz|die Schweiz||Switzerland
+Österreich|das Österreich||Austria
+Italien|das Italien||Italy
+Spanien|das Spanien||Spain
+Portugal|das Portugal||Portugal
+Brasilien|das Brasilien||Brazil
+China|das China||China
+Iran|der Iran||Iran
+Ukraine|die Ukraine||Ukraine
+USA|die USA||the USA
+Kanada|das Kanada||Canada
+Mexiko|das Mexiko||Mexico
+Ghana|das Ghana||Ghana
+Ecuador|das Ecuador||Ecuador
+Europa|das Europa||Europe
+Zürich|||(place) Zurich
+Winterthur|||(place) Winterthur
+Winterthur-Seen|||(place) Seen, a district of Winterthur
+Bern|||(place) Bern
+Basel|||(place) Basel
+Luzern|||(place) Lucerne
+Genf|||(place) Geneva
+Lausanne|||(place) Lausanne
+Lugano|||(place) Lugano
+Bellinzona|||(place) Bellinzona
+Gallen|||(place) St. Gallen
+Aarau|||(place) Aarau
+Olten|||(place) Olten
+Schaffhausen|||(place) Schaffhausen
+Grindelwald|||(place) Grindelwald
+Brunnen|||(place) Brunnen; also: der Brunnen = fountain
+Engadin|||(place) Engadine valley
+Tessin|das Tessin||Ticino (Italian-speaking canton)
+Lago|||(place) Lago Maggiore (lake)
+Maggiore|||(place) Lago Maggiore (lake)
+Vierwaldstättersee|der Vierwaldstättersee||Lake Lucerne
+Donau|die Donau||the Danube
+Wien|||(place) Vienna
+Schönbrunn|||(place) Schönbrunn Palace, Vienna
+Berlin|||(place) Berlin
+Leipzig|||(place) Leipzig
+Frankfurt|||(place) Frankfurt
+Ulm|||(place) Ulm
+London|||(place) London
+Paris|||(place) Paris
+Barcelona|||(place) Barcelona
+Princeton|||(place) Princeton
+ETH|||ETH Zurich (Swiss Federal Institute of Technology)
+beide,beiden|beide||both
+Beispiel|das Beispiel|Beispiele|example (zum Beispiel = for example)
+bisschen|ein bisschen||a little, a bit
+Blau|blau||blue
+braune|braun||brown
+rote|rot||red
+grüne|grün||green
+schwarze|schwarz||black
+weiße|weiß||white
+Farbe|die Farbe|Farben|color
+Enttäuschung|die Enttäuschung|Enttäuschungen|disappointment
+funktioniert|funktionieren||works, functions
+Fuß|der Fuß|Füße|foot (zu Fuß = on foot)
+Geschirr|das Geschirr||dishes
+Hause|das Haus|Häuser|home (nach Hause = home; zu Hause = at home)
+letzte,letztes|letzt||last
+nächste,nächsten,nächster,nächstes|nächst||next; nearest
+öffnet|öffnen||opens
+Ruf|anrufen||call! (Ruf … an = call …)
+schwierigen|schwierig||difficult
+stark|stark||strong; heavily
+vermieten|vermieten||to rent out
+Zigaretten|die Zigarette|Zigaretten|cigarettes
+fange|anfangen||(fange … an) I begin
+füllen|füllen||to fill (füllen … aus = fill out)
+Laden|der Laden|Läden|shop, store
+lädt|laden||loads (lädt … ein = invites; lädt … auf = charges)
+räumt|aufräumen||(räumt … auf) tidies up
+rufen|rufen||to call (rufen … an = phone)
+sage,sagt,sagte|sagen||to say
+schaltet|schalten||switches (schaltet … aus = switches off; … ein = on)
+schlage|vorschlagen||(schlage … vor) I suggest
+schließen|schließen||to close
+Schloss|das Schloss|Schlösser|palace, castle; lock
+zahlen|zahlen||to pay
+Zahlen|die Zahl|Zahlen|numbers, figures
+ziehe|ziehen||pull; (ziehe mich … an) I get dressed
+gefallen|gefallen||to please (Das gefällt mir = I like it); also: fallen (from fallen)
+Liebsten|die Liebsten||loved ones (Ihre Liebsten = your loved ones)
+Seite|die Seite|Seiten|side; page
+Kochen|das Kochen||cooking
+Zeichnen|das Zeichnen||drawing
+Schwimmen|das Schwimmen||swimming
+Fliegen|das Fliegen||flying
+Sprachen|die Sprache|Sprachen|languages
+Malen|das Malen||painting
+`;
+
 /* ================= APP ================= */
 const FOUR_LANES="https://claude.ai/artifact/Vnx7HMkgddgpTuiHVtZHnE";
 const WEEKLY_GOAL=420;
@@ -2334,6 +3842,73 @@ for(const line of VERBS.split("\n")){
 const ALLTOPICS=Object.assign({},TOPICS,GEN);
 for(const [id,t] of Object.entries(ALLTOPICS))t.id=id;
 const itemKey=(tid,it)=>tid+":"+(it.q||(it.w||[]).join(" "));
+
+/* ---------- reading glossary ---------- */
+const WORD_RE=/[A-Za-zÄÖÜäöüßéèàâç]+(?:-[A-Za-zÄÖÜäöüßéèàâç]+)*/g;
+const EMAIL_RE=/[\w.+-]+@[\w-]+(?:\.[\w-]+)+/g;
+/* split text into plain strings and {w} word tokens; emails and single letters stay plain */
+function tokenizeText(text){
+  const out=[];
+  String(text).split(/([\w.+-]+@[\w-]+(?:\.[\w-]+)+)/).forEach((part,i)=>{
+    if(i%2){out.push(part);return;}
+    let last=0;part.replace(WORD_RE,(w,idx)=>{if(idx>last)out.push(part.slice(last,idx));out.push(w.length>1?{w}:w);last=idx+w.length;return w;});
+    if(last<part.length)out.push(part.slice(last));
+  });
+  return out;
+}
+const SEP_PREFIX=["zurück","zusammen","weiter","fest","fern","teil","kennen","spazieren","ab","an","auf","aus","ein","mit","nach","vor","weg","zu","um","her","hin","los","dazu"];
+const INSEP=/^(be|ver|er|ent|emp|ge|zer|miss|über|hinter|wider)/;
+let GLOSS=null;
+function buildGloss(){
+  const G=new Map();
+  const put=(form,e,force)=>{if(!form)return;if(force||!G.has(form))G.set(form,e);};
+  const verbForms=(inf)=>{
+    let pre="",base=inf;
+    for(const p of SEP_PREFIX)if(inf.startsWith(p)&&inf.length>p.length+3){pre=p;base=inf.slice(p.length);break;}
+    const stem=/(el|er)n$/.test(base)?base.slice(0,-1):base.replace(/(e?n)$/,"");const ins=INSEP.test(base)||/ieren$/.test(base);
+    const t=/[dt]$/.test(stem)?"et":"t", te=/[dt]$/.test(stem)?"ete":"te";
+    const fin=[stem+"e",stem+"st",stem+t,base,stem+(t==="et"?"et":"t"),stem+te,stem+te+"st",stem+te+"n",stem+te+"t"];
+    const part=(ins?"":"ge")+stem+t;
+    return {fin,nonfin:[inf,pre+part,pre?pre+"zu"+base:"",pre?pre+stem+"e":"",pre?pre+stem+t:""]};
+  };
+  for(const id of CARD_ORDER){
+    const c=CARDS[id];
+    if(c.t==="v"){
+      const e={l:c.inf,en:c.en,card:id,verb:true};
+      const vf=verbForms(c.inf);
+      put(c.pf.split(" ").pop(),e,true);
+      vf.nonfin.forEach(f=>put(f,e));
+      if(c.pr.includes(" "))continue; // separable: finite forms are split in the sentence, so they belong to the base verb
+      vf.fin.forEach(f=>put(f,e));
+      [c.pr,c.pt].forEach(f=>put(f,e,true));
+      const pt=c.pt;put(pt+"en",e,true);put(pt+"st",e);put(pt+"t",e);
+      if(/e$/.test(pt))put(pt+"n",e,true);
+      continue;
+    }
+    if(c.kind==="noun"){
+      const e={l:`${c.art} ${c.noun}`,pl:c.pl,en:c.en,card:id,art:c.art};
+      [c.noun,c.pl,c.pl&&datPl(c.pl),c.noun+"s",c.noun+"es",c.noun+"n"].forEach(f=>put(f,e,true));
+      continue;
+    }
+    const toks=c.de.replace(/[.?!…]/g,"").split(/\s+/).filter(w=>!/^(sich|etwas|für|um|an|auf|über|von|vor|in|mit)$/.test(w));
+    if(c.kind==="phrase"||toks.length!==1)continue;
+    const w=toks[0],e={l:c.de,en:c.en,card:id};
+    if(/^to /.test(c.en)&&/n$/.test(w)){const vf=verbForms(w);const sep=SEP_PREFIX.some(p=>w.startsWith(p)&&w.length>p.length+3);[...(sep?[]:vf.fin),...vf.nonfin].forEach(f=>put(f,e,true));}
+    else ["","e","en","er","es","em"].forEach(s=>put(w+s,e,true));
+  }
+  for(const line of GLOSS_TXT.split("\n")){
+    const [forms,lemma,pl,en]=line.split("|");if(!forms||en==null)continue;
+    const fs=forms.split(",").map(x=>x.trim()).filter(Boolean);
+    const l=(lemma||fs[0]).trim(),m=l.match(/^(der|die|das) (.+)$/);
+    const e={l,pl:(pl||"").trim(),en:en.trim(),art:m?m[1]:"",name:/^\(name|^\(place/.test(en.trim())};
+    fs.forEach(f=>put(f,e,true));
+  }
+  return G;
+}
+function lookupWord(w){
+  if(!GLOSS)GLOSS=buildGloss();
+  return GLOSS.get(w)||GLOSS.get(w.toLowerCase())||GLOSS.get(w[0].toUpperCase()+w.slice(1))||null;
+}
 
 /* ---------- generators ---------- */
 const ADJ_NOUNS=[
@@ -2428,6 +4003,7 @@ const GENFN={adjgen:genAdj,kompgen:genKomp,wechselgen:genWechsel};
 const DEF={
   progress:{current:0,done:{},cando:{},days:{},topic:{},introduced:{},lessons:{},settings:{newPerDay:NEW_PER_DAY}},
   notes:{by:{}},
+  custom:{cards:{}},
   srs:{cards:{}},
   mistakes:{items:[]},
   writing:{items:[]}
@@ -2436,7 +4012,7 @@ const DOCS=Object.keys(DEF);
 const LS="roterfaden.v1";
 let S=clone(DEF);
 try{const c=JSON.parse(localStorage.getItem(LS)||"null");if(c)for(const k of DOCS)if(c[k])S[k]=Object.assign(clone(DEF[k]),c[k]);}catch(e){}
-const ui={tab:"heute",wtab:"write",chFilter:0,sess:null,rule:{},toast:null,write:{prompt:null,text:"",busy:false,result:null,err:""},chat:{scene:null,turns:[],busy:false,feedback:null,err:""},search:"",showForms:true,cOpen:{},lesson:null,lmode:"theory",readAns:{},railOpen:false};
+const ui={tab:"heute",wtab:"write",chFilter:0,sess:null,rule:{},toast:null,write:{prompt:null,text:"",busy:false,result:null,err:""},chat:{scene:null,turns:[],busy:false,feedback:null,err:""},search:"",showForms:true,cOpen:{},lesson:null,lmode:"theory",readAns:{},readIdx:{},railOpen:false};
 try{const t=localStorage.getItem("roterfaden.tab");if(t)ui.tab=t;}catch(e){}
 
 let db=null, sample=null, saveState="local";
@@ -2603,9 +4179,12 @@ function nextLesson(){return LESSONS.find(l=>!lessonDone(l.id))||LESSONS[LESSONS
 function chapterLessons(ch){return LESSONS.filter(l=>l.ch===ch);}
 function lessonWords(l){
   const ls=chapterLessons(l.ch);const i=ls.indexOf(l),k=ls.length;
-  const slice=t=>{const ids=CARD_ORDER.filter(id=>CARDS[id].ch===l.ch&&CARDS[id].t===t);return ids.slice(Math.floor(i*ids.length/k),Math.floor((i+1)*ids.length/k));};
+  const slice=t=>{const ids=CARD_ORDER.filter(id=>CARDS[id].ch===l.ch&&CARDS[id].t===t&&!CARDS[id].custom);return ids.slice(Math.floor(i*ids.length/k),Math.floor((i+1)*ids.length/k));};
   return l.ch>8?[]:[...slice("w"),...slice("v")];
 }
+function lessonTexts(l){return [l.read,...(MORE[l.id]||[])];}
+function readDone(id,ti){const r=lp(id).read;if(!r)return null;if(r.total!=null)return ti===0?r:null;return r[ti]||null;}
+function setReadDone(id,ti,res){const prev=lp(id).read;const base=prev&&prev.total!=null?{0:prev}:Object.assign({},prev||{});base[ti]=res;setLp(id,{read:base});}
 function lessonLabel(l){return l.ch<9?`Kapitel ${l.ch} · Lektion ${l.id}`:"Abschluss · Prüfungstraining";}
 function sessLessonWords(id){
   const l=LESSON[id],ids=lessonWords(l);
@@ -2634,6 +4213,59 @@ function finishSession(s){
   if(s.kind==="test"){const best=Math.max(p.test||0,pct);setLp(s.lesson,{test:best,passed:p.passed||pct>=80,lastTest:pct});}
   s.pct=pct;
 }
+
+/* ---------- my added words ---------- */
+function registerCustom(){
+  for(const [id,c] of Object.entries(S.custom.cards||{})){
+    if(CARDS[id])continue;
+    const m=c.de.match(/^(der|die|das) (.+)$/);const isNoun=!!(m&&/^[A-ZÄÖÜ]/.test(m[2]));
+    CARDS[id]={id,t:"w",ch:c.ch||1,de:c.de,en:c.en,pl:c.pl||"",art:isNoun?m[1]:"",noun:isNoun?m[2]:"",kind:isNoun?"noun":(/[.?!…]/.test(c.de)?"phrase":"word"),custom:true,added:c.added};
+    CARD_ORDER.push(id);
+  }
+}
+function entryCard(e){if(e.card)return e.card;const id="c-"+slug(e.l);return CARDS[id]?id:null;}
+function addWord(w){
+  const e=lookupWord(w);if(!e||e.name)return null;
+  let id=entryCard(e);
+  if(!id){id="c-"+slug(e.l);const ch=ui.lesson&&LESSON[ui.lesson]?Math.min(8,LESSON[ui.lesson].ch):currentChapter();
+    S.custom.cards[id]={de:e.l,en:e.en,pl:e.pl||"",ch,added:today()};registerCustom();touch("custom");}
+  if(!srs(id))introduce(id,false);
+  return id;
+}
+function removeCustom(id){delete S.custom.cards[id];delete S.srs.cards[id];delete CARDS[id];const i=CARD_ORDER.indexOf(id);if(i>=0)CARD_ORDER.splice(i,1);touch("custom","srs");}
+function isMine(w){const e=lookupWord(w);if(!e)return false;const id=entryCard(e);return !!(id&&srs(id));}
+function glossHtml(text){
+  return String(text).split("\n").map(line=>`<p>${tokenizeText(line).map(tk=>typeof tk==="string"?esc(tk):`<span class="tw${isMine(tk.w)?" mine":""}" data-w="${esc(tk.w)}">${esc(tk.w)}</span>`).join("")}</p>`).join("");
+}
+let popEl=null,popHide=null,popPinned=false,popSpan=null;
+function ensurePop(){
+  if(popEl)return popEl;
+  popEl=document.createElement("div");popEl.id="wpop";popEl.className="wpop";popEl.hidden=true;popEl.setAttribute("role","dialog");
+  document.body.appendChild(popEl);
+  popEl.addEventListener("pointerenter",()=>clearTimeout(popHide));
+  popEl.addEventListener("pointerleave",e=>{if(e.pointerType==="mouse"&&!popPinned)schedHide();});
+  return popEl;
+}
+function popHtml(w,e){
+  if(!e)return `<div class="wp-l">${esc(w)}</div><div class="hint">No translation for this one yet.</div>`;
+  const id=entryCard(e),st=id&&srs(id);
+  const head=e.art&&e.l.startsWith(e.art+" ")?`<span class="g-${e.art}">${e.art}</span> ${esc(e.l.slice(e.art.length+1))}`:esc(e.l);
+  return `${w.toLowerCase()!==e.l.toLowerCase()?`<div class="wp-w">${esc(w)}</div>`:""}<div class="wp-l">${head}${e.pl?` <span class="faint" style="font-weight:500;font-size:.85rem">· die ${esc(e.pl)}</span>`:""}</div><div class="wp-en">${esc(e.en)}</div>
+  ${e.name?"":st?`<div class="wp-st">✓ In your words · box ${st.b}</div>`:`<button class="btn primary wp-add" data-act="word-add" data-w="${esc(w)}">+ Add to my words</button>`}`;
+}
+function placePop(span){
+  const r=span.getBoundingClientRect(),el=popEl;el.style.left="0px";el.style.top="0px";
+  const pw=el.offsetWidth,ph=el.offsetHeight;
+  const x=Math.min(Math.max(8,r.left+r.width/2-pw/2),window.innerWidth-pw-8);
+  let y=r.bottom+8;if(y+ph>window.innerHeight-8)y=Math.max(8,r.top-ph-8);
+  el.style.left=x+"px";el.style.top=y+"px";
+}
+function showPop(span,pin){const el=ensurePop();popSpan=span;popPinned=!!pin;el.innerHTML=popHtml(span.dataset.w,lookupWord(span.dataset.w));el.hidden=false;placePop(span);}
+function hidePop(){clearTimeout(popHide);if(popEl)popEl.hidden=true;popPinned=false;popSpan=null;}
+function schedHide(){clearTimeout(popHide);popHide=setTimeout(hidePop,220);}
+document.addEventListener("pointerover",e=>{if(e.pointerType!=="mouse")return;const sp=e.target.closest&&e.target.closest(".tw");if(sp){clearTimeout(popHide);if(!popPinned)showPop(sp,false);}});
+document.addEventListener("pointerout",e=>{if(e.pointerType!=="mouse")return;const sp=e.target.closest&&e.target.closest(".tw");if(sp&&!popPinned)schedHide();});
+window.addEventListener("scroll",()=>{if(popEl&&!popEl.hidden&&popSpan)placePop(popSpan);},{passive:true});
 
 /* ---------- drill rendering ---------- */
 function blankSentence(q,n,disabled,vals,states){
@@ -2965,12 +4597,13 @@ function vKurs(){
     ${p.practice!=null?`<p class="hint">Best so far: <b>${p.practice}%</b></p>`:""}
     <div class="row"><button class="btn primary" data-act="lesson-practice" data-l="${l.id}">${p.practice!=null?"Practice again":"Start practice"}</button>${l.topics.length?`<span class="hint">Want more? The Grammar tab has unlimited items per topic.</span>`:""}</div></section>`;
   }else if(ui.lmode==="read"){
-    const r=l.read,ans=ui.readAns[l.id]||(ui.readAns[l.id]={});
+    const texts=lessonTexts(l),ti=Math.min(ui.readIdx[l.id]||0,texts.length-1),r=texts[ti],key=l.id+":"+ti,ans=ui.readAns[key]||(ui.readAns[key]={});
     const answered=r.qs.filter((_,k)=>ans[k]!=null).length,right=r.qs.filter((q,k)=>ans[k]===q.a).length;
-    body=`<section class="lx-card"><h3>${esc(r.title)}</h3><div class="reading">${esc(r.text).split("\n").map(x=>`<p>${x}</p>`).join("")}</div></section>
+    body=`<div class="row" style="justify-content:space-between"><div class="seg" role="group" aria-label="Texts">${texts.map((t,i)=>`<button aria-pressed="${i===ti}" data-act="read-text" data-l="${l.id}" data-i="${i}">${readDone(l.id,i)?"✓ ":""}Text ${i+1}</button>`).join("")}</div><span class="hint">${window.matchMedia&&matchMedia("(hover:hover)").matches?"Hover":"Tap"} any word for its translation</span></div>
+    <section class="lx-card"><h3>${esc(r.title)}</h3><div class="reading">${glossHtml(r.text)}</div></section>
     <section class="lx-card stack" style="gap:14px"><h3>Fragen zum Text</h3>
-    ${r.qs.map((q,k)=>{const a=ans[k];return `<div class="rq"><p><b class="mono faint">${k+1}</b> ${esc(q.q)}</p><div class="opts">${q.o.map((o,j)=>`<button class="opt ${a!=null?(j===q.a?"ok":j===a?"no":""):""}" data-act="read-ans" data-l="${l.id}" data-k="${k}" data-j="${j}" ${a!=null?"disabled":""}>${esc(o)}</button>`).join("")}</div>${a!=null&&q.why?`<p class="hint">${esc(q.why)}</p>`:""}</div>`;}).join("")}
-    ${answered===r.qs.length?`<div class="row"><span class="pill ${right===r.qs.length?"ok":"warn"}">${right}/${r.qs.length} right</span><button class="mini" data-act="read-reset" data-l="${l.id}">Try again</button><button class="btn primary" data-act="lmode" data-m="test">Go to the test →</button></div>`:""}</section>`;
+    ${r.qs.map((q,k)=>{const a=ans[k];return `<div class="rq"><p><b class="mono faint">${k+1}</b> ${esc(q.q)}</p><div class="opts">${q.o.map((o,j)=>`<button class="opt ${a!=null?(j===q.a?"ok":j===a?"no":""):""}" data-act="read-ans" data-l="${l.id}" data-i="${ti}" data-k="${k}" data-j="${j}" ${a!=null?"disabled":""}>${esc(o)}</button>`).join("")}</div>${a!=null&&q.why?`<p class="hint">${esc(q.why)}</p>`:""}</div>`;}).join("")}
+    ${answered===r.qs.length?`<div class="row"><span class="pill ${right===r.qs.length?"ok":"warn"}">${right}/${r.qs.length} right</span><button class="mini" data-act="read-reset" data-l="${l.id}" data-i="${ti}">Try again</button>${ti<texts.length-1?`<button class="btn primary" data-act="read-text" data-l="${l.id}" data-i="${ti+1}">Next text →</button>`:`<button class="btn primary" data-act="lmode" data-m="test">Go to the test →</button>`}</div>`:""}</section>`;
   }else if(ui.lmode==="test"){
     const n=l.test.length+4;
     body=`<section class="lx-card stack" style="gap:12px"><h3>Lesson test</h3><p>${n} questions from the whole lesson, no hints before you answer. You pass at <b>80%</b>. Passing marks the lesson complete.</p>
@@ -3023,15 +4656,16 @@ function vKapitel(){
 function boxes(id){const c=srs(id);const b=c?c.b:-1;return `<span class="boxes" title="${c?"box "+b+(c.due<=today()?" · due":" · next "+fmt(c.due)):"not started"}">${[1,2,3,4,5].map(k=>`<i class="${b>=k?"on":""}"></i>`).join("")}</span>`;}
 function vWoerter(){
   const ch=ui.chFilter||currentChapter();
-  const q=norm(ui.search);
-  let ids=CARD_ORDER.filter(id=>CARDS[id].t==="w"&&(q?norm(CARDS[id].de+" "+CARDS[id].en).includes(q):CARDS[id].ch===ch));
+  const q=norm(ui.search),mineView=!q&&ch===99;
+  let ids=CARD_ORDER.filter(id=>CARDS[id].t==="w"&&(q?norm(CARDS[id].de+" "+CARDS[id].en).includes(q):mineView?CARDS[id].custom:CARDS[id].ch===ch));
+  const nMine=CARD_ORDER.filter(id=>CARDS[id].custom).length;
   const due=CARD_ORDER.filter(id=>CARDS[id].t==="w"&&isDue(id)).length;
   return `<div class="stack">
-  <section class="card"><div class="card-h"><h2>Wörter</h2><div class="row"><button class="btn" data-act="due-words" ${due?"":"disabled"}>Review due (${due})</button><button class="btn primary" data-act="ch-words" data-ch="${ch}">Drill Kapitel ${ch}</button></div></div>
+  <section class="card"><div class="card-h"><h2>Wörter</h2><div class="row"><button class="btn" data-act="due-words" ${due?"":"disabled"}>Review due (${due})</button>${ch===99?"":`<button class="btn primary" data-act="ch-words" data-ch="${ch}">Drill Kapitel ${ch}</button>`}</div></div>
   <p class="hint" style="margin-bottom:12px">Nouns are colored by gender: <b class="g-der">der</b> <b class="g-die">die</b> <b class="g-das">das</b>. You type the German with the article; from box 2 on you also type the plural. Five squares = in long-term memory.</p>
-  <div class="row" style="justify-content:space-between"><div class="seg" role="group" aria-label="Chapter">${CHAPTERS.map(c=>`<button aria-pressed="${!q&&c.n===ch}" data-act="wch" data-ch="${c.n}">K${c.n}</button>`).join("")}</div>
+  <div class="row" style="justify-content:space-between"><div class="seg" role="group" aria-label="Chapter">${CHAPTERS.map(c=>`<button aria-pressed="${!q&&c.n===ch}" data-act="wch" data-ch="${c.n}">K${c.n}</button>`).join("")}<button aria-pressed="${mineView}" data-act="wch" data-ch="99">Added (${nMine})</button></div>
   <input class="field" id="wsearch" style="max-width:240px" placeholder="Search all words" value="${esc(ui.search)}" aria-label="Search words"></div></section>
-  <section class="card"><div class="words">${ids.map(id=>{const c=CARDS[id];return `<div class="word"><span class="gbar ${c.art}"></span><div><div class="de">${c.art?`<span class="g-${c.art}">${c.art}</span> ${esc(c.noun)}${c.pl?` <span class="faint" style="font-weight:400">· die ${esc(c.pl)}</span>`:""}`:esc(c.de)}</div><div class="en">${esc(c.en)}${q?` · K${c.ch}`:""}</div></div>${boxes(id)}</div>`;}).join("")||`<p class="empty">No matches.</p>`}</div></section></div>`;
+  <section class="card"><div class="words">${ids.map(id=>{const c=CARDS[id];return `<div class="word"><span class="gbar ${c.art}"></span><div><div class="de">${c.art?`<span class="g-${c.art}">${c.art}</span> ${esc(c.noun)}${c.pl?` <span class="faint" style="font-weight:400">· die ${esc(c.pl)}</span>`:""}`:esc(c.de)}</div><div class="en">${esc(c.en)}${q||mineView?` · K${c.ch}`:""}${c.custom&&!mineView?" · added":""}</div></div><span class="row" style="gap:8px">${boxes(id)}${mineView?`<button class="mini" data-act="custom-del" data-id="${id}" aria-label="Remove">✕</button>`:""}</span></div>`;}).join("")||`<p class="empty">${mineView?"Nothing added yet. In any Lesen text, tap a word and hit “Add to my words”.":"No matches."}</p>`}</div></section></div>`;
 }
 function vVerben(){
   const ids=CARD_ORDER.filter(id=>CARDS[id].t==="v");
@@ -3122,6 +4756,7 @@ function vFehler(){
 
 /* ---------- render + events ---------- */
 function render(){
+  hidePop();registerCustom();
   const main={heute:vHeute,kurs:vKurs,kapitel:vKapitel,woerter:vWoerter,verben:vVerben,grammatik:vGrammatik,schreiben:vSchreiben,fehler:vFehler,drill:vDrill}[ui.tab]||vHeute;
   $("#app").innerHTML=header()+`<main>${main()}</main>`+(ui.toast?`<div class="toast" role="status">${esc(ui.toast)}</div>`:"");
   setSave();
@@ -3137,6 +4772,9 @@ document.addEventListener("click",e=>{
   const o=e.target.closest("[data-opt]");if(o){const it=curItem();if(it&&!it.res){it.pickd=+o.dataset.opt;check();}return;}
   const b=e.target.closest("[data-build]");if(b){const it=curItem();(it.built=it.built||[]).push(+b.dataset.build);render();return;}
   const ub=e.target.closest("[data-unbuild]");if(ub){const it=curItem();it.built.splice(+ub.dataset.unbuild,1);render();return;}
+  const tw=e.target.closest(".tw");
+  if(tw){if(popPinned&&popSpan===tw)hidePop();else showPop(tw,true);return;}
+  if(popEl&&!popEl.hidden&&!e.target.closest("#wpop"))hidePop();
   const a=e.target.closest("[data-act]");if(!a)return;const d=a.dataset;
   switch(d.act){
     case "start-today":sessToday();break;
@@ -3147,8 +4785,11 @@ document.addEventListener("click",e=>{
     case "lesson-words":sessLessonWords(d.l);break;
     case "lesson-practice":sessLessonPractice(d.l);break;
     case "lesson-test":ui.sess=null;sessLessonTest(d.l);break;
-    case "read-ans":{const a=ui.readAns[d.l]||(ui.readAns[d.l]={});a[+d.k]=+d.j;const r=LESSON[d.l].read;if(r.qs.every((_,k)=>a[k]!=null)){const right=r.qs.filter((q,k)=>a[k]===q.a).length;setLp(d.l,{read:{right,total:r.qs.length}});}render();break;}
-    case "read-reset":ui.readAns[d.l]={};render();break;
+    case "read-ans":{const ti=+d.i,key=d.l+":"+ti,a=ui.readAns[key]||(ui.readAns[key]={});a[+d.k]=+d.j;const r=lessonTexts(LESSON[d.l])[ti];if(r.qs.every((_,k)=>a[k]!=null)){const right=r.qs.filter((q,k)=>a[k]===q.a).length;setReadDone(d.l,ti,{right,total:r.qs.length});}render();break;}
+    case "read-reset":ui.readAns[d.l+":"+d.i]={};render();break;
+    case "read-text":ui.readIdx[d.l]=+d.i;render();window.scrollTo({top:0});break;
+    case "word-add":{const w=d.w,id=addWord(w);if(id){document.querySelectorAll(".tw").forEach(sp=>{if(isMine(sp.dataset.w))sp.classList.add("mine");});if(popEl&&!popEl.hidden){popEl.innerHTML=popHtml(w,lookupWord(w))+`<div class="hint">Added. It'll show up in Today's session.</div>`;popPinned=true;}}break;}
+    case "custom-del":removeCustom(d.id);render();break;
     case "scene-open":ui.tab="schreiben";ui.wtab="talk";ui.chat={scene:+d.k,turns:[],busy:false,feedback:null,err:""};render();window.scrollTo({top:0});break;
     case "check":check();break;
     case "next":next();break;

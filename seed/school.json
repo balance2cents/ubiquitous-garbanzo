@@ -94,10 +94,42 @@
     {
       "id": "law-test",
       "course": "law01",
-      "name": "Assessment Test (multiple choice)",
+      "name": "Exam: Assessment Test (multiple choice)",
       "date": "2026-12-17",
-      "type": "Test",
+      "type": "Exam",
       "done": false
+    },
+    {
+      "course": "fim01",
+      "date": "2027-01-04",
+      "done": false,
+      "id": "6vge5kv5",
+      "name": "Final exam · 13:30–15:50 (80′ accounting, 20′ break, 40′ tax)",
+      "type": "Exam"
+    },
+    {
+      "course": "mgt01",
+      "date": "2027-01-06",
+      "done": false,
+      "id": "os-exam",
+      "name": "Final exam · 08:30–10:00 (90′, written)",
+      "type": "Exam"
+    },
+    {
+      "course": "mat12",
+      "date": "2027-01-13",
+      "done": false,
+      "id": "da-exam",
+      "name": "Final exam · 08:30–10:00 (90′, written)",
+      "type": "Exam"
+    },
+    {
+      "course": "mat11",
+      "date": "2027-01-14",
+      "done": false,
+      "id": "abm-exam",
+      "name": "Final exam · 08:30–10:00 (90′, written)",
+      "type": "Exam"
     }
   ]
 }

@@ -28,7 +28,9 @@
       "id": "mat12",
       "code": "W.IBA_APMAT12.H26",
       "name": "Data Analysis I",
-      "color": "#E06C98"
+      "color": "#E06C98",
+      "link": "https://claude.ai/artifact/QDDgdogcH3GmwV87vd8bQB",
+      "linkName": "The Outlier"
     },
     {
       "id": "mgt01",
@@ -42,7 +44,9 @@
       "id": "pcm01",
       "code": "W.IBA_APPCM01.H26",
       "name": "Communication Fundamentals",
-      "color": "#C9A93A"
+      "color": "#C9A93A",
+      "link": "https://claude.ai/artifact/QnC5QbyLacCLK5kLrdGCvV",
+      "linkName": "The Red Pen"
     }
   ],
   "weeks": {},

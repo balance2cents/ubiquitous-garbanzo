@@ -227,6 +227,48 @@ table.ref td.f{font-family:var(--f-mono); font-size:12.5px; white-space:nowrap}
 .empty{color:var(--faint); font-style:italic}
 .done-card{text-align:center; padding:30px 20px}
 .done-card .big{font-family:var(--f-display); font-size:48px; font-weight:800; line-height:1}
+/* ---------- midterm ---------- */
+.mt-bar{display:flex; flex-wrap:wrap; gap:16px 24px; align-items:center; justify-content:space-between; padding:16px 18px; margin-bottom:22px}
+.mt-modes{display:inline-flex; border:1px solid var(--line-strong); border-radius:10px; overflow:hidden}
+.mt-modes button{background:var(--surface); border:0; padding:8px 14px; cursor:pointer; text-align:left; display:flex; flex-direction:column; font-weight:600; font-size:14px; color:var(--ink)}
+.mt-modes button+button{border-left:1px solid var(--line-strong)}
+.mt-modes button span{font-weight:400; font-size:11.5px; color:var(--muted)}
+.mt-modes button[aria-pressed="true"]{background:var(--ink); color:var(--bg)} .mt-modes button[aria-pressed="true"] span{color:inherit; opacity:.75}
+.mt-score .lp-num{font-size:28px}
+.mt-timer{position:fixed; left:18px; bottom:calc(18px + env(safe-area-inset-bottom,0px)); z-index:40; font-family:var(--f-mono); font-size:13px; font-weight:600; background:var(--ink); color:var(--bg); border-radius:99px; padding:9px 14px; box-shadow:var(--shadow)} .mt-timer.over{background:var(--bad); color:#fff}
+.mt-switch{display:flex; gap:8px; flex-wrap:wrap}
+.btn.armed{border-color:var(--bad); color:var(--bad)}
+.mt-sec{margin-bottom:30px; max-width:860px}
+.mt-sech{display:flex; justify-content:space-between; align-items:baseline; gap:10px; flex-wrap:wrap; border-bottom:2px solid var(--ink); padding-bottom:6px; margin-bottom:12px}
+.mt-sech h2{font-size:20px} .mt-pts{font-size:12px; color:var(--faint)}
+.mt-intro{margin-bottom:14px; font-size:15px} .mt-intro p{margin:0 0 8px}
+.mt-q{margin-bottom:14px; padding:18px 20px}
+.mt-qhead{display:flex; gap:10px; align-items:center; margin-bottom:8px}
+.mt-qtext{font-size:15.5px; line-height:1.55; margin-bottom:4px}
+.mt-sum{font-family:var(--f-mono); font-size:22px; text-align:center; margin:8px 0 10px}
+.mt-sum sub,.mt-sum sup{font-size:12px}
+.mt-opts{display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:8px; margin-top:12px}
+.mt-opts.many{grid-template-columns:repeat(auto-fill,minmax(110px,1fr))}
+.mt-opts .opt{align-items:center; padding:8px 11px}
+.opt[aria-pressed="true"]{border-color:var(--accent); background:var(--accent-soft); box-shadow:0 0 0 1px var(--accent)}
+.mt-lcd{display:inline-flex; margin-top:10px}
+.mt-corr{display:flex; flex-wrap:wrap; gap:10px 18px; margin-top:12px}
+.mt-corr label{font-weight:600; display:flex; gap:8px; align-items:center}
+.mt-corr select{font:inherit; padding:6px 8px; border-radius:7px; border:1px solid var(--line-strong); background:var(--surface); color:var(--ink)}
+.mt-text{width:100%; margin-top:10px; font:inherit; font-size:15px; line-height:1.55; padding:10px 12px; border:1px solid var(--line-strong); border-radius:9px; background:var(--surface); color:var(--ink); resize:vertical}
+.feedback.neutral{background:var(--surface-2)} .feedback.neutral h4{color:var(--ink)}
+.mt-rub{display:flex; gap:8px; align-items:flex-start; font-size:14px; margin-top:6px} .mt-rub input{margin-top:4px; accent-color:var(--good)}
+.mt-warn{font-size:13px; color:var(--bad)}
+.mt-secs{display:grid; grid-template-columns:repeat(auto-fill,minmax(100px,1fr)); gap:8px; max-width:640px; margin:0 auto 6px; text-align:left}
+.mt-fig{overflow-x:auto; background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:8px}
+.mt-fig svg{display:block; width:100%; min-width:520px; height:auto}
+.mt-cap{font-size:12.5px; color:var(--faint); text-align:center; margin:6px 0 0}
+.mt-grid{stroke:var(--line); stroke-width:1} .mt-ax{fill:var(--faint); font-size:11px; font-family:var(--f-mono)}
+.mt-wh{stroke:var(--accent-strong); stroke-width:1.4} .mt-box{fill:var(--accent); fill-opacity:.75; stroke:var(--accent-strong); stroke-width:1}
+.mt-med{stroke:var(--bg); stroke-width:1.6} .mt-out{fill:var(--accent-strong)}
+.mt-scat{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; max-width:520px; margin:0 auto}
+.mt-scat svg{width:100%; height:auto; background:var(--surface)}
+.mt-frame{fill:none; stroke:var(--ink); stroke-width:.8} .mt-lab{font-size:8px; font-weight:700; fill:var(--ink)} .mt-dot{fill:var(--ink)}
 /* ---------- notes & tutor hooks ---------- */
 .note-dot{display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--accent); margin-right:6px; vertical-align:middle}
 .nav button[aria-current="page"] .note-dot{background:currentColor}
@@ -975,7 +1017,7 @@ function next(){
    views
    ===================================================================== */
 const VIEWS=[
-  ['learn','Theory','nav-learn'],['drill','Mixed drill','nav-practice'],['topic','By topic','nav-practice'],['lab','Excel lab','nav-practice'],
+  ['learn','Theory','nav-learn'],['drill','Mixed drill','nav-practice'],['topic','By topic','nav-practice'],['lab','Excel lab','nav-practice'],['midterm','Midterm exam','nav-practice'],
   ['traps','Traps','nav-ref'],['calc','Calculator','nav-ref'],['formulas','Formula sheet','nav-ref'],
   ['notes','My notes','nav-you'],['map','Course map','nav-you'],['log','Mistake log','nav-you']
 ];
@@ -989,6 +1031,7 @@ function renderNav(){
     if(id==='log')meta=S.misses.length?String(S.misses.length):'';
     if(id==='notes'){const w=(S.notes||'').trim()?S.notes.trim().split(/\s+/).length:0;meta=w?`<span class="note-dot" aria-hidden="true"></span>${w} words`:'empty';}
     if(id==='traps')meta=String(TRAPS.length);
+    if(id==='midterm')meta=S.best.midterm?`best ${fmt(S.best.midterm,2)}/28`:'28 pts';
     if(id==='learn')meta=`${LEARN.filter(l=>(S.read||{})[l.id]).length}/${LEARN.length} read`;
     groups[g]+=`<button data-view="${id}" ${current.view===id?'aria-current="page"':''}><span>${name}</span><span class="nav-meta">${meta}</span></button>`;
   });
@@ -999,7 +1042,7 @@ function renderNav(){
 }
 function go(v){current.view=v;if(v==='drill'){current.session=[];current.q=null;}if(v==='topic'){current.q=null;}try{history.replaceState(null,'','#'+v);}catch(e){}render();window.scrollTo(0,0);}
 function head(eyebrow,title,right=''){return `<div class="view-head"><div><div class="eyebrow">${eyebrow}</div><h1 class="view-title">${title}</h1></div>${right}</div>`;}
-function render(){renderNav();({notes:vNotes,learn:vLearn,lab:vLab,drill:vDrill,topic:vTopic,traps:vTraps,calc:vCalc,formulas:vFormulas,map:vMap,log:vLog}[current.view]||vDrill)();}
+function render(){renderNav();({notes:vNotes,midterm:vMidterm,learn:vLearn,lab:vLab,drill:vDrill,topic:vTopic,traps:vTraps,calc:vCalc,formulas:vFormulas,map:vMap,log:vLog}[current.view]||vDrill)();}
 
 function renderPips(){
   const el=$('#pips'); if(!el)return;
@@ -2676,6 +2719,397 @@ vLab=function(){
 
 /* ---------- My notes ---------- */
 let notesT=null;
+/* =====================================================================
+   midterm: the official practice midterm (HSLU, W.APMAT12), plus a
+   "twin" with fresh numbers. Calculator-only: every method is shown
+   for the TI-84 and by hand.
+   ===================================================================== */
+const MT_KEY='outlier-midterm';
+const MT_MONTHS=['Nov','Dec','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct'];
+const MT_MONTH_NO=[11,12,1,2,3,4,5,6,7,8,9,10];
+const MT_MONTH_FULL={1:'January',2:'February',3:'March',4:'April',5:'May',6:'June',7:'July',8:'August',9:'September',10:'October',11:'November',12:'December'};
+// Read off the exam's boxplot (vector data in the PDF): [min, Q1, median, Q3, max], outliers separate.
+const MT_BOX=[[3.07,5.3,6.98,8.6,13.27],[-4.62,-0.53,1.98,5.76,10.07],[-7.1,-0.63,2.49,5.76,9.36],[-2.13,-0.41,2.71,6.65,8.96],[0.38,4.06,7.15,10.35,12.76],[2.97,5.96,8.37,10.35,15.35],[9.67,11.77,13.65,16.95,19.54],[17.66,19.03,19.89,21.06,23.14],[17.05,19.05,20.15,21.54,24.64],[11.67,15.65,20.25,23.24,25.14],[12.46,17.02,18.45,20.25,21.74],[6.98,9.77,12.46,15.96,17.56]];
+const MT_OUT={8:[14.05,25.35]};
+const mtLo=i=>Math.min(MT_BOX[i][0],...(MT_OUT[i]||[])), mtHi=i=>Math.max(MT_BOX[i][4],...(MT_OUT[i]||[]));
+// Scatterplot points from the exam's Figure 2, in percent of the panel.
+const MT_SCAT={a:[[65.2,47.5],[76,56.5],[62.5,54.1],[70.2,76.7],[53.9,68.3],[47.4,60.6],[42.1,78],[34.9,76],[36.4,57.1],[31,51.7],[34,49.1],[30,39.9],[33.9,31.8],[38,34.5],[43.6,31.3],[52.4,32.6],[55.1,36.9],[60.4,39.1],[80.3,30.9],[65.8,47.6]],
+  b:Array.from({length:20},(_,i)=>[12.2+i*4,12.2+i*4]), c:Array.from({length:20},(_,i)=>[12.2+i*4,87.8-i*4]),
+  d:[[20.3,47.4],[23.4,11.2],[26.6,45.6],[29.7,25.8],[32.8,65.6],[35.9,34.9],[39.1,61.1],[42.2,25],[45.3,58],[48.4,34.1],[51.6,72.6],[54.7,44.6],[57.8,61.3],[60.9,32],[64.1,77.2],[67.2,54.6],[70.3,75.5],[73.4,47.5],[76.6,69.6],[79.7,56.6]]};
+MT_SCAT.r={a:0,b:1,c:-1,d:0.5};
+const LET='abcdefghijkl';
+const exNum=(x,d=2)=>{const s=Math.abs(x).toFixed(d).replace(/\B(?=(\d{3})+(?!\d))/g,',');return (x<0?'−':'')+s;};
+
+/* ---------- data for one sitting (official or twin) ---------- */
+function mtData(twin){
+  if(!twin)return {twin:false,
+    xy:{x:[-6,15,26,-1,-1,14,-9,30,-9,11],y:[83,49,44,14,70,80,99,15,92,21],a:4,b:6,m:4,c:3},
+    scales:['founded','religion','income','incclass'],
+    freq:[12,30,28,18,12],
+    iv:{n:100,ss:12474},
+    v:{ref:8,thr:'q3>10',rng:'max'},
+    vi:{lib:[-0.007932,-0.007898,-0.007954,-0.007996,-0.007906,-0.00786,-0.00786,-0.007762,-0.00783,-0.007736,-0.007786],sar:[0.00946,0.00938,0.01419],base:0,tgt:1},
+    order:['a','b','c','d']};
+  const x=Array.from({length:10},()=>ri(-10,30)), y=Array.from({length:10},()=>ri(10,99));
+  const a=ri(1,6), b=Math.min(10,a+ri(2,3));
+  let freq;
+  for(;;){const cut=[0,...Array.from({length:4},()=>ri(6,94)).sort((p,q)=>p-q),100];freq=cut.slice(1).map((v,i)=>v-cut[i]);
+    if(freq.some(f=>f<5))continue; let c=0;const cum=freq.map(f=>c+=f); if(cum.includes(50)||cum.includes(75))continue;
+    if(cum[0]>=50)continue; break;}
+  const libBase=-(0.0078+Math.random()*0.0004);
+  const lib=Array.from({length:11},()=>rnd(libBase*(0.97+Math.random()*0.06),6));
+  const sar=[rnd(0.009+Math.random()*0.003,5)]; sar.push(rnd(sar[0]*(0.95+Math.random()*0.1),5)); sar.push(rnd(sar[1]*(1.2+Math.random()*0.4),5));
+  return {twin:true,
+    xy:{x,y,a,b,m:ri(3,5),c:ri(2,5)},
+    scales:shuffle(Object.keys(MT_SCALES)).slice(0,4),
+    freq,
+    iv:{n:ri(60,200),ss:ri(4000,30000)},
+    v:{ref:pick([8,9]),thr:pick(['q3>10','q3>15','q1<0','med>10']),rng:pick(['max','min'])},
+    vi:{lib,sar,base:ri(0,3),tgt:pick([1,2])},
+    order:shuffle(['a','b','c','d'])};
+}
+const MT_SCALES={
+  founded:['Founding year','c','A year is a position on a timeline whose zero (year 0) is a convention, not "no time". Differences make sense (founded 150 years apart), ratios do not (a country founded in 1800 is not "twice" one founded in 900).'],
+  religion:['Most common religious affiliation','a','Pure labels. Catholic, Protestant, none, Islamic, other have no natural order, so all you can do is count them.'],
+  income:['Average disposable household income','d','Money has a real zero (no income) and ratios make sense: CHF 8,000 is twice CHF 4,000.'],
+  incclass:['Income class (below poverty line / low / medium / high)','b','The classes have a clear order, but the gaps between them are not equal or measurable. It was built from a ratio variable, but grouping into labels throws that information away.'],
+  temp:['Temperature in °C','c','0 °C is just the freezing point of water, not "no temperature". 20 °C is not twice as warm as 10 °C, but the difference of 10 degrees is meaningful.'],
+  postal:['Postal code','a','The digits are names for places. 6002 is not "more" than 6000 in any meaningful sense, and averaging postal codes is nonsense.'],
+  satisf:['Customer satisfaction (unhappy / neutral / happy)','b','Ordered categories, but nobody can say the step from unhappy to neutral equals the step from neutral to happy.'],
+  age:['Age in years','d','Age 0 means "just born", a true zero. A 40-year-old is twice as old as a 20-year-old.'],
+  staff:['Number of employees','d','A count has a true zero and ratios work: 200 employees is twice 100.'],
+  date:['Calendar date of an order','c','Like a year: differences in days make sense, but the zero point of the calendar is arbitrary.'],
+  stars:['Hotel category (1 to 5 stars)','b','Numbers used as ordered labels. A 4-star hotel is better than a 2-star one, but not "twice as good".'],
+  blood:['Blood type (A, B, AB, 0)','a','Categories without any order.'],
+  revenue:['Annual revenue in CHF','d','Money: true zero, and ratios are meaningful.'],
+  size:['Clothing size (S / M / L / XL)','b','Ordered, but the steps are not measured distances.']
+};
+
+/* ---------- helpers for the explanations ---------- */
+const mtCum=f=>{let c=0;return f.map(v=>c+=v);};
+const MT_LB=[0,5,10,20,30], MT_W=[5,5,10,10,10], MT_MID=[2.5,7.5,15,25,35];
+const mtClass=i=>`${MT_LB[i]} to less than ${MT_LB[i]+MT_W[i]}`;
+function mtQuant(freq,p){const n=sum(freq),cum=mtCum(freq);const k=cum.findIndex(c=>c/n>=p);const before=k?cum[k-1]/n:0;return {k,before,share:freq[k]/n,val:MT_LB[k]+(p-before)/(freq[k]/n)*MT_W[k]};}
+
+/* ---------- build the question list ---------- */
+function mtBuild(D){
+  const Q=[], T=D.twin;
+  const sec=(id,title,pts,intro)=>Q.push({sec:id,title,pts,intro});
+  // ---- I ----
+  const {x,y,a,b,m,c}=D.xy;
+  sec('I','Summation notation',2,`<p>Consider the data in the table below.</p>${table(['i','x<sub>i</sub>','y<sub>i</sub>'],x.map((v,i)=>[i+1,fmt(v,0),y[i]]),{txt:[]})}<p>Evaluate the expressions. The solutions are integers.</p>`);
+  const s1=sum(x.slice(a-1,b)), terms=x.slice(a-1,b);
+  Q.push({id:'I.1',pts:1,kind:'num',ans:s1,tol:0,
+    text:`<div class="mt-sum">Σ<sub>i=${a}</sub><sup>${b}</sup> x<sub>i</sub></div>`,
+    hints:[`The little numbers under and over Σ are <b>row numbers</b> (i), not values. Which rows do you need?`,`Rows ${a} to ${b}, both included: that is ${b-a+1} values of x. Add them, keeping the minus signs.`],
+    traps:{[sum(y.slice(a-1,b))]:'That is the sum of the y values. The expression only asks for x.',[sum(x.slice(a,b))]:'You skipped the first row. "From i = '+a+'" includes row '+a+'.',[sum(x.slice(a-1,b-1))]:'You stopped one row early. "Up to '+b+'" includes row '+b+'.'},
+    how:{idea:`Σ<sub>i=${a}</sub><sup>${b}</sup> x<sub>i</sub> is shorthand for "add x<sub>${a}</sub> + … + x<sub>${b}</sub>". The index i only tells you which rows to pick.`,
+      steps:[`Pick rows ${a} to ${b} from the x column: ${terms.map(v=>fmt(v,0)).join(', ')}.`,`Add them: ${terms.map((v,i)=>i&&v<0?`(${fmt(v,0)})`:fmt(v,0)).join(' + ')} = <b>${fmt(s1,0)}</b>.`],
+      keys:seq('x values in L1',A,K('2nd','k2'),K('STAT'),A,M('MATH'),A,M('5:sum('),M(`L1,${a},${b})`),K('ENTER')),
+      watch:`Negative numbers: on the TI-84, type them with the ${K('(−)')} key, not the ${K('−')} key. Using the minus key gives a syntax error, or worse, subtracts from the previous value.`}});
+  const pr=x.slice(0,m).map((v,i)=>v*y[i]), s2=c*sum(pr);
+  Q.push({id:'I.2',pts:1,kind:'num',ans:s2,tol:0,
+    text:`<div class="mt-sum">Σ<sub>i=1</sub><sup>${m}</sup> ${c} · x<sub>i</sub> · y<sub>i</sub></div>`,
+    hints:[`A constant inside a sum can come outside: Σ ${c}·x<sub>i</sub>·y<sub>i</sub> = ${c} · Σ x<sub>i</sub>·y<sub>i</sub>.`,`For each row 1 to ${m}, multiply x<sub>i</sub> by y<sub>i</sub> <i>first</i>. Then add the ${m} products, then multiply by ${c}.`],
+    traps:{[c*sum(x.slice(0,m))*sum(y.slice(0,m))]:'You multiplied (Σx)·(Σy). That is not the same as Σ(x·y): multiply row by row first, then add.',[sum(pr)]:`You forgot the factor ${c}.`},
+    how:{idea:`Multiply inside each row, then add the rows. The factor ${c} is the same in every row, so you can apply it once at the end.`,
+      steps:[`Products x<sub>i</sub>·y<sub>i</sub> for rows 1 to ${m}: ${pr.map((p,i)=>`${fmt(x[i],0)}·${y[i]} = ${fmt(p,0)}`).join('; ')}.`,`Sum of products: ${fmt(sum(pr),0)}.`,`Times ${c}: ${c} · ${fmt(sum(pr),0)} = <b>${fmt(s2,0)}</b>.`],
+      keys:seq('x in L1, y in L2',A,M(`${c}*sum(L1*L2,1,${m})`),K('ENTER')),
+      watch:`(Σx)·(Σy) ≠ Σ(x·y). Here (Σx)·(Σy)·${c} would give ${fmt(c*sum(x.slice(0,m))*sum(y.slice(0,m)),0)}, a classic wrong answer.`}});
+  // ---- II ----
+  sec('II','Scales of measurement',4,`<p>For a number of countries you have the variables below. Mark the scale of each one.</p>`);
+  D.scales.forEach((k,i)=>{const [name,ans,why]=MT_SCALES[k];
+    Q.push({id:'II.'+(i+1),pts:1,kind:'sc',text:`<b>${name}</b>`,opts:['Nominal scale','Ordinal scale','Interval scale','Ratio scale'],ans:LET.indexOf(ans),
+      hints:['Ask three questions in order. Can the values be put in a meaningful order? Do differences between values mean something? Is there a true zero, so that "twice as much" makes sense?','Only labels → nominal. Order but no measurable gaps → ordinal. Measurable gaps but an arbitrary zero → interval. A true zero → ratio.'],
+      how:{idea:why,steps:['Order? '+(ans==='a'?'No → <b>nominal</b>.':'Yes.'),...(ans==='a'?[]:['Equal, measurable differences? '+(ans==='b'?'No → <b>ordinal</b>.':'Yes.')]),...(ans==='c'||ans==='d'?['True zero, so ratios make sense? '+(ans==='c'?'No → <b>interval</b>.':'Yes → <b>ratio</b>.')]:[])],
+      watch:k==='founded'||k==='date'?'Years and dates look like "real" numbers, so people pick ratio. The test is the zero: year 0 is a convention, so it is interval.':k==='incclass'||k==='stars'?'A variable built from numbers, or written with numbers, can still be ordinal. What counts is what the values mean now.':''}});
+  });
+  // ---- III ----
+  const F=D.freq, n3=sum(F), cum=mtCum(F), mean3=sum(F.map((f,i)=>f*MT_MID[i]))/n3;
+  const ss3=sum(F.map((f,i)=>f*(MT_MID[i]-mean3)**2)), var3=ss3/(n3-1);
+  const med=mtQuant(F,0.5), q3=mtQuant(F,0.75);
+  sec('III','Grouped data',7,`<p>The commute times of ${n3} employees are available in grouped form. Round to two decimal places.</p>${table(['Commute time in minutes','Absolute','Relative','Cumulative'],[...F.map((f,i)=>[mtClass(i),f,'','']),['Total',n3,'','']],{txt:[0],tot:true})}`);
+  const tblFull=table(['Class','Midpoint m','N','N·m','Relative','Cumulative'],F.map((f,i)=>[mtClass(i),fmt(MT_MID[i]),f,fmt(f*MT_MID[i]),fx(f/n3,2),fx(cum[i]/n3,2)]),{txt:[0]});
+  const o1=T?null:{opts:['7.50','9.50','11.50','12.86','15.45','17.00','19.40','21.00','23.50','25.00','27.50','30.00'],ans:4};
+  Q.push({id:'III.1',pts:1,kind:T?'num':'sc',ans:T?rnd(mean3,2):o1.ans,opts:o1&&o1.opts,tol:0.011,
+    text:'What is the weighted arithmetic mean, i.e. the average commute time, in minutes?',
+    hints:['You don’t know the individual times, so each person is represented by the <b>midpoint</b> of their class.','Mean = Σ N·m / n. Careful: the classes are not all 5 minutes wide. The midpoints are 2.5, 7.5, 15, 25 and 35.'],
+    trapOpts:T?null:{5:'17.00 is the plain average of the five midpoints. It ignores how many people are in each class.'},
+    traps:T?{[rnd(mean(MT_MID),2)]:'That is the plain average of the five midpoints. Each midpoint has to be weighted by its frequency.'}:null,
+    how:{idea:'Grouped mean: pretend every value sits at its class midpoint, then take a frequency-weighted average.',
+      steps:[`Midpoints: ${MT_MID.join(', ')} (5–10 has midpoint 7.5, 10–20 has 15, and so on).`,tblFull,`Σ N·m = ${F.map((f,i)=>`${f}·${MT_MID[i]}`).join(' + ')} = ${fmt(sum(F.map((f,i)=>f*MT_MID[i])))}`,`x̄ = ${fmt(sum(F.map((f,i)=>f*MT_MID[i])))} / ${n3} = <b>${fx(mean3,2)}</b> minutes.`],
+      keys:seq('midpoints in L1, frequencies in L2',A,K('STAT'),A,M('CALC'),A,M('1:1-Var Stats'),A,M('List: L1, FreqList: L2'),A,'read x̄'),
+      watch:'Widths differ (5, 5, 10, 10, 10). Compute each midpoint from its own bounds.'}});
+  const o2=T?null:{opts:['15.45','33.10','50.60','67.80','84.09','102.45','123.88','138.50','156.20','176.13','198.40','225.60'],ans:5};
+  Q.push({id:'III.2',pts:1,kind:T?'num':'sc',ans:T?rnd(var3,2):o2.ans,opts:o2&&o2.opts,tol:0.011,
+    text:'What is the sample variance in minutes²?',
+    hints:['Sample variance divides by n − 1, where n is the number of <b>people</b>, not the number of classes.','s² = Σ N·(m − x̄)² / (n − 1). Use the unrounded mean.'],
+    traps:T?{[rnd(ss3/n3,2)]:'You divided by n. The sample variance divides by n − 1.',[rnd(Math.sqrt(var3),2)]:'That is the standard deviation. The question asks for the variance (minutes²).'}:null,
+    trapOpts:T?null:{0:'15.45 is the mean, not the variance.'},
+    how:{idea:'Same midpoint idea: squared distance of each midpoint from the mean, weighted by frequency, divided by n − 1.',
+      steps:[...F.map((f,i)=>`${f} · (${MT_MID[i]} − ${fx(mean3,2)})² = ${f} · ${fx((MT_MID[i]-mean3)**2,4)} = ${fx(f*(MT_MID[i]-mean3)**2,3)}`),`Σ = ${fx(ss3,3)}`,`s² = ${fx(ss3,3)} / ${n3-1} = <b>${fx(var3,2)}</b> minutes².`],
+      keys:seq('L1 midpoints, L2 frequencies',A,K('2nd','k2'),K('STAT'),A,M('MATH'),A,M('8:variance('),M('L1,L2)'),K('ENTER'))+`<p style="margin:6px 0 0;font-size:13px;color:var(--muted)">Or 1-Var Stats and square Sx. Sx = ${fx(Math.sqrt(var3),4)}, Sx² = ${fx(var3,2)}. Do not use σx: that divides by n.</p>`,
+      watch:`Dividing by n gives ${fx(ss3/n3,2)}, which is close enough to fool you. The question says "sample variance", so it's n − 1.`}});
+  const clsOpts=T?[0,1,2,3,4].map(mtClass):[0,1,2,3].map(mtClass);
+  Q.push({id:'III.3',pts:1,kind:'sc',opts:clsOpts,ans:med.k,text:'In which class does the median lie?',
+    hints:['Fill in the cumulative column. The median is the value with 50% of people below it.',`Cumulative counts: ${cum.join(', ')}. Where does the running total first reach ${n3/2}?`],
+    how:{idea:'The median class is the first class whose cumulative share reaches 50%.',steps:[tblFull,`Cumulative share reaches 0.50 first in <b>${mtClass(med.k)}</b> (${fx(med.before,2)} before it, ${fx(cum[med.k]/n3,2)} after it).`],watch:'Do not pick the class with the most people (the mode). Pick the class where the running total crosses 50%.'}});
+  const o4=T?null:{opts:['5.00','6.25','7.50','8.80','10.00','11.43','12.86','15.00','17.14','20.00','22.50','27.86'],ans:6};
+  Q.push({id:'III.4',pts:1,kind:T?'num':'sc',ans:T?rnd(med.val,2):o4.ans,opts:o4&&o4.opts,tol:0.011,text:'What is this median in minutes? Use linear interpolation.',
+    hints:['Median = lower bound + (0.5 − cumulative share before the class) / (share of the class) · class width.',`Here: lower bound ${MT_LB[med.k]}, share before ${fx(med.before,2)}, class share ${fx(med.share,2)}, width ${MT_W[med.k]}.`],
+    trapOpts:T?null:{7:'15.00 is the class midpoint. The median is interpolated inside the class, not its middle.'},
+    traps:T?{[MT_MID[med.k]]:'That is the class midpoint. You need to interpolate.'}:null,
+    how:{idea:'Assume people are spread evenly inside the median class, then walk into the class until you have collected 50%.',
+      steps:[`Before the class: ${fx(med.before,2)}. Still needed: 0.50 − ${fx(med.before,2)} = ${fx(0.5-med.before,2)}.`,`The class holds ${fx(med.share,2)} of people over ${MT_W[med.k]} minutes, so you need ${fx(0.5-med.before,2)} / ${fx(med.share,2)} = ${fx((0.5-med.before)/med.share,4)} of its width.`,`Median = ${MT_LB[med.k]} + ${fx((0.5-med.before)/med.share,4)} · ${MT_W[med.k]} = <b>${fx(med.val,2)}</b> minutes.`],
+      keys:seq(M(`${MT_LB[med.k]}+(.5−${fx(med.before,2)})/${fx(med.share,2)}*${MT_W[med.k]}`),K('ENTER')),
+      watch:'Don’t put midpoints into 1-Var Stats and read "Med". For grouped data the calculator’s median is just a midpoint, which is wrong here.'}});
+  Q.push({id:'III.5',pts:1,kind:'sc',opts:T?[0,1,2,3,4].map(mtClass):[1,2,3,4].map(mtClass),ans:T?q3.k:q3.k-1,text:'In which class does the third quartile lie?',
+    hints:['Q3 has 75% of values below it.','Find the first class where the cumulative share reaches 0.75.'],
+    how:{idea:'Same as the median, but with 75% instead of 50%.',steps:[`Cumulative shares: ${cum.map(c=>fx(c/n3,2)).join(', ')}.`,`0.75 is first reached in <b>${mtClass(q3.k)}</b>.`]}});
+  const o6=T?null:{opts:['12.50','15.00','17.50','18.89','20.00','21.39','22.78','24.17','25.56','27.22','30.00','35.00'],ans:6};
+  Q.push({id:'III.6',pts:1,kind:T?'num':'sc',ans:T?rnd(q3.val,2):o6.ans,opts:o6&&o6.opts,tol:0.011,text:'What is this third quartile in minutes? Use linear interpolation.',
+    hints:['Same formula as the median, with 0.75 instead of 0.5.',`Lower bound ${MT_LB[q3.k]}, share before ${fx(q3.before,2)}, class share ${fx(q3.share,2)}, width ${MT_W[q3.k]}.`],
+    how:{idea:'Walk into the Q3 class until the cumulative share reaches 75%.',
+      steps:[`Still needed: 0.75 − ${fx(q3.before,2)} = ${fx(0.75-q3.before,2)}.`,`Fraction of the class: ${fx(0.75-q3.before,2)} / ${fx(q3.share,2)} = ${fx((0.75-q3.before)/q3.share,4)}.`,`Q3 = ${MT_LB[q3.k]} + ${fx((0.75-q3.before)/q3.share,4)} · ${MT_W[q3.k]} = <b>${fx(q3.val,2)}</b> minutes.`],
+      keys:seq(M(`${MT_LB[q3.k]}+(.75−${fx(q3.before,2)})/${fx(q3.share,2)}*${MT_W[q3.k]}`),K('ENTER'))}});
+  Q.push({id:'III.7',pts:1,kind:'text',text:'Why are the arithmetic mean and the sample variance you calculated from this table only approximations? Answer in one or two sentences.',
+    hints:['What did you use instead of the actual commute times?'],
+    model:'Because we only know how many people are in each class, not their actual commute times. We assumed that everyone in a class has the class midpoint (values spread evenly around it), which is generally not exactly true.',
+    rubric:['Says the raw values are unknown (only class frequencies), and that each class is represented by its midpoint'],
+    how:{idea:'A one-point "why" question wants the cause, not a restatement. Name what you didn’t know and what you assumed instead.',steps:['What is missing: the individual commute times. The table only says how many people fall into each class.','What you assumed: everyone in a class sits at the class midpoint (or the values are spread evenly around it).','Consequence: the real values inside a class can be anywhere, so the mean and variance are estimates.'],watch:'"Because we rounded" is not the reason and gets no point. Rounding is a separate, smaller issue.'}});
+  // ---- IV ----
+  const {n:n4,ss}=D.iv, s4=Math.sqrt(ss/(n4-1)), v4=ss/n4;
+  sec('IV','Variance from a sum of squares',4,`<p>Another company with n = ${n4} employees has grouped its commute times into k = 5 classes. The data themselves are not known, but this quantity is:</p><div class="mt-sum">Σ<sub>i=1</sub><sup>5</sup> N<sub>i</sub> · (x<sub>i</sub> − x̄)² = ${exNum(ss,0)}</div><p>x<sub>i</sub> are the class midpoints, N<sub>i</sub> the absolute frequencies. Round to two decimal places.</p>`);
+  const ivOpts=T?null:['3.35','3.53','11.17','11.22','49.95','55.84','111.69','124.74','126.00','1,247.40','2,494.80','3,118.50'];
+  Q.push({id:'IV.1',pts:1,kind:T?'num':'sc',ans:T?rnd(s4,2):3,opts:ivOpts,tol:0.011,text:'What is the sample standard deviation s in minutes?',
+    hints:['The sum you are given is already the numerator of the variance. You only have to divide and take a root.','Sample → divide by n − 1, where n is the number of employees, not the 5 classes. Then √.'],
+    trapOpts:T?null:{2:'11.17 is √(12,474/100), the population SD σ. The sample SD divides by n − 1.',8:'126.00 is s², the sample variance. You still need the square root.',5:'55.84 = √(12,474/4): you used k − 1 = 4 classes instead of n − 1 = 99 people.'},
+    traps:T?{[rnd(Math.sqrt(ss/n4),2)]:'That divides by n, which is σ. The sample SD divides by n − 1.',[rnd(ss/(n4-1),2)]:'That is s². Take the square root.'}:null,
+    how:{idea:'s = √( Σ N·(x − x̄)² / (n − 1) ). Everything inside the root is given except the division.',
+      steps:[`n − 1 = ${n4-1} (employees, not classes).`,`s² = ${exNum(ss,0)} / ${n4-1} = ${fx(ss/(n4-1),4)}.`,`s = √${fx(ss/(n4-1),4)} = <b>${fx(s4,2)}</b> minutes.`],
+      keys:seq(K('2nd','k2'),K('x²'),'(√)',M(`${ss}/${n4-1})`),K('ENTER'))}});
+  Q.push({id:'IV.2',pts:1,kind:T?'num':'sc',ans:T?rnd(v4,2):7,opts:ivOpts,tol:0.011,text:'What is the variance σ² in minutes²?',
+    hints:['σ² (Greek sigma) is the population variance: divide by n, not n − 1.','No square root this time: the unit is minutes².'],
+    trapOpts:T?null:{8:'126.00 divides by n − 1. σ² divides by n.',2:'11.17 is σ. The question asks for σ², the variance.'},
+    traps:T?{[rnd(ss/(n4-1),2)]:'That is s², divided by n − 1. σ² divides by n.'}:null,
+    how:{idea:'σ² = Σ N·(x − x̄)² / n.',steps:[`σ² = ${exNum(ss,0)} / ${n4} = <b>${fx(v4,2)}</b> minutes².`],
+      watch:'Read the symbol: s and s² divide by n − 1, σ and σ² divide by n. Same sum, different divisor.'}});
+  const EX=`<div class="callout" style="margin-top:12px">These two questions are about <b>reading</b> Excel formulas. You don’t need a computer: translate each formula into math. The data: midpoints x<sub>i</sub> in A1:A5, frequencies N<sub>i</sub> in B1:B5, products N<sub>i</sub>·x<sub>i</sub> in C1:C5, n = ${n4} in B7, the mean x̄ in D7. Several answers can be correct; each option is worth 0.25.</div>`;
+  Q.push({id:'IV.3',pts:1,kind:'mc',intro:EX,text:'Which formulas correctly calculate the arithmetic mean x̄?',
+    opts:['<code class="x">=AVERAGE(A1:A5)</code>','<code class="x">=SUMPRODUCT(A1:A5,B1:B5)/B7</code>','<code class="x">=SUMPRODUCT(A1:A5,B1:B5)/5</code>',`<code class="x">=SUM(C1:C5)/${n4}</code>`],ans:[false,true,false,true],
+    hints:['Translate: SUMPRODUCT(A,B) = Σ A<sub>i</sub>·B<sub>i</sub>. AVERAGE(A) = (sum of A) / (number of cells).','The grouped mean is Σ N·x / n. Which formulas give exactly that?'],
+    how:{idea:'x̄ = Σ N<sub>i</sub>·x<sub>i</sub> / n. Check each formula against that.',steps:['a) AVERAGE(A1:A5) = (x₁+…+x₅)/5. It ignores the frequencies. ✗','b) SUMPRODUCT(A1:A5,B1:B5) = Σ x·N; divided by B7 = n. ✓',`c) Divides by 5, the number of classes, not by n = ${n4}. ✗`,`d) C already holds N·x, so SUM(C1:C5) = Σ N·x, divided by ${n4} = n. ✓ (Typing ${n4} instead of B7 is clumsy but correct.)`]}});
+  Q.push({id:'IV.4',pts:1,kind:'mc',text:'Which formulas correctly calculate the sample standard deviation s?',
+    opts:['<code class="x">=STDEV.S(A1:A5)</code>','<code class="x">=SQRT(SUMPRODUCT(B1:B5,(A1:A5-D7)^2)/B7)</code>','<code class="x">=SQRT(SUMPRODUCT(B1:B5,(A1:A5-D7)^2)/(B7-1))</code>','<code class="x">=SUMPRODUCT(B1:B5,(A1:A5-D7)^2)/(B7-1)</code>'],ans:[false,false,true,false],
+    hints:['SUMPRODUCT(B1:B5,(A1:A5−D7)^2) = Σ N<sub>i</sub>·(x<sub>i</sub> − x̄)². That is the sum from the start of this question.','s = √( that sum / (n − 1) ). Check three things: is there a SQRT, is it n − 1, and does it use the frequencies?'],
+    how:{idea:'s = √( Σ N·(x − x̄)² / (n − 1) ).',steps:['a) STDEV.S of the 5 midpoints treats them as 5 single observations and ignores the frequencies. ✗','b) Divides by n → that is σ, not s. ✗','c) Square root of Σ N·(x − x̄)² / (n − 1). ✓','d) No SQRT → that is s², the variance. ✗']}});
+  // ---- V ----
+  sec('V','Boxplots',4,`<p>Figure 1 shows the daily temperature in Urswil LU from November 1, 2022, through October 31, 2023. Daily temperature is the average temperature on a given day.</p>${mtBoxSVG()}<p class="mt-cap">Figure 1: Average daily temperature in Urswil LU (redrawn from the exam).</p>`);
+  const refI=D.v.ref, ref=mtLo(refI), refName=MT_MONTH_FULL[MT_MONTH_NO[refI]];
+  const below=MT_BOX.map((_,i)=>i).filter(i=>i!==refI&&mtHi(i)<=ref);
+  Q.push({id:'V.1',pts:1,kind:T?'num':'sc',ans:T?below.length:below.length,opts:T?null:[...Array(12).keys()].map(String),tol:0,
+    text:`During certain months, the daily temperature never exceeded that of the coldest day in ${refName}${refI===8?' (the outlier in the graph)':''}. How many such months are there?`,
+    hints:[`Find the coldest ${refName} day: the lowest point of the ${refName} plot${refI===8?', which is the outlier dot, not the whisker':''}. Draw a horizontal line there.`,'"Never exceeded" means the warmest day of that month is below the line. So compare each month’s <b>top</b> (whisker end or top outlier) with your line.'],
+    how:{idea:`"Never exceeded X" means the month’s maximum is at most X. The maximum is the top whisker, or a top outlier dot if there is one.`,
+      steps:[`Coldest ${refName} day ≈ ${fx(ref,1)} °C.`,`Monthly maxima: ${MT_BOX.map((_,i)=>`${MT_MONTHS[i]} ${fx(mtHi(i),1)}`).join(', ')}.`,`Below ${fx(ref,1)}: ${below.map(i=>MT_MONTHS[i]).join(', ')} → <b>${below.length}</b> months.`],
+      watch:refI===8?'The July whisker stops at about 17. The coldest July day is the separate dot at about 14, and that is the one to use.':''}});
+  const TH={'q3>10':['exceed 10 °C on at least 25% of days','Q3',3,(v)=>v>10,'the top of the box (Q3)'],'q3>15':['exceed 15 °C on at least 25% of days','Q3',3,(v)=>v>15,'the top of the box (Q3)'],'q1<0':['fall below 0 °C on at least 25% of days','Q1',1,(v)=>v<0,'the bottom of the box (Q1)'],'med>10':['exceed 10 °C on at least half of the days','median',2,(v)=>v>10,'the median line']}[D.v.thr];
+  const hit=MT_BOX.map((b,i)=>i).filter(i=>TH[3](MT_BOX[i][TH[2]]));
+  Q.push({id:'V.2',pts:1,kind:T?'num':'sc',ans:T?hit.length:hit.length-1,opts:T?null:[...Array(12)].map((_,i)=>String(i+1)),tol:0,
+    text:`In how many months did the daily temperature ${TH[0]}?`,
+    hints:['A boxplot cuts the days into quarters: 25% below Q1, 25% between Q1 and the median, 25% between the median and Q3, 25% above Q3.',`So the question is really about ${TH[4]}. Which months have it on the right side of the line?`],
+    how:{idea:`"At least ${TH[1]==='median'?'half':'25%'} of days" translates to a statement about ${TH[4]}.`,
+      steps:[`${TH[1]} by month: ${MT_BOX.map((b,i)=>`${MT_MONTHS[i]} ${fx(b[TH[2]],1)}`).join(', ')}.`,`Months that qualify: ${hit.map(i=>MT_MONTHS[i]).join(', ')} → <b>${hit.length}</b>.`],
+      watch:D.v.thr==='q3>10'?'March and April are the tricky ones: their boxes end just above the 10 line (about 10.4). November’s whisker reaches 13, but its box stops at 8.6, so fewer than 25% of November days were above 10.':''}});
+  const rg=MT_BOX.map((_,i)=>mtHi(i)-mtLo(i)), pickI=D.v.rng==='max'?rg.indexOf(Math.max(...rg)):rg.indexOf(Math.min(...rg));
+  Q.push({id:'V.3',pts:1,kind:T?'num':'sc',ans:T?MT_MONTH_NO[pickI]:MT_MONTH_NO[pickI]-1,opts:T?null:[...Array(12)].map((_,i)=>String(i+1)),tol:0,
+    text:`Which month (1 = January, 2 = February, …) had the ${D.v.rng==='max'?'greatest':'smallest'} range of daily temperatures?`,
+    hints:['Range = warmest day − coldest day. In a boxplot: top end minus bottom end, outlier dots included.',D.v.rng==='max'?'Look for the tallest plot from end to end, not the tallest box.':'Look for the shortest plot from end to end, outliers included.'],
+    how:{idea:'Range = max − min, and outliers count: they are real days.',steps:[`Ranges: ${rg.map((r,i)=>`${MT_MONTHS[i]} ${fx(r,1)}`).join(', ')}.`,`${D.v.rng==='max'?'Largest':'Smallest'}: ${MT_MONTH_FULL[MT_MONTH_NO[pickI]]} → <b>${MT_MONTH_NO[pickI]}</b>.`],
+      watch:'Answer with the month number (January = 1), not the position on the chart, which starts in November.'}});
+  const iq=MT_BOX.map(b=>b[3]-b[1]), iqI=iq.indexOf(Math.max(...iq));
+  Q.push({id:'V.4',pts:1,kind:T?'num':'sc',ans:T?MT_MONTH_NO[iqI]:MT_MONTH_NO[iqI]-1,opts:T?null:[...Array(12)].map((_,i)=>String(i+1)),tol:0,
+    text:'In which month (1 = January, 2 = February, …) did the daily temperature have the largest interquartile range?',
+    hints:['IQR = Q3 − Q1 = the height of the box. Whiskers don’t matter.','Compare the tallest boxes carefully: two months are close.'],
+    how:{idea:'IQR is the box height: the spread of the middle 50% of days.',steps:[`Box heights: ${iq.map((r,i)=>`${MT_MONTHS[i]} ${fx(r,1)}`).join(', ')}.`,`Largest: ${MT_MONTH_FULL[MT_MONTH_NO[iqI]]} (${fx(iq[iqI],1)}) → <b>${MT_MONTH_NO[iqI]}</b>. February (${fx(iq[3],1)}) is the runner-up.`]}});
+  // ---- VI ----
+  const V=D.vi, LM=['March 2022','April 2022','May 2022','June 2022','July 2022','August 2022','September 2022','October 2022','November 2022','December 2022','January 2023'];
+  const rows=[...LM.map((mo,i)=>[mo,V.lib[i].toFixed(6).replace('-','−'),i===10?V.sar[0].toFixed(5):'']),['February 2023','',V.sar[1].toFixed(5)],['March 2023','',V.sar[2].toFixed(5)]];
+  const i1=V.lib[10]/V.lib[V.base]*100, i2=V.sar[V.tgt]/V.sar[0]*100, i3=i1*i2/100, tgtName=V.tgt===1?'February 2023':'March 2023';
+  sec('VI','Index numbers',3,`<p>LIBOR was the reference rate for variable-rate mortgages in Switzerland. On January 1, 2023, SARON replaced it. Round all results to two decimal places.</p>${table(['Month','LIBOR','SARON'],rows,{txt:[0]})}`);
+  const viOpts=T?null:['95.40','96.35','97.33','98.16','99.15','100.24','100.85','101.88','102.75','103.60','104.50','105.40'];
+  Q.push({id:'VI.1',pts:1,kind:T?'num':'sc',ans:T?rnd(i1,2):3,opts:viOpts,tol:0.011,text:`Create a simple index for LIBOR with base value B = 100 in ${LM[V.base]}. What is the value of this index in <b>January 2023</b>?`,
+    hints:['Simple index = value now / value in the base month · 100.','Both values are negative. A negative divided by a negative is positive, so the index is a normal number around 100.'],
+    trapOpts:T?null:{6:'100.85 = base / January · 100: you divided the wrong way round.'},
+    traps:T?{[rnd(V.lib[V.base]/V.lib[10]*100,2)]:'You divided the wrong way round: it is January / base.'}:null,
+    how:{idea:'I<sub>t</sub> = x<sub>t</sub> / x<sub>base</sub> · 100.',steps:[`I = ${V.lib[10].toFixed(6)} / ${V.lib[V.base].toFixed(6)} · 100 = <b>${fx(i1,2)}</b>.`,`Reading it: below 100 means the rate is ${fx(100-i1,2)}% smaller in size than in the base month (closer to zero).`],
+      keys:seq(K('(−)'),M(V.lib[10].toFixed(6).slice(1)),K('÷'),K('(−)'),M(V.lib[V.base].toFixed(6).slice(1)),K('×'),M('100'),K('ENTER')),
+      watch:`Use the ${K('(−)')} key for the minus sign. The ${K('−')} key means "subtract" and gives an error at the start of an expression.`}});
+  Q.push({id:'VI.2',pts:1,kind:T?'num':'sc',ans:T?rnd(i2,2):4,opts:viOpts,tol:0.011,text:`Create a simple index for SARON with base value B = 100 in January 2023. What is the value of this index in <b>${tgtName}</b>?`,
+    hints:['Same formula, new series: SARON in the target month / SARON in January 2023 · 100.'],
+    how:{idea:'I<sub>t</sub> = x<sub>t</sub> / x<sub>Jan 2023</sub> · 100.',steps:[`I = ${V.sar[V.tgt].toFixed(5)} / ${V.sar[0].toFixed(5)} · 100 = <b>${fx(i2,2)}</b>.`]}});
+  Q.push({id:'VI.3',pts:1,kind:T?'num':'sc',ans:T?rnd(i3,2):2,opts:viOpts,tol:0.011,text:`We now want to extend the LIBOR index past January 2023 by chaining it with the SARON index. What is the value of this chained LIBOR index in <b>${tgtName}</b>?`,
+    hints:['Both series exist in January 2023: that is the link month.','From January on, the chained index moves like SARON: LIBOR index in January × SARON index in the target month / 100.'],
+    trapOpts:T?null:{4:'99.15 is the SARON index alone. The chained index has to continue from where LIBOR was in January (98.16).'},
+    traps:T?{[rnd(i2,2)]:'That is the SARON index alone. Continue from the LIBOR index value in January.'}:null,
+    how:{idea:'Chaining multiplies: keep the old index up to the link month, then let it grow at the new series’ rate.',
+      steps:[`LIBOR index in January 2023 (from VI.1): ${fx(i1,4)}.`,`SARON growth from January to ${tgtName}: ${V.sar[V.tgt].toFixed(5)} / ${V.sar[0].toFixed(5)} = ${fx(i2/100,6)}.`,`Chained index = ${fx(i1,4)} · ${fx(i2/100,6)} = <b>${fx(i3,2)}</b>.`],
+      keys:seq(M(`${fx(i1,4)}*${fx(i2,4)}/100`),K('ENTER')),
+      watch:'Rebasing divides and chaining multiplies. Never add or subtract index points to join two series.'}});
+  // ---- VII ----
+  sec('VII','Correlation',4,`<p>Figure 2 shows four scatterplots. Each contains 20 observations. The correlations are −1, 0, 0.5 and 1, each used once.</p>${mtScatSVG(D.order)}<p class="mt-cap">Figure 2: Scatterplots${T?' (shuffled for this twin)':''}</p>`);
+  Q.push({id:'VII.1',pts:2,kind:'corr',text:'Assign each scatterplot its correlation. Each correct assignment is worth 0.5 points.',ans:D.order.map(k=>MT_SCAT.r[k]),
+    hints:['r = 1 or −1 means every point sits exactly on a straight line. The sign is the direction: uphill is positive, downhill negative.','Of the two clouds, the one with a visible uphill tilt is 0.5. The one with no tilt is 0.'],
+    how:{idea:'r measures how tightly the points hug a straight line, and in which direction.',steps:D.order.map((k,i)=>`(${'abcd'[i]}) ${{a:'A cloud with no up or down tendency → <b>0</b>.',b:'A perfect rising line → <b>1</b>.',c:'A perfect falling line → <b>−1</b>.',d:'A loose cloud that rises from left to right → <b>0.5</b>.'}[k]}`),
+      watch:'r doesn’t measure steepness. A flat perfect line and a steep perfect line both have r = 1 (or −1).'}});
+  Q.push({id:'VII.2',pts:2,kind:'text',text:'The correlation between average ice cream sales in Urswil and the number of drownings in nearby Lake Baldegg is 0.7. The mayor claims this shows that eating ice cream causes people to drown, and wants to ban ice cream near the lake. Comment on this claim and give a correct interpretation.',
+    hints:['Can a correlation alone prove that one thing causes another?','What makes people buy more ice cream <i>and</i> swim more at the same time?'],
+    model:'The claim is wrong: correlation does not prove causation. A correlation of 0.7 only says that months with high ice cream sales tend to also have many drownings. Both are driven by a third variable, warm weather (summer): when it is hot, people buy more ice cream and more people swim in the lake, so more people drown. This is a spurious correlation, so banning ice cream would not reduce drownings.',
+    rubric:['Says the claim is wrong because correlation ≠ causation (0.7 is only a positive linear association)','Names the confounder: hot weather / summer drives both ice cream sales and swimming (and therefore drownings)'],
+    how:{idea:'Two points, two moves: reject the reasoning, then give the real explanation.',steps:['Point 1: a correlation (here a fairly strong positive one, 0.7) only shows that the two move together. It cannot show that one causes the other.','Point 2: name the third variable. Hot summer weather drives both: more ice cream is sold, and more people swim, so more people drown. This is a spurious correlation.','Optional, but it reads well: the ban would not reduce drownings. Better swimming safety would.'],watch:'Saying only "correlation is not causation" usually gets 1 of 2 points. The second point needs the concrete confounder.'}});
+  return Q;
+}
+
+/* ---------- figures ---------- */
+function mtBoxSVG(){
+  const W=640,H=300,l=36,r=8,t=12,b=26, yv=v=>t+(30-v)/40*(H-t-b), cw=(W-l-r)/12;
+  let g='';
+  for(let v=-10;v<=30;v+=5)g+=`<line x1="${l}" x2="${W-r}" y1="${yv(v)}" y2="${yv(v)}" class="mt-grid"/><text x="${l-6}" y="${yv(v)+4}" class="mt-ax" text-anchor="end">${v}</text>`;
+  MT_BOX.forEach(([mn,q1,md,q3,mx],i)=>{
+    const cx=l+cw*i+cw/2, bw=cw*0.5;
+    g+=`<line x1="${cx}" x2="${cx}" y1="${yv(mx)}" y2="${yv(q3)}" class="mt-wh"/><line x1="${cx}" x2="${cx}" y1="${yv(q1)}" y2="${yv(mn)}" class="mt-wh"/>`;
+    g+=`<line x1="${cx-bw*0.3}" x2="${cx+bw*0.3}" y1="${yv(mx)}" y2="${yv(mx)}" class="mt-wh"/><line x1="${cx-bw*0.3}" x2="${cx+bw*0.3}" y1="${yv(mn)}" y2="${yv(mn)}" class="mt-wh"/>`;
+    g+=`<rect x="${cx-bw/2}" y="${yv(q3)}" width="${bw}" height="${yv(q1)-yv(q3)}" class="mt-box"/><line x1="${cx-bw/2}" x2="${cx+bw/2}" y1="${yv(md)}" y2="${yv(md)}" class="mt-med"/>`;
+    (MT_OUT[i]||[]).forEach(o=>g+=`<circle cx="${cx}" cy="${yv(o)}" r="2.6" class="mt-out"/>`);
+    g+=`<text x="${cx}" y="${H-8}" class="mt-ax" text-anchor="middle">${MT_MONTHS[i]}</text>`;
+  });
+  return `<div class="mt-fig"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Boxplots of daily temperature, November to October">${g}</svg></div>`;
+}
+function mtScatSVG(order){
+  return `<div class="mt-scat">${order.map((k,i)=>`<svg viewBox="0 0 100 100" role="img" aria-label="Scatterplot ${'abcd'[i]}"><rect x="0.5" y="0.5" width="99" height="99" class="mt-frame"/><line x1="50" x2="50" y1="0" y2="100" class="mt-grid"/><line x1="0" x2="100" y1="50" y2="50" class="mt-grid"/><text x="5" y="11" class="mt-lab">(${'abcd'[i]})</text>${MT_SCAT[k].map(([x,y])=>`<circle cx="${x}" cy="${100-y}" r="1.7" class="mt-dot"/>`).join('')}</svg>`).join('')}</div>`;
+}
+
+/* ---------- state ---------- */
+let MT=null;
+function mtLoad(){
+  try{const s=JSON.parse(localStorage.getItem(MT_KEY)||'null');if(s&&s.D&&s.v===1){MT=s;return;}}catch(e){}
+  MT={v:1,D:mtData(false),mode:'practice',ans:{},done:{},hint:{},how:{},self:{},submitted:false,start:null};
+}
+function mtSave(){try{localStorage.setItem(MT_KEY,JSON.stringify(MT));}catch(e){}}
+function mtReset(twin){MT={v:1,D:mtData(twin),mode:MT?MT.mode:'practice',ans:{},done:{},hint:{},how:{},self:{},submitted:false,start:MT&&MT.mode==='exam'?Date.now():null};mtSave();}
+
+/* ---------- grading ---------- */
+function mtGrade(q,a){
+  if(a===undefined||a===null||a==='')return {pts:0,empty:true};
+  if(q.kind==='num'){const v=parseNum(a);if(isNaN(v))return {pts:0,bad:true};return {pts:Math.abs(v-q.ans)<=q.tol+1e-9?q.pts:0,val:v};}
+  if(q.kind==='sc')return {pts:+a===q.ans?q.pts:0};
+  if(q.kind==='mc'){const s=q.ans.reduce((t,c,i)=>t+(!!(a||[])[i]===c?0.25:0),0);return {pts:s};}
+  if(q.kind==='corr'){return {pts:q.ans.reduce((t,c,i)=>t+((a||[])[i]!==undefined&&(a||[])[i]!==''&&+a[i]===c?0.5:0),0)};}
+  if(q.kind==='text'){const s=MT.self[q.id]||[];return {pts:q.pts===1?(s[0]?1:0):s.filter(Boolean).length,self:true};}
+  return {pts:0};
+}
+function mtScore(Q){let got=0,max=0;Q.filter(q=>q.id).forEach(q=>{max+=q.pts;if(MT.submitted||MT.done[q.id])got+=mtGrade(q,MT.ans[q.id]).pts;});return {got,max};}
+
+/* ---------- rendering ---------- */
+function mtAnswerHTML(q,locked){
+  const a=MT.ans[q.id], dis=locked?'disabled':'';
+  if(q.kind==='num')return `<div class="lcd-wrap mt-lcd"><input class="lcd" data-mt-num="${q.id}" inputmode="decimal" placeholder="0" value="${a!==undefined?esc(a):''}" ${locked?'readonly':''}></div>`;
+  if(q.kind==='sc')return `<div class="mt-opts ${q.opts.length>4?'many':''}">${q.opts.map((o,i)=>`<button class="opt" data-mt-sc="${q.id}" data-i="${i}" aria-pressed="${+a===i&&a!==undefined}" ${dis}><span class="k">${LET[i]})</span><span>${o}</span></button>`).join('')}</div>`;
+  if(q.kind==='mc')return `<div class="mt-opts">${q.opts.map((o,i)=>`<button class="opt" data-mt-mc="${q.id}" data-i="${i}" aria-pressed="${!!(a||[])[i]}" ${dis}><span class="k">${(a||[])[i]?'☑':'☐'} ${LET[i]})</span><span>${o}</span></button>`).join('')}</div>`;
+  if(q.kind==='corr')return `<div class="mt-corr">${'abcd'.split('').map((l,i)=>`<label>(${l}) <select data-mt-corr="${q.id}" data-i="${i}" ${dis}><option value="">r = ?</option>${[-1,0,0.5,1].map(v=>`<option value="${v}" ${(a||[])[i]!==undefined&&(a||[])[i]!==''&&+(a||[])[i]===v?'selected':''}>${fmt(v,1)}</option>`).join('')}</select></label>`).join('')}</div>`;
+  if(q.kind==='text')return `<textarea class="mt-text" data-mt-text="${q.id}" rows="3" placeholder="Write your answer in one or two sentences…" ${locked?'readonly':''}>${esc(a||'')}</textarea>`;
+  return '';
+}
+function mtRightHTML(q){
+  if(q.kind==='num')return showAns(q.ans);
+  if(q.kind==='sc')return `${LET[q.ans]}) ${q.opts[q.ans]}`;
+  if(q.kind==='mc')return q.ans.map((c,i)=>c?LET[i]+')':'').filter(Boolean).join(' and ');
+  if(q.kind==='corr')return q.ans.map((c,i)=>`(${'abcd'[i]}) ${fmt(c,1)}`).join(', ');
+  return '';
+}
+function mtFeedbackHTML(q){
+  const g=mtGrade(q,MT.ans[q.id]);
+  if(q.kind==='text'){
+    const s=MT.self[q.id]||[];
+    return `<div class="feedback mt-fb neutral"><h4>Model answer</h4><p style="margin:4px 0 10px">${q.model}</p><div style="font-size:13px;color:var(--muted);margin-bottom:6px">Grade yourself honestly. A grader gives the point only if your answer clearly contains:</div>${q.rubric.map((r,i)=>`<label class="mt-rub"><input type="checkbox" data-mt-self="${q.id}" data-i="${i}" ${s[i]?'checked':''}> ${r}</label>`).join('')}<div class="actions" style="margin-top:10px"><button class="btn btn-ghost ask-tutor" data-ask="${esc(`Please grade my answer to this exam question like a strict HSLU grader (max ${q.pts} point${q.pts>1?'s':''}), then tell me what to add.\n\nQuestion: ${q.text.replace(/<[^>]+>/g,'')}\n\nMy answer: ${MT.ans[q.id]||'(empty)'}`)}">Ask the tutor to grade my answer</button></div></div>`;
+  }
+  const full=g.pts>=q.pts-1e-9, part=g.pts>0&&!full;
+  let trap='';
+  if(!full&&!g.empty){
+    if(q.kind==='sc'&&q.trapOpts&&q.trapOpts[+MT.ans[q.id]])trap=q.trapOpts[+MT.ans[q.id]];
+    if(q.kind==='num'&&q.traps){const hit=Object.entries(q.traps).find(([v])=>Math.abs(+v-g.val)<=0.011);if(hit)trap=hit[1];}
+  }
+  return `<div class="feedback ${full?'ok':'miss'} mt-fb"><h4>${full?'Correct':g.empty?'No answer':part?`Partly right: ${fmt(g.pts,2)} of ${q.pts}`:'Not quite'}</h4>${full?'':`<div style="font-size:13.5px">Answer: <b>${mtRightHTML(q)}</b></div>`}${trap?`<div class="trap-hit"><b>Caught by a trap.</b> ${trap}</div>`:''}</div>`;
+}
+function mtHowHTML(q){
+  const h=q.how; if(!h)return '';
+  return `<div class="solution"><h4>How to solve it</h4>${h.idea?`<p class="ex-idea">${h.idea}</p>`:''}<ol>${h.steps.map(s=>`<li>${s}</li>`).join('')}</ol>${h.keys?`<div class="keys"><div class="keys-title">On the calculator (TI-84 Plus)</div>${h.keys}</div>`:''}${h.watch?`<div class="ex-watch"><b>Watch out:</b> ${h.watch}</div>`:''}<div class="actions"><button class="btn btn-ghost ask-tutor" data-ask="${esc('I’m doing the midterm practice exam, question '+q.id+': '+q.text.replace(/<[^>]+>/g,'')+'\nI don’t fully get the solution. Can you explain it step by step, more simply?')}">Ask the tutor about this</button></div></div>`;
+}
+function mtQuestionHTML(q){
+  const exam=MT.mode==='exam', shown=MT.submitted||(!exam&&MT.done[q.id]), locked=shown;
+  const hints=MT.hint[q.id]||0, how=MT.how[q.id]||MT.submitted;
+  const tools=exam&&!MT.submitted?'':`<div class="actions mt-tools">${!shown?`<button class="btn btn-primary" data-mt-check="${q.id}">${q.kind==='text'?'Compare with the model answer':'Check'}</button>`:''}${!shown&&q.hints&&hints<q.hints.length?`<button class="btn btn-ghost" data-mt-hint="${q.id}">${hints?'Another hint':'Hint'} (${hints}/${q.hints.length})</button>`:''}${!how&&q.how?`<button class="btn-link" data-mt-how="${q.id}">Show me how</button>`:''}</div>`;
+  return `<div class="card mt-q" id="mt-${q.id.replace('.','-')}">${q.intro||''}<div class="mt-qhead"><span class="chip topic">${q.id}</span><span class="mt-pts">${q.pts} pt${q.pts>1?'s':''} · ${{num:'number',sc:'single choice',mc:'multiple choice',corr:'numbers',text:'text'}[q.kind]}</span></div><div class="mt-qtext">${q.text}</div>${mtAnswerHTML(q,locked)}
+  ${!exam||MT.submitted?(MT.hint[q.id]?`<div class="hint-box">${q.hints.slice(0,hints).map((h,i)=>`<div${i?' style="margin-top:6px"':''}><b>Hint ${i+1}.</b> ${h}</div>`).join('')}</div>`:''):''}
+  ${shown?mtFeedbackHTML(q):''}${tools}${how?mtHowHTML(q):''}</div>`;
+}
+function vMidterm(){
+  if(!MT)mtLoad();
+  const Q=mtBuild(MT.D), sc=mtScore(Q), exam=MT.mode==='exam', T=MT.D.twin;
+  const best=S.best['midterm']||0, bestT=S.best['midterm-twin']||0;
+  let html=head('Practice',T?'Midterm twin':'Midterm (official)')+`
+  <p class="lede">${T?'Same questions as the official midterm, with new numbers, and you type your answers instead of picking from a list (that’s harder on purpose). The chart questions ask about the same charts in new ways.':'The practice midterm HSLU handed out, rebuilt question by question. Allowed in the real exam: a calculator and an 8-page summary, no Excel. Every solution is shown with calculator keys.'}</p>
+  <div class="mt-bar card">
+    <div class="mt-modes" role="group" aria-label="Mode"><button data-mt-mode="practice" aria-pressed="${!exam}">Practice<span>hints, check each question</span></button><button data-mt-mode="exam" aria-pressed="${exam}">Exam mode<span>timed, graded at the end</span></button></div>
+    <div class="mt-score"><div class="lp-num">${fmt(sc.got,2)}<span> / ${sc.max}</span></div><div class="lp-l">${exam&&!MT.submitted?'graded when you hand in':'points so far'} · best ${fmt(T?bestT:best,2)}${T?' (twins)':''}</div>${exam&&!MT.submitted?`<div class="mt-timer" id="mt-timer"></div>`:''}</div>
+    <div class="mt-switch"><button class="btn btn-ghost" data-mt-new="0">${T?'Back to the official midterm':'Restart'}</button><button class="btn btn-ghost" data-mt-new="1">${T?'New twin':'Twin with new numbers'}</button></div>
+  </div>`;
+  let cur=null;
+  Q.forEach(q=>{
+    if(q.sec){if(cur)html+='</section>';html+=`<section class="mt-sec"><div class="mt-sech"><h2>Question ${q.sec}: ${q.title}</h2><span class="mt-pts">${q.pts} points</span></div><div class="mt-intro">${q.intro}</div>`;cur=q.sec;return;}
+    html+=mtQuestionHTML(q);
+  });
+  html+='</section>';
+  if(exam&&!MT.submitted)html+=`<div class="actions" style="justify-content:center;margin:24px 0"><button class="btn btn-primary" id="mt-submit">Hand in and grade</button></div>`;
+  if(MT.submitted||(!exam&&Q.filter(q=>q.id).every(q=>MT.done[q.id]))){
+    const secs=[...new Set(Q.filter(q=>q.id).map(q=>q.id.split('.')[0]))];
+    html+=`<div class="card done-card"><div class="eyebrow">Result</div><div class="big">${fmt(sc.got,2)}/${sc.max}</div><p style="margin:10px auto 14px;color:var(--muted);max-width:52ch">${sc.got/sc.max>=0.85?'Exam-ready on this half. Do a twin to make sure it wasn’t memory.':sc.got/sc.max>=0.6?'A pass, with gaps. The sections below tell you where to drill.':'Not there yet, and better to find out now. Start with the weakest section below.'}</p><div class="mt-secs">${secs.map(s=>{const qs=Q.filter(q=>q.id&&q.id.startsWith(s+'.'));const g=qs.reduce((t,q)=>t+mtGrade(q,MT.ans[q.id]).pts,0),m=qs.reduce((t,q)=>t+q.pts,0);return `<div class="tile"><div class="v">${fmt(g,2)}/${m}</div><div class="l">Question ${s}</div></div>`;}).join('')}</div><div class="actions" style="justify-content:center"><button class="btn btn-primary" data-mt-new="1">Try a twin with new numbers</button></div></div>`;
+    const key=T?'midterm-twin':'midterm'; if(sc.got>(S.best[key]||0)){S.best[key]=rnd(sc.got,2);save();}
+  }
+  $('#view').innerHTML=html;
+  mtBind(Q); mtTick();
+}
+let mtTimerT=null;
+function mtTick(){
+  clearInterval(mtTimerT);
+  const el=$('#mt-timer'); if(!el||!MT.start)return;
+  const f=()=>{const left=45*60-Math.floor((Date.now()-MT.start)/1000);if(!document.body.contains(el)){clearInterval(mtTimerT);return;}el.textContent=left>0?`${Math.floor(left/60)}:${String(left%60).padStart(2,'0')} left (45 min)`:`Time’s up (${Math.floor(-left/60)} min over)`;el.classList.toggle('over',left<=0);};
+  f(); mtTimerT=setInterval(f,1000);
+}
+function mtRerender(id){const y=window.scrollY;vMidterm();renderNav();window.scrollTo(0,y);if(id){const el=document.getElementById('mt-'+id.replace('.','-'));if(el){const r=el.getBoundingClientRect();if(r.top<0||r.top>innerHeight)el.scrollIntoView({block:'nearest'});}}}
+// Two-click confirmation (dialogs can be blocked inside the artifact frame).
+function mtArm(b,msg){if(b.dataset.armed)return true;b.dataset.armed='1';const old=b.innerHTML;b.innerHTML=msg;b.classList.add('armed');setTimeout(()=>{if(document.body.contains(b)){delete b.dataset.armed;b.innerHTML=old;b.classList.remove('armed');}},4000);return false;}
+function mtBind(Q){
+  const byId=Object.fromEntries(Q.filter(q=>q.id).map(q=>[q.id,q]));
+  document.querySelectorAll('[data-mt-num]').forEach(i=>{i.oninput=()=>{MT.ans[i.dataset.mtNum]=i.value;mtSave();};i.onkeydown=e=>{if(e.key==='Enter'&&MT.mode==='practice'){e.preventDefault();mtCheck(i.dataset.mtNum);}};});
+  document.querySelectorAll('[data-mt-text]').forEach(i=>i.oninput=()=>{MT.ans[i.dataset.mtText]=i.value;mtSave();});
+  document.querySelectorAll('[data-mt-sc]').forEach(b=>b.onclick=()=>{MT.ans[b.dataset.mtSc]=+b.dataset.i;mtSave();b.parentNode.querySelectorAll('.opt').forEach(o=>o.setAttribute('aria-pressed',o===b));});
+  document.querySelectorAll('[data-mt-mc]').forEach(b=>b.onclick=()=>{const id=b.dataset.mtMc,a=(MT.ans[id]||[false,false,false,false]).slice();a[+b.dataset.i]=!a[+b.dataset.i];MT.ans[id]=a;mtSave();b.setAttribute('aria-pressed',a[+b.dataset.i]);b.querySelector('.k').textContent=(a[+b.dataset.i]?'☑ ':'☐ ')+LET[+b.dataset.i]+')';});
+  document.querySelectorAll('[data-mt-corr]').forEach(s=>s.onchange=()=>{const id=s.dataset.mtCorr,a=(MT.ans[id]||['','','','']).slice();a[+s.dataset.i]=s.value;MT.ans[id]=a;mtSave();});
+  document.querySelectorAll('[data-mt-check]').forEach(b=>b.onclick=()=>mtCheck(b.dataset.mtCheck));
+  document.querySelectorAll('[data-mt-hint]').forEach(b=>b.onclick=()=>{const id=b.dataset.mtHint;MT.hint[id]=(MT.hint[id]||0)+1;mtSave();mtRerender(id);});
+  document.querySelectorAll('[data-mt-how]').forEach(b=>b.onclick=()=>{const id=b.dataset.mtHow;MT.how[id]=true;mtSave();mtRerender(id);});
+  document.querySelectorAll('[data-mt-self]').forEach(c=>c.onchange=()=>{const id=c.dataset.mtSelf,s=(MT.self[id]||[]).slice();s[+c.dataset.i]=c.checked;MT.self[id]=s;mtSave();mtRerender(id);});
+  document.querySelectorAll('[data-mt-mode]').forEach(b=>b.onclick=()=>{const m=b.dataset.mtMode;if(m===MT.mode)return;
+    if(m==='exam'&&Object.keys(MT.ans).length&&!mtArm(b,'Click again: clears answers, starts 45 min'))return;
+    MT.mode=m;if(m==='exam'){MT.ans={};MT.done={};MT.hint={};MT.how={};MT.self={};MT.submitted=false;MT.start=Date.now();}else{MT.start=null;}mtSave();mtRerender();});
+  document.querySelectorAll('[data-mt-new]').forEach(b=>b.onclick=()=>{const twin=b.dataset.mtNew==='1';const finished=MT.submitted||Q.filter(q=>q.id).every(q=>MT.done[q.id]);if(Object.keys(MT.ans).length&&!finished&&!mtArm(b,'Click again to clear your answers'))return;mtReset(twin);window.scrollTo(0,0);vMidterm();renderNav();});
+  const sub=$('#mt-submit'); if(sub)sub.onclick=()=>{const open=Q.filter(q=>q.id&&(MT.ans[q.id]===undefined||MT.ans[q.id]==='')).length;if(open&&!mtArm(sub,`${open} unanswered. Click again to hand in`))return;MT.submitted=true;mtSave();window.scrollTo(0,0);vMidterm();renderNav();};
+  function mtCheck(id){const q=byId[id];const a=MT.ans[id];
+    if(q.kind!=='text'&&(a===undefined||a===''||(q.kind==='num'&&isNaN(parseNum(a))))){const el=document.querySelector(`#mt-${id.replace('.','-')} .mt-tools`);if(el&&!el.querySelector('.mt-warn'))el.insertAdjacentHTML('beforeend','<span class="mt-warn">Answer first, or use a hint.</span>');return;}
+    MT.done[id]=true;mtSave();mtRerender(id);}
+}
+
 function vNotes(){
   const n=S.notes||'';
   $('#view').innerHTML=head('You','My notes')+`<p class="lede">Your own space: summaries in your words, formulas you keep forgetting, translations, questions for the lecturer. Explanations you save from the tutor land here too. Saved automatically and synced across your devices.</p>
@@ -2696,7 +3130,7 @@ function addNote(text){
 window.TUTOR_CONFIG={
   app:'The Outlier', subject:'Data Analysis I', course:'W.IBA_APMAT12.H26',
   contextRoot:()=>document.getElementById('view'),
-  contextLabel:()=>{const v=current.view;if(v==='learn'){const c=LEARN.find(l=>l.id===current.ch);return c?`Week ${c.week}: ${c.title}`:'Theory';}if(['drill','topic','lab'].includes(v)&&current.q)return `the exercise “${current.q.title}”`;return (VIEWS.find(x=>x[0]===v)||[,'this page'])[1];},
+  contextLabel:()=>{const v=current.view;if(v==='learn'){const c=LEARN.find(l=>l.id===current.ch);return c?`Week ${c.week}: ${c.title}`:'Theory';}if(v==='midterm')return MT&&MT.D.twin?'Midterm twin (practice exam, new numbers)':'Official midterm practice exam';if(['drill','topic','lab'].includes(v)&&current.q)return `the exercise “${current.q.title}”`;return (VIEWS.find(x=>x[0]===v)||[,'this page'])[1];},
   addNote,
   colors:{accent:'var(--accent)',onAccent:'#fff',surface:'var(--surface)',surface2:'var(--surface-2)',ink:'var(--ink)',muted:'var(--muted)',line:'var(--line-strong)',bg:'var(--bg)'}
 };

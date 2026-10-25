@@ -134,6 +134,28 @@ label.lbl{display:flex; flex-direction:column; gap:4px; font-size:.78rem; color:
 .board-form .btn.primary{background:var(--board-hot); color:#1a1300; border-color:var(--board-hot)}
 @media (max-width:520px){.board-form{grid-template-columns:1fr 1fr}}
 .board-more{padding-top:10px; text-align:center}
+.days{display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px}
+@media (max-width:1000px){.days{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:640px){.days{grid-template-columns:minmax(0,1fr)}}
+.day{border:1px solid var(--line); border-radius:8px; padding:8px; display:flex; flex-direction:column; gap:6px; min-width:0; background:var(--surface)}
+.day[data-focus="1"]{border-top:3px solid var(--c); background:color-mix(in srgb,var(--c) 6%,var(--surface))}
+.day.is-today{box-shadow:inset 0 0 0 1.5px var(--text)}
+.day-h{display:flex; align-items:baseline; gap:6px}
+.day-focus{width:100%; font-size:.78rem; padding:4px 6px}
+.blk{display:grid; grid-template-columns:minmax(0,1fr) auto; column-gap:4px; align-items:start; font-size:.78rem; line-height:1.3; border-left:3px solid var(--c,var(--faint)); background:var(--surface-2); border-radius:4px; padding:4px 6px; min-width:0}
+.blk .num,.blk .t-text{grid-column:1}
+.blk .mini.del{grid-column:2; grid-row:1 / span 2}
+.today-plan .blk{grid-template-columns:auto auto; column-gap:8px; align-items:baseline}
+.today-plan .blk .t-text{grid-column:2}
+.blk .num{font-size:.7rem; color:var(--muted); white-space:nowrap}
+.blk .t-text{overflow-wrap:anywhere}
+.blk.fixed{--c:var(--line); color:var(--muted); background:transparent; border:1px dashed var(--line); border-left:3px solid var(--line)}
+.blk .mini.del{padding:0 2px}
+.blk-form{display:flex; flex-direction:column; gap:4px}
+.blk-form .field{font-size:.78rem; padding:4px 6px; width:100%}
+.add-blk{align-self:flex-start}
+.today-plan{display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:-8px 0 18px}
+.today-plan .blk{flex:0 1 auto}
 
 /* departure board */
 .board{background:var(--board-bg); color:var(--board-text); border-radius:var(--r); padding:16px 18px; font-family:var(--mono)}
@@ -378,7 +400,43 @@ function getPlan(wk){
   const modes={school:"push",work:"push",german:"push",book:"maintain",other:"maintain"};
   return {capacity:S.config.capacity,modes,hours:Object.fromEntries(LANES.map(l=>[l.id,SUGGEST[l.id][modes[l.id]]]))};
 }
-function editPlan(wk,fn){update("plan",p=>{if(!p.weeks[wk])p.weeks[wk]=clone(getPlan(wk));fn(p.weeks[wk]);});}
+function editPlan(wk,fn){update("plan",p=>{if(!p.weeks[wk]){p.weeks[wk]=clone(getPlan(wk));delete p.weeks[wk].days;}fn(p.weeks[wk]);});}
+const DOW=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+const dayPlan=date=>(((S.plan.weeks[mondayOf(date)]||{}).days||{})[date])||{};
+const toMin=s=>{const [a,b]=String(s||"").split(":").map(Number);return a*60+(b||0);};
+const blockH=b=>Math.max(0,toMin(b.end)-toMin(b.start))/60;
+function blocked(wk,lane){let s=0;for(let i=0;i<7;i++)(dayPlan(addDays(wk,i)).blocks||[]).forEach(b=>{if(b.lane===lane)s+=blockH(b);});return s;}
+function fixedFor(date){
+  const n=semWeek(mondayOf(date)); if(n<1||n>SEM_WEEKS)return [];
+  const dow=(parse(date).getDay()+6)%7;
+  if(dow===1||dow===2)return [{start:"06:00",end:"08:00",label:"Train"},{start:"08:00",end:"17:00",label:"Lectures"},{start:"17:00",end:"19:00",label:"Train"}];
+  if(dow===3)return [{start:"11:00",end:"13:00",label:"Train"},{start:"13:00",end:"17:00",label:"Lectures"},{start:"17:00",end:"19:00",label:"Train"}];
+  return [];
+}
+function editDay(date,fn){editPlan(mondayOf(date),p=>{const days=p.days||(p.days={});const d=days[date]||(days[date]={});fn(d);});}
+function blockLine(b){return `<div class="blk" style="${laneStyle(b.lane)}"><span class="num">${esc(b.start)}–${esc(b.end)}</span><span class="t-text">${esc(b.label||LANE[b.lane].name)}</span></div>`;}
+function weekOutline(wk){
+  const t=today();
+  return `<section class="card">
+    <div class="card-h"><div class="row"><button class="mini" data-act="plan-nav" data-d="-7" aria-label="Previous week">‹</button><h2>Week outline</h2><button class="mini" data-act="plan-nav" data-d="7" aria-label="Next week">›</button><span class="muted" style="font-size:.85rem">${weekLabel(wk)}</span></div>
+      <button class="mini" data-act="copy-blocks" data-wk="${wk}">Copy last week's blocks</button></div>
+    <div class="days">${DOW.map((dn,i)=>{const date=addDays(wk,i), dp=dayPlan(date), blocks=[...(dp.blocks||[])].sort((a,b)=>toMin(a.start)-toMin(b.start)), fx=fixedFor(date);
+      const tot=blocks.reduce((s,b)=>s+blockH(b),0), open=ui.blockForm===date;
+      return `<div class="day ${date===t?"is-today":""}" style="${dp.focus?laneStyle(dp.focus):""}" data-focus="${dp.focus?1:""}">
+        <div class="day-h"><b>${dn}</b><span class="num muted">${parse(date).getDate()}</span>${tot?`<span class="num muted" style="margin-left:auto;font-size:.72rem">${h(tot)}</span>`:""}</div>
+        <select class="field day-focus" data-ch="day-focus" data-date="${date}" aria-label="Main focus for ${dn}"><option value="">No focus</option>${LANES.map(l=>`<option value="${l.id}" ${dp.focus===l.id?"selected":""}>Focus: ${l.name}</option>`).join("")}</select>
+        ${fx.map(f=>`<div class="blk fixed"><span class="num">${f.start}–${f.end}</span><span class="t-text">${f.label}</span></div>`).join("")}
+        ${blocks.map(b=>`<div class="blk" style="${laneStyle(b.lane)}"><span class="num">${esc(b.start)}–${esc(b.end)}</span><span class="t-text">${esc(b.label||LANE[b.lane].name)}</span>${delBtn("block-del",date+"|"+b.id)}</div>`).join("")}
+        ${open?`<div class="blk-form">
+          <select class="field" id="bf-lane" aria-label="Lane">${LANES.map(l=>`<option value="${l.id}" ${(ui.bfLane||dp.focus)===l.id?"selected":""}>${l.name}</option>`).join("")}</select>
+          <div class="row" style="gap:4px;flex-wrap:nowrap"><input class="field num" type="time" id="bf-start" value="${ui.bfStart||"09:00"}" aria-label="Start"><input class="field num" type="time" id="bf-end" value="${ui.bfEnd||"11:00"}" aria-label="End"></div>
+          <input class="field" id="bf-label" data-enter="block-add" data-date="${date}" placeholder="What (optional)" aria-label="Block label">
+          <div class="row" style="gap:4px"><button class="btn primary" data-act="block-add" data-date="${date}">Add</button><button class="mini" data-act="block-form" data-date="">Cancel</button></div></div>`
+          :`<button class="mini add-blk" data-act="block-form" data-date="${date}">+ Block</button>`}
+      </div>`;}).join("")}</div>
+    <p class="hint" style="margin-top:10px">Pick one main focus per day, then block the hours that matter. Lectures and train times are filled in for you.</p>
+  </section>`;
+}
 function actual(wk,lane){let s=0;for(let i=0;i<7;i++){const d=S.log.days[addDays(wk,i)];if(d&&d[lane])s+=d[lane];}return s;}
 function germanStreak(){
   let d=today(),n=0;
@@ -476,6 +534,9 @@ function vToday(){
 
   return `${prio?`<div class="prio"><span class="eyebrow">This week's priority</span><b>${esc(prio)}</b></div>`
     :`<div class="prio"><span class="eyebrow">This week's priority</span><span class="muted" style="flex:1">Not set yet.</span><button class="mini" data-tab="plan">Set it in Week</button></div>`}
+  ${(()=>{const dp=dayPlan(t), bl=[...(dp.blocks||[])].sort((a,b)=>toMin(a.start)-toMin(b.start));
+    if(!dp.focus&&!bl.length)return `<div class="today-plan"><span class="eyebrow">Today's plan</span><span class="muted" style="font-size:.85rem">No focus or blocks yet.</span><button class="mini" data-tab="plan">Plan in Week</button></div>`;
+    return `<div class="today-plan"><span class="eyebrow">Today's plan</span>${dp.focus?`<span class="pill" style="${laneStyle(dp.focus)};background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--text)">Focus: ${LANE[dp.focus].name}</span>`:""}${bl.map(blockLine).join("")}</div>`;})()}
   <div class="grid g-today">
   <div class="stack">
     <section class="card">
@@ -539,6 +600,8 @@ function vPlan(){
   <div class="prio" style="margin-bottom:0"><label class="eyebrow" for="prio-in">This week's one priority</label>
     <input class="field" id="prio-in" data-in="rev" data-f="next" data-wk="${prevWk}" value="${esc(prio)}" placeholder="The one thing that makes this week a win"></div>
 
+  ${weekOutline(wk)}
+
   <section class="card">
     <div class="card-h"><h2>This week's list</h2><span class="muted" style="font-size:.8rem">${wOpen.length+hwOpen.length} open${wDone.length+hwDone.length?` · ${wDone.length+hwDone.length} done`:""}</span></div>
     <ul class="tasks">${wOpen.map(x=>taskRow(x,true)).join("")}${wDone.map(x=>taskRow(x,true)).join("")}${!wt.length?`<li class="empty">Everything you need to get done this week, so nothing slips. Pick from here each morning.</li>`:""}</ul>
@@ -572,7 +635,7 @@ function vPlan(){
     return `<section class="card lane-top" style="${laneStyle(l.id)}">
       <div class="card-h"><h2>${l.name}</h2><div class="seg">${MODES.map(([k,lab])=>`<button class="${m===k?"on":""}" data-act="plan-mode" data-lane="${l.id}" data-mode="${k}">${lab}</button>`).join("")}</div></div>
       <div class="row"><span class="muted" style="font-size:.85rem">Budget</span><div class="step"><button data-act="plan-step" data-lane="${l.id}" data-d="-1" aria-label="Less">−</button><span class="num">${h(hv)}</span><button data-act="plan-step" data-lane="${l.id}" data-d="1" aria-label="More">+</button></div>
-      <span class="spacer"></span><span class="num muted" style="font-size:.85rem">${h(a)} logged</span></div>
+      <span class="spacer"></span><span class="num muted" style="font-size:.85rem">${h(blocked(wk,l.id))} blocked · ${h(a)} logged</span></div>
       <div class="bar" style="margin-top:10px"><i style="width:${hv?Math.min(100,a/hv*100):0}%"></i></div>
     </section>`;}).join("")}
   </div>
@@ -841,6 +904,18 @@ function doAct(act,el){
     toast("Deadline added.");focusLater("gd-title");break;}
   case "clear-done":update("tasks",s=>{s.items=s.items.filter(i=>!(i.lane===d.lane&&i.done));});break;
   case "log":update("log",s=>{const day=s.days[t]||(s.days[t]={});day[d.lane]=Math.max(0,Math.round(((day[d.lane]||0)+Number(d.d))*10)/10);});break;
+  case "block-form":{ui.blockForm=d.date||null;render();if(ui.blockForm)focusLater("bf-label");break;}
+  case "block-add":{const date=d.date, lane=val("bf-lane")||"other", start=val("bf-start"), end=val("bf-end"), label=val("bf-label");
+    if(!start||!end||toMin(end)<=toMin(start)){toast("End time has to be after start time.");return;}
+    ui.bfLane=lane; ui.bfStart=end; ui.bfEnd=String(Math.min(23,Math.floor(toMin(end)/60)+2)).padStart(2,"0")+":"+end.split(":")[1];
+    ui.blockForm=null; editDay(date,x=>{(x.blocks||(x.blocks=[])).push({id:uid(),lane,start,end,label});});break;}
+  case "block-del":{const [date,id]=d.id.split("|");editDay(date,x=>{x.blocks=(x.blocks||[]).filter(b=>b.id!==id);});break;}
+  case "copy-blocks":{const wk=d.wk, prev=addDays(wk,-7), src=(S.plan.weeks[prev]||{}).days||{};
+    let n=0; for(let i=0;i<7;i++){const sd=src[addDays(prev,i)];if(sd&&((sd.blocks||[]).length||sd.focus))n++;}
+    if(!n){toast("Last week has no blocks to copy.");return;}
+    editPlan(wk,p=>{const days=p.days||(p.days={});for(let i=0;i<7;i++){const sd=src[addDays(prev,i)];if(!sd)continue;const dd=days[addDays(wk,i)]||(days[addDays(wk,i)]={});
+      if(sd.focus&&!dd.focus)dd.focus=sd.focus;(sd.blocks||[]).forEach(b=>(dd.blocks||(dd.blocks=[])).push(Object.assign({},b,{id:uid()})));}});
+    toast("Copied last week's blocks.");break;}
   case "plan-nav":ui.planWeek=addDays(ui.planWeek||mondayOf(t),Number(d.d));render();break;
   case "plan-now":ui.planWeek=null;render();break;
   case "plan-mode":editPlan(ui.planWeek||mondayOf(t),p=>{p.modes[d.lane]=d.mode;p.hours[d.lane]=SUGGEST[d.lane][d.mode];});break;
@@ -892,6 +967,7 @@ document.addEventListener("change",e=>{
   const el=e.target, d=el.dataset; if(!d.ch)return;
   const t=today();
   switch(d.ch){
+  case "day-focus":editDay(d.date,x=>{x.focus=el.value||null;});break;
   case "plan-cap":editPlan(ui.planWeek||mondayOf(t),p=>{p.capacity=Math.max(0,Number(el.value)||0);});break;
   case "proj":update("work",s=>{const p=s.projects.find(x=>x.id===d.id);if(p){p[d.f]=el.value;if(d.f==="due")p.dueMet=false;}});break;
   case "ms-date":update("german",s=>{const m=s.milestones.find(x=>x.id===d.id);if(m)m.target=el.value;});break;

@@ -1,0 +1,899 @@
+<title>The Commonplace</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="A personal study hub for Great Courses lectures: notes, quizzes, AI-checked cases, a tutor, a highlighter and spaced review.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a library catalog. Top bar + one centered column; course cards are catalog cards with call numbers; lecture view = reading column + margin rail. */
+:root{
+  --paper:#EDF0EE; --card:#FAFBFA; --ink:#17201C; --muted:#5A6762; --faint:#8A9690; --line:#D3DBD7; --line-strong:#B9C4BF;
+  --accent:#1F5A4C; --accent-ink:#FFFFFF; --accent-soft:#DAE9E3; --good:#2D7A4E; --good-soft:#DCEFE3; --bad:#B0403A; --bad-soft:#F6E0DE;
+  --hl:#F3E37C; --hl-ink:#17201C; --ai:#6A55B8;
+  --c-business:#A8661F; --c-culture:#8A4C7D; --c-history:#94502F; --c-philosophy:#4C59A3; --c-science:#1D7A80;
+  --shadow:0 1px 2px rgba(20,32,28,.06),0 6px 18px -10px rgba(20,32,28,.22);
+  --f-display:'Young Serif',Georgia,'Times New Roman',serif;
+  --f-body:'Instrument Sans',-apple-system,'Segoe UI',Roboto,sans-serif;
+  --f-mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#111715; --card:#19211E; --ink:#E3EAE6; --muted:#9DAAA4; --faint:#6E7B75; --line:#2B3531; --line-strong:#3B4742;
+  --accent:#72C6AC; --accent-ink:#0D2620; --accent-soft:#1D3A32; --good:#5BBF86; --good-soft:#163323; --bad:#E07A72; --bad-soft:#3A1D1B;
+  --hl:#6A5C17; --hl-ink:#F4EFD6; --ai:#A897F0;
+  --c-business:#E0A157; --c-culture:#D08BC2; --c-history:#D99068; --c-philosophy:#98A4EC; --c-science:#5CC3C9;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 22px -12px rgba(0,0,0,.6); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#111715; --card:#19211E; --ink:#E3EAE6; --muted:#9DAAA4; --faint:#6E7B75; --line:#2B3531; --line-strong:#3B4742;
+  --accent:#72C6AC; --accent-ink:#0D2620; --accent-soft:#1D3A32; --good:#5BBF86; --good-soft:#163323; --bad:#E07A72; --bad-soft:#3A1D1B;
+  --hl:#6A5C17; --hl-ink:#F4EFD6; --ai:#A897F0;
+  --c-business:#E0A157; --c-culture:#D08BC2; --c-history:#D99068; --c-philosophy:#98A4EC; --c-science:#5CC3C9;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 22px -12px rgba(0,0,0,.6); color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font:15.5px/1.6 var(--f-body);-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--f-display);font-weight:400;margin:0;text-wrap:balance;letter-spacing:-.005em}
+p{margin:0 0 .9em}
+a{color:var(--accent)}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.eyebrow{font:600 11px/1.2 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* top bar */
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--card)}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--card);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:14px;padding-block:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);margin-right:auto}
+.brand-mark{width:30px;height:30px;border-radius:6px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:20px/1 var(--f-display)}
+.brand-name{font:19px/1 var(--f-display)}
+.brand-sub{font:600 10px/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-top:3px}
+.nav{display:flex;gap:4px;align-items:center}
+.nav a{text-decoration:none;color:var(--muted);font-weight:600;font-size:14px;padding:7px 11px;border-radius:8px;display:inline-flex;gap:7px;align-items:center}
+.nav a:hover{background:var(--paper);color:var(--ink)}
+.nav a.on{color:var(--ink);background:var(--accent-soft)}
+.pill{font:600 11px/1 var(--f-mono);background:var(--accent);color:var(--accent-ink);padding:3px 7px;border-radius:99px}
+.pill.zero{background:var(--line);color:var(--muted)}
+.sync{display:flex;align-items:center;gap:6px;font:11px/1 var(--f-mono);color:var(--faint)}
+.sync i{width:7px;height:7px;border-radius:50%;background:var(--faint);display:inline-block}
+.sync.synced i{background:var(--good)} .sync.saving i{background:var(--accent);animation:pulse 1s infinite}
+@keyframes pulse{50%{opacity:.3}}
+
+main{padding-block:28px 120px}
+.crumbs{font-size:13px;color:var(--muted);margin-bottom:14px;display:flex;gap:6px;flex-wrap:wrap}
+.crumbs a{color:var(--muted);text-decoration:none} .crumbs a:hover{color:var(--accent)}
+
+/* buttons */
+.btn{border:1px solid var(--line-strong);background:var(--card);border-radius:8px;padding:8px 14px;font-weight:600;font-size:14px;display:inline-flex;align-items:center;gap:7px}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.small{padding:5px 10px;font-size:13px}
+.btn.ghost{border-color:transparent;background:none;color:var(--muted)} .btn.ghost:hover{color:var(--ink);border-color:var(--line)}
+.btn[disabled]{opacity:.55;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+
+/* home */
+.hero{display:grid;grid-template-columns:1.2fr 1fr;gap:28px;align-items:end;margin-bottom:26px}
+.hero h1{font-size:clamp(30px,4.4vw,44px);line-height:1.08}
+.hero p{color:var(--muted);max-width:56ch;margin-top:10px}
+@media (max-width:820px){.hero{grid-template-columns:1fr}}
+.today{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:38px}
+@media (max-width:820px){.today{grid-template-columns:1fr}}
+.tcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.tcard h3{font-size:18px}
+.tcard .big{font:28px/1 var(--f-display)}
+.tcard .sub{color:var(--muted);font-size:13.5px}
+.tcard .row{margin-top:auto}
+.cat{margin-bottom:34px}
+.cat-head{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;padding-bottom:10px;border-bottom:2px solid var(--cat);margin-bottom:14px}
+.cat-head h2{font-size:26px}
+.cat-head .eyebrow{color:var(--cat)}
+.cat-head .desc{color:var(--muted);font-size:14px;margin-left:auto}
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
+.ccard{position:relative;background:var(--card);border:1px solid var(--line);border-radius:4px 12px 12px 4px;padding:16px 18px 16px 22px;text-decoration:none;color:var(--ink);display:flex;flex-direction:column;gap:8px;min-width:0;box-shadow:var(--shadow)}
+.ccard::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--cat);border-radius:4px 0 0 4px}
+a.ccard:hover{border-color:var(--cat)}
+.callno{font:600 11px/1.2 var(--f-mono);color:var(--cat);letter-spacing:.06em}
+.ccard h3{font-size:19px;line-height:1.2}
+.ccard .who{font-size:13px;color:var(--muted)}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.bar b{display:block;height:100%;background:var(--cat,var(--accent));border-radius:3px;transition:width .4s}
+.ccard .meta{display:flex;justify-content:space-between;font:12px/1.2 var(--f-mono);color:var(--faint)}
+.ccard.planned{box-shadow:none;border-style:dashed;background:transparent}
+.ccard.planned .tag{font-size:12.5px;color:var(--muted)}
+.ccard .x{position:absolute;top:8px;right:8px;border:0;background:none;color:var(--faint);font-size:18px;line-height:1;padding:4px 6px;border-radius:6px}
+.ccard .x:hover{color:var(--bad);background:var(--bad-soft)}
+.addform{border:1px dashed var(--line-strong);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:8px;justify-content:center;min-width:0}
+.addform input{width:100%;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:7px;padding:7px 10px;font:inherit;font-size:14px}
+.addform .hint{font-size:12.5px;color:var(--faint)}
+
+/* course */
+.chead{display:grid;grid-template-columns:1fr auto;gap:20px;align-items:end;padding-bottom:20px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.chead h1{font-size:clamp(28px,4vw,40px);line-height:1.1}
+.chead .blurb{color:var(--muted);max-width:64ch;margin-top:8px}
+.stats{display:flex;gap:22px;flex-wrap:wrap}
+.stat .v{font:24px/1 var(--f-display)} .stat .l{font-size:12px;color:var(--muted)}
+@media (max-width:720px){.chead{grid-template-columns:1fr}}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:22px;overflow-x:auto}
+.tabs button{border:0;background:none;padding:10px 12px;font-weight:600;font-size:14px;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+.tabs button.on{color:var(--ink);border-bottom-color:var(--accent)}
+.llist{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.litem{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:13px 15px;text-decoration:none;color:var(--ink);min-width:0}
+.litem:hover{border-color:var(--accent)}
+.lnum{font:600 13px/1 var(--f-mono);width:30px;height:30px;border-radius:7px;border:1px solid var(--line-strong);display:grid;place-items:center;flex:none;color:var(--muted)}
+.litem.read .lnum{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.litem .t{font-weight:600;line-height:1.3}
+.litem .h{font-size:13px;color:var(--muted);margin-top:3px}
+.litem .badges{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+.badge{font:600 10.5px/1 var(--f-mono);padding:3px 7px;border-radius:99px;background:var(--paper);color:var(--muted);border:1px solid var(--line)}
+.badge.good{background:var(--good-soft);color:var(--good);border-color:transparent}
+.badge.ai{color:var(--ai)}
+
+/* lecture */
+.lhead{margin-bottom:16px}
+.lhead h1{font-size:clamp(26px,3.8vw,38px);line-height:1.12;margin-top:6px}
+.lhead .hook{font-size:17px;color:var(--muted);margin-top:10px;max-width:62ch;font-style:italic}
+.lgrid{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:34px;align-items:start}
+@media (max-width:960px){.lgrid{grid-template-columns:1fr}}
+.reading{max-width:70ch;font-size:16.5px;line-height:1.7}
+.reading section{margin-bottom:30px}
+.reading h3{font-size:22px;margin-bottom:10px}
+.reading ul,.reading ol{padding-left:22px;margin:0 0 1em} .reading li{margin-bottom:6px}
+.reading b{font-weight:600}
+.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 74px);display:flex;flex-direction:column;gap:14px}
+@media (max-width:960px){.rail{position:static}}
+.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px 16px}
+.box h4{font:600 11px/1.2 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.box ul{margin:0;padding-left:18px;font-size:14px} .box li{margin-bottom:7px}
+.termchip{display:inline-block;margin:0 6px 6px 0;font-size:13px;padding:4px 9px;border-radius:99px;background:var(--accent-soft);color:var(--ink);border:0}
+.termchip.person{background:transparent;border:1px solid var(--line-strong)}
+.hlitem{font-size:13.5px;border-left:3px solid var(--hl);padding:2px 0 2px 9px;margin-bottom:8px;color:var(--ink)}
+.empty{color:var(--faint);font-size:13.5px}
+.lnav{display:flex;justify-content:space-between;gap:10px;margin-top:30px;padding-top:18px;border-top:1px solid var(--line);flex-wrap:wrap}
+.tip{font-size:13px;color:var(--muted);background:var(--card);border:1px dashed var(--line-strong);border-radius:10px;padding:10px 13px;margin-bottom:18px}
+
+.term{border-bottom:1.5px dotted var(--accent);cursor:help}
+.term.person{border-bottom-style:solid}
+.term.aiterm{border-bottom-color:var(--ai)}
+mark.uhl{background:var(--hl);color:var(--hl-ink);border-radius:2px;padding:0 1px;cursor:pointer}
+.pop{position:fixed;z-index:60;max-width:min(320px,calc(100vw - 16px));background:var(--card);color:var(--ink);border:1px solid var(--line-strong);border-radius:10px;padding:11px 13px;box-shadow:0 12px 30px rgba(0,0,0,.22);font-size:13.5px;line-height:1.5}
+.pop .pt{font:17px/1.2 var(--f-display);margin-bottom:4px}
+.pop .pk{font:600 10px/1 var(--f-mono);text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px}
+.pop .pf{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;padding-top:7px;border-top:1px solid var(--line);font-size:11px;color:var(--faint)}
+.seltb{position:fixed;z-index:61;display:flex;gap:2px;background:var(--ink);border-radius:9px;padding:4px;box-shadow:0 10px 26px rgba(0,0,0,.3);flex-wrap:wrap;max-width:calc(100vw - 16px)}
+.seltb button{border:0;background:none;color:var(--paper);font-size:13px;font-weight:600;padding:6px 10px;border-radius:6px}
+.seltb button:hover{background:rgba(127,127,127,.3)}
+
+/* quiz */
+.qcard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.qk{font:600 10.5px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.qq{font:18px/1.45 var(--f-display);margin-bottom:12px}
+.opts{display:flex;flex-direction:column;gap:7px}
+.opts.tf{flex-direction:row} .opts.tf .opt{flex:1;justify-content:center}
+.opt{display:flex;gap:10px;align-items:center;text-align:left;border:1px solid var(--line-strong);background:var(--paper);border-radius:8px;padding:9px 12px;font-size:14.5px}
+.opt:hover:not([disabled]){border-color:var(--accent)}
+.opt[disabled]{cursor:default}
+.opt.right{border-color:var(--good);background:var(--good-soft)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-soft)}
+.fb{margin-top:10px;font-size:14px;padding:9px 12px;border-radius:8px}
+.fb.right{background:var(--good-soft);color:var(--good)} .fb.wrong{background:var(--bad-soft);color:var(--bad)}
+.fb span{color:var(--ink)}
+.score{background:var(--card);border:2px solid var(--ink);border-radius:12px;padding:20px;text-align:center;margin-bottom:16px}
+.score .n{font:42px/1 var(--f-display)}
+
+/* case */
+.scenario{background:var(--card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:4px 12px 12px 4px;padding:16px 20px;margin-bottom:22px;font-size:16px;max-width:76ch}
+.cq{margin-bottom:28px;max-width:76ch}
+.cq .qq{font-size:17px}
+textarea.ans,textarea.notes{width:100%;min-height:130px;resize:vertical;border:1px solid var(--line-strong);background:var(--card);color:var(--ink);border-radius:10px;padding:12px 14px;font:15px/1.6 var(--f-body)}
+textarea.notes{min-height:280px}
+textarea:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
+.model,.aifb{margin-top:12px;padding:13px 15px;border-radius:10px;font-size:14.5px;line-height:1.6}
+.model{background:var(--good-soft)} .model .lab{color:var(--good)}
+.aifb{background:var(--accent-soft)} .aifb .lab{color:var(--accent)}
+.lab{font:600 10.5px/1 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:7px}
+.aifb p{margin:0 0 7px} .aifb ul{margin:4px 0 8px;padding-left:20px}
+.muted{color:var(--muted)} .small{font-size:13px}
+.saved{font:11px/1 var(--f-mono);color:var(--faint);margin-left:auto}
+
+/* review */
+.rv{max-width:640px;margin:0 auto}
+.flash{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:26px 26px 22px;box-shadow:var(--shadow);min-height:240px;display:flex;flex-direction:column;gap:14px}
+.flash .front{font:26px/1.25 var(--f-display)}
+.flash .front.q{font-size:20px}
+.flash .back{font-size:16px;border-top:1px dashed var(--line-strong);padding-top:14px}
+.grade{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:auto}
+.grade button{border:1px solid var(--line-strong);background:var(--paper);border-radius:9px;padding:10px;font-weight:600;font-size:14px;display:flex;flex-direction:column;gap:2px;align-items:center}
+.grade button small{font:11px/1 var(--f-mono);color:var(--faint);font-weight:400}
+.grade .g0:hover{border-color:var(--bad)} .grade .g1:hover{border-color:var(--c-business)} .grade .g2:hover{border-color:var(--good)}
+.boxes{display:flex;gap:6px;margin:14px 0 4px;align-items:flex-end;height:60px}
+.boxes div{flex:1;background:var(--accent-soft);border-radius:4px 4px 0 0;position:relative;min-height:3px}
+.boxes div span{position:absolute;top:-17px;left:0;right:0;text-align:center;font:10.5px/1 var(--f-mono);color:var(--muted)}
+.boxlab{display:flex;gap:6px} .boxlab span{flex:1;text-align:center;font:10px/1.2 var(--f-mono);color:var(--faint)}
+
+/* glossary / notes book */
+.search{width:100%;max-width:380px;border:1px solid var(--line-strong);background:var(--card);color:var(--ink);border-radius:8px;padding:8px 12px;font:inherit;font-size:14px}
+.glist{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px;margin-top:14px}
+.gitem{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px;min-width:0}
+.gitem .gt{font:17px/1.25 var(--f-display)}
+.gitem .gm{font:11px/1.2 var(--f-mono);color:var(--faint);margin:3px 0 5px}
+.gitem .gd{font-size:14px;color:var(--muted)}
+.book section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:12px}
+.book h3{font-size:19px;margin-bottom:8px}
+.book .note{white-space:pre-wrap;font-size:14.5px}
+.copyout{width:100%;min-height:160px;margin-top:10px;font:12px/1.5 var(--f-mono);background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:9px 15px;border-radius:9px;font-weight:600;font-size:13.5px;z-index:90;opacity:0;pointer-events:none;transition:opacity .2s;max-width:calc(100vw - 32px)}
+.toast.show{opacity:1}
+
+/* tutor */
+.fab{position:fixed;right:calc(18px + env(safe-area-inset-right,0px));bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:50;border:0;border-radius:99px;padding:12px 18px;background:var(--accent);color:var(--accent-ink);font-weight:700;box-shadow:0 8px 22px rgba(0,0,0,.25);display:flex;gap:8px;align-items:center}
+.tpanel{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));right:calc(12px + env(safe-area-inset-right,0px));bottom:calc(12px + env(safe-area-inset-bottom,0px));width:min(440px,calc(100vw - 24px));z-index:70;background:var(--card);border:1px solid var(--line-strong);border-radius:14px;box-shadow:0 20px 50px rgba(0,0,0,.3);display:flex;flex-direction:column;overflow:hidden}
+@media (max-width:640px){.tpanel{top:auto;left:0;right:0;bottom:0;width:100%;height:88vh;border-radius:16px 16px 0 0;padding-bottom:env(safe-area-inset-bottom,0px)}}
+.thead{display:flex;gap:8px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line)}
+.thead .tt{font:18px/1.1 var(--f-display)} .thead .ts{font-size:12px;color:var(--muted)}
+.tlog{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--paper)}
+.msg{max-width:92%;padding:10px 13px;border-radius:12px;font-size:14.5px;overflow-wrap:anywhere}
+.msg.u{align-self:flex-end;background:var(--accent);color:var(--accent-ink);white-space:pre-wrap;border-bottom-right-radius:4px}
+.msg.a{align-self:flex-start;background:var(--card);border:1px solid var(--line);border-bottom-left-radius:4px}
+.msg.a p{margin:0 0 8px} .msg.a p:last-child{margin:0} .msg.a ul,.msg.a ol{margin:4px 0 8px;padding-left:20px}
+.msg.think{color:var(--muted);font-style:italic}
+.msg .acts{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chips button{border:1px solid var(--line-strong);background:var(--card);border-radius:99px;padding:5px 11px;font-size:13px}
+.tctx{display:flex;gap:7px;align-items:center;font-size:12.5px;color:var(--muted);padding:8px 14px 0}
+.tcomp{display:flex;gap:8px;padding:8px 14px 12px;align-items:flex-end}
+.tcomp textarea{flex:1;min-width:0;resize:none;min-height:42px;max-height:140px;border:1px solid var(--line-strong);border-radius:10px;padding:10px 12px;font:inherit;font-size:14.5px;background:var(--paper);color:var(--ink)}
+.terr{font-size:13px;background:var(--bad-soft);color:var(--ink);border-radius:8px;padding:8px 11px}
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#home" aria-label="The Commonplace, library home">
+      <span class="brand-mark" aria-hidden="true">C</span>
+      <span><span class="brand-name">The Commonplace</span><span class="brand-sub" style="display:block">Lifelong study</span></span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="#home" data-nav="home">Library</a>
+      <a href="#review" data-nav="review">Review <span class="pill zero" id="due-pill">0</span></a>
+    </nav>
+    <div class="sync" id="sync" title="Where your progress is saved"><i></i><span>Checking…</span></div>
+  </div>
+</header>
+
+<main class="wrap" id="main" tabindex="-1"></main>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/* ================= Catalog ================= */
+const CATEGORIES = [
+  {id:'business', name:'Business', code:'BUS', desc:'Strategy, management, money and decisions.'},
+  {id:'culture', name:'Culture', code:'CUL', desc:'Art, music, literature, language and ideas in society.'},
+  {id:'history', name:'History', code:'HIS', desc:'Civilizations, wars, turning points and the people behind them.'},
+  {id:'philosophy', name:'Philosophy', code:'PHI', desc:'Ethics, mind, meaning and how to think.'},
+  {id:'science', name:'Science', code:'SCI', desc:'Physics, biology, the brain, the universe.'}
+];
+// Courses with a built guidebook. Add an entry here (and a courses/<id>.json file) per new course.
+const COURSES = [
+  {id:'strategic-thinking', title:'Strategic Thinking Skills', category:'business', subtopic:'Professional · Thinking Skills',
+   professor:'Stanley K. Ridgley', institution:'Drexel University', courseNo:'5913', lectures:24, file:'courses/strategic-thinking.json'}
+];
+const CAT = Object.fromEntries(CATEGORIES.map(c=>[c.id,c]));
+const COURSE = Object.fromEntries(COURSES.map(c=>[c.id,c]));
+
+/* ================= Utilities ================= */
+const $ = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+const esc = s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const todayStr = (d=new Date())=>{const z=new Date(d.getTime()-d.getTimezoneOffset()*6e4);return z.toISOString().slice(0,10)};
+const addDays = (n)=>{const d=new Date();d.setDate(d.getDate()+n);return todayStr(d)};
+const lk = (cid,n)=>cid+':'+n;
+let toastT;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2200)}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function md(t){ // tiny markdown for AI output
+  const lines=esc(t).split('\n');let out='',list=null,para=[];
+  const inl=s=>s.replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>').replace(/(^|[\s(])\*([^*\n]+)\*(?=[\s).,;:!?]|$)/g,'$1<i>$2</i>').replace(/`([^`]+)`/g,'<code>$1</code>');
+  const fl=()=>{if(para.length){out+='<p>'+inl(para.join('<br>'))+'</p>';para=[]}};
+  const cl=()=>{if(list){out+='</'+list+'>';list=null}};
+  for(const raw of lines){const l=raw.trimEnd();let m;
+    if(!l.trim()){fl();cl();continue}
+    if((m=l.match(/^#{1,4}\s+(.*)/))){fl();cl();out+='<p><b>'+inl(m[1])+'</b></p>';continue}
+    if((m=l.match(/^\s*[-*•]\s+(.*)/))){fl();if(list!=='ul'){cl();out+='<ul>';list='ul'}out+='<li>'+inl(m[1])+'</li>';continue}
+    if((m=l.match(/^\s*\d+[.)]\s+(.*)/))){fl();if(list!=='ol'){cl();out+='<ol>';list='ol'}out+='<li>'+inl(m[1])+'</li>';continue}
+    cl();para.push(l)}
+  fl();cl();return out}
+const plain = t=>String(t).replace(/\*\*([^*]+)\*\*/g,'$1').replace(/`([^`]+)`/g,'$1').replace(/^#{1,4}\s+/gm,'');
+async function copyText(text, fallbackHost){
+  try{await navigator.clipboard.writeText(text);toast('Copied');}
+  catch(e){ if(fallbackHost){fallbackHost.innerHTML='<textarea class="copyout" readonly></textarea>';const ta=$('textarea',fallbackHost);ta.value=text;ta.focus();ta.select();toast('Select all and copy')} else toast('Copy is blocked here')}
+}
+
+/* ================= State + sync ================= */
+const LS_KEY='commonplace-state-v1';
+const BLANK = ()=>({lectures:{},highlights:{},aiTerms:{},cards:{},watchlist:[],courses:{},last:null,activity:{}});
+function loadLocal(){try{return JSON.parse(localStorage.getItem(LS_KEY)||'null')}catch(e){return null}}
+function saveLocal(){try{localStorage.setItem(LS_KEY,JSON.stringify(state))}catch(e){}}
+function normalize(s){const b=BLANK();s=JSON.parse(JSON.stringify(s||{}));for(const k in b){if(s[k]==null)s[k]=b[k]}return s}
+let state = normalize(loadLocal());
+let dbRef=null, dbTimer=null, dbBusy=false, dbDirty=false, syncStatus='checking';
+function setSync(s){syncStatus=s;const el=$('#sync');el.className='sync '+s;
+  $('span',el).textContent={checking:'Checking…',synced:'Synced',saving:'Saving…',local:'This device only'}[s];
+  el.title = s==='local'?'Progress is saved in this browser only.':'Progress is saved to your private artifact data and follows you across devices.'}
+function hasData(s){return s&&(Object.keys(s.lectures||{}).length||Object.keys(s.cards||{}).length||(s.watchlist||[]).length)}
+function save(){saveLocal();if(!dbRef)return;clearTimeout(dbTimer);dbTimer=setTimeout(flush,800)}
+function flush(){if(!dbRef)return;if(dbBusy){dbDirty=true;return}dbBusy=true;setSync('saving');
+  dbRef.set(JSON.parse(JSON.stringify(state))).then(()=>{dbBusy=false;setSync('synced');if(dbDirty){dbDirty=false;dbTimer=setTimeout(flush,200)}})
+  .catch(()=>{dbBusy=false;setSync('local')})}
+async function initDb(){
+  try{
+    const db = window.claude&&typeof window.claude.use==='function'?await window.claude.use('db'):null;
+    if(!db){setSync('local');return}
+    dbRef=db.doc('app/state');
+    const snap=await dbRef.get();
+    const remote=snap.exists?snap.data():null;
+    if(hasData(remote)){state=normalize(remote);saveLocal();refreshChrome();render()}
+    else if(hasData(state)){await dbRef.set(JSON.parse(JSON.stringify(state)))}
+    setSync('synced');
+  }catch(e){dbRef=null;setSync('local')}
+}
+let sampleApi=null;
+async function initSample(){try{sampleApi=window.claude&&typeof window.claude.use==='function'?await window.claude.use('sample'):null}catch(e){sampleApi=null}
+  document.dispatchEvent(new CustomEvent('sample-ready'));if(sampleApi&&curView)render()}
+let downloadsApi=null;
+(async()=>{try{downloadsApi=window.claude&&typeof window.claude.use==='function'?await window.claude.use('downloads'):null}catch(e){downloadsApi=null}})();
+
+function L(cid,n){const k=lk(cid,n);return state.lectures[k]||(state.lectures[k]={})}
+function markActivity(){const d=todayStr();state.activity[d]=(state.activity[d]||0)+1}
+function streak(){let n=0;const d=new Date();if(!state.activity[todayStr(d)])d.setDate(d.getDate()-1);
+  while(state.activity[todayStr(d)]){n++;d.setDate(d.getDate()-1)}return n}
+
+/* ================= Course loading ================= */
+const cache={};
+async function getCourse(id){
+  if(cache[id])return cache[id];
+  const meta=COURSE[id];if(!meta)throw new Error('Unknown course');
+  const r=await fetch(meta.file);if(!r.ok)throw new Error('Could not load '+meta.file);
+  const data=await r.json();cache[id]=data;return data;
+}
+
+/* ================= Spaced review (Leitner) ================= */
+// Boxes 1-5; after "Knew it" a card moves up a box and waits longer.
+const INTERVAL=[0,1,3,7,16,35];
+function addCard(id){if(!state.cards[id]){state.cards[id]={box:1,due:todayStr(),seen:0}}}
+function dueCards(cid){const t=todayStr();return Object.entries(state.cards).filter(([id,c])=>c.due<=t&&(!cid||id.split(':')[1]===cid)).map(([id])=>id)}
+function unlockLectureCards(cid,lec){lec.terms.forEach((t,i)=>addCard('t:'+cid+':'+lec.n+':'+i))}
+function gradeCard(id,g){const c=state.cards[id];if(!c)return;c.seen++;
+  if(g===0){c.box=1;c.due=addDays(1)} else if(g===1){c.due=addDays(Math.max(1,Math.ceil(INTERVAL[c.box]/2)))} else {c.box=Math.min(5,c.box+1);c.due=addDays(INTERVAL[c.box])}
+  markActivity();save();refreshChrome()}
+function cardContent(id){ // returns {cid, n, kind, front, back, options, answer, lecture}
+  const p=id.split(':');const kind=p[0],cid=p[1];const course=cache[cid];if(!course)return null;
+  if(kind==='t'){const lec=course.lectures[+p[2]-1];const t=lec&&lec.terms[+p[3]];if(!t)return null;
+    return {cid,n:lec.n,kind:'term',front:t.term,back:t.def,tag:t.type==='person'?'Person':'Concept',lecture:lec}}
+  if(kind==='a'){const n=+p[2];const term=p.slice(3).join(':');const e=(state.aiTerms[lk(cid,n)]||[]).find(x=>x.term===term);if(!e)return null;
+    return {cid,n,kind:'term',front:e.term,back:e.definition,tag:'AI definition',lecture:course.lectures[n-1]}}
+  if(kind==='q'){const qid=p[2];const n=+qid.match(/^l(\d+)/)[1];const lec=course.lectures[n-1];const q=lec&&lec.quiz.find(x=>x.id===qid);if(!q)return null;
+    return {cid,n,kind:'q',front:q.q,q,lecture:lec}}
+  return null}
+
+/* ================= Router ================= */
+let curView=null;
+function parseHash(){const h=(location.hash||'#home').slice(1);
+  let m;
+  if(h==='review')return {v:'review'};
+  if((m=h.match(/^course-([a-z0-9-]+?)(?:-(lectures|review|exam|glossary|book))?$/))&&COURSE[m[1]])return {v:'course',cid:m[1],tab:m[2]||'lectures'};
+  if((m=h.match(/^lec-([a-z0-9-]+)-(\d+)$/))&&COURSE[m[1]])return {v:'lecture',cid:m[1],n:+m[2]};
+  return {v:'home'}}
+let lectureTab='read';
+async function render(){
+  const r=parseHash();
+  const keepScroll = curView && JSON.stringify(curView)===JSON.stringify(r);
+  curView=r;closePops();
+  $$('.nav a').forEach(a=>a.classList.toggle('on',a.dataset.nav===(r.v==='review'?'review':'home')));
+  const main=$('#main');const y=window.scrollY;
+  try{
+    if(r.v==='home') await renderHome(main);
+    else if(r.v==='review') await renderReview(main,null);
+    else if(r.v==='course') await renderCourse(main,r.cid,r.tab);
+    else if(r.v==='lecture') await renderLecture(main,r.cid,r.n);
+  }catch(e){main.innerHTML='<div class="box"><h4>Something went wrong</h4><p>'+esc(e.message)+'</p><a class="btn" href="#home">Back to the library</a></div>'}
+  if(keepScroll)window.scrollTo(0,y);
+}
+window.addEventListener('hashchange',()=>{if(parseHash().v==='lecture')lectureTab='read';render();window.scrollTo(0,0)});
+function refreshChrome(){const n=Object.keys(cache).length?dueCards().filter(id=>cardContent(id)).length:dueCards().length;const p=$('#due-pill');p.textContent=n;p.classList.toggle('zero',!n)}
+
+/* ================= Home ================= */
+function courseProgress(cid,total){let read=0;for(let i=1;i<=total;i++)if((state.lectures[lk(cid,i)]||{}).read)read++;return read}
+async function renderHome(main){
+  const last=state.last&&COURSE[state.last.cid]?state.last:null;
+  const totalLec=COURSES.reduce((a,c)=>a+c.lectures,0);
+  const readLec=COURSES.reduce((a,c)=>a+courseProgress(c.id,c.lectures),0);
+  const due=dueCards().length; const st=streak();
+  let lastCourse=null; if(last){try{lastCourse=await getCourse(last.cid)}catch(e){}}
+  const lastLec=lastCourse?lastCourse.lectures[last.n-1]:null;
+  main.innerHTML=`
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Your commonplace book</div>
+      <h1>Watching is the easy part. This is where it sticks.</h1>
+      <p>Each course gets study notes built from its guidebook, quizzes, cases Claude checks, a tutor, a highlighter, and a review deck that brings ideas back right before you'd forget them.</p>
+    </div>
+    <div class="tip" style="margin:0">Routine that works: watch one lecture, then here: <b>read</b> the notes (5 min), take the <b>quiz</b>, do the <b>case</b> in your own words, and clear your <b>review</b> queue daily.</div>
+  </section>
+  <section class="today" aria-label="Today">
+    <div class="tcard">
+      <div class="eyebrow">Continue</div>
+      ${lastLec?`<h3>${esc(lastLec.title)}</h3><div class="sub">${esc(COURSE[last.cid].title)} · Lecture ${lastLec.n} of ${lastCourse.lectures.length}</div>
+        <div class="row"><a class="btn primary" href="#lec-${last.cid}-${lastLec.n}">Open lecture</a></div>`
+      :`<h3>Start with Lecture 1</h3><div class="sub">Strategic Thinking Skills is ready. Open it after you watch the first lecture.</div><div class="row"><a class="btn primary" href="#lec-strategic-thinking-1">Open Lecture 1</a></div>`}
+    </div>
+    <div class="tcard">
+      <div class="eyebrow">Review queue</div>
+      <div class="big">${due} <span class="sub">card${due===1?'':'s'} due</span></div>
+      <div class="sub">${Object.keys(state.cards).length?`${Object.keys(state.cards).length} cards in your deck. Mark a lecture as read to add its key terms; missed quiz questions join automatically.`:'Empty for now. Mark a lecture as read and its key terms join the deck.'}</div>
+      <div class="row"><a class="btn${due?' primary':''}" href="#review">${due?'Review now':'Open review'}</a></div>
+    </div>
+    <div class="tcard">
+      <div class="eyebrow">Progress</div>
+      <div class="big">${readLec}<span class="sub"> / ${totalLec} lectures read</span></div>
+      <div class="bar" style="--cat:var(--accent)"><b style="width:${totalLec?Math.round(readLec/totalLec*100):0}%"></b></div>
+      <div class="sub">${st?`${st}-day study streak.`:'No streak yet. One review session a day starts one.'}</div>
+    </div>
+  </section>
+  ${CATEGORIES.map(cat=>catHtml(cat)).join('')}`;
+  bindHome(main);
+}
+function catHtml(cat){
+  const courses=COURSES.filter(c=>c.category===cat.id);
+  const planned=state.watchlist.filter(w=>w.category===cat.id);
+  return `<section class="cat" style="--cat:var(--c-${cat.id})" aria-labelledby="cat-${cat.id}">
+    <div class="cat-head"><span class="eyebrow">${cat.code}</span><h2 id="cat-${cat.id}">${cat.name}</h2><span class="desc">${esc(cat.desc)}</span></div>
+    <div class="shelf">
+      ${courses.map(c=>{const r=courseProgress(c.id,c.lectures);return `<a class="ccard" href="#course-${c.id}">
+        <div class="callno">${cat.code} ${esc(c.courseNo)} · ${esc(c.professor.split(' ').pop().slice(0,3).toUpperCase())}</div>
+        <h3>${esc(c.title)}</h3><div class="who">${esc(c.professor)} · ${esc(c.institution)}<br>${esc(c.subtopic)}</div>
+        <div class="bar"><b style="width:${Math.round(r/c.lectures*100)}%"></b></div>
+        <div class="meta"><span>${r}/${c.lectures} read</span><span>${dueCards(c.id).length} due</span></div></a>`}).join('')}
+      ${planned.map(w=>`<div class="ccard planned"><button class="x" data-unplan="${esc(w.id)}" aria-label="Remove ${esc(w.title)} from the watchlist">×</button>
+        <div class="callno">${cat.code} · WATCHLIST</div><h3>${esc(w.title)}</h3>${w.prof?`<div class="who">${esc(w.prof)}</div>`:''}
+        <div class="tag">Waiting for its guidebook. Upload the PDF in chat to build it.</div></div>`).join('')}
+      <form class="addform" data-cat="${cat.id}">
+        <label class="eyebrow" for="add-${cat.id}">Add a planned course</label>
+        <input id="add-${cat.id}" name="title" placeholder="Course title" maxlength="120" autocomplete="off">
+        <input id="add-${cat.id}-prof" name="prof" placeholder="Professor (optional)" maxlength="80" autocomplete="off">
+        <div class="row"><button class="btn small" type="submit">Add to ${cat.name}</button></div>
+      </form>
+    </div></section>`}
+function bindHome(main){
+  $$('form.addform',main).forEach(f=>f.addEventListener('submit',e=>{e.preventDefault();const t=f.title.value.trim();if(!t){f.title.focus();return}
+    state.watchlist.push({id:'w'+Date.now().toString(36),title:t,prof:f.prof.value.trim(),category:f.dataset.cat,added:todayStr()});save();render();toast('Added to your watchlist')}));
+  $$('[data-unplan]',main).forEach(b=>b.addEventListener('click',()=>{state.watchlist=state.watchlist.filter(w=>w.id!==b.dataset.unplan);save();render()}));
+}
+
+/* ================= Course page ================= */
+async function renderCourse(main,cid,tab){
+  const meta=COURSE[cid];main.innerHTML='<p class="muted">Loading course…</p>';
+  const course=await getCourse(cid);const cat=CAT[meta.category];
+  const read=courseProgress(cid,course.lectures.length);
+  const quizzes=course.lectures.filter(l=>(state.lectures[lk(cid,l.n)]||{}).quizBest!=null);
+  const avg=quizzes.length?Math.round(quizzes.reduce((a,l)=>a+state.lectures[lk(cid,l.n)].quizBest/l.quiz.length,0)/quizzes.length*100):null;
+  const cs=state.courses[cid]||{};
+  main.innerHTML=`
+    <div class="crumbs"><a href="#home">Library</a><span>/</span><span>${cat.name}</span></div>
+    <div class="chead" style="--cat:var(--c-${cat.id})">
+      <div><div class="callno">${cat.code} ${esc(course.courseNo)} · ${esc(course.subtopic)}</div>
+        <h1>${esc(course.title)}</h1><div class="muted">${esc(course.professor)}, ${esc(course.institution)} · ${course.lectures.length} lectures</div>
+        <p class="blurb">${esc(course.blurb)}</p></div>
+      <div class="stats">
+        <div class="stat"><div class="v">${read}/${course.lectures.length}</div><div class="l">lectures read</div></div>
+        <div class="stat"><div class="v">${avg==null?'–':avg+'%'}</div><div class="l">avg. quiz best</div></div>
+        <div class="stat"><div class="v">${cs.examBest==null?'–':cs.examBest+'/'+cs.examOf}</div><div class="l">final exam best</div></div>
+      </div>
+    </div>
+    <div class="tabs" role="tablist">
+      ${[['lectures','Lectures'],['review','Review ('+dueCards(cid).length+')'],['exam','Final exam'],['glossary','Glossary'],['book','My commonplace book']].map(([k,l])=>`<button role="tab" aria-selected="${k===tab}" class="${k===tab?'on':''}" data-tab="${k}">${l}</button>`).join('')}
+    </div>
+    <div id="ctab"></div>`;
+  $$('.tabs button',main).forEach(b=>b.addEventListener('click',()=>{location.hash='course-'+cid+(b.dataset.tab==='lectures'?'':'-'+b.dataset.tab)}));
+  const host=$('#ctab');
+  if(tab==='lectures'){
+    host.innerHTML=`<div class="llist">${course.lectures.map(l=>{const s=state.lectures[lk(cid,l.n)]||{};
+      const hl=(state.highlights[lk(cid,l.n)]||[]).length;const ca=Object.values(s.caseAns||{}).filter(x=>x&&x.trim()).length;
+      return `<a class="litem${s.read?' read':''}" href="#lec-${cid}-${l.n}"><span class="lnum">${l.n}</span><span style="min-width:0">
+        <div class="t">${esc(l.title)}</div><div class="h">${esc(l.hook)}</div>
+        <div class="badges">${s.read?'<span class="badge good">read</span>':''}${s.quizBest!=null?`<span class="badge${s.quizBest===l.quiz.length?' good':''}">quiz ${s.quizBest}/${l.quiz.length}</span>`:''}${ca?`<span class="badge">case ${ca}/${l.case.questions.length}</span>`:''}${hl?`<span class="badge">${hl} highlight${hl>1?'s':''}</span>`:''}${(s.notes||'').trim()?'<span class="badge">notes</span>':''}</div></span></a>`}).join('')}</div>`;
+  } else if(tab==='review'){ await renderReview(host,cid,true);
+  } else if(tab==='exam'){ renderExam(host,course);
+  } else if(tab==='glossary'){ renderGlossary(host,course);
+  } else if(tab==='book'){ renderBook(host,course); }
+}
+
+function renderGlossary(host,course){
+  const all=[];course.lectures.forEach(l=>{l.terms.forEach(t=>all.push({...t,n:l.n,lt:l.title}));(state.aiTerms[lk(course.id,l.n)]||[]).forEach(t=>all.push({term:t.term,def:t.definition,type:'ai',n:l.n,lt:l.title}))});
+  all.sort((a,b)=>a.term.localeCompare(b.term));
+  host.innerHTML=`<label class="eyebrow" for="gq">Search ${all.length} terms and people</label><br><input id="gq" class="search" type="search" placeholder="e.g. tit for tat, Porter, SWOT">
+    <div class="glist" id="gl"></div>`;
+  const draw=q=>{q=q.toLowerCase();$('#gl').innerHTML=all.filter(t=>!q||t.term.toLowerCase().includes(q)||t.def.toLowerCase().includes(q)).map(t=>`<div class="gitem"><div class="gt">${esc(t.term)}</div>
+    <div class="gm">${t.type==='person'?'Person':t.type==='ai'?'Defined by AI':'Concept'} · <a href="#lec-${course.id}-${t.n}">L${t.n} ${esc(t.lt)}</a></div><div class="gd">${esc(t.def)}</div></div>`).join('')||'<p class="empty">No matches.</p>'};
+  draw('');$('#gq').addEventListener('input',e=>draw(e.target.value));
+}
+
+function bookMarkdown(course){
+  let out=`# ${course.title} — my commonplace book\n${course.professor}\n\n`;
+  course.lectures.forEach(l=>{const k=lk(course.id,l.n);const s=state.lectures[k]||{};const hl=state.highlights[k]||[];const ai=state.aiTerms[k]||[];
+    const ca=s.caseAns||{};const hasCase=Object.values(ca).some(x=>x&&x.trim());
+    if(!hl.length&&!ai.length&&!(s.notes||'').trim()&&!hasCase)return;
+    out+=`## Lecture ${l.n}: ${l.title}\n\n`;
+    if(hl.length)out+='Highlights:\n'+hl.map(h=>'> '+h.text).join('\n')+'\n\n';
+    if(ai.length)out+='My terms:\n'+ai.map(t=>`- **${t.term}**: ${t.definition}`).join('\n')+'\n\n';
+    if((s.notes||'').trim())out+='Notes:\n'+s.notes.trim()+'\n\n';
+    if(hasCase){out+=`Case — ${l.case.title}:\n`;l.case.questions.forEach((q,i)=>{if((ca[i]||'').trim())out+=`Q: ${q.q}\nA: ${ca[i].trim()}\n`});out+='\n'}
+  });return out}
+function renderBook(host,course){
+  const md0=bookMarkdown(course);const parts=[];
+  course.lectures.forEach(l=>{const k=lk(course.id,l.n);const s=state.lectures[k]||{};const hl=state.highlights[k]||[];const ai=state.aiTerms[k]||[];
+    if(!hl.length&&!ai.length&&!(s.notes||'').trim())return;
+    parts.push(`<section><div class="eyebrow">Lecture ${l.n}</div><h3><a href="#lec-${course.id}-${l.n}" style="color:inherit;text-decoration:none">${esc(l.title)}</a></h3>
+      ${hl.map(h=>`<div class="hlitem">${esc(h.text)}</div>`).join('')}
+      ${ai.map(t=>`<div class="small"><b>${esc(t.term)}</b>: ${esc(t.definition)} <span class="badge ai">AI</span></div>`).join('')}
+      ${(s.notes||'').trim()?`<div class="note" style="margin-top:8px">${esc(s.notes.trim())}</div>`:''}</section>`)});
+  host.innerHTML=`<p class="muted" style="max-width:66ch">Everything you highlighted, defined and wrote, in one place. A commonplace book was how Renaissance readers made ideas stick: copy what struck you, in your own hand, and reread it.</p>
+    <div class="row" style="margin-bottom:16px"><button class="btn" id="bk-copy">Copy as Markdown</button>${downloadsApi?'<button class="btn" id="bk-dl">Save as .md file</button>':''}</div><div id="bk-fallback"></div>
+    <div class="book">${parts.join('')||'<p class="empty">Nothing yet. Highlight passages, define terms and take notes in any lecture and they collect here.</p>'}</div>`;
+  $('#bk-copy').onclick=()=>copyText(md0,$('#bk-fallback'));
+  const dl=$('#bk-dl');if(dl)dl.onclick=async()=>{try{await downloadsApi.save({filename:course.id+'-commonplace.md',data:md0})}catch(e){if(e&&e.code!=='cancelled'&&e.code!=='declined')toast('Could not save the file')}};
+}
+
+/* ================= Quiz engine (lecture quiz + final exam) ================= */
+function quizHtml(qs,prefix){
+  return qs.map((q,i)=>{const order=shuffle(q.options.map((_,j)=>j));if(q.kind==='tf')order.sort();
+    return `<div class="qcard" data-qi="${i}"><div class="qk">${prefix?prefix(q,i):'Question '+(i+1)} · ${q.kind==='tf'?'True or false':'Multiple choice'}</div>
+    <div class="qq">${esc(q.q)}</div><div class="opts${q.kind==='tf'?' tf':''}">${order.map(j=>`<button class="opt" data-j="${j}">${esc(q.options[j])}</button>`).join('')}</div><div class="fbh"></div></div>`}).join('')}
+function bindQuiz(host,qs,cid,onDone){
+  let answered=0,correct=0;
+  $$('.qcard',host).forEach(card=>{const q=qs[+card.dataset.qi];
+    $$('.opt',card).forEach(b=>b.addEventListener('click',()=>{
+      const j=+b.dataset.j;const ok=j===q.answer;answered++;if(ok)correct++;
+      $$('.opt',card).forEach(o=>{o.disabled=true;if(+o.dataset.j===q.answer)o.classList.add('right')});
+      if(!ok){b.classList.add('wrong');addCard('q:'+cid+':'+q.id)}
+      $('.fbh',card).innerHTML=`<div class="fb ${ok?'right':'wrong'}"><b>${ok?'Correct.':'Not quite.'}</b> <span>${esc(q.why)}${ok?'':' (Added to your review deck.)'}</span></div>`;
+      if(answered===qs.length)onDone(correct);
+    }))})
+}
+
+function renderExam(host,course){
+  const readL=course.lectures.filter(l=>(state.lectures[lk(course.id,l.n)]||{}).read);
+  const pool=(readL.length>=4?readL:course.lectures).flatMap(l=>l.quiz.map(q=>({...q,n:l.n})));
+  const qs=shuffle(pool).slice(0,20);
+  host.innerHTML=`<p class="muted" style="max-width:66ch">${qs.length} random questions ${readL.length>=4?`from the ${readL.length} lectures you've marked read`:'from the whole course (mark at least 4 lectures read to limit it to those)'}. Mixed order on purpose: retrieving ideas out of sequence is what makes them stick.</p>
+    <div id="exres"></div><div id="exq">${quizHtml(qs,(q)=>'Lecture '+q.n)}</div><div class="row"><button class="btn" id="exnew">New exam</button></div>`;
+  $('#exnew').onclick=()=>renderExam(host,course);
+  bindQuiz(host,qs,course.id,c=>{const cs=state.courses[course.id]||(state.courses[course.id]={});
+    if(cs.examBest==null||c>cs.examBest){cs.examBest=c;cs.examOf=qs.length}markActivity();save();refreshChrome();
+    $('#exres').innerHTML=`<div class="score"><div class="n">${c}/${qs.length}</div><div class="muted">${c/qs.length>=.85?'Strong. These ideas are yours now.':c/qs.length>=.6?'Decent. The misses are in your review deck.':'The misses are now in your review deck. Reread those lectures, then retake.'}</div></div>`;
+    $('#exres').scrollIntoView({behavior:'smooth',block:'center'})});
+}
+
+/* ================= Review ================= */
+async function renderReview(main,cid,embedded){
+  // make sure the courses behind the cards are loaded
+  const ids=new Set(Object.keys(state.cards).map(id=>id.split(':')[1]));
+  for(const c of ids){if(COURSE[c])try{await getCourse(c)}catch(e){}}
+  refreshChrome();
+  let queue=shuffle(dueCards(cid).filter(id=>cardContent(id)));
+  const total=Object.keys(state.cards).filter(id=>!cid||id.split(':')[1]===cid);
+  const boxCounts=[1,2,3,4,5].map(b=>total.filter(id=>state.cards[id].box===b).length);
+  const maxB=Math.max(1,...boxCounts);
+  const head=embedded?'':`<div class="crumbs"><a href="#home">Library</a><span>/</span><span>Review</span></div><h1 style="font-size:34px;margin-bottom:6px">Review</h1>`;
+  main.innerHTML=`<div class="rv">${head}
+    <p class="muted">Cards come back on a widening schedule: forget one and it returns tomorrow; know it and it waits longer (1, 3, 7, 16, then 35 days).</p>
+    <div class="boxes" aria-hidden="true">${boxCounts.map(c=>`<div style="height:${Math.round(c/maxB*100)}%"><span>${c}</span></div>`).join('')}</div>
+    <div class="boxlab">${['New/forgot','1 day','3 days','7 days','16+ days'].map(s=>`<span>${s}</span>`).join('')}</div>
+    <p class="small muted" style="margin-top:8px">${total.length} cards in deck · <b id="rv-left">${queue.length}</b> due now</p>
+    <div id="rv-card"></div></div>`;
+  const slot=$('#rv-card',main);
+  const next=()=>{
+    $('#rv-left',main).textContent=queue.length;
+    if(!queue.length){slot.innerHTML=`<div class="flash"><div class="front">${total.length?'All caught up.':'Your deck is empty.'}</div>
+      <div class="muted">${total.length?'Come back tomorrow; the schedule will bring back what you are about to forget.':'Open a lecture, read the notes and press "Mark as read" at the bottom. Its key terms will show up here.'}</div>
+      <div class="row" style="margin-top:auto"><a class="btn" href="#home">Back to the library</a></div></div>`;return}
+    const id=queue[0];const c=cardContent(id);const src=`<span class="badge">${esc(COURSE[c.cid].title)} · L${c.n}</span>`;
+    if(c.kind==='term'){
+      slot.innerHTML=`<div class="flash"><div class="row">${src}<span class="badge">${esc(c.tag)}</span></div><div class="front">${esc(c.front)}</div>
+        <div class="muted small" id="rv-prompt">Say the definition out loud (or in your head) before you flip.</div>
+        <div class="row"><button class="btn primary" id="rv-flip">Show answer</button></div></div>`;
+      $('#rv-flip').onclick=()=>{$('#rv-prompt').outerHTML=`<div class="back">${esc(c.back)}</div>`;$('#rv-flip').parentElement.outerHTML=gradeHtml(id);bindGrade()};
+    } else {
+      const q=c.q;const order=q.kind==='tf'?[0,1]:shuffle(q.options.map((_,j)=>j));
+      slot.innerHTML=`<div class="flash"><div class="row">${src}<span class="badge">Missed quiz question</span></div><div class="front q">${esc(q.q)}</div>
+        <div class="opts${q.kind==='tf'?' tf':''}">${order.map(j=>`<button class="opt" data-j="${j}">${esc(q.options[j])}</button>`).join('')}</div><div id="rv-after"></div></div>`;
+      $$('.opt',slot).forEach(b=>b.onclick=()=>{const ok=+b.dataset.j===q.answer;$$('.opt',slot).forEach(o=>{o.disabled=true;if(+o.dataset.j===q.answer)o.classList.add('right')});if(!ok)b.classList.add('wrong');
+        $('#rv-after').innerHTML=`<div class="fb ${ok?'right':'wrong'}"><b>${ok?'Correct.':'Not quite.'}</b> <span>${esc(q.why)}</span></div>`+gradeHtml(id,ok);bindGrade()});
+    }
+  };
+  const gradeHtml=(id,ok)=>{const c=state.cards[id];const up=INTERVAL[Math.min(5,c.box+1)];
+    return `<div class="grade">${ok===true?'':'<button class="g0" data-g="0">Forgot<small>tomorrow</small></button>'}<button class="g1" data-g="1">Hard<small>${Math.max(1,Math.ceil(INTERVAL[c.box]/2))}d</small></button>${ok===false?'':`<button class="g2" data-g="2">Knew it<small>${up}d</small></button>`}</div>`};
+  const bindGrade=()=>$$('.grade button',slot).forEach(b=>b.onclick=()=>{gradeCard(queue[0],+b.dataset.g);queue.shift();next()});
+  next();
+}
+
+/* ================= Lecture page ================= */
+async function renderLecture(main,cid,n){
+  main.innerHTML='<p class="muted">Loading lecture…</p>';
+  const course=await getCourse(cid);const lec=course.lectures[n-1];if(!lec)throw new Error('That lecture does not exist.');
+  const meta=COURSE[cid];const cat=CAT[meta.category];const s=L(cid,n);
+  state.last={cid,n,ts:Date.now()};s.visited=Date.now();save();
+  const tabs=[['read','Study notes'],['quiz','Quiz'],['case','Case'],['notes','My notes']];
+  main.innerHTML=`
+    <div class="crumbs"><a href="#home">Library</a><span>/</span><span>${cat.name}</span><span>/</span><a href="#course-${cid}">${esc(course.title)}</a></div>
+    <div class="lhead"><div class="callno" style="--cat:var(--c-${cat.id});color:var(--cat)">Lecture ${n} of ${course.lectures.length}${s.read?' · read ✓':''}</div>
+      <h1>${esc(lec.title)}</h1><p class="hook">${esc(lec.hook)}</p></div>
+    <div class="tabs" role="tablist">${tabs.map(([k,l])=>`<button role="tab" aria-selected="${k===lectureTab}" class="${k===lectureTab?'on':''}" data-t="${k}">${l}${k==='quiz'&&s.quizBest!=null?` · ${s.quizBest}/${lec.quiz.length}`:''}</button>`).join('')}</div>
+    <div id="ltab"></div>
+    <div class="lnav">${n>1?`<a class="btn ghost" href="#lec-${cid}-${n-1}">← Lecture ${n-1}</a>`:'<span></span>'}${n<course.lectures.length?`<a class="btn ghost" href="#lec-${cid}-${n+1}">Lecture ${n+1} →</a>`:'<span></span>'}</div>`;
+  $$('.tabs button',main).forEach(b=>b.addEventListener('click',()=>{lectureTab=b.dataset.t;render()}));
+  const host=$('#ltab');
+  if(lectureTab==='read')renderRead(host,course,lec);
+  else if(lectureTab==='quiz')renderQuiz(host,course,lec);
+  else if(lectureTab==='case')renderCase(host,course,lec);
+  else renderNotes(host,course,lec);
+}
+
+function renderRead(host,course,lec){
+  const cid=course.id,k=lk(cid,lec.n),s=L(cid,lec.n);
+  const hls=state.highlights[k]||[];const ai=state.aiTerms[k]||[];
+  host.innerHTML=`<div class="lgrid">
+    <article class="reading" id="reading">
+      <div class="tip">Select any text to <b>highlight</b> it, ask for an <b>AI definition</b>, have the tutor <b>explain</b> it, or send it to your notes. Dotted words are course terms; hover or tap them.</div>
+      ${lec.sections.map((sec,i)=>`<section data-sec="${i}"><h3>${esc(sec.h)}</h3>${sec.html}</section>`).join('')}
+      <div class="box" style="margin-top:10px"><h4>Apply it to your life</h4><ul>${lec.apply.map(a=>`<li>${esc(a)}</li>`).join('')}</ul>
+        <div class="row" style="margin-top:8px"><button class="btn small" id="apply-notes">Answer these in my notes</button></div></div>
+      <div class="row" style="margin-top:22px">${s.read?'<span class="badge good">Marked as read</span><button class="btn small ghost" id="unread">Undo</button>':'<button class="btn primary" id="markread">Mark as read · add terms to review</button>'}
+        <button class="btn" data-goto="quiz">Take the quiz →</button></div>
+    </article>
+    <aside class="rail">
+      <div class="box"><h4>Takeaways</h4><ul>${lec.takeaways.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></div>
+      <div class="box"><h4>Terms in this lecture</h4>${lec.terms.map((t,i)=>`<button class="termchip${t.type==='person'?' person':''}" data-ti="${i}">${esc(t.term)}</button>`).join('')}
+        ${ai.length?`<div style="margin-top:6px">${ai.map(t=>`<button class="termchip" style="background:transparent;border:1px dashed var(--ai)" data-ai="${esc(t.term)}">${esc(t.term)}</button>`).join('')}</div>`:''}</div>
+      <div class="box"><h4>My highlights</h4>${hls.length?hls.map(h=>`<div class="hlitem">${esc(h.text)}</div>`).join(''):'<p class="empty">None yet. Select text in the notes to highlight it.</p>'}</div>
+    </aside></div>`;
+  const reading=$('#reading');
+  decorateTerms(reading,lec,ai);
+  hls.forEach(h=>wrapText($(`section[data-sec="${h.sec}"]`,reading)||reading,h.text,'mark','uhl',{hl:h.text}));
+  $$('[data-goto]',host).forEach(b=>b.onclick=()=>{lectureTab=b.dataset.goto;render();window.scrollTo(0,0)});
+  const mr=$('#markread');if(mr)mr.onclick=()=>{s.read=true;unlockLectureCards(cid,lec);markActivity();save();refreshChrome();toast(`${lec.terms.length} terms added to your review deck`);render()};
+  const ur=$('#unread');if(ur)ur.onclick=()=>{s.read=false;save();render()};
+  $('#apply-notes').onclick=()=>{appendNote(cid,lec.n,lec.apply.map(a=>'» '+a+'\n').join('\n'));lectureTab='notes';render()};
+  $$('[data-ti]',host).forEach(b=>b.onclick=()=>{const t=lec.terms[+b.dataset.ti];showPop(b,t.term,t.def,t.type==='person'?'Person':'Concept')});
+  $$('[data-ai]',host).forEach(b=>b.onclick=()=>{const t=ai.find(x=>x.term===b.dataset.ai);showPop(b,t.term,t.definition,'Defined by AI, not the course',()=>removeAiTerm(cid,lec.n,t.term))});
+  reading.addEventListener('mouseup',()=>setTimeout(()=>onSelect(course,lec),10));
+  if(matchMedia('(pointer:coarse)').matches){let st;const h=()=>{clearTimeout(st);st=setTimeout(()=>{if(!document.body.contains(reading)){document.removeEventListener('selectionchange',h);return}onSelect(course,lec)},500)};document.addEventListener('selectionchange',h)}
+  reading.addEventListener('click',e=>{
+    const m=e.target.closest('mark.uhl');if(m&&window.getSelection().isCollapsed){e.stopPropagation();showHlMenu(m,cid,lec.n);return}
+    const t=e.target.closest('.term');if(t){e.stopPropagation();if(t.dataset.ai){const x=ai.find(z=>z.term===t.dataset.ai);x&&showPop(t,x.term,x.definition,'Defined by AI, not the course',()=>removeAiTerm(cid,lec.n,x.term))}else{const x=lec.terms[+t.dataset.ti];showPop(t,x.term,x.def,x.type==='person'?'Person':'Concept')}}
+  });
+  reading.addEventListener('mouseover',e=>{const t=e.target.closest('.term');if(t&&matchMedia('(hover:hover)').matches){if(t.dataset.ai){const x=ai.find(z=>z.term===t.dataset.ai);x&&showPop(t,x.term,x.definition,'Defined by AI, not the course',()=>removeAiTerm(cid,lec.n,x.term))}else{const x=lec.terms[+t.dataset.ti];showPop(t,x.term,x.def,x.type==='person'?'Person':'Concept')}}});
+}
+
+// Wrap the first occurrence of `text` inside `root` (may span several text nodes).
+function wrapText(root,text,tag,cls,data,skipSel){
+  if(!root||!text)return false;
+  const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement.closest(skipSel||'.tip,h3,button')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
+  const nodes=[];let full='',nd;while((nd=walker.nextNode())){nodes.push({n:nd,start:full.length});full+=nd.nodeValue}
+  const norm=s=>s.replace(/\s+/g,' ');
+  let idx=full.indexOf(text);
+  if(idx<0){ // tolerate whitespace differences
+    const map=[];let flat='';for(let i=0;i<full.length;i++){const ch=/\s/.test(full[i])?' ':full[i];if(ch===' '&&flat.endsWith(' '))continue;flat+=ch;map.push(i)}
+    const f=flat.indexOf(norm(text).trim());if(f<0)return false;idx=map[f];const endFlat=f+norm(text).trim().length-1;text=full.slice(idx,map[endFlat]+1)}
+  const end=idx+text.length;
+  nodes.forEach(({n,start})=>{const len=n.nodeValue.length;const s0=Math.max(idx,start),e0=Math.min(end,start+len);if(s0>=e0)return;
+    let node=n;if(s0>start)node=node.splitText(s0-start);if(e0-s0<node.nodeValue.length)node.splitText(e0-s0);
+    const w=document.createElement(tag);w.className=cls;for(const k in (data||{}))w.dataset[k]=data[k];node.parentNode.insertBefore(w,node);w.appendChild(node)});
+  return true}
+function decorateTerms(root,lec,ai){
+  const items=lec.terms.map((t,i)=>({term:t.term,data:{ti:String(i)},cls:'term'+(t.type==='person'?' person':'')}))
+    .concat(ai.map(t=>({term:t.term,data:{ai:t.term},cls:'term aiterm'})));
+  items.sort((a,b)=>b.term.length-a.term.length);
+  items.forEach(it=>{const variants=[it.term,it.term.replace(/\s*\(.*\)\s*/,''),it.term.split(' and ')[0],it.term.replace(/ (analysis|strategy)$/i,'')].filter((v,i,a)=>v&&a.indexOf(v)===i);
+    for(const v of variants){const re=new RegExp('(?<![\\p{L}\\p{N}])'+v.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'(?![\\p{L}\\p{N}])','iu');
+      const walker=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:n=>n.parentElement.closest('.term,.tip,h3,button,mark')?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT});
+      let nd,done=false;while((nd=walker.nextNode())){const m=re.exec(nd.nodeValue);if(m){const mid=m.index?nd.splitText(m.index):nd;mid.splitText(m[0].length);
+        const sp=document.createElement('span');sp.className=it.cls;sp.tabIndex=0;Object.assign(sp.dataset,it.data);mid.parentNode.insertBefore(sp,mid);sp.appendChild(mid);done=true;break}}
+      if(done)break}})
+}
+
+/* popovers + selection toolbar */
+let popEl=null;
+function closePops(){if(popEl){popEl.remove();popEl=null}}
+function place(el,anchorRect){const w=el.offsetWidth,h=el.offsetHeight;let x=anchorRect.left+anchorRect.width/2-w/2,y=anchorRect.bottom+8;
+  if(y+h>innerHeight-8)y=anchorRect.top-h-8;el.style.left=Math.max(8,Math.min(x,innerWidth-w-8))+'px';el.style.top=Math.max(8,y)+'px'}
+function showPop(anchor,term,def,kind,onRemove){closePops();popEl=document.createElement('div');popEl.className='pop';popEl.setAttribute('role','tooltip');
+  popEl.innerHTML=`<div class="pk">${esc(kind)}</div><div class="pt">${esc(term)}</div><div>${esc(def)}</div>${onRemove?'<div class="pf"><span>Saved to this lecture</span><button class="btn small ghost">Remove</button></div>':''}`;
+  document.body.appendChild(popEl);place(popEl,anchor.getBoundingClientRect());
+  if(onRemove)$('button',popEl).onclick=()=>{closePops();onRemove()}}
+document.addEventListener('click',e=>{if(popEl&&!e.target.closest('.pop,.seltb,.term,.termchip,mark.uhl'))closePops()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePops()});
+window.addEventListener('scroll',()=>{if(popEl&&popEl.classList.contains('pop'))closePops()},{passive:true});
+
+function onSelect(course,lec){
+  const sel=window.getSelection();if(!sel||sel.isCollapsed)return;
+  const text=sel.toString().replace(/\s+/g,' ').trim();if(text.length<2)return;
+  const reading=$('#reading');const range=sel.getRangeAt(0);if(!reading||!reading.contains(range.commonAncestorContainer))return;
+  const secEl=(range.startContainer.nodeType===1?range.startContainer:range.startContainer.parentElement).closest('section[data-sec]');
+  const sec=secEl?+secEl.dataset.sec:0;
+  const ctxEl=(range.commonAncestorContainer.nodeType===1?range.commonAncestorContainer:range.commonAncestorContainer.parentElement).closest('p,li')||secEl;
+  const ctx=ctxEl?ctxEl.textContent.replace(/\s+/g,' ').trim():'';
+  closePops();popEl=document.createElement('div');popEl.className='seltb';
+  const can=!!sampleApi;
+  popEl.innerHTML=`<button data-a="hl">Highlight</button>${can&&text.length<=60?'<button data-a="def">Define (AI)</button>':''}${can?'<button data-a="exp">Explain</button>':''}<button data-a="note">Add to notes</button>`;
+  document.body.appendChild(popEl);place(popEl,range.getBoundingClientRect());
+  $$('button',popEl).forEach(b=>b.onmousedown=e=>e.preventDefault());
+  $$('button',popEl).forEach(b=>b.onclick=()=>{const a=b.dataset.a;closePops();sel.removeAllRanges();
+    const k=lk(course.id,lec.n);
+    if(a==='hl'){(state.highlights[k]||(state.highlights[k]=[])).push({text,sec,ts:Date.now()});save();render();toast('Highlighted')}
+    if(a==='note'){appendNote(course.id,lec.n,'“'+text+'”\n');toast('Added to your notes')}
+    if(a==='exp'){Tutor.ask('Explain this part of what I\'m reading, in simple terms, with an everyday example:\n"'+text.slice(0,700)+'"'+(ctx&&ctx!==text?'\n\nIt comes from this passage:\n"'+ctx.slice(0,500)+'"':''))}
+    if(a==='def')defineTerm(course,lec,text,ctx);
+  });
+}
+function showHlMenu(m,cid,n){closePops();popEl=document.createElement('div');popEl.className='seltb';
+  popEl.innerHTML='<button>Remove highlight</button>';document.body.appendChild(popEl);place(popEl,m.getBoundingClientRect());
+  $('button',popEl).onclick=()=>{const k=lk(cid,n);state.highlights[k]=(state.highlights[k]||[]).filter(h=>h.text!==m.dataset.hl);save();closePops();render()}}
+function appendNote(cid,n,text){const s=L(cid,n);s.notes=((s.notes||'').replace(/\s+$/,'')+(s.notes?'\n\n':'')+text).trimStart();save()}
+function removeAiTerm(cid,n,term){const k=lk(cid,n);state.aiTerms[k]=(state.aiTerms[k]||[]).filter(t=>t.term!==term);delete state.cards['a:'+cid+':'+n+':'+term];save();refreshChrome();render();toast('Definition removed')}
+let defining=false;
+async function defineTerm(course,lec,text,ctx){
+  text=text.replace(/^[“"'(]+|[”"'.,;:)!?]+$/g,'');const k=lk(course.id,lec.n);
+  if((state.aiTerms[k]||[]).some(t=>t.term.toLowerCase()===text.toLowerCase())||lec.terms.some(t=>t.term.toLowerCase()===text.toLowerCase())){toast('Already defined. Tap the dotted word.');return}
+  if(defining){toast('Still looking up the last one…');return}
+  if(!sampleApi){toast('AI definitions aren\'t available in this view');return}
+  defining=true;toast('Looking up a definition…');
+  const prompt=`You write glossary cards for a lifelong learner's study notes on the course "${course.title}" (The Great Courses, ${course.professor}), lecture "${lec.title}".
+Passage the term was selected from (use it to pick the right sense of the word):
+"""${ctx.slice(0,600)}"""
+Define: "${text}"
+Rules: plain, everyday American English; 1–2 short sentences; the meaning that fits this passage and course; no preamble, just the definition.`;
+  try{const r=await sampleApi([{role:'user',content:prompt}],{cache:false,modelTier:'quick'});const def=(r&&r.text||'').trim();
+    if(!def){toast('No definition came back. Try again.');return}
+    (state.aiTerms[k]||(state.aiTerms[k]=[])).push({term:text,definition:def,ts:Date.now()});addCard('a:'+course.id+':'+lec.n+':'+text);save();refreshChrome();render();toast('Saved. It\'s in your review deck too.')
+  }catch(e){toast(e&&e.code==='rate_limited'?'Too many requests. Wait a moment.':e&&e.code==='not_granted'?'Claude access was declined for this page.':'Couldn\'t get a definition. Try again.')}
+  finally{defining=false}
+}
+
+function renderQuiz(host,course,lec){
+  const s=L(course.id,lec.n);
+  host.innerHTML=`<div style="max-width:760px"><p class="muted">${lec.quiz.length} questions${s.quizBest!=null?` · your best so far: <b>${s.quizBest}/${lec.quiz.length}</b>`:''}. Options are reshuffled every attempt. Anything you miss goes into your review deck.</p>
+    <div id="qres"></div>${quizHtml(lec.quiz)}<div class="row"><button class="btn" id="qretake">Retake</button><button class="btn" data-goto="case">Do the case →</button></div></div>`;
+  $('#qretake').onclick=()=>{renderQuiz(host,course,lec);window.scrollTo({top:host.offsetTop-80})};
+  $$('[data-goto]',host).forEach(b=>b.onclick=()=>{lectureTab=b.dataset.goto;render();window.scrollTo(0,0)});
+  bindQuiz(host,lec.quiz,course.id,c=>{if(s.quizBest==null||c>s.quizBest)s.quizBest=c;s.quizLast=c;markActivity();save();refreshChrome();
+    $('#qres').innerHTML=`<div class="score"><div class="n">${c}/${lec.quiz.length}</div><div class="muted">${c===lec.quiz.length?'Perfect.':'Misses are in your review deck.'} Best: ${s.quizBest}/${lec.quiz.length}</div></div>`;
+    $('#qres').scrollIntoView({behavior:'smooth',block:'center'})});
+}
+
+function renderCase(host,course,lec){
+  const s=L(course.id,lec.n);s.caseAns=s.caseAns||{};s.caseFb=s.caseFb||{};const cs=lec.case;
+  host.innerHTML=`<div class="eyebrow">Case</div><h2 style="font-size:26px;margin:4px 0 12px">${esc(cs.title)}</h2>
+    <div class="scenario">${esc(cs.scenario)}</div>
+    ${cs.questions.map((q,i)=>`<div class="cq" data-i="${i}"><div class="qk">Question ${i+1}</div><div class="qq">${esc(q.q)}</div>
+      <label class="small muted" for="ca-${lec.n}-${i}">Your answer</label>
+      <textarea class="ans" id="ca-${lec.n}-${i}" placeholder="Answer in your own words, using the lecture's concepts by name.">${esc(s.caseAns[i]||'')}</textarea>
+      <div class="row" style="margin-top:8px">${sampleApi?'<button class="btn primary small" data-ai>Check my answer</button>':''}<button class="btn small" data-model>Show model answer</button><span class="saved" data-saved></span></div>
+      ${sampleApi?'':'<p class="small muted" style="margin-top:6px">AI feedback isn\'t available in this view; compare with the model answer.</p>'}
+      <div data-fb>${s.caseFb[i]?`<div class="aifb"><span class="lab">AI feedback</span>${md(s.caseFb[i])}</div>`:''}</div><div data-mh></div></div>`).join('')}`;
+  $$('.cq',host).forEach(el=>{const i=+el.dataset.i;const q=cs.questions[i];const ta=$('textarea',el);const sv=$('[data-saved]',el);let t;
+    ta.addEventListener('input',()=>{s.caseAns[i]=ta.value;sv.textContent='Saving…';clearTimeout(t);t=setTimeout(()=>{save();sv.textContent='Saved'},600)});
+    $('[data-model]',el).onclick=e=>{const h=$('[data-mh]',el);if(h.innerHTML){h.innerHTML='';e.target.textContent='Show model answer';return}
+      h.innerHTML=`<div class="model"><span class="lab">Model answer</span>${esc(q.model)}</div>`;e.target.textContent='Hide model answer'};
+    const ab=$('[data-ai]',el);if(ab)ab.onclick=()=>checkCase(course,lec,i,ta.value,el,ab);
+  });
+}
+async function checkCase(course,lec,i,answer,el,btn){
+  const s=L(course.id,lec.n);const q=lec.case.questions[i];
+  if(answer.trim().split(/\s+/).length<15){toast('Write at least a few sentences first');return}
+  btn.disabled=true;btn.textContent='Checking…';const out=$('[data-fb]',el);
+  out.innerHTML='<div class="aifb"><span class="lab">AI feedback</span><p class="muted">Reading your answer…</p></div>';
+  const prompt=`You are a demanding but fair tutor for an adult learner taking the course "${course.title}" (${course.professor}). They are doing an applied case to make the lecture "${lec.title}" stick.
+Lecture takeaways: ${lec.takeaways.join(' | ')}
+Key terms: ${lec.terms.map(t=>t.term).join(', ')}
+
+Case scenario: ${lec.case.scenario}
+Question: ${q.q}
+Reference answer (one good answer, not the only one): ${q.model}
+
+Learner's answer:
+"""${answer.slice(0,4000)}"""
+
+Give feedback in plain American English, direct and specific, no flattery:
+**Verdict:** Strong / Partly there / Missing the point (one line, with why)
+**What works:** 1–2 bullets quoting or naming what they got right
+**What's missing or off:** 1–3 bullets, naming the lecture concept they should have used
+**Make it stronger:** one concrete rewrite suggestion
+Under 200 words. Credit valid ideas that differ from the reference.`;
+  try{const r=await sampleApi([{role:'user',content:prompt}],{cache:false,onText:({text})=>{out.innerHTML=`<div class="aifb"><span class="lab">AI feedback</span>${md(text)}</div>`}});
+    s.caseFb[i]=r.text;s.caseAns[i]=answer;markActivity();save();out.innerHTML=`<div class="aifb"><span class="lab">AI feedback</span>${md(r.text)}</div>`;
+  }catch(e){out.innerHTML=`<div class="terr">${e&&e.code==='not_granted'?'Claude access was declined for this page. Reload to be asked again.':e&&e.code==='rate_limited'?'Too many requests. Wait a minute and try again.':'Feedback didn\'t come through. Try again.'}</div>`}
+  finally{btn.disabled=false;btn.textContent='Check again'}
+}
+
+function renderNotes(host,course,lec){
+  const s=L(course.id,lec.n);
+  host.innerHTML=`<div style="max-width:780px"><p class="muted">Write the lecture back in your own words. Explaining it without looking is the single best test of whether you understood it. Notes save automatically and show up in your commonplace book.</p>
+    <label class="eyebrow" for="nt-${lec.n}">Notes · Lecture ${lec.n}</label>
+    <textarea class="notes" id="nt-${lec.n}" placeholder="Three things I'd tell a friend about this lecture…">${esc(s.notes||'')}</textarea>
+    <div class="row" style="margin-top:8px"><span class="saved" id="nsv"></span>${sampleApi?'<button class="btn small" id="nquiz">Have the tutor quiz me on my notes</button>':''}</div></div>`;
+  const ta=$('textarea',host);let t;ta.addEventListener('input',()=>{s.notes=ta.value;$('#nsv').textContent='Saving…';clearTimeout(t);t=setTimeout(()=>{save();$('#nsv').textContent='Saved'},600)});
+  const nq=$('#nquiz');if(nq)nq.onclick=()=>Tutor.ask('Here are my notes on this lecture. Point out anything I got wrong or left out compared with the lecture, then ask me 3 short questions, one at a time.\n\n'+(ta.value.trim()||'(I have no notes yet. Just quiz me.)'));
+}
+
+/* ================= Tutor ================= */
+const Tutor=(()=>{
+  const root=document.createElement('div');
+  root.innerHTML=`<button class="fab" type="button" hidden aria-haspopup="dialog"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>Ask the tutor</button>
+  <section class="tpanel" hidden role="dialog" aria-label="Tutor">
+    <div class="thead"><div style="flex:1;min-width:0"><div class="tt">Tutor</div><div class="ts" id="tsub">Ask anything, in your own words</div></div><button class="btn small" data-act="new">New chat</button><button class="btn small" data-act="close">Close</button></div>
+    <div class="tlog" aria-live="polite"></div>
+    <label class="tctx"><input type="checkbox" checked id="tctx"><span id="tctxl">Include what's on my screen</span></label>
+    <div class="tcomp"><textarea rows="1" id="tbox" placeholder="Ask about anything you don't get…" aria-label="Your question"></textarea><button class="btn primary" id="tsend">Send</button></div>
+  </section>`;
+  document.body.appendChild(root);
+  const fab=$('.fab',root),panel=$('.tpanel',root),log=$('.tlog',root),box=$('#tbox',root),send=$('#tsend',root),ctxBox=$('#tctx',root);
+  let turns=[],busy=false,ctl=null,dead=false;
+  const key=()=>'commonplace-tutor-'+((curView&&curView.cid)||'general');
+  const loadT=()=>{try{turns=JSON.parse(localStorage.getItem(key())||'[]');if(!Array.isArray(turns))turns=[]}catch(e){turns=[]}};
+  const saveT=()=>{try{localStorage.setItem(key(),JSON.stringify(turns.slice(-30)))}catch(e){}};
+  const label=()=>{const v=curView||{};if(v.v==='lecture')return 'Lecture '+v.n+(lectureTab!=='read'?' ('+lectureTab+')':'');if(v.v==='course')return COURSE[v.cid].title;if(v.v==='review')return 'Review';return 'Library'};
+  const subject=()=>{const v=curView||{};return v.cid?COURSE[v.cid].title+' · '+COURSE[v.cid].professor:'all your courses'};
+  const RULES=()=>`You are a sharp, patient tutor inside "The Commonplace", a personal study app where an adult lifelong learner reviews The Great Courses lectures so the ideas stick. Current course: ${subject()}.
+How to answer:
+- Plain American English, short sentences, like a smart friend. Define any technical term the first time.
+- Ground answers in the course material on screen when it's included; if your general knowledge differs, say so and follow the course, noting the difference.
+- Push for understanding: connect ideas to the learner's real life and work, and when useful end with one quick question that makes them retrieve or apply the idea.
+- If they ask you to quiz them, ask one question at a time and wait.
+- Be honest: if something is outside the course or uncertain, say so.
+- Under about 220 words unless asked for more. Simple formatting only: short paragraphs, "- " bullets, numbered steps, **bold** for key terms. No tables.`;
+  const screen=()=>{if(!ctxBox.checked)return '';let t='';try{t=$('#main').innerText}catch(e){}t=t.replace(/\n{3,}/g,'\n\n').trim();if(t.length>9000)t=t.slice(0,9000)+'\n[…]';return t?`\n\nWhat the learner sees on screen (${label()}):\n"""\n${t}\n"""`:''};
+  const bubble=(cls,html)=>{const d=document.createElement('div');d.className='msg '+cls;d.innerHTML=html;log.appendChild(d);log.scrollTop=log.scrollHeight;return d};
+  const acts=(d,q,a)=>{const w=document.createElement('div');w.className='acts';w.innerHTML='<button class="btn small">Add to my notes</button><button class="btn small">Copy</button>';
+    const [nb,cb]=$$('button',w);
+    nb.onclick=()=>{const v=curView||{};if(v.v!=='lecture'){nb.textContent='Open a lecture to save notes';return}appendNote(v.cid,v.n,'— Tutor —\nQ: '+q.trim()+'\n'+plain(a).trim());nb.textContent='Added ✓';nb.disabled=true};
+    cb.onclick=()=>{navigator.clipboard.writeText(plain(a)).then(()=>cb.textContent='Copied',()=>cb.textContent='Copy blocked')};d.appendChild(w)};
+  const draw=()=>{log.innerHTML='';
+    if(!turns.length){const sug=['Explain this lecture like I\'m new to it','Give me a real-world example from my own life','Quiz me with 3 questions, one at a time','How does this connect to earlier lectures?'];
+      log.innerHTML=`<div class="muted" style="font-size:14px"><b style="color:var(--ink)">Stuck, or want to go deeper?</b> Ask in your own words. With "Include what's on my screen" on, I can see the lecture you're on.<div class="chips">${sug.map(s=>`<button type="button">${s}</button>`).join('')}</div></div>`;
+      $$('.chips button',log).forEach(b=>b.onclick=()=>{box.value=b.textContent;ask()});return}
+    let lastQ='';turns.forEach(t=>{if(t.role==='user'){lastQ=t.content;bubble('u',esc(t.content))}else{const d=bubble('a',md(t.content));acts(d,lastQ,t.content)}})};
+  const setBusy=b=>{busy=b;send.textContent=b?'Stop':'Send'};
+  const MSG={not_granted:'The tutor needs permission to use Claude. Reload the page to be asked again.',rate_limited:'Too many questions at once. Wait a minute.',sampling_disabled:'Claude isn\'t available for this account right now.'};
+  async function ask(){
+    if(busy){ctl&&ctl.abort();return}
+    const q=box.value.trim();if(!q||!sampleApi||dead)return;
+    if(!turns.length)log.innerHTML='';box.value='';
+    turns.push({role:'user',content:q});saveT();bubble('u',esc(q));const d=bubble('a think','Thinking…');setBusy(true);ctl=new AbortController();
+    const hist=turns.slice(-16);while(hist.length&&hist[0].role!=='user')hist.shift();
+    try{const {text,truncated}=await sampleApi([{role:'user',content:RULES()+screen()},{role:'assistant',content:'Understood.'},...hist],{cache:false,signal:ctl.signal,onText:({text})=>{d.className='msg a';d.innerHTML=md(text);log.scrollTop=log.scrollHeight}});
+      d.className='msg a';d.innerHTML=md(text);turns.push({role:'assistant',content:text});saveT();acts(d,q,text);
+      if(truncated)bubble('terr','The answer was cut short. Ask "continue".');
+    }catch(e){const code=(e&&e.code)||'error';if(e&&e.text){d.className='msg a';d.innerHTML=md(e.text);turns.push({role:'assistant',content:e.text});saveT()}else d.remove();
+      if(code!=='cancelled'){const m=document.createElement('div');m.className='terr';m.textContent=MSG[code]||'Something went wrong. Try again.';log.appendChild(m)}
+      if(['not_granted','sampling_disabled','not_declared','capability_disabled'].includes(code)){dead=true;send.disabled=true}}
+    finally{ctl=null;setBusy(false)}
+  }
+  box.addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();ask()}});
+  box.addEventListener('input',()=>{box.style.height='auto';box.style.height=Math.min(140,box.scrollHeight)+'px'});
+  send.onclick=ask;
+  function open(prefill){loadT();panel.hidden=false;fab.hidden=true;$('#tctxl').textContent='Include what\'s on my screen: '+label();$('#tsub').textContent=subject();draw();if(prefill)box.value=prefill;setTimeout(()=>box.focus(),30)}
+  function close(){panel.hidden=true;fab.hidden=!sampleApi;ctl&&ctl.abort()}
+  fab.onclick=()=>open();$('[data-act=close]',root).onclick=close;$('[data-act=new]',root).onclick=()=>{ctl&&ctl.abort();turns=[];saveT();draw();box.focus()};
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden)close()});
+  document.addEventListener('sample-ready',()=>{fab.hidden=!sampleApi||!panel.hidden});
+  return {ask:q=>{if(!sampleApi||dead){toast('The tutor isn\'t available in this view');return}open(q);ask()}};
+})();
+
+/* ================= Boot ================= */
+render();refreshChrome();setSync('checking');
+initDb();initSample();
+</script>

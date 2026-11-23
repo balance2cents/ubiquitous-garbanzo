@@ -556,6 +556,7 @@ function vToday(){
           <div class="row"><span class="dot"></span><b>${l.name}</b><span class="num muted" style="font-size:.85rem">${h(tv)} today</span></div>
           <div class="row" style="gap:6px"><button class="mini" data-act="log" data-lane="${l.id}" data-d="-0.5" aria-label="Remove 30 minutes">−½</button><button class="mini" data-act="log" data-lane="${l.id}" data-d="0.5">+½h</button><button class="mini" data-act="log" data-lane="${l.id}" data-d="1">+1h</button></div>
           <div class="meta"><div class="bar"><i style="width:${p?Math.min(100,a/p*100):0}%"></i></div><span class="num">${h(a)} / ${h(p)}</span></div>
+          ${l.id==="other"?`<a class="study-link" style="grid-column:1 / -1;justify-self:start;margin-top:2px" href="https://claude.ai/artifact/QLQ1tnHQbotSfiupicEFSx" target="_blank" rel="noopener">Open The Commonplace, your Great Courses hub <span aria-hidden="true">↗</span></a>`:""}
         </div>`;}).join("")}
     </section>
   </div>
